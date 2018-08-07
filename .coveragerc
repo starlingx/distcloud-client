@@ -1,0 +1,7 @@
+[run]
+branch = True
+source = dcmanagerclient
+omit = dcmanagerclient/openstack/*
+
+[report]
+ignore_errors = True
