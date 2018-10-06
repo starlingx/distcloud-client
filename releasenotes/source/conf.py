@@ -93,7 +93,7 @@ pygments_style = 'sphinx'
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = 'openstackdocs'
+html_theme = 'alabaster'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -191,8 +191,13 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    ('index', 'stx-distcloud-clientreleasenotes.tex', u'stx-distcloud-client Release Notes',
-     u'StarlingX', 'manual'),
+    (
+        'index',
+        'stx-distcloud-clientreleasenotes.tex',
+        u'stx-distcloud-client Release Notes',
+        u'StarlingX',
+        'manual',
+    ),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -221,8 +226,13 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'stx-distcloud-clientreleasenotes', u'stx-distcloud-client Release Notes',
-     [u'StarlingX'], 1)
+    (
+        'index',
+        'stx-distcloud-clientreleasenotes',
+        u'stx-distcloud-client Release Notes',
+        [u'StarlingX'],
+        1,
+    )
 ]
 
 # If true, show URL addresses after external links.
@@ -235,10 +245,15 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    ('index', 'stx-distcloud-clientReleaseNotes', u'stx-distcloud-client Release Notes',
-     u'StarlingX', 'stx-distcloud-clientreleasenotes',
-     'StarlingX Distributed Cloud Client',
-     'Miscellaneous'),
+    (
+        'index',
+        'stx-distcloud-clientReleaseNotes',
+        u'stx-distcloud-client Release Notes',
+        u'StarlingX',
+        'stx-distcloud-clientreleasenotes',
+        'StarlingX Distributed Cloud Client',
+        'Miscellaneous',
+    ),
 ]
 
 # Documents to append as an appendix to all manuals.
