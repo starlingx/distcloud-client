@@ -7,6 +7,14 @@ StarlingX Distributed Cloud Client
    :maxdepth: 2
    :caption: Contents:
 
+Release Notes
+-------------
+
+.. toctree::
+   :maxdepth: 1
+
+   Release Notes <https://docs.starlingx.io/releasenotes/stx-distcloud-client>
+
 Links
 =====
 

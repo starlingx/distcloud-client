@@ -5,3 +5,5 @@ stx-distcloud-client Release Notes
    :maxdepth: 2
 
    unreleased
+
+:ref:`search`
