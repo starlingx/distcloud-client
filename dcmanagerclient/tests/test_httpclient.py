@@ -89,6 +89,7 @@ class HTTPClientTest(testtools.TestCase):
         mock.MagicMock(return_value=FakeResponse('get', EXPECTED_URL, 200))
     )
     def test_get_request_options(self):
+        osprofiler.profiler.clean()
         self.client.get(API_URL)
 
         requests.get.assert_called_with(
@@ -130,16 +131,15 @@ class HTTPClientTest(testtools.TestCase):
         mock.MagicMock(return_value=FakeResponse('get', EXPECTED_URL, 200))
     )
     def test_get_request_options_with_profile_enabled(self):
+        osprofiler.profiler.clean()
         osprofiler.profiler.init(PROFILER_HMAC_KEY)
 
         data = {'base_id': PROFILER_TRACE_ID, 'parent_id': PROFILER_TRACE_ID}
         signed_data = osprofiler_utils.signed_pack(data, PROFILER_HMAC_KEY)
-
         headers = {
             'X-Trace-Info': signed_data[0],
             'X-Trace-HMAC': signed_data[1]
         }
-
         self.client.get(API_URL)
 
         expected_options = copy.deepcopy(EXPECTED_REQ_OPTIONS)

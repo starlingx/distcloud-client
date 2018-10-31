@@ -229,7 +229,7 @@ class DeleteSubcloud(command.Command):
         try:
             dcmanager_client.subcloud_manager.delete_subcloud(subcloud_ref)
         except Exception as e:
-            print (e)
+            print(e)
             error_msg = "Unable to delete subcloud %s" % (subcloud_ref)
             raise exceptions.DCManagerClientException(error_msg)
 
@@ -258,7 +258,7 @@ class UnmanageSubcloud(base.DCManagerShowOne):
             return dcmanager_client.subcloud_manager.update_subcloud(
                 subcloud_ref, **kwargs)
         except Exception as e:
-            print (e)
+            print(e)
             error_msg = "Unable to unmanage subcloud %s" % (subcloud_ref)
             raise exceptions.DCManagerClientException(error_msg)
 
@@ -287,7 +287,7 @@ class ManageSubcloud(base.DCManagerShowOne):
             return dcmanager_client.subcloud_manager.update_subcloud(
                 subcloud_ref, **kwargs)
         except Exception as e:
-            print (e)
+            print(e)
             error_msg = "Unable to manage subcloud %s" % (subcloud_ref)
             raise exceptions.DCManagerClientException(error_msg)
 
@@ -336,7 +336,7 @@ class UpdateSubcloud(base.DCManagerShowOne):
             return dcmanager_client.subcloud_manager.update_subcloud(
                 subcloud_ref, **kwargs)
         except Exception as e:
-            print (e)
+            print(e)
             error_msg = "Unable to update subcloud %s" % (subcloud_ref)
             raise exceptions.DCManagerClientException(error_msg)
 
@@ -467,7 +467,7 @@ class GenerateConfigSubcloud(command.Command):
             return subcloud_config
 
         except Exception as e:
-            print (e)
+            print(e)
             error_msg = "Unable to generate config for subcloud %s" % \
                         (subcloud_ref)
             raise exceptions.DCManagerClientException(error_msg)

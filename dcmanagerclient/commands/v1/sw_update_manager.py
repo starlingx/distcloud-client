@@ -189,7 +189,7 @@ class DeletePatchStrategy(base.DCManagerShowOne):
         try:
             return dcmanager_client.sw_update_manager.delete_patch_strategy()
         except Exception as e:
-            print (e)
+            print(e)
             error_msg = "Unable to delete patch strategy"
             raise exceptions.DCManagerClientException(error_msg)
 
@@ -209,7 +209,7 @@ class ApplyPatchStrategy(base.DCManagerShowOne):
         try:
             return dcmanager_client.sw_update_manager.apply_patch_strategy()
         except Exception as e:
-            print (e)
+            print(e)
             error_msg = "Unable to apply patch strategy"
             raise exceptions.DCManagerClientException(error_msg)
 
@@ -229,7 +229,7 @@ class AbortPatchStrategy(base.DCManagerShowOne):
         try:
             return dcmanager_client.sw_update_manager.abort_patch_strategy()
         except Exception as e:
-            print (e)
+            print(e)
             error_msg = "Unable to abort patch strategy"
             raise exceptions.DCManagerClientException(error_msg)
 

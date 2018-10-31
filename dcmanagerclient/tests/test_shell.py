@@ -33,7 +33,7 @@ class TestShell(base.BaseShellTests):
         )
         self.assertTrue(mock.called)
         dcmanager_version = mock.call_args
-        self.assertEqual('v1', dcmanager_version[0][0])
+        self.assertEqual('v1.0', dcmanager_version[0][0])
 
     @mock.patch('dcmanagerclient.api.client.determine_client_version')
     def test_default_dcmanager_version(self, mock):
@@ -89,7 +89,7 @@ class TestShell(base.BaseShellTests):
 
     @mock.patch('dcmanagerclient.api.client.client')
     def test_kb_endpoint_type(self, mock):
-        self.shell('--os-dcmanager-endpoint-type=adminURL quota-defaults')
+        self.shell('--os-endpoint-type=adminURL quota-defaults')
         self.assertTrue(mock.called)
         params = mock.call_args
         self.assertEqual('adminURL', params[1]['endpoint_type'])
@@ -123,11 +123,11 @@ class TestShell(base.BaseShellTests):
     @mock.patch('dcmanagerclient.api.client.client')
     def test_command_with_dcmanager_url(self, mock):
         self.shell(
-            '--os-dcmanager-url=http://localhost:8118/v1 quota-defaults'
+            '--dcmanager-url=http://localhost:8118/v1.0 quota-defaults'
         )
         self.assertTrue(mock.called)
         params = mock.call_args
-        self.assertEqual('http://localhost:8118/v1',
+        self.assertEqual('http://localhost:8118/v1.0',
                          params[1]['dcmanager_url'])
 
     @mock.patch('dcmanagerclient.api.client.client')

@@ -151,7 +151,7 @@ class UpdateSwUpdateOptions(base.DCManagerShowOne):
             return dcmanager_client.sw_update_options_manager.\
                 sw_update_options_update(subcloud_ref, **kwargs)
         except Exception as e:
-            print (e)
+            print(e)
             error_msg = "Unable to update patch options for subcloud %s" % \
                 (subcloud_ref)
             raise exceptions.DCManagerClientException(error_msg)
@@ -218,6 +218,6 @@ class DeleteSwUpdateOptions(command.Command):
             return dcmanager_client.sw_update_options_manager.\
                 sw_update_options_delete(subcloud_ref)
         except Exception as e:
-            print (e)
+            print(e)
             error_msg = "Unable to delete patch options"
             raise exceptions.DCManagerClientException(error_msg)
