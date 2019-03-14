@@ -377,6 +377,30 @@ class GenerateConfigSubcloud(command.Command):
         )
 
         parser.add_argument(
+            '--cluster-vlan',
+            required=False,
+            help='VLAN for subcloud cluster network.'
+        )
+
+        parser.add_argument(
+            '--cluster-interface-port',
+            required=False,
+            help='Subcloud cluster interface port.'
+        )
+
+        parser.add_argument(
+            '--cluster-interface-mtu',
+            required=False,
+            help='Subcloud cluster interface mtu.'
+        )
+
+        parser.add_argument(
+            '--cluster-subnet',
+            required=False,
+            help='Cluster subnet for subcloud in CIDR format.'
+        )
+
+        parser.add_argument(
             '--oam-subnet',
             required=False,
             help='OAM subnet for subcloud in CIDR format.'
@@ -444,6 +468,17 @@ class GenerateConfigSubcloud(command.Command):
         if parsed_args.management_interface_mtu:
             kwargs['management-interface-mtu'] = \
                 parsed_args.management_interface_mtu
+        if parsed_args.cluster_vlan:
+            kwargs['cluster-vlan'] = \
+                parsed_args.cluster_vlan
+        if parsed_args.cluster_interface_port:
+            kwargs['cluster-interface-port'] = \
+                parsed_args.cluster_interface_port
+        if parsed_args.cluster_interface_mtu:
+            kwargs['cluster-interface-mtu'] = \
+                parsed_args.cluster_interface_mtu
+        if parsed_args.cluster_subnet:
+            kwargs['cluster-subnet'] = parsed_args.cluster_subnet
         if parsed_args.oam_subnet:
             kwargs['oam-subnet'] = parsed_args.oam_subnet
         if parsed_args.oam_gateway_ip:
