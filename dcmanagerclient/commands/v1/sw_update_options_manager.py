@@ -32,8 +32,8 @@ def options_detail_format(sw_update_options=None):
     columns = (
         'cloud',
         'storage apply type',
-        'compute apply type',
-        'max parallel computes',
+        'worker apply type',
+        'max parallel workers',
         'alarm restriction type',
         'default instance action',
         'created_at',
@@ -44,8 +44,8 @@ def options_detail_format(sw_update_options=None):
         data = (
             sw_update_options.cloud,
             sw_update_options.storage_apply_type,
-            sw_update_options.compute_apply_type,
-            sw_update_options.max_parallel_computes,
+            sw_update_options.worker_apply_type,
+            sw_update_options.max_parallel_workers,
             sw_update_options.alarm_restriction_type,
             sw_update_options.default_instance_action,
             sw_update_options.created_at,
@@ -61,8 +61,8 @@ def options_list_format(sw_update_option=None):
     columns = (
         'cloud',
         'storage apply type',
-        'compute apply type',
-        'max parallel computes',
+        'worker apply type',
+        'max parallel workers',
         'alarm restriction type',
         'default instance action',
     )
@@ -71,8 +71,8 @@ def options_list_format(sw_update_option=None):
         data = (
             sw_update_option.cloud,
             sw_update_option.storage_apply_type,
-            sw_update_option.compute_apply_type,
-            sw_update_option.max_parallel_computes,
+            sw_update_option.worker_apply_type,
+            sw_update_option.max_parallel_workers,
             sw_update_option.alarm_restriction_type,
             sw_update_option.default_instance_action,
         )
@@ -100,17 +100,17 @@ class UpdateSwUpdateOptions(base.DCManagerShowOne):
         )
 
         parser.add_argument(
-            '--compute-apply-type',
+            '--worker-apply-type',
             required=True,
             choices=['parallel', 'serial'],
             help='Compute node apply type (parallel or serial).'
         )
 
         parser.add_argument(
-            '--max-parallel-computes',
+            '--max-parallel-workers',
             required=True,
             type=int,
-            help='Maximum number of parallel computes.'
+            help='Maximum number of parallel workers.'
         )
 
         parser.add_argument(
@@ -142,8 +142,8 @@ class UpdateSwUpdateOptions(base.DCManagerShowOne):
         dcmanager_client = self.app.client_manager.sw_update_options_manager
         kwargs = dict()
         kwargs['storage-apply-type'] = parsed_args.storage_apply_type
-        kwargs['compute-apply-type'] = parsed_args.compute_apply_type
-        kwargs['max-parallel-computes'] = parsed_args.max_parallel_computes
+        kwargs['worker-apply-type'] = parsed_args.worker_apply_type
+        kwargs['max-parallel-workers'] = parsed_args.max_parallel_workers
         kwargs['alarm-restriction-type'] = parsed_args.alarm_restriction_type
         kwargs['default-instance-action'] = parsed_args.default_instance_action
 

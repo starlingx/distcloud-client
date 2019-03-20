@@ -31,15 +31,15 @@ DEFAULT_REGION_NAME = "RegionOne"
 class SwUpdateOptions(base.Resource):
     resource_name = 'sw_update_options'
 
-    def __init__(self, manager, cloud, storage_apply_type, compute_apply_type,
-                 max_parallel_computes, alarm_restriction_type,
+    def __init__(self, manager, cloud, storage_apply_type, worker_apply_type,
+                 max_parallel_workers, alarm_restriction_type,
                  default_instance_action,
                  created_at, updated_at):
         self.manager = manager
         self.cloud = cloud
         self.storage_apply_type = storage_apply_type
-        self.compute_apply_type = compute_apply_type
-        self.max_parallel_computes = max_parallel_computes
+        self.worker_apply_type = worker_apply_type
+        self.max_parallel_workers = max_parallel_workers
         self.alarm_restriction_type = alarm_restriction_type
         self.default_instance_action = default_instance_action
         self.created_at = created_at
@@ -86,8 +86,8 @@ class sw_update_options_manager(base.ResourceManager):
                 self,
                 cloud=json_object['name'],
                 storage_apply_type=json_object['storage-apply-type'],
-                compute_apply_type=json_object['compute-apply-type'],
-                max_parallel_computes=json_object['max-parallel-computes'],
+                worker_apply_type=json_object['worker-apply-type'],
+                max_parallel_workers=json_object['max-parallel-workers'],
                 alarm_restriction_type=json_object['alarm-restriction-type'],
                 default_instance_action=json_object['default-instance-action'],
                 created_at=json_object['created-at'],
@@ -107,8 +107,8 @@ class sw_update_options_manager(base.ResourceManager):
                     self,
                     cloud=json_object['name'],
                     storage_apply_type=json_object['storage-apply-type'],
-                    compute_apply_type=json_object['compute-apply-type'],
-                    max_parallel_computes=json_object['max-parallel-computes'],
+                    worker_apply_type=json_object['worker-apply-type'],
+                    max_parallel_workers=json_object['max-parallel-workers'],
                     alarm_restriction_type=json_object[
                         'alarm-restriction-type'],
                     default_instance_action=json_object[
@@ -134,8 +134,8 @@ class sw_update_options_manager(base.ResourceManager):
                 self,
                 cloud=json_object['name'],
                 storage_apply_type=json_object['storage-apply-type'],
-                compute_apply_type=json_object['compute-apply-type'],
-                max_parallel_computes=json_object['max-parallel-computes'],
+                worker_apply_type=json_object['worker-apply-type'],
+                max_parallel_workers=json_object['max-parallel-workers'],
                 alarm_restriction_type=json_object['alarm-restriction-type'],
                 default_instance_action=json_object['default-instance-action'],
                 created_at=json_object['created-at'],
