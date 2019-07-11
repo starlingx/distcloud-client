@@ -19,8 +19,10 @@
 # of an applicable Wind River license agreement.
 #
 
-import copy
 import mock
+import os
+import tempfile
+import yaml
 
 from oslo_utils import timeutils
 
@@ -28,20 +30,26 @@ from dcmanagerclient.api.v1 import subcloud_manager as sm
 from dcmanagerclient.commands.v1 import subcloud_manager as subcloud_cmd
 from dcmanagerclient.tests import base
 
+BOOTSTRAP_ADDRESS = '10.10.10.12'
 TIME_NOW = timeutils.utcnow().isoformat()
 ID = '1'
 ID_1 = '2'
 NAME = 'subcloud1'
+SYSTEM_MODE = "duplex"
 DESCRIPTION = 'subcloud1 description'
 LOCATION = 'subcloud1 location'
 SOFTWARE_VERSION = '12.34'
 MANAGEMENT_STATE = 'unmanaged'
 AVAILABILITY_STATUS = 'offline'
+DEPLOY_STATUS = 'not-deployed'
 MANAGEMENT_SUBNET = '192.168.101.0/24'
 MANAGEMENT_START_IP = '192.168.101.2'
 MANAGEMENT_END_IP = '192.168.101.50'
 MANAGEMENT_GATEWAY_IP = '192.168.101.1'
 SYSTEMCONTROLLER_GATEWAY_IP = '192.168.204.101'
+EXTERNAL_OAM_SUBNET = "10.10.10.0/24"
+EXTERNAL_OAM_GATEWAY_ADDRESS = "10.10.10.1"
+EXTERNAL_OAM_FLOATING_ADDRESS = "10.10.10.12"
 
 SUBCLOUD_DICT = {
     'SUBCLOUD_ID': ID,
@@ -51,6 +59,7 @@ SUBCLOUD_DICT = {
     'SOFTWARE_VERSION': SOFTWARE_VERSION,
     'MANAGEMENT_STATE': MANAGEMENT_STATE,
     'AVAILABILITY_STATUS': AVAILABILITY_STATUS,
+    'DEPLOY_STATUS': DEPLOY_STATUS,
     'MANAGEMENT_SUBNET': MANAGEMENT_SUBNET,
     'MANAGEMENT_START_IP': MANAGEMENT_START_IP,
     'MANAGEMENT_END_IP': MANAGEMENT_END_IP,
@@ -69,6 +78,7 @@ SUBCLOUD = sm.Subcloud(
     software_version=SUBCLOUD_DICT['SOFTWARE_VERSION'],
     management_state=SUBCLOUD_DICT['MANAGEMENT_STATE'],
     availability_status=SUBCLOUD_DICT['AVAILABILITY_STATUS'],
+    deploy_status=SUBCLOUD_DICT['DEPLOY_STATUS'],
     management_subnet=SUBCLOUD_DICT['MANAGEMENT_SUBNET'],
     management_start_ip=SUBCLOUD_DICT['MANAGEMENT_START_IP'],
     management_end_ip=SUBCLOUD_DICT['MANAGEMENT_END_IP'],
@@ -84,13 +94,13 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
         self.client.subcloud_manager.list_subclouds.return_value = [SUBCLOUD]
         actual_call = self.call(subcloud_cmd.ListSubcloud)
         self.assertEqual([(ID, NAME, MANAGEMENT_STATE, AVAILABILITY_STATUS,
-                           "unknown")],
+                           DEPLOY_STATUS, "unknown")],
                          actual_call[1])
 
     def test_negative_list_subclouds(self):
         self.client.subcloud_manager.list_subclouds.return_value = []
         actual_call = self.call(subcloud_cmd.ListSubcloud)
-        self.assertEqual((('<none>', '<none>', '<none>', '<none>',
+        self.assertEqual((('<none>', '<none>', '<none>', '<none>', '<none>',
                            '<none>'),),
                          actual_call[1])
 
@@ -113,6 +123,7 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
                           SOFTWARE_VERSION,
                           MANAGEMENT_STATE,
                           AVAILABILITY_STATUS,
+                          DEPLOY_STATUS,
                           MANAGEMENT_SUBNET,
                           MANAGEMENT_START_IP,
                           MANAGEMENT_END_IP,
@@ -127,62 +138,42 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
         self.assertEqual((('<none>', '<none>', '<none>', '<none>',
                            '<none>', '<none>', '<none>', '<none>',
                            '<none>', '<none>', '<none>', '<none>',
-                           '<none>', '<none>'),),
+                           '<none>', '<none>', '<none>'),),
                          actual_call[1])
 
-    def test_add_subcloud(self):
+    @mock.patch('getpass.getpass', return_value='testpassword')
+    def test_add_subcloud(self, getpass):
         self.client.subcloud_manager.add_subcloud.\
             return_value = [SUBCLOUD]
-        actual_call = self.call(
-            subcloud_cmd.AddSubcloud, app_args=[
-                '--name', NAME,
-                '--description', DESCRIPTION,
-                '--location', LOCATION,
-                '--management-subnet', MANAGEMENT_SUBNET,
-                '--management-start-ip', MANAGEMENT_START_IP,
-                '--management-end-ip', MANAGEMENT_END_IP,
-                '--management-gateway-ip', MANAGEMENT_GATEWAY_IP,
-                '--systemcontroller-gateway-ip', SYSTEMCONTROLLER_GATEWAY_IP])
+
+        values = {
+            "system_mode": SYSTEM_MODE,
+            "name": NAME,
+            "description": DESCRIPTION,
+            "location": LOCATION,
+            "management_subnet": MANAGEMENT_SUBNET,
+            "management_start_address": MANAGEMENT_START_IP,
+            "management_end_address": MANAGEMENT_END_IP,
+            "management_gateway_address": MANAGEMENT_GATEWAY_IP,
+            "external_oam_subnet": EXTERNAL_OAM_SUBNET,
+            "external_oam_gateway_address": EXTERNAL_OAM_GATEWAY_ADDRESS,
+            "external_oam_floating_address": EXTERNAL_OAM_FLOATING_ADDRESS,
+        }
+
+        with tempfile.NamedTemporaryFile() as f:
+            yaml.dump(values, f)
+            file_path = os.path.abspath(f.name)
+            actual_call = self.call(
+                subcloud_cmd.AddSubcloud, app_args=[
+                    '--bootstrap-address', BOOTSTRAP_ADDRESS,
+                    '--bootstrap-values', file_path,
+                ])
         self.assertEqual((ID, NAME, DESCRIPTION, LOCATION, SOFTWARE_VERSION,
-                          MANAGEMENT_STATE, AVAILABILITY_STATUS,
+                          MANAGEMENT_STATE, AVAILABILITY_STATUS, DEPLOY_STATUS,
                           MANAGEMENT_SUBNET, MANAGEMENT_START_IP,
                           MANAGEMENT_END_IP, MANAGEMENT_GATEWAY_IP,
                           SYSTEMCONTROLLER_GATEWAY_IP,
                           TIME_NOW, TIME_NOW), actual_call[1])
-
-    def test_add_subcloud_no_optional_parameters(self):
-        subcloud = copy.copy(SUBCLOUD)
-        subcloud.description = ''
-        subcloud.location = ''
-        self.client.subcloud_manager.add_subcloud.\
-            return_value = [subcloud]
-        actual_call = self.call(
-            subcloud_cmd.AddSubcloud, app_args=[
-                '--name', NAME,
-                '--management-subnet', MANAGEMENT_SUBNET,
-                '--management-start-ip', MANAGEMENT_START_IP,
-                '--management-end-ip', MANAGEMENT_END_IP,
-                '--management-gateway-ip', MANAGEMENT_GATEWAY_IP,
-                '--systemcontroller-gateway-ip', SYSTEMCONTROLLER_GATEWAY_IP])
-        self.assertEqual((ID, NAME, '', '', SOFTWARE_VERSION,
-                          MANAGEMENT_STATE, AVAILABILITY_STATUS,
-                          MANAGEMENT_SUBNET, MANAGEMENT_START_IP,
-                          MANAGEMENT_END_IP, MANAGEMENT_GATEWAY_IP,
-                          SYSTEMCONTROLLER_GATEWAY_IP,
-                          TIME_NOW, TIME_NOW), actual_call[1])
-
-    def test_add_subcloud_without_name(self):
-        self.client.subcloud_manager.add_subcloud.\
-            return_value = [SUBCLOUD]
-        self.assertRaises(
-            SystemExit, self.call, subcloud_cmd.AddSubcloud, app_args=[
-                '--description', DESCRIPTION,
-                '--location', LOCATION,
-                '--management-subnet', MANAGEMENT_SUBNET,
-                '--management-start-ip', MANAGEMENT_START_IP,
-                '--management-end-ip', MANAGEMENT_END_IP,
-                '--management-gateway-ip', MANAGEMENT_GATEWAY_IP,
-                '--systemcontroller-gateway-ip', SYSTEMCONTROLLER_GATEWAY_IP])
 
     def test_unmanage_subcloud(self):
         self.client.subcloud_manager.update_subcloud.\
@@ -192,7 +183,7 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
         self.assertEqual((ID, NAME,
                           DESCRIPTION, LOCATION,
                           SOFTWARE_VERSION, MANAGEMENT_STATE,
-                          AVAILABILITY_STATUS,
+                          AVAILABILITY_STATUS, DEPLOY_STATUS,
                           MANAGEMENT_SUBNET, MANAGEMENT_START_IP,
                           MANAGEMENT_END_IP, MANAGEMENT_GATEWAY_IP,
                           SYSTEMCONTROLLER_GATEWAY_IP,
@@ -210,7 +201,7 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
         self.assertEqual((ID, NAME,
                           DESCRIPTION, LOCATION,
                           SOFTWARE_VERSION, MANAGEMENT_STATE,
-                          AVAILABILITY_STATUS,
+                          AVAILABILITY_STATUS, DEPLOY_STATUS,
                           MANAGEMENT_SUBNET, MANAGEMENT_START_IP,
                           MANAGEMENT_END_IP, MANAGEMENT_GATEWAY_IP,
                           SYSTEMCONTROLLER_GATEWAY_IP,
@@ -231,20 +222,8 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
         self.assertEqual((ID, NAME,
                           DESCRIPTION, LOCATION,
                           SOFTWARE_VERSION, MANAGEMENT_STATE,
-                          AVAILABILITY_STATUS,
+                          AVAILABILITY_STATUS, DEPLOY_STATUS,
                           MANAGEMENT_SUBNET, MANAGEMENT_START_IP,
                           MANAGEMENT_END_IP, MANAGEMENT_GATEWAY_IP,
                           SYSTEMCONTROLLER_GATEWAY_IP,
                           TIME_NOW, TIME_NOW), actual_call[1])
-
-    def test_generate_config_subcloud(self):
-        FAKE_CONFIG = "This is a fake config file."
-        self.client.subcloud_manager.generate_config_subcloud.\
-            return_value = FAKE_CONFIG
-        actual_call = self.call(
-            subcloud_cmd.GenerateConfigSubcloud, app_args=[ID])
-        self.assertEqual(FAKE_CONFIG, actual_call)
-
-    def test_generate_config_subcloud_without_subcloud_id(self):
-        self.assertRaises(SystemExit, self.call,
-                          subcloud_cmd.GenerateConfigSubcloud, app_args=[])

@@ -12,12 +12,16 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 #
-# Copyright (c) 2017 Wind River Systems, Inc.
+# Copyright (c) 2017-2019 Wind River Systems, Inc.
 #
 # The right to copy, distribute, modify, or otherwise make use
 # of this software may be licensed only pursuant to the terms
 # of an applicable Wind River license agreement.
 #
+
+import getpass
+import os
+import yaml
 
 from osc_lib.command import command
 
@@ -31,6 +35,7 @@ def format(subcloud=None):
         'name',
         'management',
         'availability',
+        'deploy status',
         'sync'
     )
 
@@ -40,6 +45,7 @@ def format(subcloud=None):
             subcloud.name,
             subcloud.management_state,
             subcloud.availability_status,
+            subcloud.deploy_status,
             subcloud.sync_status
         )
 
@@ -58,6 +64,7 @@ def detail_format(subcloud=None):
         'software_version',
         'management',
         'availability',
+        'deploy_status',
         'management_subnet',
         'management_start_ip',
         'management_end_ip',
@@ -76,6 +83,7 @@ def detail_format(subcloud=None):
             subcloud.software_version,
             subcloud.management_state,
             subcloud.availability_status,
+            subcloud.deploy_status,
             subcloud.management_subnet,
             subcloud.management_start_ip,
             subcloud.management_end_ip,
@@ -108,51 +116,21 @@ class AddSubcloud(base.DCManagerShowOne):
         parser = super(AddSubcloud, self).get_parser(parsed_args)
 
         parser.add_argument(
-            '--name',
+            '--bootstrap-address',
             required=True,
-            help='Name of subcloud.'
+            help='IP address for initial subcloud controller.'
         )
 
         parser.add_argument(
-            '--description',
+            '--bootstrap-values',
+            required=True,
+            help='YAML file containing subcloud configuration settings.'
+        )
+
+        parser.add_argument(
+            '--subcloud-password',
             required=False,
-            help='Description of subcloud.'
-        )
-
-        parser.add_argument(
-            '--location',
-            required=False,
-            help='Location of subcloud.'
-        )
-
-        parser.add_argument(
-            '--management-subnet',
-            required=True,
-            help='Management subnet for subcloud in CIDR format.'
-        )
-
-        parser.add_argument(
-            '--management-start-ip',
-            required=True,
-            help='Start of management IP address range for subcloud'
-        )
-
-        parser.add_argument(
-            '--management-end-ip',
-            required=True,
-            help='End of management IP address range for subcloud',
-        )
-
-        parser.add_argument(
-            '--management-gateway-ip',
-            required=True,
-            help='Management gateway IP for subcloud',
-        )
-
-        parser.add_argument(
-            '--systemcontroller-gateway-ip',
-            required=True,
-            help='Central gateway IP',
+            help='sysadmin password of the subcloud to be configured.'
         )
 
         return parser
@@ -160,17 +138,39 @@ class AddSubcloud(base.DCManagerShowOne):
     def _get_resources(self, parsed_args):
         dcmanager_client = self.app.client_manager.subcloud_manager
         kwargs = dict()
-        kwargs['name'] = parsed_args.name
-        if parsed_args.description:
-            kwargs['description'] = parsed_args.description
-        if parsed_args.location:
-            kwargs['location'] = parsed_args.location
-        kwargs['management-subnet'] = parsed_args.management_subnet
-        kwargs['management-start-ip'] = parsed_args.management_start_ip
-        kwargs['management-end-ip'] = parsed_args.management_end_ip
-        kwargs['management-gateway-ip'] = parsed_args.management_gateway_ip
-        kwargs['systemcontroller-gateway-ip'] = \
-            parsed_args.systemcontroller_gateway_ip
+        kwargs['bootstrap-address'] = parsed_args.bootstrap_address
+
+        # Load the configuration from the yaml file
+        filename = parsed_args.bootstrap_values
+        if os.path.isdir(filename):
+            error_msg = "Error: %s is a directory." % filename
+            raise exceptions.DCManagerClientException(error_msg)
+        try:
+            with open(filename, 'rb') as stream:
+                kwargs.update(yaml.safe_load(stream))
+        except Exception:
+            error_msg = "Error: Could not open file %s." % filename
+            raise exceptions.DCManagerClientException(error_msg)
+
+        # Prompt the user for the subcloud's password if it isn't provided
+        if parsed_args.subcloud_password is not None:
+            kwargs['subcloud_password'] = parsed_args.subcloud_password
+        else:
+            while True:
+                password = getpass.getpass(
+                    "Enter the sysadmin password for the subcloud: ")
+                if len(password) < 1:
+                    print("Password cannot be empty")
+                    continue
+
+                confirm = getpass.getpass(
+                    "Re-enter sysadmin password to confirm: ")
+                if password != confirm:
+                    print("Passwords did not match")
+                    continue
+                kwargs["subcloud_password"] = password
+                break
+
         return dcmanager_client.subcloud_manager.add_subcloud(**kwargs)
 
 
@@ -338,171 +338,4 @@ class UpdateSubcloud(base.DCManagerShowOne):
         except Exception as e:
             print(e)
             error_msg = "Unable to update subcloud %s" % (subcloud_ref)
-            raise exceptions.DCManagerClientException(error_msg)
-
-
-class GenerateConfigSubcloud(command.Command):
-    """Generate configuration for a subcloud."""
-
-    def get_parser(self, prog_name):
-        parser = super(GenerateConfigSubcloud, self).get_parser(prog_name)
-
-        parser.add_argument(
-            'subcloud',
-            help='Name or ID of the subcloud to generate config.'
-        )
-
-        parser.add_argument(
-            '--pxe-subnet',
-            required=False,
-            help='PXE boot subnet for subcloud in CIDR format.'
-        )
-
-        parser.add_argument(
-            '--management-vlan',
-            required=False,
-            help='VLAN for subcloud management network.'
-        )
-
-        parser.add_argument(
-            '--management-interface-port',
-            required=False,
-            help='Subcloud management interface port.'
-        )
-
-        parser.add_argument(
-            '--management-interface-mtu',
-            required=False,
-            help='Subcloud management interface mtu.'
-        )
-
-        parser.add_argument(
-            '--cluster-vlan',
-            required=False,
-            help='VLAN for subcloud cluster network.'
-        )
-
-        parser.add_argument(
-            '--cluster-interface-port',
-            required=False,
-            help='Subcloud cluster interface port.'
-        )
-
-        parser.add_argument(
-            '--cluster-interface-mtu',
-            required=False,
-            help='Subcloud cluster interface mtu.'
-        )
-
-        parser.add_argument(
-            '--cluster-subnet',
-            required=False,
-            help='Cluster subnet for subcloud in CIDR format.'
-        )
-
-        parser.add_argument(
-            '--oam-subnet',
-            required=False,
-            help='OAM subnet for subcloud in CIDR format.'
-        )
-
-        parser.add_argument(
-            '--oam-gateway-ip',
-            required=False,
-            help='OAM gateway IP for subcloud.'
-        )
-
-        parser.add_argument(
-            '--oam-floating-ip',
-            required=False,
-            help='OAM floating IP address for subcloud.'
-        )
-
-        parser.add_argument(
-            '--oam-unit-0-ip',
-            required=False,
-            help='OAM unit 0 IP address for subcloud.'
-        )
-
-        parser.add_argument(
-            '--oam-unit-1-ip',
-            required=False,
-            help='OAM unit 1 IP address for subcloud.'
-        )
-
-        parser.add_argument(
-            '--oam-interface-port',
-            required=False,
-            help='Subcloud OAM interface port.'
-        )
-
-        parser.add_argument(
-            '--oam-interface-mtu',
-            required=False,
-            help='Subcloud OAM interface mtu.'
-        )
-
-        parser.add_argument(
-            '--system-mode',
-            required=False,
-            help='System mode',
-            choices=['simplex', 'duplex', 'duplex-direct']
-        )
-
-        return parser
-
-    def take_action(self, parsed_args):
-        subcloud_ref = parsed_args.subcloud
-        dcmanager_client = self.app.client_manager.subcloud_manager
-
-        kwargs = dict()
-        if parsed_args.pxe_subnet:
-            kwargs['pxe-subnet'] = \
-                parsed_args.pxe_subnet
-        if parsed_args.management_vlan:
-            kwargs['management-vlan'] = \
-                parsed_args.management_vlan
-        if parsed_args.management_interface_port:
-            kwargs['management-interface-port'] = \
-                parsed_args.management_interface_port
-        if parsed_args.management_interface_mtu:
-            kwargs['management-interface-mtu'] = \
-                parsed_args.management_interface_mtu
-        if parsed_args.cluster_vlan:
-            kwargs['cluster-vlan'] = \
-                parsed_args.cluster_vlan
-        if parsed_args.cluster_interface_port:
-            kwargs['cluster-interface-port'] = \
-                parsed_args.cluster_interface_port
-        if parsed_args.cluster_interface_mtu:
-            kwargs['cluster-interface-mtu'] = \
-                parsed_args.cluster_interface_mtu
-        if parsed_args.cluster_subnet:
-            kwargs['cluster-subnet'] = parsed_args.cluster_subnet
-        if parsed_args.oam_subnet:
-            kwargs['oam-subnet'] = parsed_args.oam_subnet
-        if parsed_args.oam_gateway_ip:
-            kwargs['oam-gateway-ip'] = parsed_args.oam_gateway_ip
-        if parsed_args.oam_floating_ip:
-            kwargs['oam-floating-ip'] = parsed_args.oam_floating_ip
-        if parsed_args.oam_unit_0_ip:
-            kwargs['oam-unit-0-ip'] = parsed_args.oam_unit_0_ip
-        if parsed_args.oam_unit_1_ip:
-            kwargs['oam-unit-1-ip'] = parsed_args.oam_unit_1_ip
-        if parsed_args.oam_interface_port:
-            kwargs['oam-interface-port'] = parsed_args.oam_interface_port
-        if parsed_args.oam_interface_mtu:
-            kwargs['oam-interface-mtu'] = parsed_args.oam_interface_mtu
-        if parsed_args.system_mode:
-            kwargs['system-mode'] = parsed_args.system_mode
-
-        try:
-            subcloud_config = dcmanager_client.subcloud_manager.\
-                generate_config_subcloud(subcloud_ref, **kwargs)
-            return subcloud_config
-
-        except Exception as e:
-            print(e)
-            error_msg = "Unable to generate config for subcloud %s" % \
-                        (subcloud_ref)
             raise exceptions.DCManagerClientException(error_msg)

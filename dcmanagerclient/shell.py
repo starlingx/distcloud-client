@@ -480,7 +480,6 @@ class DCManagerShell(app.App):
             'subcloud unmanage': sm.UnmanageSubcloud,
             'subcloud manage': sm.ManageSubcloud,
             'subcloud update': sm.UpdateSubcloud,
-            'subcloud generate-config': sm.GenerateConfigSubcloud,
             'alarm summary': am.ListAlarmSummary,
             'patch-strategy create': sum.CreatePatchStrategy,
             'patch-strategy delete': sum.DeletePatchStrategy,

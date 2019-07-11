@@ -13,7 +13,7 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 #
-# Copyright (c) 2017 Wind River Systems, Inc.
+# Copyright (c) 2017-2019 Wind River Systems, Inc.
 #
 # The right to copy, distribute, modify, or otherwise make use
 # of this software may be licensed only pursuant to the terms
@@ -31,6 +31,7 @@ class Subcloud(base.Resource):
 
     def __init__(self, manager, subcloud_id, name, description, location,
                  software_version, management_state, availability_status,
+                 deploy_status,
                  management_subnet, management_start_ip, management_end_ip,
                  management_gateway_ip, systemcontroller_gateway_ip,
                  created_at, updated_at, sync_status="unknown",
@@ -44,6 +45,7 @@ class Subcloud(base.Resource):
         self.management_subnet = management_subnet
         self.management_state = management_state
         self.availability_status = availability_status
+        self.deploy_status = deploy_status
         self.management_start_ip = management_start_ip
         self.management_end_ip = management_end_ip
         self.management_gateway_ip = management_gateway_ip
@@ -74,6 +76,7 @@ class subcloud_manager(base.ResourceManager):
                 software_version=json_object['software-version'],
                 management_state=json_object['management-state'],
                 availability_status=json_object['availability-status'],
+                deploy_status=json_object['deploy-status'],
                 management_subnet=json_object['management-subnet'],
                 management_start_ip=json_object['management-start-ip'],
                 management_end_ip=json_object['management-end-ip'],
@@ -101,6 +104,7 @@ class subcloud_manager(base.ResourceManager):
                 software_version=json_object['software-version'],
                 management_state=json_object['management-state'],
                 availability_status=json_object['availability-status'],
+                deploy_status=json_object['deploy-status'],
                 management_subnet=json_object['management-subnet'],
                 management_start_ip=json_object['management-start-ip'],
                 management_end_ip=json_object['management-end-ip'],
@@ -129,6 +133,7 @@ class subcloud_manager(base.ResourceManager):
                     software_version=json_object['software-version'],
                     management_state=json_object['management-state'],
                     availability_status=json_object['availability-status'],
+                    deploy_status=json_object['deploy-status'],
                     management_subnet=json_object['management-subnet'],
                     management_start_ip=json_object['management-start-ip'],
                     management_end_ip=json_object['management-end-ip'],
@@ -157,6 +162,7 @@ class subcloud_manager(base.ResourceManager):
                 software_version=json_object['software-version'],
                 management_state=json_object['management-state'],
                 availability_status=json_object['availability-status'],
+                deploy_status=json_object['deploy-status'],
                 management_subnet=json_object['management-subnet'],
                 management_start_ip=json_object['management-start-ip'],
                 management_end_ip=json_object['management-end-ip'],
@@ -167,14 +173,6 @@ class subcloud_manager(base.ResourceManager):
                 updated_at=json_object['updated-at'],
                 endpoint_sync_status=json_object['endpoint_sync_status']))
         return resource
-
-    def subcloud_generate_config(self, url, data):
-        data = json.dumps(data)
-        resp = self.http_client.post(url, data)
-        if resp.status_code != 200:
-            self._raise_api_exception(resp)
-        json_object = get_json(resp)
-        return json_object['config']
 
     def add_subcloud(self, **kwargs):
         data = kwargs
@@ -197,8 +195,3 @@ class subcloud_manager(base.ResourceManager):
         data = kwargs
         url = '/subclouds/%s' % subcloud_ref
         return self.subcloud_update(url, data)
-
-    def generate_config_subcloud(self, subcloud_ref, **kwargs):
-        data = kwargs
-        url = '/subclouds/%s/config' % subcloud_ref
-        return self.subcloud_generate_config(url, data)
