@@ -1,20 +1,15 @@
 ---
 - project:
     templates:
-      - build-openstack-docs-pti
+      - publish-stx-docs
+      - stx-release-notes-jobs
     check:
       jobs:
-        - build-openstack-releasenotes
         - openstack-tox-linters
         - openstack-tox-pep8
         - openstack-tox-py27
     gate:
       jobs:
-        - build-openstack-releasenotes
         - openstack-tox-linters
         - openstack-tox-pep8
         - openstack-tox-py27
-    post:
-      jobs:
-        - publish-stx-tox
-        - publish-stx-releasenotes
