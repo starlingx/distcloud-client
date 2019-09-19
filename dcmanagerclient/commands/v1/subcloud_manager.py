@@ -128,9 +128,26 @@ class AddSubcloud(base.DCManagerShowOne):
         )
 
         parser.add_argument(
+            '--deploy-playbook',
+            required=False,
+            help='An optional ansible playbook to be run after the subcloud '
+                 'has been successfully bootstrapped. It will be run with the '
+                 'subcloud as the target and authentication is '
+                 'handled automatically.'
+        )
+
+        parser.add_argument(
+            '--deploy-values',
+            required=False,
+            help='YAML file containing subcloud variables to be passed to the '
+                 'deploy playbook.'
+        )
+
+        parser.add_argument(
             '--subcloud-password',
             required=False,
-            help='sysadmin password of the subcloud to be configured.'
+            help='sysadmin password of the subcloud to be configured, '
+                 'if not provided you will be prompted.'
         )
 
         return parser
@@ -140,7 +157,7 @@ class AddSubcloud(base.DCManagerShowOne):
         kwargs = dict()
         kwargs['bootstrap-address'] = parsed_args.bootstrap_address
 
-        # Load the configuration from the yaml file
+        # Load the configuration from the bootstrap yaml file
         filename = parsed_args.bootstrap_values
         if os.path.isdir(filename):
             error_msg = "Error: %s is a directory." % filename
@@ -151,6 +168,42 @@ class AddSubcloud(base.DCManagerShowOne):
         except Exception:
             error_msg = "Error: Could not open file %s." % filename
             raise exceptions.DCManagerClientException(error_msg)
+
+        # Load the the deploy playbook yaml file
+        if parsed_args.deploy_playbook is not None:
+            if parsed_args.deploy_values is None:
+                error_msg = "Error: Deploy playbook cannot be specified " \
+                            "when the deploy values file has not been " \
+                            "specified."
+                raise exceptions.DCManagerClientException(error_msg)
+            filename = parsed_args.deploy_playbook
+            if os.path.isdir(filename):
+                error_msg = "Error: %s is a directory." % filename
+                raise exceptions.DCManagerClientException(error_msg)
+            try:
+                with open(filename, 'rb') as stream:
+                    kwargs['deploy_playbook'] = yaml.safe_load(stream)
+            except Exception:
+                error_msg = "Error: Could not open file %s." % filename
+                raise exceptions.DCManagerClientException(error_msg)
+
+        # Load the configuration from the deploy values yaml file
+        if parsed_args.deploy_values is not None:
+            if parsed_args.deploy_playbook is None:
+                error_msg = "Error: Deploy values cannot be specified " \
+                            "when a deploy playbook has not been specified."
+                raise exceptions.DCManagerClientException(error_msg)
+
+            filename = parsed_args.deploy_values
+            if os.path.isdir(filename):
+                error_msg = "Error: %s is a directory." % filename
+                raise exceptions.DCManagerClientException(error_msg)
+            try:
+                with open(filename, 'rb') as stream:
+                    kwargs['deploy_values'] = yaml.safe_load(stream)
+            except Exception:
+                error_msg = "Error: Could not open file %s." % filename
+                raise exceptions.DCManagerClientException(error_msg)
 
         # Prompt the user for the subcloud's password if it isn't provided
         if parsed_args.subcloud_password is not None:
