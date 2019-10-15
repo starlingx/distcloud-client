@@ -109,15 +109,6 @@ def authenticate(dcmanager_url=None, username=None,
                  service_type='dcmanager', auth_token=None, user_id=None,
                  session=None, cacert=None, insecure=False, **kwargs):
     """Get token, project_id, user_id and Endpoint."""
-    if project_name and project_id:
-        raise RuntimeError(
-            'Only project name or project id should be set'
-        )
-
-    if username and user_id:
-        raise RuntimeError(
-            'Only user name or user id should be set'
-        )
     user_domain_name = kwargs.get('user_domain_name')
     user_domain_id = kwargs.get('user_domain_id')
     project_domain_name = kwargs.get('project_domain_name')
