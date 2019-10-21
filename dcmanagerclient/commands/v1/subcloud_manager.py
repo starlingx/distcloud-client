@@ -27,6 +27,7 @@ from osc_lib.command import command
 
 from dcmanagerclient.commands.v1 import base
 from dcmanagerclient import exceptions
+from dcmanagerclient import utils
 
 
 def format(subcloud=None):
@@ -124,7 +125,8 @@ class AddSubcloud(base.DCManagerShowOne):
         parser.add_argument(
             '--bootstrap-values',
             required=True,
-            help='YAML file containing subcloud configuration settings.'
+            help='YAML file containing subcloud configuration settings. '
+                 'Can be either a local file path or a URL.'
         )
 
         parser.add_argument(
@@ -133,7 +135,8 @@ class AddSubcloud(base.DCManagerShowOne):
             help='An optional ansible playbook to be run after the subcloud '
                  'has been successfully bootstrapped. It will be run with the '
                  'subcloud as the target and authentication is '
-                 'handled automatically.'
+                 'handled automatically. '
+                 'Can be either a local file path or a URL.'
         )
 
         parser.add_argument(
@@ -159,15 +162,8 @@ class AddSubcloud(base.DCManagerShowOne):
 
         # Load the configuration from the bootstrap yaml file
         filename = parsed_args.bootstrap_values
-        if os.path.isdir(filename):
-            error_msg = "Error: %s is a directory." % filename
-            raise exceptions.DCManagerClientException(error_msg)
-        try:
-            with open(filename, 'rb') as stream:
-                kwargs.update(yaml.safe_load(stream))
-        except Exception:
-            error_msg = "Error: Could not open file %s." % filename
-            raise exceptions.DCManagerClientException(error_msg)
+        stream = utils.get_contents_if_file(filename)
+        kwargs.update(yaml.safe_load(stream))
 
         # Load the the deploy playbook yaml file
         if parsed_args.deploy_playbook is not None:
@@ -177,15 +173,8 @@ class AddSubcloud(base.DCManagerShowOne):
                             "specified."
                 raise exceptions.DCManagerClientException(error_msg)
             filename = parsed_args.deploy_playbook
-            if os.path.isdir(filename):
-                error_msg = "Error: %s is a directory." % filename
-                raise exceptions.DCManagerClientException(error_msg)
-            try:
-                with open(filename, 'rb') as stream:
-                    kwargs['deploy_playbook'] = yaml.safe_load(stream)
-            except Exception:
-                error_msg = "Error: Could not open file %s." % filename
-                raise exceptions.DCManagerClientException(error_msg)
+            stream = utils.get_contents_if_file(filename)
+            kwargs['deploy_playbook'] = yaml.safe_load(stream)
 
         # Load the configuration from the deploy values yaml file
         if parsed_args.deploy_values is not None:

@@ -69,12 +69,13 @@ def get_contents_if_file(contents_or_file_name):
 
     If the value passed in is a file name or file URI, return the
     contents. If not, or there is an error reading the file contents,
-    return the value passed in as the contents.
+    raise an exception.
 
-    For example, a workflow definition will be returned if either the
-    workflow definition file name, or file URI are passed in, or the
-    actual workflow definition itself is passed in.
     """
+    if os.path.isdir(contents_or_file_name):
+        error_msg = "Error: %s is a directory." % contents_or_file_name
+        raise exceptions.DCManagerClientException(error_msg)
+
     try:
         if parse.urlparse(contents_or_file_name).scheme:
             definition_url = contents_or_file_name
@@ -85,5 +86,6 @@ def get_contents_if_file(contents_or_file_name):
                 request.pathname2url(path)
             )
         return request.urlopen(definition_url).read().decode('utf8')
-    except Exception:
-        return contents_or_file_name
+    except Exception as e:
+        raise exceptions.DCManagerClientException(
+            "Error: Could not open file %s: %s" % (contents_or_file_name, e))
