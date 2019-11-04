@@ -6,10 +6,30 @@
     check:
       jobs:
         - openstack-tox-linters
-        - openstack-tox-pep8
-        - openstack-tox-py27
+        - stx-distcloud-client-tox-pep8:
+            voting: false
+        - stx-distcloud-client-tox-py27:
+            voting: false
     gate:
       jobs:
         - openstack-tox-linters
-        - openstack-tox-pep8
-        - openstack-tox-py27
+        - stx-distcloud-client-tox-pep8:
+            voting: false
+        - stx-distcloud-client-tox-py27:
+            voting: false
+
+- job:
+    name: stx-distcloud-client-tox-py27
+    parent: tox
+    description: Run py27 for distcloud-client
+    vars:
+      tox_envlist: py27
+      tox_extra_args: -c distributedcloud-client/tox.ini
+
+- job:
+    name: stx-distcloud-client-tox-pep8
+    parent: tox
+    description: Run pep8 for distcloud-client
+    vars:
+      tox_envlist: pep8
+      tox_extra_args: -c distributedcloud-client/tox.ini
