@@ -23,7 +23,7 @@
 
 # -- Project information -----------------------------------------------------
 
-project = u'stx-distcloud-client'
+project = u'StarlingX Distributed Cloud Client'
 copyright = u'2018, StarlingX'
 author = u'StarlingX'
 

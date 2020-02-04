@@ -1,6 +1,6 @@
-==================================
-stx-distcloud-client Release Notes
-==================================
+================================================
+StarlingX Distributed Cloud Client Release Notes
+================================================
 
 .. toctree::
    :maxdepth: 2
