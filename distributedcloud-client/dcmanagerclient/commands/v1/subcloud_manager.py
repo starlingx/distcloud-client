@@ -147,18 +147,37 @@ class AddSubcloud(base.DCManagerShowOne):
         )
 
         parser.add_argument(
-            '--subcloud-password',
+            '--install-values',
+            required=False,
+            help='YAML file containing subcloud variables required for remote '
+                 'install playbook.'
+        )
+
+        parser.add_argument(
+            '--sysadmin-password',
             required=False,
             help='sysadmin password of the subcloud to be configured, '
                  'if not provided you will be prompted.'
         )
 
+        parser.add_argument(
+            '--bmc-password',
+            required=False,
+            help='bmc password of the subcloud to be configured, '
+                 'if not provided you will be prompted.'
+        )
         return parser
 
     def _get_resources(self, parsed_args):
         dcmanager_client = self.app.client_manager.subcloud_manager
         kwargs = dict()
         kwargs['bootstrap-address'] = parsed_args.bootstrap_address
+
+        # Load the configuration from the install values yaml file
+        if parsed_args.install_values is not None:
+            filename = parsed_args.install_values
+            stream = utils.get_contents_if_file(filename)
+            kwargs['install_values'] = yaml.safe_load(stream)
 
         # Load the configuration from the bootstrap yaml file
         filename = parsed_args.bootstrap_values
@@ -195,8 +214,8 @@ class AddSubcloud(base.DCManagerShowOne):
                 raise exceptions.DCManagerClientException(error_msg)
 
         # Prompt the user for the subcloud's password if it isn't provided
-        if parsed_args.subcloud_password is not None:
-            kwargs['subcloud_password'] = parsed_args.subcloud_password
+        if parsed_args.sysadmin_password is not None:
+            kwargs['sysadmin_password'] = parsed_args.sysadmin_password
         else:
             while True:
                 password = getpass.getpass(
@@ -210,8 +229,27 @@ class AddSubcloud(base.DCManagerShowOne):
                 if password != confirm:
                     print("Passwords did not match")
                     continue
-                kwargs["subcloud_password"] = password
+                kwargs["sysadmin_password"] = password
                 break
+
+        if parsed_args.install_values is not None:
+            if parsed_args.bmc_password is not None:
+                kwargs['bmc_password'] = parsed_args.bmc_password
+            else:
+                while True:
+                    password = getpass.getpass(
+                        "Enter the bmc password for the subcloud: ")
+                    if len(password) < 1:
+                        print("Password cannot be empty")
+                        continue
+
+                    confirm = getpass.getpass(
+                        "Re-enter bmc password to confirm: ")
+                    if password != confirm:
+                        print("Passwords did not match")
+                        continue
+                    kwargs["bmc_password"] = password
+                    break
 
         return dcmanager_client.subcloud_manager.add_subcloud(**kwargs)
 
