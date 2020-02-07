@@ -18,35 +18,34 @@ Source0:       %{pypi_name}-%{version}.tar.gz
 
 BuildArch:     noarch
 
-BuildRequires: python2-devel
-BuildRequires: python-setuptools
-BuildRequires: python2-pip
-BuildRequires: python2-wheel
-BuildRequires: python-jsonschema >= 2.0.0
-BuildRequires: python-keystonemiddleware
-BuildRequires: python-oslo-concurrency
-BuildRequires: python-oslo-config
-BuildRequires: python-oslo-context
-BuildRequires: python-oslo-db
-BuildRequires: python-oslo-i18n
-BuildRequires: python-oslo-log
-BuildRequires: python-oslo-messaging
-BuildRequires: python-oslo-middleware
-BuildRequires: python-oslo-policy
-BuildRequires: python-oslo-rootwrap
-BuildRequires: python-oslo-serialization
-BuildRequires: python-oslo-service
-BuildRequires: python-oslo-utils
-BuildRequires: python-oslo-versionedobjects
-BuildRequires: python-pbr >= 1.8
-BuildRequires: python-routes >= 1.12.3
-BuildRequires: python-sphinx
-BuildRequires: python-sphinxcontrib-httpdomain
-BuildRequires: pyOpenSSL
+BuildRequires: python3-devel
+BuildRequires: python3-setuptools
+BuildRequires: python3-pip
+BuildRequires: python3-wheel
+BuildRequires: python3-jsonschema
+BuildRequires: python3-keystonemiddleware
+BuildRequires: python3-oslo-concurrency
+BuildRequires: python3-oslo-config
+BuildRequires: python3-oslo-context
+BuildRequires: python3-oslo-db
+BuildRequires: python3-oslo-i18n
+BuildRequires: python3-oslo-log
+BuildRequires: python3-oslo-messaging
+BuildRequires: python3-oslo-middleware
+BuildRequires: python3-oslo-policy
+BuildRequires: python3-oslo-rootwrap
+BuildRequires: python3-oslo-serialization
+BuildRequires: python3-oslo-service
+BuildRequires: python3-oslo-utils
+BuildRequires: python3-oslo-versionedobjects
+BuildRequires: python3-pbr
+BuildRequires: python3-routes
+BuildRequires: python3-sphinx
+BuildRequires: python3-pyOpenSSL
 BuildRequires: systemd
 BuildRequires: git
 # Required to compile translation files
-BuildRequires: python-babel
+BuildRequires: python3-babel
 
 %description
 Client library for Distributed Cloud built on the Distributed Cloud API. It
@@ -70,20 +69,20 @@ rm -rf {test-,}requirements.txt tools/{pip,test}-requires
 
 %build
 export PBR_VERSION=%{version}
-%{__python2} setup.py build
-%py2_build_wheel
+%{__python3} setup.py build
+%py3_build_wheel
 
 %install
 export PBR_VERSION=%{version}
-%{__python2} setup.py install --skip-build --root %{buildroot}
+%{__python3} setup.py install --skip-build --root %{buildroot}
 mkdir -p $RPM_BUILD_ROOT/wheels
 install -m 644 dist/*.whl $RPM_BUILD_ROOT/wheels/
 
 %files dcmanagerclient
 %license LICENSE
-%{python2_sitelib}/dcmanagerclient*
-%{python2_sitelib}/distributedcloud_client-*.egg-info
-%exclude %{python2_sitelib}/dcmanagerclient/tests
+%{python3_sitelib}/dcmanagerclient*
+%{python3_sitelib}/distributedcloud_client-*.egg-info
+%exclude %{python3_sitelib}/dcmanagerclient/tests
 %{_bindir}/dcmanager*
 
 %package wheels
