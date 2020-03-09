@@ -51,6 +51,7 @@ SYSTEMCONTROLLER_GATEWAY_IP = '192.168.204.101'
 EXTERNAL_OAM_SUBNET = "10.10.10.0/24"
 EXTERNAL_OAM_GATEWAY_ADDRESS = "10.10.10.1"
 EXTERNAL_OAM_FLOATING_ADDRESS = "10.10.10.12"
+DEFAULT_SUBCLOUD_GROUP_ID = '1'
 
 SUBCLOUD_DICT = {
     'SUBCLOUD_ID': ID,
@@ -68,6 +69,7 @@ SUBCLOUD_DICT = {
     'SYSTEMCONTROLLER_GATEWAY_IP': SYSTEMCONTROLLER_GATEWAY_IP,
     'CREATED_AT': TIME_NOW,
     'UPDATED_AT': TIME_NOW,
+    'GROUP_ID': DEFAULT_SUBCLOUD_GROUP_ID,
     'OAM_FLOATING_IP': EXTERNAL_OAM_FLOATING_ADDRESS
 }
 
@@ -87,7 +89,26 @@ SUBCLOUD = sm.Subcloud(
     management_gateway_ip=SUBCLOUD_DICT['MANAGEMENT_GATEWAY_IP'],
     systemcontroller_gateway_ip=SUBCLOUD_DICT['SYSTEMCONTROLLER_GATEWAY_IP'],
     created_at=SUBCLOUD_DICT['CREATED_AT'],
-    updated_at=SUBCLOUD_DICT['UPDATED_AT'])
+    updated_at=SUBCLOUD_DICT['UPDATED_AT'],
+    group_id=SUBCLOUD_DICT['GROUP_ID'])
+
+DEFAULT_SUBCLOUD_FIELD_RESULT_LIST = (
+    ID,
+    NAME,
+    DESCRIPTION,
+    LOCATION,
+    SOFTWARE_VERSION,
+    MANAGEMENT_STATE,
+    AVAILABILITY_STATUS,
+    DEPLOY_STATUS,
+    MANAGEMENT_SUBNET,
+    MANAGEMENT_START_IP,
+    MANAGEMENT_END_IP,
+    MANAGEMENT_GATEWAY_IP,
+    SYSTEMCONTROLLER_GATEWAY_IP,
+    DEFAULT_SUBCLOUD_GROUP_ID,
+    TIME_NOW,
+    TIME_NOW)
 
 
 class TestCLISubcloudManagerV1(base.BaseCommandTest):
@@ -119,19 +140,7 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
         self.client.subcloud_manager.subcloud_detail.\
             return_value = [SUBCLOUD]
         actual_call = self.call(subcloud_cmd.ShowSubcloud, app_args=[ID])
-        self.assertEqual((ID, NAME,
-                          DESCRIPTION,
-                          LOCATION,
-                          SOFTWARE_VERSION,
-                          MANAGEMENT_STATE,
-                          AVAILABILITY_STATUS,
-                          DEPLOY_STATUS,
-                          MANAGEMENT_SUBNET,
-                          MANAGEMENT_START_IP,
-                          MANAGEMENT_END_IP,
-                          MANAGEMENT_GATEWAY_IP,
-                          SYSTEMCONTROLLER_GATEWAY_IP,
-                          TIME_NOW, TIME_NOW),
+        self.assertEqual(DEFAULT_SUBCLOUD_FIELD_RESULT_LIST,
                          actual_call[1])
 
     def test_show_subcloud_with_additional_detail(self):
@@ -155,6 +164,7 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
                           MANAGEMENT_END_IP,
                           MANAGEMENT_GATEWAY_IP,
                           SYSTEMCONTROLLER_GATEWAY_IP,
+                          DEFAULT_SUBCLOUD_GROUP_ID,
                           TIME_NOW, TIME_NOW,
                           EXTERNAL_OAM_FLOATING_ADDRESS),
                          actual_call[1])
@@ -165,7 +175,7 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
         self.assertEqual((('<none>', '<none>', '<none>', '<none>',
                            '<none>', '<none>', '<none>', '<none>',
                            '<none>', '<none>', '<none>', '<none>',
-                           '<none>', '<none>', '<none>'),),
+                           '<none>', '<none>', '<none>', '<none>'),),
                          actual_call[1])
 
     @mock.patch('getpass.getpass', return_value='testpassword')
@@ -200,6 +210,7 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
                           MANAGEMENT_SUBNET, MANAGEMENT_START_IP,
                           MANAGEMENT_END_IP, MANAGEMENT_GATEWAY_IP,
                           SYSTEMCONTROLLER_GATEWAY_IP,
+                          DEFAULT_SUBCLOUD_GROUP_ID,
                           TIME_NOW, TIME_NOW), actual_call[1])
 
     def test_unmanage_subcloud(self):
@@ -214,6 +225,7 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
                           MANAGEMENT_SUBNET, MANAGEMENT_START_IP,
                           MANAGEMENT_END_IP, MANAGEMENT_GATEWAY_IP,
                           SYSTEMCONTROLLER_GATEWAY_IP,
+                          DEFAULT_SUBCLOUD_GROUP_ID,
                           TIME_NOW, TIME_NOW), actual_call[1])
 
     def test_unmanage_subcloud_without_subcloud_id(self):
@@ -232,6 +244,7 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
                           MANAGEMENT_SUBNET, MANAGEMENT_START_IP,
                           MANAGEMENT_END_IP, MANAGEMENT_GATEWAY_IP,
                           SYSTEMCONTROLLER_GATEWAY_IP,
+                          DEFAULT_SUBCLOUD_GROUP_ID,
                           TIME_NOW, TIME_NOW), actual_call[1])
 
     def test_manage_subcloud_without_subcloud_id(self):
@@ -253,4 +266,5 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
                           MANAGEMENT_SUBNET, MANAGEMENT_START_IP,
                           MANAGEMENT_END_IP, MANAGEMENT_GATEWAY_IP,
                           SYSTEMCONTROLLER_GATEWAY_IP,
+                          DEFAULT_SUBCLOUD_GROUP_ID,
                           TIME_NOW, TIME_NOW), actual_call[1])

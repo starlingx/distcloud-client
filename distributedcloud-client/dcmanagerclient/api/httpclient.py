@@ -36,8 +36,8 @@ LOG = logging.getLogger(__name__)
 def log_request(func):
     def decorator(self, *args, **kwargs):
         resp = func(self, *args, **kwargs)
-        LOG.debug("HTTP %s %s %d" % (resp.request.method, resp.url,
-                                     resp.status_code))
+        LOG.debug("HTTP %s %s %d %s" % (resp.request.method, resp.url,
+                                        resp.status_code, resp.text))
         return resp
 
     return decorator

@@ -14,7 +14,7 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 #
-# Copyright (c) 2017 Wind River Systems, Inc.
+# Copyright (c) 2017-2020 Wind River Systems, Inc.
 #
 # The right to copy, distribute, modify, or otherwise make use
 # of this software may be licensed only pursuant to the terms
@@ -26,6 +26,7 @@ from keystoneauth1 import session as ks_session
 
 from dcmanagerclient.api import httpclient
 from dcmanagerclient.api.v1 import alarm_manager as am
+from dcmanagerclient.api.v1 import subcloud_group_manager as gm
 from dcmanagerclient.api.v1 import subcloud_manager as sm
 from dcmanagerclient.api.v1 import sw_update_manager as sum
 from dcmanagerclient.api.v1 import sw_update_options_manager as suom
@@ -95,6 +96,8 @@ class Client(object):
 
         # Create all managers
         self.subcloud_manager = sm.subcloud_manager(self.http_client)
+        self.subcloud_group_manager = \
+            gm.subcloud_group_manager(self.http_client, self.subcloud_manager)
         self.alarm_manager = am.alarm_manager(self.http_client)
         self.sw_update_manager = sum.sw_update_manager(self.http_client)
         self.sw_update_options_manager = \

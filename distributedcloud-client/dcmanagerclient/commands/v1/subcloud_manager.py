@@ -71,6 +71,7 @@ def detail_format(subcloud=None):
         'management_end_ip',
         'management_gateway_ip',
         'systemcontroller_gateway_ip',
+        'group_id',
         'created_at',
         'updated_at',
     )
@@ -90,6 +91,7 @@ def detail_format(subcloud=None):
             subcloud.management_end_ip,
             subcloud.management_gateway_ip,
             subcloud.systemcontroller_gateway_ip,
+            subcloud.group_id,
             subcloud.created_at,
             subcloud.updated_at,
         )
@@ -169,6 +171,12 @@ class AddSubcloud(base.DCManagerShowOne):
             required=False,
             help='bmc password of the subcloud to be configured, '
                  'if not provided you will be prompted.'
+        )
+
+        parser.add_argument(
+            '--group',
+            required=False,
+            help='Name or ID of subcloud group.'
         )
         return parser
 
@@ -254,6 +262,9 @@ class AddSubcloud(base.DCManagerShowOne):
                         continue
                     kwargs["bmc_password"] = password
                     break
+
+        if parsed_args.group is not None:
+            kwargs['group_id'] = parsed_args.group
 
         return dcmanager_client.subcloud_manager.add_subcloud(**kwargs)
 
@@ -413,6 +424,12 @@ class UpdateSubcloud(base.DCManagerShowOne):
             help='Location of subcloud.'
         )
 
+        parser.add_argument(
+            '--group',
+            required=False,
+            help='Name or ID of subcloud group.'
+        )
+
         return parser
 
     def _get_resources(self, parsed_args):
@@ -423,6 +440,8 @@ class UpdateSubcloud(base.DCManagerShowOne):
             kwargs['description'] = parsed_args.description
         if parsed_args.location:
             kwargs['location'] = parsed_args.location
+        if parsed_args.group:
+            kwargs['group_id'] = parsed_args.group
         if len(kwargs) == 0:
             error_msg = "Nothing to update"
             raise exceptions.DCManagerClientException(error_msg)

@@ -12,7 +12,7 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 #
-# Copyright (c) 2017 Wind River Systems, Inc.
+# Copyright (c) 2017-2020 Wind River Systems, Inc.
 #
 # The right to copy, distribute, modify, or otherwise make use
 # of this software may be licensed only pursuant to the terms
@@ -37,6 +37,7 @@ from osc_lib.command import command
 
 import argparse
 from dcmanagerclient.commands.v1 import alarm_manager as am
+from dcmanagerclient.commands.v1 import subcloud_group_manager as gm
 from dcmanagerclient.commands.v1 import subcloud_manager as sm
 from dcmanagerclient.commands.v1 import sw_update_manager as sum
 from dcmanagerclient.commands.v1 import sw_update_options_manager as suom
@@ -444,6 +445,7 @@ class DCManagerShell(app.App):
             'ClientManager',
             (object,),
             dict(subcloud_manager=self.client,
+                 subcloud_group_manager=self.client,
                  alarm_manager=self.client,
                  sw_update_manager=self.client,
                  strategy_step_manager=self.client,
@@ -480,6 +482,12 @@ class DCManagerShell(app.App):
             'subcloud unmanage': sm.UnmanageSubcloud,
             'subcloud manage': sm.ManageSubcloud,
             'subcloud update': sm.UpdateSubcloud,
+            'subcloud-group add': gm.AddSubcloudGroup,
+            'subcloud-group delete': gm.DeleteSubcloudGroup,
+            'subcloud-group list': gm.ListSubcloudGroup,
+            'subcloud-group list-subclouds': gm.ListSubcloudGroupSubclouds,
+            'subcloud-group show': gm.ShowSubcloudGroup,
+            'subcloud-group update': gm.UpdateSubcloudGroup,
             'alarm summary': am.ListAlarmSummary,
             'patch-strategy create': sum.CreatePatchStrategy,
             'patch-strategy delete': sum.DeletePatchStrategy,
