@@ -119,8 +119,8 @@ class AddSubcloud(base.DCManagerShowOne):
     def _get_format_function(self):
         return detail_format
 
-    def get_parser(self, parsed_args):
-        parser = super(AddSubcloud, self).get_parser(parsed_args)
+    def get_parser(self, prog_name):
+        parser = super(AddSubcloud, self).get_parser(prog_name)
 
         parser.add_argument(
             '--bootstrap-address',
@@ -275,8 +275,8 @@ class ListSubcloud(base.DCManagerLister):
     def _get_format_function(self):
         return format
 
-    def get_parser(self, parsed_args):
-        parser = super(ListSubcloud, self).get_parser(parsed_args)
+    def get_parser(self, prog_name):
+        parser = super(ListSubcloud, self).get_parser(prog_name)
         return parser
 
     def _get_resources(self, parsed_args):
@@ -290,8 +290,8 @@ class ShowSubcloud(base.DCManagerShowOne):
     def _get_format_function(self):
         return detail_format
 
-    def get_parser(self, parsed_args):
-        parser = super(ShowSubcloud, self).get_parser(parsed_args)
+    def get_parser(self, prog_name):
+        parser = super(ShowSubcloud, self).get_parser(prog_name)
 
         parser.add_argument(
             'subcloud',

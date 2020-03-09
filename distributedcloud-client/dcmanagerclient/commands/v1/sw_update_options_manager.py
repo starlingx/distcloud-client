@@ -89,8 +89,8 @@ class UpdateSwUpdateOptions(base.DCManagerShowOne):
     def _get_format_function(self):
         return options_detail_format
 
-    def get_parser(self, parsed_args):
-        parser = super(UpdateSwUpdateOptions, self).get_parser(parsed_args)
+    def get_parser(self, prog_name):
+        parser = super(UpdateSwUpdateOptions, self).get_parser(prog_name)
 
         parser.add_argument(
             '--storage-apply-type',
@@ -163,8 +163,8 @@ class ListSwUpdateOptions(base.DCManagerLister):
     def _get_format_function(self):
         return options_list_format
 
-    def get_parser(self, parsed_args):
-        parser = super(ListSwUpdateOptions, self).get_parser(parsed_args)
+    def get_parser(self, prog_name):
+        parser = super(ListSwUpdateOptions, self).get_parser(prog_name)
         return parser
 
     def _get_resources(self, parsed_args):
@@ -179,8 +179,8 @@ class ShowSwUpdateOptions(base.DCManagerShowOne):
     def _get_format_function(self):
         return options_detail_format
 
-    def get_parser(self, parsed_args):
-        parser = super(ShowSwUpdateOptions, self).get_parser(parsed_args)
+    def get_parser(self, prog_name):
+        parser = super(ShowSwUpdateOptions, self).get_parser(prog_name)
 
         parser.add_argument(
             'subcloud',

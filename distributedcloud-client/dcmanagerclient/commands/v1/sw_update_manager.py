@@ -110,8 +110,8 @@ class CreatePatchStrategy(base.DCManagerShowOne):
     def _get_format_function(self):
         return detail_format
 
-    def get_parser(self, parsed_args):
-        parser = super(CreatePatchStrategy, self).get_parser(parsed_args)
+    def get_parser(self, prog_name):
+        parser = super(CreatePatchStrategy, self).get_parser(prog_name)
 
         parser.add_argument(
             '--subcloud-apply-type',
@@ -165,8 +165,8 @@ class ShowPatchStrategy(base.DCManagerShowOne):
     def _get_format_function(self):
         return detail_format
 
-    def get_parser(self, parsed_args):
-        parser = super(ShowPatchStrategy, self).get_parser(parsed_args)
+    def get_parser(self, prog_name):
+        parser = super(ShowPatchStrategy, self).get_parser(prog_name)
         return parser
 
     def _get_resources(self, parsed_args):
@@ -240,8 +240,8 @@ class ListStrategyStep(base.DCManagerLister):
     def _get_format_function(self):
         return strategy_step_format
 
-    def get_parser(self, parsed_args):
-        parser = super(ListStrategyStep, self).get_parser(parsed_args)
+    def get_parser(self, prog_name):
+        parser = super(ListStrategyStep, self).get_parser(prog_name)
         return parser
 
     def _get_resources(self, parsed_args):
@@ -255,8 +255,8 @@ class ShowStrategyStep(base.DCManagerShowOne):
     def _get_format_function(self):
         return detail_strategy_step_format
 
-    def get_parser(self, parsed_args):
-        parser = super(ShowStrategyStep, self).get_parser(parsed_args)
+    def get_parser(self, prog_name):
+        parser = super(ShowStrategyStep, self).get_parser(prog_name)
 
         parser.add_argument(
             'cloud_name',

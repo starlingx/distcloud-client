@@ -8,11 +8,13 @@
         - openstack-tox-linters
         - stx-distcloud-client-tox-pep8
         - stx-distcloud-client-tox-py27
+        - stx-distcloud-client-tox-pylint
     gate:
       jobs:
         - openstack-tox-linters
         - stx-distcloud-client-tox-pep8
         - stx-distcloud-client-tox-py27
+        - stx-distcloud-client-tox-pylint
     post:
       jobs:
         - stx-distcloud-client-upload-git-mirror
@@ -24,6 +26,15 @@
     vars:
       tox_envlist: py27
       tox_extra_args: -c distributedcloud-client/tox.ini
+
+- job:
+    name: stx-distcloud-client-tox-pylint
+    parent: tox
+    description: Run pylint for distcloud-client
+    vars:
+      tox_envlist: pylint
+      tox_extra_args: -c distributedcloud-client/tox.ini
+
 
 - job:
     name: stx-distcloud-client-tox-pep8
