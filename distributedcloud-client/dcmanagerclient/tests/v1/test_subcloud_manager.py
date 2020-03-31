@@ -12,13 +12,14 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 #
-# Copyright (c) 2017 Wind River Systems, Inc.
+# Copyright (c) 2017-2020 Wind River Systems, Inc.
 #
 # The right to copy, distribute, modify, or otherwise make use
 # of this software may be licensed only pursuant to the terms
 # of an applicable Wind River license agreement.
 #
 
+import copy
 import mock
 import os
 import tempfile
@@ -66,7 +67,8 @@ SUBCLOUD_DICT = {
     'MANAGEMENT_GATEWAY_IP': MANAGEMENT_GATEWAY_IP,
     'SYSTEMCONTROLLER_GATEWAY_IP': SYSTEMCONTROLLER_GATEWAY_IP,
     'CREATED_AT': TIME_NOW,
-    'UPDATED_AT': TIME_NOW
+    'UPDATED_AT': TIME_NOW,
+    'OAM_FLOATING_IP': EXTERNAL_OAM_FLOATING_ADDRESS
 }
 
 SUBCLOUD = sm.Subcloud(
@@ -130,6 +132,31 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
                           MANAGEMENT_GATEWAY_IP,
                           SYSTEMCONTROLLER_GATEWAY_IP,
                           TIME_NOW, TIME_NOW),
+                         actual_call[1])
+
+    def test_show_subcloud_with_additional_detail(self):
+        SUBCLOUD_WITH_ADDITIONAL_DETAIL = copy.copy(SUBCLOUD)
+        setattr(SUBCLOUD_WITH_ADDITIONAL_DETAIL,
+                'oam_floating_ip',
+                SUBCLOUD_DICT['OAM_FLOATING_IP'])
+        self.client.subcloud_manager.subcloud_additional_details.\
+            return_value = [SUBCLOUD_WITH_ADDITIONAL_DETAIL]
+        actual_call = self.call(subcloud_cmd.ShowSubcloud,
+                                app_args=[ID, '--detail'])
+        self.assertEqual((ID, NAME,
+                          DESCRIPTION,
+                          LOCATION,
+                          SOFTWARE_VERSION,
+                          MANAGEMENT_STATE,
+                          AVAILABILITY_STATUS,
+                          DEPLOY_STATUS,
+                          MANAGEMENT_SUBNET,
+                          MANAGEMENT_START_IP,
+                          MANAGEMENT_END_IP,
+                          MANAGEMENT_GATEWAY_IP,
+                          SYSTEMCONTROLLER_GATEWAY_IP,
+                          TIME_NOW, TIME_NOW,
+                          EXTERNAL_OAM_FLOATING_ADDRESS),
                          actual_call[1])
 
     def test_show_subcloud_negative(self):

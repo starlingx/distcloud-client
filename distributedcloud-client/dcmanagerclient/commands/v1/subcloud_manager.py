@@ -12,7 +12,7 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 #
-# Copyright (c) 2017-2019 Wind River Systems, Inc.
+# Copyright (c) 2017-2020 Wind River Systems, Inc.
 #
 # The right to copy, distribute, modify, or otherwise make use
 # of this software may be licensed only pursuant to the terms
@@ -101,6 +101,10 @@ def detail_format(subcloud=None):
             added_value = (sync_status['sync_status'],)
             columns += tuple(added_field)
             data += tuple(added_value)
+
+        if subcloud.oam_floating_ip != "unavailable":
+            columns += ('oam_floating_ip',)
+            data += (subcloud.oam_floating_ip,)
     else:
         data = (tuple('<none>' for _ in range(len(columns))),)
 
@@ -283,12 +287,23 @@ class ShowSubcloud(base.DCManagerShowOne):
             help='Name or ID of subcloud to view the details.'
         )
 
+        parser.add_argument(
+            '-d', '--detail',
+            action='store_true',
+            help="Show additional details for a subcloud"
+        )
+
         return parser
 
     def _get_resources(self, parsed_args):
         subcloud_ref = parsed_args.subcloud
         dcmanager_client = self.app.client_manager.subcloud_manager
-        return dcmanager_client.subcloud_manager.subcloud_detail(subcloud_ref)
+        if parsed_args.detail:
+            return dcmanager_client.subcloud_manager.\
+                subcloud_additional_details(subcloud_ref)
+        else:
+            return dcmanager_client.subcloud_manager.\
+                subcloud_detail(subcloud_ref)
 
 
 class DeleteSubcloud(command.Command):

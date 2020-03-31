@@ -46,6 +46,7 @@ class Subcloud(base.Resource):
         self.management_state = management_state
         self.availability_status = availability_status
         self.deploy_status = deploy_status
+        self.oam_floating_ip = "unavailable"
         self.management_start_ip = management_start_ip
         self.management_end_ip = management_end_ip
         self.management_gateway_ip = management_gateway_ip
@@ -146,7 +147,7 @@ class subcloud_manager(base.ResourceManager):
                     endpoint_sync_status=json_object['endpoint_sync_status']))
         return resource
 
-    def _subcloud_detail(self, url):
+    def _subcloud_detail(self, url, detail=None):
         resp = self.http_client.get(url)
         if resp.status_code != 200:
             self._raise_api_exception(resp)
@@ -172,6 +173,8 @@ class subcloud_manager(base.ResourceManager):
                 created_at=json_object['created-at'],
                 updated_at=json_object['updated-at'],
                 endpoint_sync_status=json_object['endpoint_sync_status']))
+        if detail is not None:
+            resource[0].oam_floating_ip = json_object['oam_floating_ip']
         return resource
 
     def add_subcloud(self, **kwargs):
@@ -182,6 +185,10 @@ class subcloud_manager(base.ResourceManager):
     def list_subclouds(self):
         url = '/subclouds/'
         return self.subcloud_list(url)
+
+    def subcloud_additional_details(self, subcloud_ref):
+        url = '/subclouds/%s/detail' % subcloud_ref
+        return self._subcloud_detail(url, True)
 
     def subcloud_detail(self, subcloud_ref):
         url = '/subclouds/%s' % subcloud_ref
