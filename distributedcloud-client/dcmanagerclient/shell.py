@@ -37,7 +37,7 @@ from osc_lib.command import command
 
 import argparse
 from dcmanagerclient.commands.v1 import alarm_manager as am
-# from dcmanagerclient.commands.v1 import fw_update_manager as fum
+from dcmanagerclient.commands.v1 import fw_update_manager as fum
 from dcmanagerclient.commands.v1 import subcloud_deploy_manager as sdm
 from dcmanagerclient.commands.v1 import subcloud_group_manager as gm
 from dcmanagerclient.commands.v1 import subcloud_manager as sm
@@ -499,11 +499,11 @@ class DCManagerShell(app.App):
             'subcloud-deploy upload': sdm.SubcloudDeployUpload,
             'subcloud-deploy show': sdm.SubcloudDeployShow,
             'alarm summary': am.ListAlarmSummary,
-            # 'fw-update-strategy create': fum.CreateFwUpdateStrategy,
-            # 'fw-update-strategy delete': fum.DeleteFwUpdateStrategy,
-            # 'fw-update-strategy apply': fum.ApplyFwUpdateStrategy,
-            # 'fw-update-strategy abort': fum.AbortFwUpdateStrategy,
-            # 'fw-update-strategy show': fum.ShowFwUpdateStrategy,
+            'fw-update-strategy create': fum.CreateFwUpdateStrategy,
+            'fw-update-strategy delete': fum.DeleteFwUpdateStrategy,
+            'fw-update-strategy apply': fum.ApplyFwUpdateStrategy,
+            'fw-update-strategy abort': fum.AbortFwUpdateStrategy,
+            'fw-update-strategy show': fum.ShowFwUpdateStrategy,
             'patch-strategy create': spm.CreatePatchUpdateStrategy,
             'patch-strategy delete': spm.DeletePatchUpdateStrategy,
             'patch-strategy apply': spm.ApplyPatchUpdateStrategy,
