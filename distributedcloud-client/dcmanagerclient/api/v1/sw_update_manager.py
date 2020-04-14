@@ -26,13 +26,21 @@ from dcmanagerclient.api import base
 from dcmanagerclient.api.base import get_json
 
 
+# todo(abailey): Update SwUpdateStrategy based on 'subcloud group'
 class SwUpdateStrategy(base.Resource):
     resource_name = 'sw_update_strategy'
 
-    def __init__(self, manager, subcloud_apply_type, max_parallel_subclouds,
-                 stop_on_failure, state,
-                 created_at, updated_at):
+    def __init__(self,
+                 manager,
+                 strategy_type,
+                 subcloud_apply_type,
+                 max_parallel_subclouds,
+                 stop_on_failure,
+                 state,
+                 created_at,
+                 updated_at):
         self.manager = manager
+        self.strategy_type = strategy_type
         self.subcloud_apply_type = subcloud_apply_type
         self.max_parallel_subclouds = max_parallel_subclouds
         self.stop_on_failure = stop_on_failure
@@ -41,169 +49,94 @@ class SwUpdateStrategy(base.Resource):
         self.updated_at = updated_at
 
 
-class StrategyStep(base.Resource):
-    resource_name = 'strategy_step'
-
-    def __init__(self, manager, cloud, stage, state, details,
-                 started_at, finished_at, created_at, updated_at):
-        self.manager = manager
-        self.cloud = cloud
-        self.stage = stage
-        self.state = state
-        self.details = details
-        self.started_at = started_at
-        self.finished_at = finished_at
-        self.created_at = created_at
-        self.updated_at = updated_at
-
-
 class sw_update_manager(base.ResourceManager):
-    resource_class = SwUpdateStrategy
+    """sw_update_managea
 
-    def create_patch_strategy(self, **kwargs):
+       sw_update_manager is an abstract class that is used by subclasses to
+       manage API actions for specific update strategy types  such as software
+       patches and firmware updates.
+    """
+
+    def __init__(self, http_client,
+                 update_type,
+                 resource_class=SwUpdateStrategy,
+                 url='sw-update-strategy'):
+        super(sw_update_manager, self).__init__(http_client)
+        self.resource_class = resource_class
+        self.update_type = update_type
+        # create_url is typically /<foo>/
+        self.create_url = '/{}/'.format(url)
+        # get_url is typically /<foo>
+        self.get_url = '/{}'.format(url)
+        # delete_url is typically /<foo> (same as get)
+        self.delete_url = '/{}'.format(url)
+        # actions_url is typically /<foo>/actions
+        self.actions_url = '/{}/actions'.format(url)
+
+    def create_sw_update_strategy(self, **kwargs):
         data = kwargs
-        data.update({'type': 'patch'})
-        url = '/sw-update-strategy/'
-        return self.sw_update_create(url, data)
+        data.update({'type': self.update_type})
+        return self._sw_update_create(self.create_url, data)
 
-    def patch_strategy_detail(self):
-        url = '/sw-update-strategy'
-        return self.sw_update_detail(url)
+    def update_sw_strategy_detail(self):
+        return self._sw_update_detail(self.get_url)
 
-    def delete_patch_strategy(self):
-        url = '/sw-update-strategy'
-        return self.sw_update_delete(url)
+    def delete_sw_update_strategy(self):
+        return self._sw_update_delete(self.delete_url)
 
-    def apply_patch_strategy(self):
+    def apply_sw_update_strategy(self):
         data = {'action': 'apply'}
-        url = '/sw-update-strategy/actions'
-        return self.sw_update_action(url, data)
+        return self._sw_update_action(self.actions_url, data)
 
-    def abort_patch_strategy(self):
+    def abort_sw_update_strategy(self):
         data = {'action': 'abort'}
-        url = '/sw-update-strategy/actions'
-        return self.sw_update_action(url, data)
+        return self._sw_update_action(self.actions_url, data)
 
-    def sw_update_create(self, url, data):
+    def _build_from_json(self, json_object):
+        return self.resource_class(
+            self,
+            strategy_type=json_object['type'],
+            subcloud_apply_type=json_object['subcloud-apply-type'],
+            max_parallel_subclouds=json_object['max-parallel-subclouds'],
+            stop_on_failure=json_object['stop-on-failure'],
+            state=json_object['state'],
+            created_at=json_object['created-at'],
+            updated_at=json_object['updated-at'])
+
+    def _sw_update_create(self, url, data):
         data = json.dumps(data)
         resp = self.http_client.post(url, data)
         if resp.status_code != 200:
             self._raise_api_exception(resp)
         json_object = get_json(resp)
         resource = list()
-        resource.append(
-            self.resource_class(
-                self,
-                subcloud_apply_type=json_object['subcloud-apply-type'],
-                max_parallel_subclouds=json_object['max-parallel-subclouds'],
-                stop_on_failure=json_object['stop-on-failure'],
-                state=json_object['state'],
-                created_at=json_object['created-at'],
-                updated_at=json_object['updated-at']))
+        resource.append(self._build_from_json(json_object))
         return resource
 
-    def sw_update_delete(self, url):
+    def _sw_update_delete(self, url):
         resp = self.http_client.delete(url)
         if resp.status_code != 200:
             self._raise_api_exception(resp)
         json_object = get_json(resp)
         resource = list()
-        resource.append(
-            self.resource_class(
-                self,
-                subcloud_apply_type=json_object['subcloud-apply-type'],
-                max_parallel_subclouds=json_object['max-parallel-subclouds'],
-                stop_on_failure=json_object['stop-on-failure'],
-                state=json_object['state'],
-                created_at=json_object['created-at'],
-                updated_at=json_object['updated-at']))
+        resource.append(self._build_from_json(json_object))
         return resource
 
-    def sw_update_detail(self, url):
+    def _sw_update_detail(self, url):
         resp = self.http_client.get(url)
         if resp.status_code != 200:
             self._raise_api_exception(resp)
         json_object = get_json(resp)
         resource = list()
-        resource.append(
-            self.resource_class(
-                self,
-                subcloud_apply_type=json_object['subcloud-apply-type'],
-                max_parallel_subclouds=json_object['max-parallel-subclouds'],
-                stop_on_failure=json_object['stop-on-failure'],
-                state=json_object['state'],
-                created_at=json_object['created-at'],
-                updated_at=json_object['updated-at']))
+        resource.append(self._build_from_json(json_object))
         return resource
 
-    def sw_update_action(self, url, data):
+    def _sw_update_action(self, url, data):
         data = json.dumps(data)
         resp = self.http_client.post(url, data)
         if resp.status_code != 200:
             self._raise_api_exception(resp)
         json_object = get_json(resp)
         resource = list()
-        resource.append(
-            self.resource_class(
-                self,
-                subcloud_apply_type=json_object['subcloud-apply-type'],
-                max_parallel_subclouds=json_object['max-parallel-subclouds'],
-                stop_on_failure=json_object['stop-on-failure'],
-                state=json_object['state'],
-                created_at=json_object['created-at'],
-                updated_at=json_object['updated-at']))
-        return resource
-
-
-class strategy_step_manager(base.ResourceManager):
-    resource_class = StrategyStep
-
-    def list_strategy_steps(self):
-        url = '/sw-update-strategy/steps'
-        return self.strategy_step_list(url)
-
-    def strategy_step_detail(self, cloud_name):
-        url = '/sw-update-strategy/steps/%s' % cloud_name
-        return self._strategy_step_detail(url)
-
-    def strategy_step_list(self, url):
-        resp = self.http_client.get(url)
-        if resp.status_code != 200:
-            self._raise_api_exception(resp)
-        json_response_key = get_json(resp)
-        json_objects = json_response_key['strategy-steps']
-        resource = []
-        for json_object in json_objects:
-            resource.append(
-                self.resource_class(
-                    self,
-                    cloud=json_object['cloud'],
-                    stage=json_object['stage'],
-                    state=json_object['state'],
-                    details=json_object['details'],
-                    started_at=json_object['started-at'],
-                    finished_at=json_object['finished-at'],
-                    created_at=json_object['created-at'],
-                    updated_at=json_object['updated-at'],
-                ))
-        return resource
-
-    def _strategy_step_detail(self, url):
-        resp = self.http_client.get(url)
-        if resp.status_code != 200:
-            self._raise_api_exception(resp)
-        json_object = get_json(resp)
-        resource = list()
-        resource.append(
-            self.resource_class(
-                self,
-                cloud=json_object['cloud'],
-                stage=json_object['stage'],
-                state=json_object['state'],
-                details=json_object['details'],
-                started_at=json_object['started-at'],
-                finished_at=json_object['finished-at'],
-                created_at=json_object['created-at'],
-                updated_at=json_object['updated-at'],
-            ))
+        resource.append(self._build_from_json(json_object))
         return resource

@@ -37,11 +37,14 @@ from osc_lib.command import command
 
 import argparse
 from dcmanagerclient.commands.v1 import alarm_manager as am
+# from dcmanagerclient.commands.v1 import fw_update_manager as fum
 from dcmanagerclient.commands.v1 import subcloud_deploy_manager as sdm
 from dcmanagerclient.commands.v1 import subcloud_group_manager as gm
 from dcmanagerclient.commands.v1 import subcloud_manager as sm
+from dcmanagerclient.commands.v1 import sw_patch_manager as spm
 from dcmanagerclient.commands.v1 import sw_update_manager as sum
 from dcmanagerclient.commands.v1 import sw_update_options_manager as suom
+from dcmanagerclient.commands.v1 import sw_upgrade_manager as supm
 
 LOG = logging.getLogger(__name__)
 
@@ -449,9 +452,11 @@ class DCManagerShell(app.App):
                  subcloud_group_manager=self.client,
                  subcloud_deploy_manager=self.client,
                  alarm_manager=self.client,
-                 sw_update_manager=self.client,
+                 fw_update_manager=self.client,
+                 sw_patch_manager=self.client,
                  strategy_step_manager=self.client,
-                 sw_update_options_manager=self.client)
+                 sw_update_options_manager=self.client,
+                 sw_upgrade_manager=self.client)
         )
         self.client_manager = ClientManager()
 
@@ -493,17 +498,31 @@ class DCManagerShell(app.App):
             'subcloud-deploy upload': sdm.SubcloudDeployUpload,
             'subcloud-deploy show': sdm.SubcloudDeployShow,
             'alarm summary': am.ListAlarmSummary,
-            'patch-strategy create': sum.CreatePatchStrategy,
-            'patch-strategy delete': sum.DeletePatchStrategy,
-            'patch-strategy apply': sum.ApplyPatchStrategy,
-            'patch-strategy abort': sum.AbortPatchStrategy,
-            'patch-strategy show': sum.ShowPatchStrategy,
-            'strategy-step list': sum.ListStrategyStep,
-            'strategy-step show': sum.ShowStrategyStep,
+            # 'fw-update-strategy create': fum.CreateFwUpdateStrategy,
+            # 'fw-update-strategy delete': fum.DeleteFwUpdateStrategy,
+            # 'fw-update-strategy apply': fum.ApplyFwUpdateStrategy,
+            # 'fw-update-strategy abort': fum.AbortFwUpdateStrategy,
+            # 'fw-update-strategy show': fum.ShowFwUpdateStrategy,
+            'patch-strategy create': spm.CreatePatchUpdateStrategy,
+            'patch-strategy delete': spm.DeletePatchUpdateStrategy,
+            'patch-strategy apply': spm.ApplyPatchUpdateStrategy,
+            'patch-strategy abort': spm.AbortPatchUpdateStrategy,
+            'patch-strategy show': spm.ShowPatchUpdateStrategy,
+            'strategy-step list': sum.ListSwUpdateStrategyStep,
+            'strategy-step show': sum.ShowSwUpdateStrategyStep,
             'patch-strategy-config update': suom.UpdateSwUpdateOptions,
             'patch-strategy-config list': suom.ListSwUpdateOptions,
             'patch-strategy-config show': suom.ShowSwUpdateOptions,
             'patch-strategy-config delete': suom.DeleteSwUpdateOptions,
+            'strategy-config update': suom.UpdateSwUpdateOptions,
+            'strategy-config list': suom.ListSwUpdateOptions,
+            'strategy-config show': suom.ShowSwUpdateOptions,
+            'strategy-config delete': suom.DeleteSwUpdateOptions,
+            'upgrade-strategy create': supm.CreateSwUpgradeStrategy,
+            'upgrade-strategy delete': supm.DeleteSwUpgradeStrategy,
+            'upgrade-strategy apply': supm.ApplySwUpgradeStrategy,
+            'upgrade-strategy abort': supm.AbortSwUpgradeStrategy,
+            'upgrade-strategy show': supm.ShowSwUpgradeStrategy,
         }
 
 
