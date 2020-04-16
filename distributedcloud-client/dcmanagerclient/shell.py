@@ -37,6 +37,7 @@ from osc_lib.command import command
 
 import argparse
 from dcmanagerclient.commands.v1 import alarm_manager as am
+from dcmanagerclient.commands.v1 import subcloud_deploy_manager as sdm
 from dcmanagerclient.commands.v1 import subcloud_group_manager as gm
 from dcmanagerclient.commands.v1 import subcloud_manager as sm
 from dcmanagerclient.commands.v1 import sw_update_manager as sum
@@ -446,6 +447,7 @@ class DCManagerShell(app.App):
             (object,),
             dict(subcloud_manager=self.client,
                  subcloud_group_manager=self.client,
+                 subcloud_deploy_manager=self.client,
                  alarm_manager=self.client,
                  sw_update_manager=self.client,
                  strategy_step_manager=self.client,
@@ -488,6 +490,8 @@ class DCManagerShell(app.App):
             'subcloud-group list-subclouds': gm.ListSubcloudGroupSubclouds,
             'subcloud-group show': gm.ShowSubcloudGroup,
             'subcloud-group update': gm.UpdateSubcloudGroup,
+            'subcloud-deploy upload': sdm.SubcloudDeployUpload,
+            'subcloud-deploy show': sdm.SubcloudDeployShow,
             'alarm summary': am.ListAlarmSummary,
             'patch-strategy create': sum.CreatePatchStrategy,
             'patch-strategy delete': sum.DeletePatchStrategy,

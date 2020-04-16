@@ -26,6 +26,7 @@ from keystoneauth1 import session as ks_session
 
 from dcmanagerclient.api import httpclient
 from dcmanagerclient.api.v1 import alarm_manager as am
+from dcmanagerclient.api.v1 import subcloud_deploy_manager as sdm
 from dcmanagerclient.api.v1 import subcloud_group_manager as gm
 from dcmanagerclient.api.v1 import subcloud_manager as sm
 from dcmanagerclient.api.v1 import sw_update_manager as sum
@@ -98,6 +99,8 @@ class Client(object):
         self.subcloud_manager = sm.subcloud_manager(self.http_client)
         self.subcloud_group_manager = \
             gm.subcloud_group_manager(self.http_client, self.subcloud_manager)
+        self.subcloud_deploy_manager = sdm.subcloud_deploy_manager(
+            self.http_client)
         self.alarm_manager = am.alarm_manager(self.http_client)
         self.sw_update_manager = sum.sw_update_manager(self.http_client)
         self.sw_update_options_manager = \

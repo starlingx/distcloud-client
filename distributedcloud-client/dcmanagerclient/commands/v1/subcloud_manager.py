@@ -19,15 +19,14 @@
 # of an applicable Wind River license agreement.
 #
 
+import base64
 import getpass
 import os
-import yaml
 
 from osc_lib.command import command
 
 from dcmanagerclient.commands.v1 import base
 from dcmanagerclient import exceptions
-from dcmanagerclient import utils
 
 
 def format(subcloud=None):
@@ -136,17 +135,7 @@ class AddSubcloud(base.DCManagerShowOne):
         )
 
         parser.add_argument(
-            '--deploy-playbook',
-            required=False,
-            help='An optional ansible playbook to be run after the subcloud '
-                 'has been successfully bootstrapped. It will be run with the '
-                 'subcloud as the target and authentication is '
-                 'handled automatically. '
-                 'Can be either a local file path or a URL.'
-        )
-
-        parser.add_argument(
-            '--deploy-values',
+            '--deploy-config',
             required=False,
             help='YAML file containing subcloud variables to be passed to the '
                  'deploy playbook.'
@@ -182,52 +171,37 @@ class AddSubcloud(base.DCManagerShowOne):
 
     def _get_resources(self, parsed_args):
         dcmanager_client = self.app.client_manager.subcloud_manager
-        kwargs = dict()
-        kwargs['bootstrap-address'] = parsed_args.bootstrap_address
+        files = dict()
+        data = dict()
+        data['bootstrap-address'] = parsed_args.bootstrap_address
 
-        # Load the configuration from the install values yaml file
+        # Get the install values yaml file
         if parsed_args.install_values is not None:
-            filename = parsed_args.install_values
-            stream = utils.get_contents_if_file(filename)
-            kwargs['install_values'] = yaml.safe_load(stream)
-
-        # Load the configuration from the bootstrap yaml file
-        filename = parsed_args.bootstrap_values
-        stream = utils.get_contents_if_file(filename)
-        kwargs.update(yaml.safe_load(stream))
-
-        # Load the the deploy playbook yaml file
-        if parsed_args.deploy_playbook is not None:
-            if parsed_args.deploy_values is None:
-                error_msg = "Error: Deploy playbook cannot be specified " \
-                            "when the deploy values file has not been " \
-                            "specified."
+            if not os.path.isfile(parsed_args.install_values):
+                error_msg = "install-values does not exist: %s" % \
+                            parsed_args.install_values
                 raise exceptions.DCManagerClientException(error_msg)
-            filename = parsed_args.deploy_playbook
-            stream = utils.get_contents_if_file(filename)
-            kwargs['deploy_playbook'] = yaml.safe_load(stream)
+            files['install_values'] = parsed_args.install_values
 
-        # Load the configuration from the deploy values yaml file
-        if parsed_args.deploy_values is not None:
-            if parsed_args.deploy_playbook is None:
-                error_msg = "Error: Deploy values cannot be specified " \
-                            "when a deploy playbook has not been specified."
-                raise exceptions.DCManagerClientException(error_msg)
+        # Get the bootstrap values yaml file
+        if not os.path.isfile(parsed_args.bootstrap_values):
+            error_msg = "bootstrap-values does not exist: %s" % \
+                        parsed_args.bootstrap_values
+            raise exceptions.DCManagerClientException(error_msg)
+        files['bootstrap_values'] = parsed_args.bootstrap_values
 
-            filename = parsed_args.deploy_values
-            if os.path.isdir(filename):
-                error_msg = "Error: %s is a directory." % filename
+        # Get the deploy config yaml file
+        if parsed_args.deploy_config is not None:
+            if not os.path.isfile(parsed_args.deploy_config):
+                error_msg = "deploy-config does not exist: %s" % \
+                            parsed_args.deploy_config
                 raise exceptions.DCManagerClientException(error_msg)
-            try:
-                with open(filename, 'rb') as stream:
-                    kwargs['deploy_values'] = yaml.safe_load(stream)
-            except Exception:
-                error_msg = "Error: Could not open file %s." % filename
-                raise exceptions.DCManagerClientException(error_msg)
+            files['deploy_config'] = parsed_args.deploy_config
 
         # Prompt the user for the subcloud's password if it isn't provided
         if parsed_args.sysadmin_password is not None:
-            kwargs['sysadmin_password'] = parsed_args.sysadmin_password
+            data['sysadmin_password'] = base64.b64encode(
+                parsed_args.sysadmin_password.encode("utf-8"))
         else:
             while True:
                 password = getpass.getpass(
@@ -241,12 +215,14 @@ class AddSubcloud(base.DCManagerShowOne):
                 if password != confirm:
                     print("Passwords did not match")
                     continue
-                kwargs["sysadmin_password"] = password
+                data["sysadmin_password"] = base64.b64encode(
+                    password.encode("utf-8"))
                 break
 
         if parsed_args.install_values is not None:
             if parsed_args.bmc_password is not None:
-                kwargs['bmc_password'] = parsed_args.bmc_password
+                data['bmc_password'] = base64.b64encode(
+                    parsed_args.bmc_password.encode("utf-8"))
             else:
                 while True:
                     password = getpass.getpass(
@@ -260,13 +236,15 @@ class AddSubcloud(base.DCManagerShowOne):
                     if password != confirm:
                         print("Passwords did not match")
                         continue
-                    kwargs["bmc_password"] = password
+                    data["bmc_password"] = base64.b64encode(
+                        password.encode("utf-8"))
                     break
 
         if parsed_args.group is not None:
-            kwargs['group_id'] = parsed_args.group
+            data['group_id'] = parsed_args.group
 
-        return dcmanager_client.subcloud_manager.add_subcloud(**kwargs)
+        return dcmanager_client.subcloud_manager.add_subcloud(files=files,
+                                                              data=data)
 
 
 class ListSubcloud(base.DCManagerLister):

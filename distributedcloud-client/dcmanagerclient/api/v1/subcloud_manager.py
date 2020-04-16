@@ -22,6 +22,8 @@
 
 import json
 
+from requests_toolbelt import MultipartEncoder
+
 from dcmanagerclient.api import base
 from dcmanagerclient.api.base import get_json
 
@@ -82,9 +84,14 @@ class subcloud_manager(base.ResourceManager):
             updated_at=json_object['updated-at'],
             group_id=json_object['group_id'])
 
-    def subcloud_create(self, url, data):
-        data = json.dumps(data)
-        resp = self.http_client.post(url, data)
+    def subcloud_create(self, url, body, data):
+        fields = dict()
+        for k, v in body.items():
+            fields.update({k: (v, open(v, 'rb'),)})
+        fields.update(data)
+        enc = MultipartEncoder(fields=fields)
+        headers = {'Content-Type': enc.content_type}
+        resp = self.http_client.post(url, enc, headers=headers)
         if resp.status_code != 200:
             self._raise_api_exception(resp)
         json_object = get_json(resp)
@@ -185,9 +192,10 @@ class subcloud_manager(base.ResourceManager):
         return resource
 
     def add_subcloud(self, **kwargs):
-        data = kwargs
+        data = kwargs.get('data')
+        files = kwargs.get('files')
         url = '/subclouds/'
-        return self.subcloud_create(url, data)
+        return self.subcloud_create(url, files, data)
 
     def list_subclouds(self):
         url = '/subclouds/'

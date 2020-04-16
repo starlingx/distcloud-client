@@ -45,6 +45,7 @@ BuildRequires: python-sphinxcontrib-httpdomain
 BuildRequires: pyOpenSSL
 BuildRequires: systemd
 BuildRequires: git
+BuildRequires: requests-toolbelt
 # Required to compile translation files
 BuildRequires: python-babel
 
