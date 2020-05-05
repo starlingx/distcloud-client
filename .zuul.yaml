@@ -3,6 +3,7 @@
     templates:
       - publish-stx-docs
       - stx-release-notes-jobs
+      - stx-bandit-jobs
     check:
       jobs:
         - openstack-tox-linters
