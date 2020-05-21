@@ -14,27 +14,28 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 #
-# Copyright (c) 2017 Wind River Systems, Inc.
+# Copyright (c) 2017-2020 Wind River Systems, Inc.
 #
 # The right to copy, distribute, modify, or otherwise make use
 # of this software may be licensed only pursuant to the terms
 # of an applicable Wind River license agreement.
 #
+import six
 
 import keystoneauth1.identity.generic as auth_plugin
 from keystoneauth1 import session as ks_session
+import osprofiler.profiler
 
 from dcmanagerclient.api import httpclient
 from dcmanagerclient.api.v1 import alarm_manager as am
+from dcmanagerclient.api.v1 import fw_update_manager as fum
+from dcmanagerclient.api.v1 import strategy_step_manager as ssm
+from dcmanagerclient.api.v1 import subcloud_deploy_manager as sdm
+from dcmanagerclient.api.v1 import subcloud_group_manager as gm
 from dcmanagerclient.api.v1 import subcloud_manager as sm
-from dcmanagerclient.api.v1 import sw_update_manager as sum
+from dcmanagerclient.api.v1 import sw_patch_manager as spm
 from dcmanagerclient.api.v1 import sw_update_options_manager as suom
-
-
-import osprofiler.profiler
-
-import six
-
+from dcmanagerclient.api.v1 import sw_upgrade_manager as supm
 
 _DEFAULT_DCMANAGER_URL = "http://localhost:8119/v1.0"
 
@@ -95,12 +96,18 @@ class Client(object):
 
         # Create all managers
         self.subcloud_manager = sm.subcloud_manager(self.http_client)
+        self.subcloud_group_manager = \
+            gm.subcloud_group_manager(self.http_client, self.subcloud_manager)
+        self.subcloud_deploy_manager = sdm.subcloud_deploy_manager(
+            self.http_client)
         self.alarm_manager = am.alarm_manager(self.http_client)
-        self.sw_update_manager = sum.sw_update_manager(self.http_client)
+        self.fw_update_manager = fum.fw_update_manager(self.http_client)
+        self.sw_patch_manager = spm.sw_patch_manager(self.http_client)
         self.sw_update_options_manager = \
             suom.sw_update_options_manager(self.http_client)
-        self.strategy_step_manager = sum.strategy_step_manager(
-            self.http_client)
+        self.sw_upgrade_manager = supm.sw_upgrade_manager(self.http_client)
+        self.strategy_step_manager = \
+            ssm.strategy_step_manager(self.http_client)
 
 
 def authenticate(dcmanager_url=None, username=None,

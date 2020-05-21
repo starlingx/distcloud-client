@@ -54,8 +54,8 @@ class ListAlarmSummary(base.DCManagerLister):
     def _get_format_function(self):
         return format
 
-    def get_parser(self, parsed_args):
-        parser = super(ListAlarmSummary, self).get_parser(parsed_args)
+    def get_parser(self, prog_name):
+        parser = super(ListAlarmSummary, self).get_parser(prog_name)
         return parser
 
     def _get_resources(self, parsed_args):

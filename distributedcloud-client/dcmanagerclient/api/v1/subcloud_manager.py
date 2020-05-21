@@ -22,6 +22,8 @@
 
 import json
 
+from requests_toolbelt import MultipartEncoder
+
 from dcmanagerclient.api import base
 from dcmanagerclient.api.base import get_json
 
@@ -34,7 +36,7 @@ class Subcloud(base.Resource):
                  deploy_status,
                  management_subnet, management_start_ip, management_end_ip,
                  management_gateway_ip, systemcontroller_gateway_ip,
-                 created_at, updated_at, sync_status="unknown",
+                 created_at, updated_at, group_id, sync_status="unknown",
                  endpoint_sync_status={}):
         self.manager = manager
         self.subcloud_id = subcloud_id
@@ -53,6 +55,7 @@ class Subcloud(base.Resource):
         self.systemcontroller_gateway_ip = systemcontroller_gateway_ip
         self.created_at = created_at
         self.updated_at = updated_at
+        self.group_id = group_id
         self.sync_status = sync_status
         self.endpoint_sync_status = endpoint_sync_status
 
@@ -60,32 +63,40 @@ class Subcloud(base.Resource):
 class subcloud_manager(base.ResourceManager):
     resource_class = Subcloud
 
-    def subcloud_create(self, url, data):
-        data = json.dumps(data)
-        resp = self.http_client.post(url, data)
+    def json_to_resource(self, json_object):
+        return self.resource_class(
+            self,
+            subcloud_id=json_object['id'],
+            name=json_object['name'],
+            description=json_object['description'],
+            location=json_object['location'],
+            software_version=json_object['software-version'],
+            management_state=json_object['management-state'],
+            availability_status=json_object['availability-status'],
+            deploy_status=json_object['deploy-status'],
+            management_subnet=json_object['management-subnet'],
+            management_start_ip=json_object['management-start-ip'],
+            management_end_ip=json_object['management-end-ip'],
+            management_gateway_ip=json_object['management-gateway-ip'],
+            systemcontroller_gateway_ip=json_object[
+                'systemcontroller-gateway-ip'],
+            created_at=json_object['created-at'],
+            updated_at=json_object['updated-at'],
+            group_id=json_object['group_id'])
+
+    def subcloud_create(self, url, body, data):
+        fields = dict()
+        for k, v in body.items():
+            fields.update({k: (v, open(v, 'rb'),)})
+        fields.update(data)
+        enc = MultipartEncoder(fields=fields)
+        headers = {'Content-Type': enc.content_type}
+        resp = self.http_client.post(url, enc, headers=headers)
         if resp.status_code != 200:
             self._raise_api_exception(resp)
         json_object = get_json(resp)
         resource = list()
-        resource.append(
-            self.resource_class(
-                self,
-                subcloud_id=json_object['id'],
-                name=json_object['name'],
-                description=json_object['description'],
-                location=json_object['location'],
-                software_version=json_object['software-version'],
-                management_state=json_object['management-state'],
-                availability_status=json_object['availability-status'],
-                deploy_status=json_object['deploy-status'],
-                management_subnet=json_object['management-subnet'],
-                management_start_ip=json_object['management-start-ip'],
-                management_end_ip=json_object['management-end-ip'],
-                management_gateway_ip=json_object['management-gateway-ip'],
-                systemcontroller_gateway_ip=json_object[
-                    'systemcontroller-gateway-ip'],
-                created_at=json_object['created-at'],
-                updated_at=json_object['updated-at']))
+        resource.append(self.json_to_resource(json_object))
         return resource
 
     def subcloud_update(self, url, data):
@@ -113,7 +124,8 @@ class subcloud_manager(base.ResourceManager):
                 systemcontroller_gateway_ip=json_object[
                     'systemcontroller-gateway-ip'],
                 created_at=json_object['created-at'],
-                updated_at=json_object['updated-at']))
+                updated_at=json_object['updated-at'],
+                group_id=json_object['group_id']))
         return resource
 
     def subcloud_list(self, url):
@@ -143,6 +155,7 @@ class subcloud_manager(base.ResourceManager):
                         'systemcontroller-gateway-ip'],
                     created_at=json_object['created-at'],
                     updated_at=json_object['updated-at'],
+                    group_id=json_object['group_id'],
                     sync_status=json_object['sync_status'],
                     endpoint_sync_status=json_object['endpoint_sync_status']))
         return resource
@@ -172,15 +185,17 @@ class subcloud_manager(base.ResourceManager):
                     'systemcontroller-gateway-ip'],
                 created_at=json_object['created-at'],
                 updated_at=json_object['updated-at'],
+                group_id=json_object['group_id'],
                 endpoint_sync_status=json_object['endpoint_sync_status']))
         if detail is not None:
             resource[0].oam_floating_ip = json_object['oam_floating_ip']
         return resource
 
     def add_subcloud(self, **kwargs):
-        data = kwargs
+        data = kwargs.get('data')
+        files = kwargs.get('files')
         url = '/subclouds/'
-        return self.subcloud_create(url, data)
+        return self.subcloud_create(url, files, data)
 
     def list_subclouds(self):
         url = '/subclouds/'

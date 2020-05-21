@@ -33,6 +33,7 @@ class FakeResponse(object):
         self.status_code = status_code
         self.content = content
         self.headers = {}
+        self.text = ''
 
     def json(self):
         return json.loads(self.content)

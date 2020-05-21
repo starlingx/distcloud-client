@@ -44,6 +44,7 @@ BuildRequires: python3-sphinx
 BuildRequires: python3-pyOpenSSL
 BuildRequires: systemd
 BuildRequires: git
+BuildRequires: requests-toolbelt
 # Required to compile translation files
 BuildRequires: python3-babel
 

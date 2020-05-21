@@ -70,6 +70,7 @@ class FakeResponse(object):
         self.request = FakeRequest(method)
         self.url = url
         self.status_code = status_code
+        self.text = ''
 
 
 class HTTPClientTest(testtools.TestCase):
