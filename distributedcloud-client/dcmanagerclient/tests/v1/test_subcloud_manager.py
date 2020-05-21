@@ -29,6 +29,7 @@ from oslo_utils import timeutils
 
 from dcmanagerclient.api.v1 import subcloud_manager as sm
 from dcmanagerclient.commands.v1 import subcloud_manager as subcloud_cmd
+from dcmanagerclient.exceptions import DCManagerClientException
 from dcmanagerclient.tests import base
 
 BOOTSTRAP_ADDRESS = '10.10.10.12'
@@ -43,6 +44,7 @@ SOFTWARE_VERSION = '12.34'
 MANAGEMENT_STATE = 'unmanaged'
 AVAILABILITY_STATUS = 'offline'
 DEPLOY_STATUS = 'not-deployed'
+DEPLOY_STATE_PRE_DEPLOY = 'pre-deploy'
 MANAGEMENT_SUBNET = '192.168.101.0/24'
 MANAGEMENT_START_IP = '192.168.101.2'
 MANAGEMENT_END_IP = '192.168.101.50'
@@ -268,3 +270,48 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
                           SYSTEMCONTROLLER_GATEWAY_IP,
                           DEFAULT_SUBCLOUD_GROUP_ID,
                           TIME_NOW, TIME_NOW), actual_call[1])
+
+    @mock.patch('getpass.getpass', return_value='testpassword')
+    def test_success_reconfigure_subcloud(self, getpass):
+        SUBCLOUD_BEING_DEPLOYED = copy.copy(SUBCLOUD)
+        setattr(SUBCLOUD_BEING_DEPLOYED,
+                'deploy_status',
+                DEPLOY_STATE_PRE_DEPLOY)
+        self.client.subcloud_manager.reconfigure_subcloud.\
+            return_value = [SUBCLOUD_BEING_DEPLOYED]
+
+        with tempfile.NamedTemporaryFile() as f:
+            file_path = os.path.abspath(f.name)
+            actual_call = self.call(
+                subcloud_cmd.ReconfigSubcloud,
+                app_args=[ID,
+                          '--deploy-config', file_path])
+        self.assertEqual((ID, NAME,
+                          DESCRIPTION, LOCATION,
+                          SOFTWARE_VERSION, MANAGEMENT_STATE,
+                          AVAILABILITY_STATUS, DEPLOY_STATE_PRE_DEPLOY,
+                          MANAGEMENT_SUBNET, MANAGEMENT_START_IP,
+                          MANAGEMENT_END_IP, MANAGEMENT_GATEWAY_IP,
+                          SYSTEMCONTROLLER_GATEWAY_IP,
+                          DEFAULT_SUBCLOUD_GROUP_ID,
+                          TIME_NOW, TIME_NOW), actual_call[1])
+
+    @mock.patch('getpass.getpass', return_value='testpassword')
+    def test_reconfigure_file_does_not_exist(self, getpass):
+        SUBCLOUD_BEING_DEPLOYED = copy.copy(SUBCLOUD)
+        setattr(SUBCLOUD_BEING_DEPLOYED,
+                'deploy_status',
+                DEPLOY_STATE_PRE_DEPLOY)
+        self.client.subcloud_manager.reconfigure_subcloud.\
+            return_value = [SUBCLOUD_BEING_DEPLOYED]
+
+        with tempfile.NamedTemporaryFile() as f:
+            file_path = os.path.abspath(f.name)
+
+        # Python 2.7 onwards, context manager can be used to get the
+        # actual Exception object
+        with self.assertRaises(DCManagerClientException) as context:
+            self.call(subcloud_cmd.ReconfigSubcloud,
+                      app_args=[ID, '--deploy-config', file_path])
+        self.assertTrue('deploy-config file does not exist'
+                        in str(context.exception))

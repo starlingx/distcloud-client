@@ -489,6 +489,7 @@ class DCManagerShell(app.App):
             'subcloud unmanage': sm.UnmanageSubcloud,
             'subcloud manage': sm.ManageSubcloud,
             'subcloud update': sm.UpdateSubcloud,
+            'subcloud reconfig': sm.ReconfigSubcloud,
             'subcloud-group add': gm.AddSubcloudGroup,
             'subcloud-group delete': gm.DeleteSubcloudGroup,
             'subcloud-group list': gm.ListSubcloudGroup,
