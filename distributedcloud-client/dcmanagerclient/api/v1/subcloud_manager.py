@@ -128,6 +128,21 @@ class subcloud_manager(base.ResourceManager):
                 group_id=json_object['group_id']))
         return resource
 
+    def subcloud_reconfigure(self, url, body, data):
+        fields = dict()
+        for k, v in body.items():
+            fields.update({k: (v, open(v, 'rb'),)})
+        fields.update(data)
+        enc = MultipartEncoder(fields=fields)
+        headers = {'Content-Type': enc.content_type}
+        resp = self.http_client.patch(url, enc, headers=headers)
+        if resp.status_code != 200:
+            self._raise_api_exception(resp)
+        json_object = get_json(resp)
+        resource = list()
+        resource.append(self.json_to_resource(json_object))
+        return resource
+
     def subcloud_list(self, url):
         resp = self.http_client.get(url)
         if resp.status_code != 200:
@@ -217,3 +232,9 @@ class subcloud_manager(base.ResourceManager):
         data = kwargs
         url = '/subclouds/%s' % subcloud_ref
         return self.subcloud_update(url, data)
+
+    def reconfigure_subcloud(self, subcloud_ref, **kwargs):
+        files = kwargs.get('files')
+        data = kwargs.get('data')
+        url = '/subclouds/%s/reconfigure' % subcloud_ref
+        return self.subcloud_reconfigure(url, files, data)
