@@ -159,7 +159,8 @@ class AddSubcloud(base.DCManagerShowOne):
             '--bmc-password',
             required=False,
             help='bmc password of the subcloud to be configured, '
-                 'if not provided you will be prompted.'
+                 'if not provided you will be prompted. This parameter is only'
+                 ' valid if the --install-values are specified.'
         )
 
         parser.add_argument(
@@ -408,26 +409,66 @@ class UpdateSubcloud(base.DCManagerShowOne):
             help='Name or ID of subcloud group.'
         )
 
+        parser.add_argument(
+            '--install-values',
+            required=False,
+            help='YAML file containing subcloud variables required for remote '
+                 'install playbook.'
+        )
+        parser.add_argument(
+            '--bmc-password',
+            required=False,
+            help='bmc password of the subcloud to be configured, if not '
+                 'provided you will be prompted. This parameter is only'
+                 ' valid if the --install-values are specified.'
+        )
         return parser
 
     def _get_resources(self, parsed_args):
         subcloud_ref = parsed_args.subcloud
         dcmanager_client = self.app.client_manager.subcloud_manager
-        kwargs = dict()
+        files = dict()
+        data = dict()
         if parsed_args.description:
-            kwargs['description'] = parsed_args.description
+            data['description'] = parsed_args.description
         if parsed_args.location:
-            kwargs['location'] = parsed_args.location
+            data['location'] = parsed_args.location
         if parsed_args.group:
-            kwargs['group_id'] = parsed_args.group
-        if len(kwargs) == 0:
-            error_msg = "Nothing to update"
+            data['group_id'] = parsed_args.group
+        if parsed_args.install_values:
+            if not os.path.isfile(parsed_args.install_values):
+                error_msg = "install-values does not exist: %s" % \
+                            parsed_args.install_values
+                raise exceptions.DCManagerClientException(error_msg)
+            files['install_values'] = parsed_args.install_values
 
+            if parsed_args.bmc_password is not None:
+                data['bmc_password'] = base64.b64encode(
+                    parsed_args.bmc_password.encode("utf-8"))
+            else:
+                while True:
+                    password = getpass.getpass(
+                        "Enter the bmc password for the subcloud: ")
+                    if len(password) < 1:
+                        print("Password cannot be empty")
+                        continue
+
+                    confirm = getpass.getpass(
+                        "Re-enter bmc password to confirm: ")
+                    if password != confirm:
+                        print("Passwords did not match")
+                        continue
+                    data["bmc_password"] = base64.b64encode(
+                        password.encode("utf-8"))
+                    break
+
+        if len(data) == 0:
+            error_msg = "Nothing to update"
             raise exceptions.DCManagerClientException(error_msg)
 
         try:
             return dcmanager_client.subcloud_manager.update_subcloud(
-                subcloud_ref, **kwargs)
+                subcloud_ref, files=files, data=data)
         except Exception as e:
             print(e)
             error_msg = "Unable to update subcloud %s" % (subcloud_ref)
