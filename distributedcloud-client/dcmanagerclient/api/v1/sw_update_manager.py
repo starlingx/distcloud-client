@@ -67,11 +67,14 @@ class sw_update_manager(base.ResourceManager):
         # create_url is typically /<foo>/
         self.create_url = '/{}/'.format(url)
         # get_url is typically /<foo>
-        self.get_url = '/{}'.format(url)
+        self.get_url = '/{url}?type={update_type}'.format(
+            url=url, update_type=self.update_type)
         # delete_url is typically /<foo> (same as get)
-        self.delete_url = '/{}'.format(url)
+        self.delete_url = '/{url}?type={update_type}'.format(
+            url=url, update_type=self.update_type)
         # actions_url is typically /<foo>/actions
-        self.actions_url = '/{}/actions'.format(url)
+        self.actions_url = '/{url}/actions?type={update_type}'.format(
+            url=url, update_type=self.update_type)
 
     def create_sw_update_strategy(self, **kwargs):
         data = kwargs
