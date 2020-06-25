@@ -99,8 +99,9 @@ class subcloud_manager(base.ResourceManager):
 
     def subcloud_update(self, url, body, data):
         fields = dict()
-        for k, v in body.items():
-            fields.update({k: (v, open(v, 'rb'),)})
+        if body is not None:
+            for k, v in body.items():
+                fields.update({k: (v, open(v, 'rb'),)})
         fields.update(data)
         enc = MultipartEncoder(fields=fields)
         headers = {'Content-Type': enc.content_type}

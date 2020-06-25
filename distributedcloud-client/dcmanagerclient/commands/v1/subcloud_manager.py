@@ -341,7 +341,7 @@ class UnmanageSubcloud(base.DCManagerShowOne):
         kwargs['management-state'] = 'unmanaged'
         try:
             return dcmanager_client.subcloud_manager.update_subcloud(
-                subcloud_ref, **kwargs)
+                subcloud_ref, files=None, data=kwargs)
         except Exception as e:
             print(e)
             error_msg = "Unable to unmanage subcloud %s" % (subcloud_ref)
@@ -370,7 +370,7 @@ class ManageSubcloud(base.DCManagerShowOne):
         kwargs['management-state'] = 'managed'
         try:
             return dcmanager_client.subcloud_manager.update_subcloud(
-                subcloud_ref, **kwargs)
+                subcloud_ref, files=None, data=kwargs)
         except Exception as e:
             print(e)
             error_msg = "Unable to manage subcloud %s" % (subcloud_ref)
