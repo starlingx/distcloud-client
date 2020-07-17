@@ -147,11 +147,21 @@ class CreateSwUpdateStrategy(base.DCManagerShowOne):
         )
 
         parser.add_argument(
+            '--force',
+            required=False,
+            action='store_true',
+            help='Disregard subcloud availability status, intended for \
+                  some upgrade recovery scenarios. Subcloud name must be \
+                  specified.'
+        )
+
+        parser.add_argument(
             'cloud_name',
             nargs='?',
             default=None,
             help='Name of a single cloud to update.'
         )
+
         return parser
 
     def _get_resources(self, parsed_args):
@@ -163,8 +173,16 @@ class CreateSwUpdateStrategy(base.DCManagerShowOne):
                 parsed_args.max_parallel_subclouds
         if parsed_args.stop_on_failure:
             kwargs['stop-on-failure'] = 'true'
+        if parsed_args.force:
+            kwargs['force'] = 'true'
         if parsed_args.cloud_name is not None:
             kwargs['cloud_name'] = parsed_args.cloud_name
+
+        if parsed_args.force and not parsed_args.cloud_name:
+            error_msg = 'The --force option can only be applied to a single ' \
+                        'subcloud. Please specify the subcloud name.'
+            raise exceptions.DCManagerClientException(error_msg)
+
         return self.get_sw_update_manager().create_sw_update_strategy(**kwargs)
 
 
