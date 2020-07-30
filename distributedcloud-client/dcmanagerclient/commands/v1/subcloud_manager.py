@@ -361,6 +361,14 @@ class ManageSubcloud(base.DCManagerShowOne):
             'subcloud',
             help='Name or ID of the subcloud to manage.'
         )
+
+        parser.add_argument(
+            '--force',
+            required=False,
+            action='store_true',
+            help='Disregard subcloud availability status, intended for \
+                  some upgrade recovery scenarios.'
+        )
         return parser
 
     def _get_resources(self, parsed_args):
@@ -368,6 +376,9 @@ class ManageSubcloud(base.DCManagerShowOne):
         dcmanager_client = self.app.client_manager.subcloud_manager
         kwargs = dict()
         kwargs['management-state'] = 'managed'
+        if parsed_args.force:
+            kwargs['force'] = 'true'
+
         try:
             return dcmanager_client.subcloud_manager.update_subcloud(
                 subcloud_ref, files=None, data=kwargs)
