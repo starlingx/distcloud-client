@@ -21,9 +21,8 @@
 #
 
 import json
-
 import mock
-import unittest2
+import testtools
 
 
 class FakeResponse(object):
@@ -39,8 +38,11 @@ class FakeResponse(object):
         return json.loads(self.content)
 
 
-class BaseClientTest(unittest2.TestCase):
+class BaseClientTest(testtools.TestCase):
     _client = None
+
+    def setUp(self):
+        super(BaseClientTest, self).setUp()
 
     def mock_http_get(self, content, status_code=200):
         if isinstance(content, dict):
@@ -76,8 +78,9 @@ class BaseClientTest(unittest2.TestCase):
         return self._client.http_client.delete
 
 
-class BaseCommandTest(unittest2.TestCase):
+class BaseCommandTest(testtools.TestCase):
     def setUp(self):
+        super(BaseCommandTest, self).setUp()
         self.app = mock.Mock()
         self.client = self.app.client_manager.subcloud_manager
 

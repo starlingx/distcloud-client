@@ -9,12 +9,14 @@
         - openstack-tox-linters
         - stx-distcloud-client-tox-pep8
         - stx-distcloud-client-tox-py27
+        - stx-distcloud-client-tox-py36
         - stx-distcloud-client-tox-pylint
     gate:
       jobs:
         - openstack-tox-linters
         - stx-distcloud-client-tox-pep8
         - stx-distcloud-client-tox-py27
+        - stx-distcloud-client-tox-py36
         - stx-distcloud-client-tox-pylint
     post:
       jobs:
@@ -26,6 +28,14 @@
     description: Run py27 for distcloud-client
     vars:
       tox_envlist: py27
+      tox_extra_args: -c distributedcloud-client/tox.ini
+
+- job:
+    name: stx-distcloud-client-tox-py36
+    parent: tox
+    description: Run py36 for distcloud-client
+    vars:
+      tox_envlist: py36
       tox_extra_args: -c distributedcloud-client/tox.ini
 
 - job:

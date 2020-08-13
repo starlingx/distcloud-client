@@ -199,7 +199,7 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
             "external_oam_floating_address": EXTERNAL_OAM_FLOATING_ADDRESS,
         }
 
-        with tempfile.NamedTemporaryFile() as f:
+        with tempfile.NamedTemporaryFile(mode='w') as f:
             yaml.dump(values, f)
             file_path = os.path.abspath(f.name)
             actual_call = self.call(
@@ -308,10 +308,9 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
         with tempfile.NamedTemporaryFile() as f:
             file_path = os.path.abspath(f.name)
 
-        # Python 2.7 onwards, context manager can be used to get the
-        # actual Exception object
-        with self.assertRaises(DCManagerClientException) as context:
-            self.call(subcloud_cmd.ReconfigSubcloud,
-                      app_args=[ID, '--deploy-config', file_path])
+        e = self.assertRaises(DCManagerClientException,
+                              self.call,
+                              subcloud_cmd.ReconfigSubcloud,
+                              app_args=[ID, '--deploy-config', file_path])
         self.assertTrue('deploy-config file does not exist'
-                        in str(context.exception))
+                        in str(e))
