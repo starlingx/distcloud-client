@@ -22,6 +22,7 @@
 import base64
 import getpass
 import os
+import six
 
 from osc_lib.command import command
 
@@ -557,3 +558,39 @@ class ReconfigSubcloud(base.DCManagerShowOne):
         except Exception:
             error_msg = "Unable to reconfigure subcloud %s" % (subcloud_ref)
             raise exceptions.DCManagerClientException(error_msg)
+
+
+class ReinstallSubcloud(base.DCManagerShowOne):
+    """Reinstall a subcloud."""
+
+    def _get_format_function(self):
+        return detail_format
+
+    def get_parser(self, prog_name):
+        parser = super(ReinstallSubcloud, self).get_parser(prog_name)
+
+        parser.add_argument(
+            'subcloud',
+            help='Name or ID of the subcloud to reinstall.'
+        )
+        return parser
+
+    def _get_resources(self, parsed_args):
+        subcloud_ref = parsed_args.subcloud
+        dcmanager_client = self.app.client_manager.subcloud_manager
+
+        # Require user to type reinstall to confirm
+        print("WARNING: This will reinstall the subcloud. "
+              "All applications and data on the subcloud will be lost.")
+        confirm = six.moves.input(
+            "Please type \"reinstall\" to confirm:").strip().lower()
+        if confirm == 'reinstall':
+            try:
+                return dcmanager_client.subcloud_manager.reinstall_subcloud(
+                    subcloud_ref=subcloud_ref)
+            except Exception:
+                error_msg = "Unable to reinstall subcloud %s" % (subcloud_ref)
+                raise exceptions.DCManagerClientException(error_msg)
+        else:
+            msg = "Subcloud %s will not be reinstalled" % (subcloud_ref)
+            raise exceptions.DCManagerClientException(msg)

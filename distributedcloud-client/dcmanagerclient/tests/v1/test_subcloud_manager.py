@@ -314,3 +314,19 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
                               app_args=[ID, '--deploy-config', file_path])
         self.assertTrue('deploy-config file does not exist'
                         in str(e))
+
+    @mock.patch('six.moves.input', return_value='reinstall')
+    def test_reinstall_subcloud(self, mock_input):
+        self.client.subcloud_manager.reinstall_subcloud.\
+            return_value = [SUBCLOUD]
+        actual_call = self.call(
+            subcloud_cmd.ReinstallSubcloud, app_args=[ID])
+        self.assertEqual((ID, NAME,
+                          DESCRIPTION, LOCATION,
+                          SOFTWARE_VERSION, MANAGEMENT_STATE,
+                          AVAILABILITY_STATUS, DEPLOY_STATUS,
+                          MANAGEMENT_SUBNET, MANAGEMENT_START_IP,
+                          MANAGEMENT_END_IP, MANAGEMENT_GATEWAY_IP,
+                          SYSTEMCONTROLLER_GATEWAY_IP,
+                          DEFAULT_SUBCLOUD_GROUP_ID,
+                          TIME_NOW, TIME_NOW), actual_call[1])

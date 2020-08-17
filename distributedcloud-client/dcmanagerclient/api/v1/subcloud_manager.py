@@ -13,7 +13,7 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 #
-# Copyright (c) 2017-2019 Wind River Systems, Inc.
+# Copyright (c) 2017-2020 Wind River Systems, Inc.
 #
 # The right to copy, distribute, modify, or otherwise make use
 # of this software may be licensed only pursuant to the terms
@@ -128,6 +128,18 @@ class subcloud_manager(base.ResourceManager):
         resource.append(self.json_to_resource(json_object))
         return resource
 
+    def subcloud_reinstall(self, url):
+        fields = dict()
+        enc = MultipartEncoder(fields=fields)
+        headers = {'Content-Type': enc.content_type}
+        resp = self.http_client.patch(url, enc, headers=headers)
+        if resp.status_code != 200:
+            self._raise_api_exception(resp)
+        json_object = get_json(resp)
+        resource = list()
+        resource.append(self.json_to_resource(json_object))
+        return resource
+
     def subcloud_list(self, url):
         resp = self.http_client.get(url)
         if resp.status_code != 200:
@@ -224,3 +236,7 @@ class subcloud_manager(base.ResourceManager):
         data = kwargs.get('data')
         url = '/subclouds/%s/reconfigure' % subcloud_ref
         return self.subcloud_reconfigure(url, files, data)
+
+    def reinstall_subcloud(self, subcloud_ref):
+        url = '/subclouds/%s/reinstall' % subcloud_ref
+        return self.subcloud_reinstall(url)
