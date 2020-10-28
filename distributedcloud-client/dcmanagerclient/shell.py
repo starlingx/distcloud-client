@@ -12,7 +12,7 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 #
-# Copyright (c) 2017-2020 Wind River Systems, Inc.
+# Copyright (c) 2017-2021 Wind River Systems, Inc.
 #
 # The right to copy, distribute, modify, or otherwise make use
 # of this software may be licensed only pursuant to the terms
@@ -38,6 +38,7 @@ from osc_lib.command import command
 import argparse
 from dcmanagerclient.commands.v1 import alarm_manager as am
 from dcmanagerclient.commands.v1 import fw_update_manager as fum
+from dcmanagerclient.commands.v1 import kube_upgrade_manager as kupm
 from dcmanagerclient.commands.v1 import subcloud_deploy_manager as sdm
 from dcmanagerclient.commands.v1 import subcloud_group_manager as gm
 from dcmanagerclient.commands.v1 import subcloud_manager as sm
@@ -394,7 +395,7 @@ class DCManagerShell(app.App):
             self.options.auth_url = None
 
         if self.options.auth_url and not self.options.token \
-            and not skip_auth:
+                and not skip_auth:
             if not self.options.tenant_name:
                 raise exceptions.CommandError(
                     ("You must provide a tenant_name "
@@ -441,7 +442,7 @@ class DCManagerShell(app.App):
                  "--os-auth-url or env[OS_AUTH_URL] or "
                  "specify an auth_system which defines a"
                  " default url with --os-auth-system or env[OS_AUTH_SYSTEM]")
-                )
+            )
 
         # Adding client_manager variable to make dcmanager client work with
         # unified OpenStack client.
@@ -456,7 +457,8 @@ class DCManagerShell(app.App):
                  sw_patch_manager=self.client,
                  strategy_step_manager=self.client,
                  sw_update_options_manager=self.client,
-                 sw_upgrade_manager=self.client)
+                 sw_upgrade_manager=self.client,
+                 kube_upgrade_manager=self.client)
         )
         self.client_manager = ClientManager()
 
@@ -468,7 +470,7 @@ class DCManagerShell(app.App):
         exclude_cmds = ['help', 'complete']
 
         cmds = self.command_manager.commands.copy()
-        for k, v in cmds.items():
+        for k, _v in cmds.items():
             if k not in exclude_cmds:
                 self.command_manager.commands.pop(k)
 
@@ -505,6 +507,11 @@ class DCManagerShell(app.App):
             'fw-update-strategy apply': fum.ApplyFwUpdateStrategy,
             'fw-update-strategy abort': fum.AbortFwUpdateStrategy,
             'fw-update-strategy show': fum.ShowFwUpdateStrategy,
+            'kube-upgrade-strategy create': kupm.CreateKubeUpgradeStrategy,
+            'kube-upgrade-strategy delete': kupm.DeleteKubeUpgradeStrategy,
+            'kube-upgrade-strategy apply': kupm.ApplyKubeUpgradeStrategy,
+            'kube-upgrade-strategy abort': kupm.AbortKubeUpgradeStrategy,
+            'kube-upgrade-strategy show': kupm.ShowKubeUpgradeStrategy,
             'patch-strategy create': spm.CreatePatchUpdateStrategy,
             'patch-strategy delete': spm.DeletePatchUpdateStrategy,
             'patch-strategy apply': spm.ApplyPatchUpdateStrategy,

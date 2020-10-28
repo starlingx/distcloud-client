@@ -12,7 +12,7 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 #
-# Copyright (c) 2017-2020 Wind River Systems, Inc.
+# Copyright (c) 2017-2021 Wind River Systems, Inc.
 #
 # The right to copy, distribute, modify, or otherwise make use
 # of this software may be licensed only pursuant to the terms
@@ -96,8 +96,7 @@ def detail_format(subcloud=None):
             subcloud.updated_at,
         )
 
-        for listitem, sync_status in enumerate(subcloud.endpoint_sync_status
-                                               ):
+        for _listitem, sync_status in enumerate(subcloud.endpoint_sync_status):
             added_field = (sync_status['endpoint_type'] +
                            "_sync_status",)
             added_value = (sync_status['sync_status'],)

@@ -13,7 +13,7 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 #
-# Copyright (c) 2017-2020 Wind River Systems, Inc.
+# Copyright (c) 2017-2021 Wind River Systems, Inc.
 #
 # The right to copy, distribute, modify, or otherwise make use
 # of this software may be licensed only pursuant to the terms
@@ -35,7 +35,9 @@ class Subcloud(base.Resource):
                  management_subnet, management_start_ip, management_end_ip,
                  management_gateway_ip, systemcontroller_gateway_ip,
                  created_at, updated_at, group_id, sync_status="unknown",
-                 endpoint_sync_status={}):
+                 endpoint_sync_status=None):
+        if endpoint_sync_status is None:
+            endpoint_sync_status = {}
         self.manager = manager
         self.subcloud_id = subcloud_id
         self.name = name

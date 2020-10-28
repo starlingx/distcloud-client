@@ -13,7 +13,7 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 #
-# Copyright (c) 2017 Wind River Systems, Inc.
+# Copyright (c) 2017-2021 Wind River Systems, Inc.
 #
 # The right to copy, distribute, modify, or otherwise make use
 # of this software may be licensed only pursuant to the terms
@@ -84,7 +84,9 @@ class BaseCommandTest(testtools.TestCase):
         self.app = mock.Mock()
         self.client = self.app.client_manager.subcloud_manager
 
-    def call(self, command, app_args=[], prog_name=''):
+    def call(self, command, app_args=None, prog_name=''):
+        if app_args is None:
+            app_args = []
         cmd = command(self.app, app_args)
 
         parsed_args = cmd.get_parser(prog_name).parse_args(app_args)
