@@ -195,7 +195,7 @@ def install(domain, lazy=False):
             gettext.install(domain,
                             localedir=os.environ.get(localedir))
         else:
-            gettext.install(domain,
+            gettext.install(domain,   # pylint: disable=unexpected-keyword-arg
                             localedir=os.environ.get(localedir),
                             unicode=True)
 
@@ -208,7 +208,7 @@ class Message(six.text_type):
     and can be treated as such.
     """
 
-    def __new__(cls, msgid, msgtext=None, params=None,
+    def __new__(cls, msgid, msgtext=None, params=None,  # pylint: disable=keyword-arg-before-vararg
                 domain='dcmanagerclient', *args):
         """Create a new Message object.
 
