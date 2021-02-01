@@ -215,6 +215,42 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
                           DEFAULT_SUBCLOUD_GROUP_ID,
                           TIME_NOW, TIME_NOW), actual_call[1])
 
+    @mock.patch('getpass.getpass', return_value='testpassword')
+    def test_add_migrate_subcloud(self, getpass):
+        self.client.subcloud_manager.add_subcloud.\
+            return_value = [SUBCLOUD]
+
+        values = {
+            "system_mode": SYSTEM_MODE,
+            "name": NAME,
+            "description": DESCRIPTION,
+            "location": LOCATION,
+            "management_subnet": MANAGEMENT_SUBNET,
+            "management_start_address": MANAGEMENT_START_IP,
+            "management_end_address": MANAGEMENT_END_IP,
+            "management_gateway_address": MANAGEMENT_GATEWAY_IP,
+            "external_oam_subnet": EXTERNAL_OAM_SUBNET,
+            "external_oam_gateway_address": EXTERNAL_OAM_GATEWAY_ADDRESS,
+            "external_oam_floating_address": EXTERNAL_OAM_FLOATING_ADDRESS,
+        }
+
+        with tempfile.NamedTemporaryFile(mode='w') as f:
+            yaml.dump(values, f)
+            file_path = os.path.abspath(f.name)
+            actual_call = self.call(
+                subcloud_cmd.AddSubcloud, app_args=[
+                    '--bootstrap-address', BOOTSTRAP_ADDRESS,
+                    '--bootstrap-values', file_path,
+                    '--migrate',
+                ])
+        self.assertEqual((ID, NAME, DESCRIPTION, LOCATION, SOFTWARE_VERSION,
+                          MANAGEMENT_STATE, AVAILABILITY_STATUS, DEPLOY_STATUS,
+                          MANAGEMENT_SUBNET, MANAGEMENT_START_IP,
+                          MANAGEMENT_END_IP, MANAGEMENT_GATEWAY_IP,
+                          SYSTEMCONTROLLER_GATEWAY_IP,
+                          DEFAULT_SUBCLOUD_GROUP_ID,
+                          TIME_NOW, TIME_NOW), actual_call[1])
+
     def test_unmanage_subcloud(self):
         self.client.subcloud_manager.update_subcloud.\
             return_value = [SUBCLOUD]
