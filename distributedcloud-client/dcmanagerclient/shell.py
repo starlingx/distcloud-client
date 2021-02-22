@@ -24,12 +24,12 @@ Command-line interface to the DC Manager APIs
 """
 
 import logging
+import os
 import sys
 
 from dcmanagerclient import __version__ as dcmanager_version
 from dcmanagerclient.api import client
 from dcmanagerclient import exceptions
-from dcmanagerclient.openstack.common import cliutils as c
 
 from cliff import app
 from cliff import commandmanager
@@ -47,6 +47,18 @@ from dcmanagerclient.commands.v1 import sw_update_options_manager as suom
 from dcmanagerclient.commands.v1 import sw_upgrade_manager as supm
 
 LOG = logging.getLogger(__name__)
+
+
+def env(*args, **kwargs):
+    """Returns the first environment variable set.
+
+    If all are empty, defaults to '' or keyword arg `default`.
+    """
+    for arg in args:
+        value = os.environ.get(arg)
+        if value:
+            return value
+    return kwargs.get('default', '')
 
 
 class OpenStackHelpFormatter(argparse.HelpFormatter):
@@ -207,7 +219,7 @@ class DCManagerShell(app.App):
             '--dcmanager-url',
             action='store',
             dest='dcmanager_url',
-            default=c.env('DCMANAGER_URL'),
+            default=env('DCMANAGER_URL'),
             help='DC Manager API host (Env: DCMANAGER_URL)'
         )
 
@@ -215,7 +227,7 @@ class DCManagerShell(app.App):
             '--dcmanager-api-version',
             action='store',
             dest='dcmanager_version',
-            default=c.env('DCMANAGER_API_VERSION', default='v1.0'),
+            default=env('DCMANAGER_API_VERSION', default='v1.0'),
             help='DC Manager API version (default = v1.0) (Env: '
                  'DCMANAGER_API_VERSION)'
         )
@@ -224,8 +236,8 @@ class DCManagerShell(app.App):
             '--dcmanager-service-type',
             action='store',
             dest='service_type',
-            default=c.env('DCMANAGER_SERVICE_TYPE',
-                          default='dcmanager'),
+            default=env('DCMANAGER_SERVICE_TYPE',
+                        default='dcmanager'),
             help='DC Manager service-type (should be the same name as in '
                  'keystone-endpoint) (default = dcmanager) (Env: '
                  'DCMANAGER_SERVICE_TYPE)'
@@ -235,8 +247,8 @@ class DCManagerShell(app.App):
             '--os-endpoint-type',
             action='store',
             dest='endpoint_type',
-            default=c.env('OS_ENDPOINT_TYPE',
-                          default='internalURL'),
+            default=env('OS_ENDPOINT_TYPE',
+                        default='internalURL'),
             help='DC Manager endpoint-type (should be the same name as in '
                  'keystone-endpoint) (default = OS_ENDPOINT_TYPE)'
         )
@@ -245,7 +257,7 @@ class DCManagerShell(app.App):
             '--os-username',
             action='store',
             dest='username',
-            default=c.env('OS_USERNAME', default='admin'),
+            default=env('OS_USERNAME', default='admin'),
             help='Authentication username (Env: OS_USERNAME)'
         )
 
@@ -253,7 +265,7 @@ class DCManagerShell(app.App):
             '--os-password',
             action='store',
             dest='password',
-            default=c.env('OS_PASSWORD'),
+            default=env('OS_PASSWORD'),
             help='Authentication password (Env: OS_PASSWORD)'
         )
 
@@ -261,7 +273,7 @@ class DCManagerShell(app.App):
             '--os-tenant-id',
             action='store',
             dest='tenant_id',
-            default=c.env('OS_TENANT_ID', 'OS_PROJECT_ID'),
+            default=env('OS_TENANT_ID', 'OS_PROJECT_ID'),
             help='Authentication tenant identifier (Env: OS_TENANT_ID)'
         )
 
@@ -269,7 +281,7 @@ class DCManagerShell(app.App):
             '--os-project-id',
             action='store',
             dest='project_id',
-            default=c.env('OS_TENANT_ID', 'OS_PROJECT_ID'),
+            default=env('OS_TENANT_ID', 'OS_PROJECT_ID'),
             help='Authentication project identifier (Env: OS_TENANT_ID'
                  ' or OS_PROJECT_ID), will use tenant_id if both tenant_id'
                  ' and project_id are set'
@@ -279,7 +291,7 @@ class DCManagerShell(app.App):
             '--os-tenant-name',
             action='store',
             dest='tenant_name',
-            default=c.env('OS_TENANT_NAME', 'OS_PROJECT_NAME'),
+            default=env('OS_TENANT_NAME', 'OS_PROJECT_NAME'),
             help='Authentication tenant name (Env: OS_TENANT_NAME)'
         )
 
@@ -287,7 +299,7 @@ class DCManagerShell(app.App):
             '--os-project-name',
             action='store',
             dest='project_name',
-            default=c.env('OS_TENANT_NAME', 'OS_PROJECT_NAME'),
+            default=env('OS_TENANT_NAME', 'OS_PROJECT_NAME'),
             help='Authentication project name (Env: OS_TENANT_NAME'
                  ' or OS_PROJECT_NAME), will use tenant_name if both'
                  ' tenant_name and project_name are set'
@@ -297,7 +309,7 @@ class DCManagerShell(app.App):
             '--os-auth-token',
             action='store',
             dest='token',
-            default=c.env('OS_AUTH_TOKEN'),
+            default=env('OS_AUTH_TOKEN'),
             help='Authentication token (Env: OS_AUTH_TOKEN)'
         )
 
@@ -305,7 +317,7 @@ class DCManagerShell(app.App):
             '--os-project-domain-name',
             action='store',
             dest='project_domain_name',
-            default=c.env('OS_PROJECT_DOMAIN_NAME'),
+            default=env('OS_PROJECT_DOMAIN_NAME'),
             help='Authentication project domain name or ID'
                  ' (Env: OS_PROJECT_DOMAIN_NAME)'
         )
@@ -314,7 +326,7 @@ class DCManagerShell(app.App):
             '--os-project-domain-id',
             action='store',
             dest='project_domain_id',
-            default=c.env('OS_PROJECT_DOMAIN_ID'),
+            default=env('OS_PROJECT_DOMAIN_ID'),
             help='Authentication project domain ID'
                  ' (Env: OS_PROJECT_DOMAIN_ID)'
         )
@@ -323,7 +335,7 @@ class DCManagerShell(app.App):
             '--os-user-domain-name',
             action='store',
             dest='user_domain_name',
-            default=c.env('OS_USER_DOMAIN_NAME'),
+            default=env('OS_USER_DOMAIN_NAME'),
             help='Authentication user domain name'
                  ' (Env: OS_USER_DOMAIN_NAME)'
         )
@@ -332,7 +344,7 @@ class DCManagerShell(app.App):
             '--os-user-domain-id',
             action='store',
             dest='user_domain_id',
-            default=c.env('OS_USER_DOMAIN_ID'),
+            default=env('OS_USER_DOMAIN_ID'),
             help='Authentication user domain name'
                  ' (Env: OS_USER_DOMAIN_ID)'
         )
@@ -341,7 +353,7 @@ class DCManagerShell(app.App):
             '--os-auth-url',
             action='store',
             dest='auth_url',
-            default=c.env('OS_AUTH_URL'),
+            default=env('OS_AUTH_URL'),
             help='Authentication URL (Env: OS_AUTH_URL)'
         )
 
@@ -349,7 +361,7 @@ class DCManagerShell(app.App):
             '--os-cacert',
             action='store',
             dest='cacert',
-            default=c.env('OS_CACERT'),
+            default=env('OS_CACERT'),
             help='Authentication CA Certificate (Env: OS_CACERT)'
         )
 
@@ -357,7 +369,7 @@ class DCManagerShell(app.App):
             '--insecure',
             action='store_true',
             dest='insecure',
-            default=c.env('DCMANAGERCLIENT_INSECURE', default=False),
+            default=env('DCMANAGERCLIENT_INSECURE', default=False),
             help='Disables SSL/TLS certificate verification '
                  '(Env: DCMANAGERCLIENT_INSECURE)'
         )
