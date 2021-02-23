@@ -45,6 +45,7 @@ MANAGEMENT_STATE = 'unmanaged'
 AVAILABILITY_STATUS = 'offline'
 DEPLOY_STATUS = 'not-deployed'
 DEPLOY_STATE_PRE_DEPLOY = 'pre-deploy'
+DEPLOY_STATE_PRE_RESTORE = 'pre-restore'
 MANAGEMENT_SUBNET = '192.168.101.0/24'
 MANAGEMENT_START_IP = '192.168.101.2'
 MANAGEMENT_END_IP = '192.168.101.50'
@@ -330,3 +331,59 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
                           SYSTEMCONTROLLER_GATEWAY_IP,
                           DEFAULT_SUBCLOUD_GROUP_ID,
                           TIME_NOW, TIME_NOW), actual_call[1])
+
+    @mock.patch('getpass.getpass', return_value='testpassword')
+    def test_restore_subcloud(self, getpass):
+        self.client.subcloud_manager.subcloud_detail.\
+            return_value = [SUBCLOUD]
+
+        SUBCLOUD_BEING_RESTORED = copy.copy(SUBCLOUD)
+        setattr(SUBCLOUD_BEING_RESTORED,
+                'deploy_status',
+                DEPLOY_STATE_PRE_RESTORE)
+
+        self.client.subcloud_manager.restore_subcloud.\
+            return_value = [SUBCLOUD_BEING_RESTORED]
+
+        with tempfile.NamedTemporaryFile() as f:
+            file_path = os.path.abspath(f.name)
+            actual_call = self.call(
+                subcloud_cmd.RestoreSubcloud,
+                app_args=[ID,
+                          '--restore-values', file_path])
+        self.assertEqual((ID, NAME,
+                          DESCRIPTION, LOCATION,
+                          SOFTWARE_VERSION, MANAGEMENT_STATE,
+                          AVAILABILITY_STATUS, DEPLOY_STATE_PRE_RESTORE,
+                          MANAGEMENT_SUBNET, MANAGEMENT_START_IP,
+                          MANAGEMENT_END_IP, MANAGEMENT_GATEWAY_IP,
+                          SYSTEMCONTROLLER_GATEWAY_IP,
+                          DEFAULT_SUBCLOUD_GROUP_ID,
+                          TIME_NOW, TIME_NOW), actual_call[1])
+
+    @mock.patch('getpass.getpass', return_value='testpassword')
+    def test_restore_file_does_not_exist(self, getpass):
+        with tempfile.NamedTemporaryFile() as f:
+            file_path = os.path.abspath(f.name)
+
+        e = self.assertRaises(DCManagerClientException,
+                              self.call,
+                              subcloud_cmd.RestoreSubcloud,
+                              app_args=[ID, '--restore-values', file_path])
+        self.assertTrue('restore-values does not exist'
+                        in str(e))
+
+    @mock.patch('getpass.getpass', return_value='testpassword')
+    def test_restore_subcloud_does_not_exist(self, getpass):
+        self.client.subcloud_manager.subcloud_detail.\
+            return_value = []
+
+        with tempfile.NamedTemporaryFile() as f:
+            file_path = os.path.abspath(f.name)
+
+        e = self.assertRaises(DCManagerClientException,
+                              self.call,
+                              subcloud_cmd.RestoreSubcloud,
+                              app_args=[ID, '--restore-values', file_path])
+        self.assertTrue('does not exist'
+                        in str(e))

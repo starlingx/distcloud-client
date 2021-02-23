@@ -12,7 +12,7 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 #
-# Copyright (c) 2017-2020 Wind River Systems, Inc.
+# Copyright (c) 2017-2021 Wind River Systems, Inc.
 #
 # The right to copy, distribute, modify, or otherwise make use
 # of this software may be licensed only pursuant to the terms
@@ -503,6 +503,7 @@ class DCManagerShell(app.App):
             'subcloud update': sm.UpdateSubcloud,
             'subcloud reconfig': sm.ReconfigSubcloud,
             'subcloud reinstall': sm.ReinstallSubcloud,
+            'subcloud restore': sm.RestoreSubcloud,
             'subcloud-group add': gm.AddSubcloudGroup,
             'subcloud-group delete': gm.DeleteSubcloudGroup,
             'subcloud-group list': gm.ListSubcloudGroup,

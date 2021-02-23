@@ -12,7 +12,7 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 #
-# Copyright (c) 2017-2020 Wind River Systems, Inc.
+# Copyright (c) 2017-2021 Wind River Systems, Inc.
 #
 # The right to copy, distribute, modify, or otherwise make use
 # of this software may be licensed only pursuant to the terms
@@ -113,6 +113,23 @@ def detail_format(subcloud=None):
     return columns, data
 
 
+def prompt_for_password(password_type='sysadmin'):
+    while True:
+        password = getpass.getpass(
+            "Enter the " + password_type + " password for the subcloud: ")
+        if len(password) < 1:
+            print("Password cannot be empty")
+            continue
+
+        confirm = getpass.getpass(
+            "Re-enter " + password_type + " password to confirm: ")
+        if password != confirm:
+            print("Passwords did not match")
+            continue
+        break
+    return password
+
+
 class AddSubcloud(base.DCManagerShowOne):
     """Add a new subcloud."""
 
@@ -205,42 +222,18 @@ class AddSubcloud(base.DCManagerShowOne):
             data['sysadmin_password'] = base64.b64encode(
                 parsed_args.sysadmin_password.encode("utf-8"))
         else:
-            while True:
-                password = getpass.getpass(
-                    "Enter the sysadmin password for the subcloud: ")
-                if len(password) < 1:
-                    print("Password cannot be empty")
-                    continue
-
-                confirm = getpass.getpass(
-                    "Re-enter sysadmin password to confirm: ")
-                if password != confirm:
-                    print("Passwords did not match")
-                    continue
-                data["sysadmin_password"] = base64.b64encode(
-                    password.encode("utf-8"))
-                break
+            password = prompt_for_password()
+            data["sysadmin_password"] = base64.b64encode(
+                password.encode("utf-8"))
 
         if parsed_args.install_values is not None:
             if parsed_args.bmc_password is not None:
                 data['bmc_password'] = base64.b64encode(
                     parsed_args.bmc_password.encode("utf-8"))
             else:
-                while True:
-                    password = getpass.getpass(
-                        "Enter the bmc password for the subcloud: ")
-                    if len(password) < 1:
-                        print("Password cannot be empty")
-                        continue
-
-                    confirm = getpass.getpass(
-                        "Re-enter bmc password to confirm: ")
-                    if password != confirm:
-                        print("Passwords did not match")
-                        continue
-                    data["bmc_password"] = base64.b64encode(
-                        password.encode("utf-8"))
-                    break
+                password = prompt_for_password('bmc')
+                data["bmc_password"] = base64.b64encode(
+                    password.encode("utf-8"))
 
         if parsed_args.group is not None:
             data['group_id'] = parsed_args.group
@@ -536,21 +529,9 @@ class ReconfigSubcloud(base.DCManagerShowOne):
             data['sysadmin_password'] = base64.b64encode(
                 parsed_args.sysadmin_password.encode("utf-8"))
         else:
-            while True:
-                password = getpass.getpass(
-                    "Enter the sysadmin password for the subcloud: ")
-                if len(password) < 1:
-                    print("Password cannot be empty")
-                    continue
-
-                confirm = getpass.getpass(
-                    "Re-enter sysadmin password to confirm: ")
-                if password != confirm:
-                    print("Passwords did not match")
-                    continue
-                data["sysadmin_password"] = base64.b64encode(
-                    password.encode("utf-8"))
-                break
+            password = prompt_for_password()
+            data["sysadmin_password"] = base64.b64encode(
+                password.encode("utf-8"))
 
         try:
             return dcmanager_client.subcloud_manager.reconfigure_subcloud(
@@ -594,3 +575,87 @@ class ReinstallSubcloud(base.DCManagerShowOne):
         else:
             msg = "Subcloud %s will not be reinstalled" % (subcloud_ref)
             raise exceptions.DCManagerClientException(msg)
+
+
+class RestoreSubcloud(base.DCManagerShowOne):
+    """Restore a subcloud."""
+
+    def _get_format_function(self):
+        return detail_format
+
+    def get_parser(self, prog_name):
+        parser = super(RestoreSubcloud, self).get_parser(prog_name)
+
+        parser.add_argument(
+            '--restore-values',
+            required=True,
+            help='YAML file containing subcloud restore settings. '
+                 'Can be either a local file path or a URL.'
+        )
+
+        parser.add_argument(
+            '--sysadmin-password',
+            required=False,
+            help='sysadmin password of the subcloud to be restored, '
+                 'if not provided you will be prompted.'
+        )
+
+        parser.add_argument(
+            '--with-install',
+            required=False,
+            action='store_true',
+            help='option to reinstall the subcloud as part of restore, '
+                 'suitable only for subclouds that can be installed remotely.'
+        )
+
+        parser.add_argument(
+            'subcloud',
+            help='Name or ID of the subcloud to update.'
+        )
+
+        return parser
+
+    def _get_resources(self, parsed_args):
+        subcloud_ref = parsed_args.subcloud
+        dcmanager_client = self.app.client_manager.subcloud_manager
+        files = dict()
+        data = dict()
+
+        if parsed_args.with_install:
+            data['with_install'] = 'true'
+
+        # Get the restore values yaml file
+        if not os.path.isfile(parsed_args.restore_values):
+            error_msg = "restore-values does not exist: %s" % \
+                        parsed_args.restore_values
+            raise exceptions.DCManagerClientException(error_msg)
+        files['restore_values'] = parsed_args.restore_values
+
+        # Prompt the user for the subcloud's password if it isn't provided
+        if parsed_args.sysadmin_password is not None:
+            data['sysadmin_password'] = base64.b64encode(
+                parsed_args.sysadmin_password.encode("utf-8"))
+        else:
+            password = prompt_for_password()
+            data["sysadmin_password"] = base64.b64encode(
+                password.encode("utf-8"))
+
+        subcloud_list = \
+            dcmanager_client.subcloud_manager.subcloud_detail(subcloud_ref)
+        if subcloud_list:
+            if subcloud_list[0].management_state != 'unmanaged':
+                error_msg = "Subcloud can not be restored while it is " +\
+                            "still in managed state. Please unmanage " +\
+                            "the subcloud and try again."
+                raise exceptions.DCManagerClientException(error_msg)
+        else:
+            error_msg = subcloud_ref + " not found."
+            raise exceptions.DCManagerClientException(error_msg)
+
+        try:
+            return dcmanager_client.subcloud_manager.restore_subcloud(
+                subcloud_ref, files=files, data=data)
+        except Exception as e:
+            print(e)
+            error_msg = "Unable to restore subcloud %s" % (subcloud_ref)
+            raise exceptions.DCManagerClientException(error_msg)
