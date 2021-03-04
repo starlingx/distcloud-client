@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2020 Wind River Systems, Inc.
+# Copyright (c) 2020-2021 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -17,3 +17,6 @@ class TestFwUpdateStrategy(UpdateStrategyMixin, base.BaseCommandTest):
             self.app.client_manager.fw_update_manager.fw_update_manager
         self.create_command = cli_cmd.CreateFwUpdateStrategy
         self.show_command = cli_cmd.ShowFwUpdateStrategy
+        self.delete_command = cli_cmd.DeleteFwUpdateStrategy
+        self.apply_command = cli_cmd.ApplyFwUpdateStrategy
+        self.abort_command = cli_cmd.AbortFwUpdateStrategy

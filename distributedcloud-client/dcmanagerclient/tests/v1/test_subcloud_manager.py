@@ -12,7 +12,7 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 #
-# Copyright (c) 2017-2020 Wind River Systems, Inc.
+# Copyright (c) 2017-2021 Wind River Systems, Inc.
 #
 # The right to copy, distribute, modify, or otherwise make use
 # of this software may be licensed only pursuant to the terms
@@ -148,9 +148,8 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
 
     def test_show_subcloud_with_additional_detail(self):
         SUBCLOUD_WITH_ADDITIONAL_DETAIL = copy.copy(SUBCLOUD)
-        setattr(SUBCLOUD_WITH_ADDITIONAL_DETAIL,
-                'oam_floating_ip',
-                SUBCLOUD_DICT['OAM_FLOATING_IP'])
+        SUBCLOUD_WITH_ADDITIONAL_DETAIL.oam_floating_ip =  \
+            SUBCLOUD_DICT['OAM_FLOATING_IP']
         self.client.subcloud_manager.subcloud_additional_details.\
             return_value = [SUBCLOUD_WITH_ADDITIONAL_DETAIL]
         actual_call = self.call(subcloud_cmd.ShowSubcloud,
@@ -275,9 +274,7 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
     @mock.patch('getpass.getpass', return_value='testpassword')
     def test_success_reconfigure_subcloud(self, getpass):
         SUBCLOUD_BEING_DEPLOYED = copy.copy(SUBCLOUD)
-        setattr(SUBCLOUD_BEING_DEPLOYED,
-                'deploy_status',
-                DEPLOY_STATE_PRE_DEPLOY)
+        SUBCLOUD_BEING_DEPLOYED.deploy_status = DEPLOY_STATE_PRE_DEPLOY
         self.client.subcloud_manager.reconfigure_subcloud.\
             return_value = [SUBCLOUD_BEING_DEPLOYED]
 
@@ -300,9 +297,7 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
     @mock.patch('getpass.getpass', return_value='testpassword')
     def test_reconfigure_file_does_not_exist(self, getpass):
         SUBCLOUD_BEING_DEPLOYED = copy.copy(SUBCLOUD)
-        setattr(SUBCLOUD_BEING_DEPLOYED,
-                'deploy_status',
-                DEPLOY_STATE_PRE_DEPLOY)
+        SUBCLOUD_BEING_DEPLOYED.deploy_status = DEPLOY_STATE_PRE_DEPLOY
         self.client.subcloud_manager.reconfigure_subcloud.\
             return_value = [SUBCLOUD_BEING_DEPLOYED]
 

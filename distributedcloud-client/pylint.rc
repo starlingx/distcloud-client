@@ -43,7 +43,6 @@ load-plugins=
 # W0231: super-init-not-called
 # W0403: relative-import (typically caused by six)
 # W0603: global-statement
-# W0612: unused-variable
 # W0613: unused-argument
 # W0621: redefined-outer-name
 # W0622: redefined-builtin
