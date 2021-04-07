@@ -56,7 +56,7 @@ class subcloud_deploy_manager(base.ResourceManager):
         for k, v in data.items():
             fields.update({k: (v, open(v, 'rb'),)})
         enc = MultipartEncoder(fields=fields)
-        headers = {'Content-Type': enc.content_type}
+        headers = {'content-type': enc.content_type}
         resp = self.http_client.post(url, enc, headers=headers)
         if resp.status_code != 200:
             self._raise_api_exception(resp)

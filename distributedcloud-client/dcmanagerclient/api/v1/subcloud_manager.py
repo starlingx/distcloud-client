@@ -90,7 +90,7 @@ class subcloud_manager(base.ResourceManager):
             fields.update({k: (v, open(v, 'rb'),)})
         fields.update(data)
         enc = MultipartEncoder(fields=fields)
-        headers = {'Content-Type': enc.content_type}
+        headers = {'content-type': enc.content_type}
         resp = self.http_client.post(url, enc, headers=headers)
         if resp.status_code != 200:
             self._raise_api_exception(resp)
@@ -106,7 +106,7 @@ class subcloud_manager(base.ResourceManager):
                 fields.update({k: (v, open(v, 'rb'),)})
         fields.update(data)
         enc = MultipartEncoder(fields=fields)
-        headers = {'Content-Type': enc.content_type}
+        headers = {'content-type': enc.content_type}
         resp = self.http_client.patch(url, enc, headers=headers)
         if resp.status_code != 200:
             self._raise_api_exception(resp)
@@ -121,7 +121,7 @@ class subcloud_manager(base.ResourceManager):
             fields.update({k: (v, open(v, 'rb'),)})
         fields.update(data)
         enc = MultipartEncoder(fields=fields)
-        headers = {'Content-Type': enc.content_type}
+        headers = {'content-type': enc.content_type}
         resp = self.http_client.patch(url, enc, headers=headers)
         if resp.status_code != 200:
             self._raise_api_exception(resp)
@@ -133,7 +133,7 @@ class subcloud_manager(base.ResourceManager):
     def subcloud_reinstall(self, url):
         fields = dict()
         enc = MultipartEncoder(fields=fields)
-        headers = {'Content-Type': enc.content_type}
+        headers = {'content-type': enc.content_type}
         resp = self.http_client.patch(url, enc, headers=headers)
         if resp.status_code != 200:
             self._raise_api_exception(resp)
@@ -148,7 +148,7 @@ class subcloud_manager(base.ResourceManager):
             fields.update({k: (v, open(v, 'rb'),)})
         fields.update(data)
         enc = MultipartEncoder(fields=fields)
-        headers = {'Content-Type': enc.content_type}
+        headers = {'content-type': enc.content_type}
         resp = self.http_client.patch(url, enc, headers=headers)
         if resp.status_code != 200:
             self._raise_api_exception(resp)

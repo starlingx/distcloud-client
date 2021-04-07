@@ -34,11 +34,11 @@ def format(alarms=None):
 
     if alarms:
         data = (
-            alarms.name if alarms.name >= 0 else '-',
-            alarms.critical if alarms.critical >= 0 else '-',
-            alarms.major if alarms.major >= 0 else '-',
-            alarms.minor if alarms.minor >= 0 else '-',
-            alarms.warnings if alarms.warnings >= 0 else '-',
+            alarms.name if alarms.name else '-',
+            alarms.critical if int(alarms.critical) >= 0 else '-',
+            alarms.major if int(alarms.major) >= 0 else '-',
+            alarms.minor if int(alarms.minor) >= 0 else '-',
+            alarms.warnings if int(alarms.warnings) >= 0 else '-',
             alarms.status
         )
 
