@@ -185,6 +185,13 @@ class AddSubcloud(base.DCManagerShowOne):
             required=False,
             help='Name or ID of subcloud group.'
         )
+
+        parser.add_argument(
+            '--migrate',
+            required=False,
+            action='store_true',
+            help='Migrate a subcloud from another distributed cloud.'
+        )
         return parser
 
     def _get_resources(self, parsed_args):
@@ -236,6 +243,9 @@ class AddSubcloud(base.DCManagerShowOne):
 
         if parsed_args.group is not None:
             data['group_id'] = parsed_args.group
+
+        if parsed_args.migrate:
+            data['migrate'] = 'true'
 
         return dcmanager_client.subcloud_manager.add_subcloud(files=files,
                                                               data=data)
