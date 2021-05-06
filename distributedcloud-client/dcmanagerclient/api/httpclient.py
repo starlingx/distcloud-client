@@ -61,8 +61,10 @@ class HTTPClient(object):
                 LOG.warning('Client is set to not verify even though '
                             'cacert is provided.')
 
-            self.ssl_options['verify'] = not insecure
-            self.ssl_options['cert'] = cacert
+            if insecure:
+                self.ssl_options['verify'] = False
+            else:
+                self.ssl_options['verify'] = True if not cacert else cacert
 
     @log_request
     def get(self, url, headers=None):
