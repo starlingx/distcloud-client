@@ -26,6 +26,7 @@
     name: stx-distcloud-client-tox-py27
     parent: tox
     description: Run py27 for distcloud-client
+    nodeset: ubuntu-xenial
     vars:
       tox_envlist: py27
       tox_extra_args: -c distributedcloud-client/tox.ini
@@ -34,6 +35,7 @@
     name: stx-distcloud-client-tox-py36
     parent: tox
     description: Run py36 for distcloud-client
+    nodeset: ubuntu-bionic
     vars:
       tox_envlist: py36
       tox_extra_args: -c distributedcloud-client/tox.ini
