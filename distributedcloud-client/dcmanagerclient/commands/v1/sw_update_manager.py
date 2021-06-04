@@ -147,11 +147,27 @@ class CreateSwUpdateStrategy(base.DCManagerShowOne):
         )
 
         parser.add_argument(
+            '--force',
+            required=False,
+            action='store_true',
+            help='Disregard subcloud availability status, intended for \
+                  some upgrade recovery scenarios. Subcloud name must be \
+                  specified.'
+        )
+
+        parser.add_argument(
+            '--group',
+            required=False,
+            help='Name or ID of subcloud group to update.'
+        )
+
+        parser.add_argument(
             'cloud_name',
             nargs='?',
             default=None,
             help='Name of a single cloud to update.'
         )
+
         return parser
 
     def _get_resources(self, parsed_args):
@@ -163,8 +179,30 @@ class CreateSwUpdateStrategy(base.DCManagerShowOne):
                 parsed_args.max_parallel_subclouds
         if parsed_args.stop_on_failure:
             kwargs['stop-on-failure'] = 'true'
+        if parsed_args.force:
+            kwargs['force'] = 'true'
         if parsed_args.cloud_name is not None:
             kwargs['cloud_name'] = parsed_args.cloud_name
+        if parsed_args.group is not None:
+            kwargs['subcloud_group'] = parsed_args.group
+
+        if parsed_args.force and not parsed_args.cloud_name:
+            error_msg = 'The --force option can only be applied to a single ' \
+                        'subcloud. Please specify the subcloud name.'
+            raise exceptions.DCManagerClientException(error_msg)
+
+        if parsed_args.cloud_name and parsed_args.group:
+            error_msg = 'The cloud_name and group options are mutually ' \
+                        'exclusive.'
+            raise exceptions.DCManagerClientException(error_msg)
+
+        if parsed_args.group and (parsed_args.subcloud_apply_type or
+                                  parsed_args.max_parallel_subclouds):
+            error_msg = 'The --subcloud-apply-type and ' \
+                        '--max-parallel-subclouds options are not ' \
+                        'supported when --group option is applied.'
+            raise exceptions.DCManagerClientException(error_msg)
+
         return self.get_sw_update_manager().create_sw_update_strategy(**kwargs)
 
 

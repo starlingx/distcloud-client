@@ -13,7 +13,7 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 #
-# Copyright (c) 2017 Wind River Systems, Inc.
+# Copyright (c) 2017-2021 Wind River Systems, Inc.
 #
 # The right to copy, distribute, modify, or otherwise make use
 # of this software may be licensed only pursuant to the terms
@@ -21,9 +21,8 @@
 #
 
 import json
-
 import mock
-import unittest2
+import testtools
 
 
 class FakeResponse(object):
@@ -39,8 +38,11 @@ class FakeResponse(object):
         return json.loads(self.content)
 
 
-class BaseClientTest(unittest2.TestCase):
+class BaseClientTest(testtools.TestCase):
     _client = None
+
+    def setUp(self):
+        super(BaseClientTest, self).setUp()
 
     def mock_http_get(self, content, status_code=200):
         if isinstance(content, dict):
@@ -76,12 +78,15 @@ class BaseClientTest(unittest2.TestCase):
         return self._client.http_client.delete
 
 
-class BaseCommandTest(unittest2.TestCase):
+class BaseCommandTest(testtools.TestCase):
     def setUp(self):
+        super(BaseCommandTest, self).setUp()
         self.app = mock.Mock()
         self.client = self.app.client_manager.subcloud_manager
 
-    def call(self, command, app_args=[], prog_name=''):
+    def call(self, command, app_args=None, prog_name=''):
+        if app_args is None:
+            app_args = []
         cmd = command(self.app, app_args)
 
         parsed_args = cmd.get_parser(prog_name).parse_args(app_args)

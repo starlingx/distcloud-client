@@ -14,7 +14,7 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 #
-# Copyright (c) 2017-2020 Wind River Systems, Inc.
+# Copyright (c) 2017-2021 Wind River Systems, Inc.
 #
 # The right to copy, distribute, modify, or otherwise make use
 # of this software may be licensed only pursuant to the terms
@@ -29,6 +29,7 @@ import osprofiler.profiler
 from dcmanagerclient.api import httpclient
 from dcmanagerclient.api.v1 import alarm_manager as am
 from dcmanagerclient.api.v1 import fw_update_manager as fum
+from dcmanagerclient.api.v1 import kube_upgrade_manager as kupm
 from dcmanagerclient.api.v1 import strategy_step_manager as ssm
 from dcmanagerclient.api.v1 import subcloud_deploy_manager as sdm
 from dcmanagerclient.api.v1 import subcloud_group_manager as gm
@@ -102,6 +103,7 @@ class Client(object):
             self.http_client)
         self.alarm_manager = am.alarm_manager(self.http_client)
         self.fw_update_manager = fum.fw_update_manager(self.http_client)
+        self.kube_upgrade_manager = kupm.kube_upgrade_manager(self.http_client)
         self.sw_patch_manager = spm.sw_patch_manager(self.http_client)
         self.sw_update_options_manager = \
             suom.sw_update_options_manager(self.http_client)

@@ -24,12 +24,12 @@ Command-line interface to the DC Manager APIs
 """
 
 import logging
+import os
 import sys
 
 from dcmanagerclient import __version__ as dcmanager_version
 from dcmanagerclient.api import client
 from dcmanagerclient import exceptions
-from dcmanagerclient.openstack.common import cliutils as c
 
 from cliff import app
 from cliff import commandmanager
@@ -37,7 +37,8 @@ from osc_lib.command import command
 
 import argparse
 from dcmanagerclient.commands.v1 import alarm_manager as am
-# from dcmanagerclient.commands.v1 import fw_update_manager as fum
+from dcmanagerclient.commands.v1 import fw_update_manager as fum
+from dcmanagerclient.commands.v1 import kube_upgrade_manager as kupm
 from dcmanagerclient.commands.v1 import subcloud_deploy_manager as sdm
 from dcmanagerclient.commands.v1 import subcloud_group_manager as gm
 from dcmanagerclient.commands.v1 import subcloud_manager as sm
@@ -47,6 +48,18 @@ from dcmanagerclient.commands.v1 import sw_update_options_manager as suom
 from dcmanagerclient.commands.v1 import sw_upgrade_manager as supm
 
 LOG = logging.getLogger(__name__)
+
+
+def env(*args, **kwargs):
+    """Returns the first environment variable set.
+
+    If all are empty, defaults to '' or keyword arg `default`.
+    """
+    for arg in args:
+        value = os.environ.get(arg)
+        if value:
+            return value
+    return kwargs.get('default', '')
 
 
 class OpenStackHelpFormatter(argparse.HelpFormatter):
@@ -207,7 +220,7 @@ class DCManagerShell(app.App):
             '--dcmanager-url',
             action='store',
             dest='dcmanager_url',
-            default=c.env('DCMANAGER_URL'),
+            default=env('DCMANAGER_URL'),
             help='DC Manager API host (Env: DCMANAGER_URL)'
         )
 
@@ -215,7 +228,7 @@ class DCManagerShell(app.App):
             '--dcmanager-api-version',
             action='store',
             dest='dcmanager_version',
-            default=c.env('DCMANAGER_API_VERSION', default='v1.0'),
+            default=env('DCMANAGER_API_VERSION', default='v1.0'),
             help='DC Manager API version (default = v1.0) (Env: '
                  'DCMANAGER_API_VERSION)'
         )
@@ -224,8 +237,8 @@ class DCManagerShell(app.App):
             '--dcmanager-service-type',
             action='store',
             dest='service_type',
-            default=c.env('DCMANAGER_SERVICE_TYPE',
-                          default='dcmanager'),
+            default=env('DCMANAGER_SERVICE_TYPE',
+                        default='dcmanager'),
             help='DC Manager service-type (should be the same name as in '
                  'keystone-endpoint) (default = dcmanager) (Env: '
                  'DCMANAGER_SERVICE_TYPE)'
@@ -235,8 +248,8 @@ class DCManagerShell(app.App):
             '--os-endpoint-type',
             action='store',
             dest='endpoint_type',
-            default=c.env('OS_ENDPOINT_TYPE',
-                          default='internalURL'),
+            default=env('OS_ENDPOINT_TYPE',
+                        default='internalURL'),
             help='DC Manager endpoint-type (should be the same name as in '
                  'keystone-endpoint) (default = OS_ENDPOINT_TYPE)'
         )
@@ -245,7 +258,7 @@ class DCManagerShell(app.App):
             '--os-username',
             action='store',
             dest='username',
-            default=c.env('OS_USERNAME', default='admin'),
+            default=env('OS_USERNAME', default='admin'),
             help='Authentication username (Env: OS_USERNAME)'
         )
 
@@ -253,7 +266,7 @@ class DCManagerShell(app.App):
             '--os-password',
             action='store',
             dest='password',
-            default=c.env('OS_PASSWORD'),
+            default=env('OS_PASSWORD'),
             help='Authentication password (Env: OS_PASSWORD)'
         )
 
@@ -261,7 +274,7 @@ class DCManagerShell(app.App):
             '--os-tenant-id',
             action='store',
             dest='tenant_id',
-            default=c.env('OS_TENANT_ID', 'OS_PROJECT_ID'),
+            default=env('OS_TENANT_ID', 'OS_PROJECT_ID'),
             help='Authentication tenant identifier (Env: OS_TENANT_ID)'
         )
 
@@ -269,7 +282,7 @@ class DCManagerShell(app.App):
             '--os-project-id',
             action='store',
             dest='project_id',
-            default=c.env('OS_TENANT_ID', 'OS_PROJECT_ID'),
+            default=env('OS_TENANT_ID', 'OS_PROJECT_ID'),
             help='Authentication project identifier (Env: OS_TENANT_ID'
                  ' or OS_PROJECT_ID), will use tenant_id if both tenant_id'
                  ' and project_id are set'
@@ -279,7 +292,7 @@ class DCManagerShell(app.App):
             '--os-tenant-name',
             action='store',
             dest='tenant_name',
-            default=c.env('OS_TENANT_NAME', 'OS_PROJECT_NAME'),
+            default=env('OS_TENANT_NAME', 'OS_PROJECT_NAME'),
             help='Authentication tenant name (Env: OS_TENANT_NAME)'
         )
 
@@ -287,7 +300,7 @@ class DCManagerShell(app.App):
             '--os-project-name',
             action='store',
             dest='project_name',
-            default=c.env('OS_TENANT_NAME', 'OS_PROJECT_NAME'),
+            default=env('OS_TENANT_NAME', 'OS_PROJECT_NAME'),
             help='Authentication project name (Env: OS_TENANT_NAME'
                  ' or OS_PROJECT_NAME), will use tenant_name if both'
                  ' tenant_name and project_name are set'
@@ -297,7 +310,7 @@ class DCManagerShell(app.App):
             '--os-auth-token',
             action='store',
             dest='token',
-            default=c.env('OS_AUTH_TOKEN'),
+            default=env('OS_AUTH_TOKEN'),
             help='Authentication token (Env: OS_AUTH_TOKEN)'
         )
 
@@ -305,7 +318,7 @@ class DCManagerShell(app.App):
             '--os-project-domain-name',
             action='store',
             dest='project_domain_name',
-            default=c.env('OS_PROJECT_DOMAIN_NAME'),
+            default=env('OS_PROJECT_DOMAIN_NAME'),
             help='Authentication project domain name or ID'
                  ' (Env: OS_PROJECT_DOMAIN_NAME)'
         )
@@ -314,7 +327,7 @@ class DCManagerShell(app.App):
             '--os-project-domain-id',
             action='store',
             dest='project_domain_id',
-            default=c.env('OS_PROJECT_DOMAIN_ID'),
+            default=env('OS_PROJECT_DOMAIN_ID'),
             help='Authentication project domain ID'
                  ' (Env: OS_PROJECT_DOMAIN_ID)'
         )
@@ -323,7 +336,7 @@ class DCManagerShell(app.App):
             '--os-user-domain-name',
             action='store',
             dest='user_domain_name',
-            default=c.env('OS_USER_DOMAIN_NAME'),
+            default=env('OS_USER_DOMAIN_NAME'),
             help='Authentication user domain name'
                  ' (Env: OS_USER_DOMAIN_NAME)'
         )
@@ -332,7 +345,7 @@ class DCManagerShell(app.App):
             '--os-user-domain-id',
             action='store',
             dest='user_domain_id',
-            default=c.env('OS_USER_DOMAIN_ID'),
+            default=env('OS_USER_DOMAIN_ID'),
             help='Authentication user domain name'
                  ' (Env: OS_USER_DOMAIN_ID)'
         )
@@ -341,7 +354,7 @@ class DCManagerShell(app.App):
             '--os-auth-url',
             action='store',
             dest='auth_url',
-            default=c.env('OS_AUTH_URL'),
+            default=env('OS_AUTH_URL'),
             help='Authentication URL (Env: OS_AUTH_URL)'
         )
 
@@ -349,7 +362,7 @@ class DCManagerShell(app.App):
             '--os-cacert',
             action='store',
             dest='cacert',
-            default=c.env('OS_CACERT'),
+            default=env('OS_CACERT'),
             help='Authentication CA Certificate (Env: OS_CACERT)'
         )
 
@@ -357,7 +370,7 @@ class DCManagerShell(app.App):
             '--insecure',
             action='store_true',
             dest='insecure',
-            default=c.env('DCMANAGERCLIENT_INSECURE', default=False),
+            default=env('DCMANAGERCLIENT_INSECURE', default=False),
             help='Disables SSL/TLS certificate verification '
                  '(Env: DCMANAGERCLIENT_INSECURE)'
         )
@@ -394,7 +407,7 @@ class DCManagerShell(app.App):
             self.options.auth_url = None
 
         if self.options.auth_url and not self.options.token \
-            and not skip_auth:
+                and not skip_auth:
             if not self.options.tenant_name:
                 raise exceptions.CommandError(
                     ("You must provide a tenant_name "
@@ -441,7 +454,7 @@ class DCManagerShell(app.App):
                  "--os-auth-url or env[OS_AUTH_URL] or "
                  "specify an auth_system which defines a"
                  " default url with --os-auth-system or env[OS_AUTH_SYSTEM]")
-                )
+            )
 
         # Adding client_manager variable to make dcmanager client work with
         # unified OpenStack client.
@@ -456,7 +469,8 @@ class DCManagerShell(app.App):
                  sw_patch_manager=self.client,
                  strategy_step_manager=self.client,
                  sw_update_options_manager=self.client,
-                 sw_upgrade_manager=self.client)
+                 sw_upgrade_manager=self.client,
+                 kube_upgrade_manager=self.client)
         )
         self.client_manager = ClientManager()
 
@@ -468,7 +482,7 @@ class DCManagerShell(app.App):
         exclude_cmds = ['help', 'complete']
 
         cmds = self.command_manager.commands.copy()
-        for k, v in cmds.items():
+        for k, _v in cmds.items():
             if k not in exclude_cmds:
                 self.command_manager.commands.pop(k)
 
@@ -489,6 +503,9 @@ class DCManagerShell(app.App):
             'subcloud unmanage': sm.UnmanageSubcloud,
             'subcloud manage': sm.ManageSubcloud,
             'subcloud update': sm.UpdateSubcloud,
+            'subcloud reconfig': sm.ReconfigSubcloud,
+            'subcloud reinstall': sm.ReinstallSubcloud,
+            'subcloud restore': sm.RestoreSubcloud,
             'subcloud-group add': gm.AddSubcloudGroup,
             'subcloud-group delete': gm.DeleteSubcloudGroup,
             'subcloud-group list': gm.ListSubcloudGroup,
@@ -498,11 +515,16 @@ class DCManagerShell(app.App):
             'subcloud-deploy upload': sdm.SubcloudDeployUpload,
             'subcloud-deploy show': sdm.SubcloudDeployShow,
             'alarm summary': am.ListAlarmSummary,
-            # 'fw-update-strategy create': fum.CreateFwUpdateStrategy,
-            # 'fw-update-strategy delete': fum.DeleteFwUpdateStrategy,
-            # 'fw-update-strategy apply': fum.ApplyFwUpdateStrategy,
-            # 'fw-update-strategy abort': fum.AbortFwUpdateStrategy,
-            # 'fw-update-strategy show': fum.ShowFwUpdateStrategy,
+            'fw-update-strategy create': fum.CreateFwUpdateStrategy,
+            'fw-update-strategy delete': fum.DeleteFwUpdateStrategy,
+            'fw-update-strategy apply': fum.ApplyFwUpdateStrategy,
+            'fw-update-strategy abort': fum.AbortFwUpdateStrategy,
+            'fw-update-strategy show': fum.ShowFwUpdateStrategy,
+            'kube-upgrade-strategy create': kupm.CreateKubeUpgradeStrategy,
+            'kube-upgrade-strategy delete': kupm.DeleteKubeUpgradeStrategy,
+            'kube-upgrade-strategy apply': kupm.ApplyKubeUpgradeStrategy,
+            'kube-upgrade-strategy abort': kupm.AbortKubeUpgradeStrategy,
+            'kube-upgrade-strategy show': kupm.ShowKubeUpgradeStrategy,
             'patch-strategy create': spm.CreatePatchUpdateStrategy,
             'patch-strategy delete': spm.DeletePatchUpdateStrategy,
             'patch-strategy apply': spm.ApplyPatchUpdateStrategy,

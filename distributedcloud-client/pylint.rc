@@ -37,22 +37,23 @@ load-plugins=
 # R detect Refactor for a "good practice" metric violation
 # C detect Convention for coding standard violation
 # W0102: dangerous-default-value
+# W0107: unnecessary-pass
 # W0201: attribute-defined-outside-init
 # W0212: protected-access
 # W0231: super-init-not-called
 # W0403: relative-import (typically caused by six)
 # W0603: global-statement
-# W0612: unused-variable
 # W0613: unused-argument
 # W0621: redefined-outer-name
 # W0622: redefined-builtin
 # W0703: broad-except
-# W1201: logging-not-lazy
 # W1113: keyword-arg-before-vararg
+# W1201: logging-not-lazy
+# W1505: deprecated-method
 # E1102: not-callable
 disable=fixme,C,R,
-        W0102,W0201,W0212,W0231,W0403,
-        W0612,W0613,W0603,W0621,W0622,W0703,W1201,W1113,
+        W0102,W0107,W0201,W0212,W0231,W0403,
+        W0612,W0613,W0603,W0621,W0622,W0703,W1112,W1201,W1505,
         E1102
 
 [REPORTS]

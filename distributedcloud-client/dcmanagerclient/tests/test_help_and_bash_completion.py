@@ -12,7 +12,7 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 #
-# Copyright (c) 2017 Wind River Systems, Inc.
+# Copyright (c) 2017-2021 Wind River Systems, Inc.
 #
 # The right to copy, distribute, modify, or otherwise make use
 # of this software may be licensed only pursuant to the terms
@@ -38,7 +38,7 @@ class TestCLIHelp(base.BaseShellTests):
         required = [
             '.*?^usage: ',
             '.*?^\s+help\s+print detailed help for another command'
-            ]
+        ]
         kb_help, stderr = self.shell('help')
         for r in required:
             self.assertThat((kb_help + stderr),

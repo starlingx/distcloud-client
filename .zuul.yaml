@@ -3,17 +3,20 @@
     templates:
       - publish-stx-docs
       - stx-release-notes-jobs
+      - stx-bandit-jobs
     check:
       jobs:
         - openstack-tox-linters
         - stx-distcloud-client-tox-pep8
         - stx-distcloud-client-tox-py27
+        - stx-distcloud-client-tox-py36
         - stx-distcloud-client-tox-pylint
     gate:
       jobs:
         - openstack-tox-linters
         - stx-distcloud-client-tox-pep8
         - stx-distcloud-client-tox-py27
+        - stx-distcloud-client-tox-py36
         - stx-distcloud-client-tox-pylint
     post:
       jobs:
@@ -26,6 +29,15 @@
     nodeset: ubuntu-xenial
     vars:
       tox_envlist: py27
+      tox_extra_args: -c distributedcloud-client/tox.ini
+
+- job:
+    name: stx-distcloud-client-tox-py36
+    parent: tox
+    description: Run py36 for distcloud-client
+    nodeset: ubuntu-bionic
+    vars:
+      tox_envlist: py36
       tox_extra_args: -c distributedcloud-client/tox.ini
 
 - job:

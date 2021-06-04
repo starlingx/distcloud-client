@@ -12,7 +12,7 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 #
-# Copyright (c) 2017-2020 Wind River Systems, Inc.
+# Copyright (c) 2017-2021 Wind River Systems, Inc.
 #
 # The right to copy, distribute, modify, or otherwise make use
 # of this software may be licensed only pursuant to the terms
@@ -29,6 +29,7 @@ from oslo_utils import timeutils
 
 from dcmanagerclient.api.v1 import subcloud_manager as sm
 from dcmanagerclient.commands.v1 import subcloud_manager as subcloud_cmd
+from dcmanagerclient.exceptions import DCManagerClientException
 from dcmanagerclient.tests import base
 
 BOOTSTRAP_ADDRESS = '10.10.10.12'
@@ -43,6 +44,8 @@ SOFTWARE_VERSION = '12.34'
 MANAGEMENT_STATE = 'unmanaged'
 AVAILABILITY_STATUS = 'offline'
 DEPLOY_STATUS = 'not-deployed'
+DEPLOY_STATE_PRE_DEPLOY = 'pre-deploy'
+DEPLOY_STATE_PRE_RESTORE = 'pre-restore'
 MANAGEMENT_SUBNET = '192.168.101.0/24'
 MANAGEMENT_START_IP = '192.168.101.2'
 MANAGEMENT_END_IP = '192.168.101.50'
@@ -145,9 +148,8 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
 
     def test_show_subcloud_with_additional_detail(self):
         SUBCLOUD_WITH_ADDITIONAL_DETAIL = copy.copy(SUBCLOUD)
-        setattr(SUBCLOUD_WITH_ADDITIONAL_DETAIL,
-                'oam_floating_ip',
-                SUBCLOUD_DICT['OAM_FLOATING_IP'])
+        SUBCLOUD_WITH_ADDITIONAL_DETAIL.oam_floating_ip =  \
+            SUBCLOUD_DICT['OAM_FLOATING_IP']
         self.client.subcloud_manager.subcloud_additional_details.\
             return_value = [SUBCLOUD_WITH_ADDITIONAL_DETAIL]
         actual_call = self.call(subcloud_cmd.ShowSubcloud,
@@ -197,13 +199,49 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
             "external_oam_floating_address": EXTERNAL_OAM_FLOATING_ADDRESS,
         }
 
-        with tempfile.NamedTemporaryFile() as f:
+        with tempfile.NamedTemporaryFile(mode='w') as f:
             yaml.dump(values, f)
             file_path = os.path.abspath(f.name)
             actual_call = self.call(
                 subcloud_cmd.AddSubcloud, app_args=[
                     '--bootstrap-address', BOOTSTRAP_ADDRESS,
                     '--bootstrap-values', file_path,
+                ])
+        self.assertEqual((ID, NAME, DESCRIPTION, LOCATION, SOFTWARE_VERSION,
+                          MANAGEMENT_STATE, AVAILABILITY_STATUS, DEPLOY_STATUS,
+                          MANAGEMENT_SUBNET, MANAGEMENT_START_IP,
+                          MANAGEMENT_END_IP, MANAGEMENT_GATEWAY_IP,
+                          SYSTEMCONTROLLER_GATEWAY_IP,
+                          DEFAULT_SUBCLOUD_GROUP_ID,
+                          TIME_NOW, TIME_NOW), actual_call[1])
+
+    @mock.patch('getpass.getpass', return_value='testpassword')
+    def test_add_migrate_subcloud(self, getpass):
+        self.client.subcloud_manager.add_subcloud.\
+            return_value = [SUBCLOUD]
+
+        values = {
+            "system_mode": SYSTEM_MODE,
+            "name": NAME,
+            "description": DESCRIPTION,
+            "location": LOCATION,
+            "management_subnet": MANAGEMENT_SUBNET,
+            "management_start_address": MANAGEMENT_START_IP,
+            "management_end_address": MANAGEMENT_END_IP,
+            "management_gateway_address": MANAGEMENT_GATEWAY_IP,
+            "external_oam_subnet": EXTERNAL_OAM_SUBNET,
+            "external_oam_gateway_address": EXTERNAL_OAM_GATEWAY_ADDRESS,
+            "external_oam_floating_address": EXTERNAL_OAM_FLOATING_ADDRESS,
+        }
+
+        with tempfile.NamedTemporaryFile(mode='w') as f:
+            yaml.dump(values, f)
+            file_path = os.path.abspath(f.name)
+            actual_call = self.call(
+                subcloud_cmd.AddSubcloud, app_args=[
+                    '--bootstrap-address', BOOTSTRAP_ADDRESS,
+                    '--bootstrap-values', file_path,
+                    '--migrate',
                 ])
         self.assertEqual((ID, NAME, DESCRIPTION, LOCATION, SOFTWARE_VERSION,
                           MANAGEMENT_STATE, AVAILABILITY_STATUS, DEPLOY_STATUS,
@@ -268,3 +306,115 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
                           SYSTEMCONTROLLER_GATEWAY_IP,
                           DEFAULT_SUBCLOUD_GROUP_ID,
                           TIME_NOW, TIME_NOW), actual_call[1])
+
+    @mock.patch('getpass.getpass', return_value='testpassword')
+    def test_success_reconfigure_subcloud(self, getpass):
+        SUBCLOUD_BEING_DEPLOYED = copy.copy(SUBCLOUD)
+        SUBCLOUD_BEING_DEPLOYED.deploy_status = DEPLOY_STATE_PRE_DEPLOY
+        self.client.subcloud_manager.reconfigure_subcloud.\
+            return_value = [SUBCLOUD_BEING_DEPLOYED]
+
+        with tempfile.NamedTemporaryFile() as f:
+            file_path = os.path.abspath(f.name)
+            actual_call = self.call(
+                subcloud_cmd.ReconfigSubcloud,
+                app_args=[ID,
+                          '--deploy-config', file_path])
+        self.assertEqual((ID, NAME,
+                          DESCRIPTION, LOCATION,
+                          SOFTWARE_VERSION, MANAGEMENT_STATE,
+                          AVAILABILITY_STATUS, DEPLOY_STATE_PRE_DEPLOY,
+                          MANAGEMENT_SUBNET, MANAGEMENT_START_IP,
+                          MANAGEMENT_END_IP, MANAGEMENT_GATEWAY_IP,
+                          SYSTEMCONTROLLER_GATEWAY_IP,
+                          DEFAULT_SUBCLOUD_GROUP_ID,
+                          TIME_NOW, TIME_NOW), actual_call[1])
+
+    @mock.patch('getpass.getpass', return_value='testpassword')
+    def test_reconfigure_file_does_not_exist(self, getpass):
+        SUBCLOUD_BEING_DEPLOYED = copy.copy(SUBCLOUD)
+        SUBCLOUD_BEING_DEPLOYED.deploy_status = DEPLOY_STATE_PRE_DEPLOY
+        self.client.subcloud_manager.reconfigure_subcloud.\
+            return_value = [SUBCLOUD_BEING_DEPLOYED]
+
+        with tempfile.NamedTemporaryFile() as f:
+            file_path = os.path.abspath(f.name)
+
+        e = self.assertRaises(DCManagerClientException,
+                              self.call,
+                              subcloud_cmd.ReconfigSubcloud,
+                              app_args=[ID, '--deploy-config', file_path])
+        self.assertTrue('deploy-config file does not exist'
+                        in str(e))
+
+    @mock.patch('six.moves.input', return_value='reinstall')
+    def test_reinstall_subcloud(self, mock_input):
+        self.client.subcloud_manager.reinstall_subcloud.\
+            return_value = [SUBCLOUD]
+        actual_call = self.call(
+            subcloud_cmd.ReinstallSubcloud, app_args=[ID])
+        self.assertEqual((ID, NAME,
+                          DESCRIPTION, LOCATION,
+                          SOFTWARE_VERSION, MANAGEMENT_STATE,
+                          AVAILABILITY_STATUS, DEPLOY_STATUS,
+                          MANAGEMENT_SUBNET, MANAGEMENT_START_IP,
+                          MANAGEMENT_END_IP, MANAGEMENT_GATEWAY_IP,
+                          SYSTEMCONTROLLER_GATEWAY_IP,
+                          DEFAULT_SUBCLOUD_GROUP_ID,
+                          TIME_NOW, TIME_NOW), actual_call[1])
+
+    @mock.patch('getpass.getpass', return_value='testpassword')
+    def test_restore_subcloud(self, getpass):
+        self.client.subcloud_manager.subcloud_detail.\
+            return_value = [SUBCLOUD]
+
+        SUBCLOUD_BEING_RESTORED = copy.copy(SUBCLOUD)
+        setattr(SUBCLOUD_BEING_RESTORED,
+                'deploy_status',
+                DEPLOY_STATE_PRE_RESTORE)
+
+        self.client.subcloud_manager.restore_subcloud.\
+            return_value = [SUBCLOUD_BEING_RESTORED]
+
+        with tempfile.NamedTemporaryFile() as f:
+            file_path = os.path.abspath(f.name)
+            actual_call = self.call(
+                subcloud_cmd.RestoreSubcloud,
+                app_args=[ID,
+                          '--restore-values', file_path])
+        self.assertEqual((ID, NAME,
+                          DESCRIPTION, LOCATION,
+                          SOFTWARE_VERSION, MANAGEMENT_STATE,
+                          AVAILABILITY_STATUS, DEPLOY_STATE_PRE_RESTORE,
+                          MANAGEMENT_SUBNET, MANAGEMENT_START_IP,
+                          MANAGEMENT_END_IP, MANAGEMENT_GATEWAY_IP,
+                          SYSTEMCONTROLLER_GATEWAY_IP,
+                          DEFAULT_SUBCLOUD_GROUP_ID,
+                          TIME_NOW, TIME_NOW), actual_call[1])
+
+    @mock.patch('getpass.getpass', return_value='testpassword')
+    def test_restore_file_does_not_exist(self, getpass):
+        with tempfile.NamedTemporaryFile() as f:
+            file_path = os.path.abspath(f.name)
+
+        e = self.assertRaises(DCManagerClientException,
+                              self.call,
+                              subcloud_cmd.RestoreSubcloud,
+                              app_args=[ID, '--restore-values', file_path])
+        self.assertTrue('restore-values does not exist'
+                        in str(e))
+
+    @mock.patch('getpass.getpass', return_value='testpassword')
+    def test_restore_subcloud_does_not_exist(self, getpass):
+        self.client.subcloud_manager.subcloud_detail.\
+            return_value = []
+
+        with tempfile.NamedTemporaryFile() as f:
+            file_path = os.path.abspath(f.name)
+
+        e = self.assertRaises(DCManagerClientException,
+                              self.call,
+                              subcloud_cmd.RestoreSubcloud,
+                              app_args=[ID, '--restore-values', file_path])
+        self.assertTrue('does not exist'
+                        in str(e))

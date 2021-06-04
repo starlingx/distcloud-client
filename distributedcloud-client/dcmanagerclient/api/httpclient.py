@@ -61,8 +61,10 @@ class HTTPClient(object):
                 LOG.warning('Client is set to not verify even though '
                             'cacert is provided.')
 
-            self.ssl_options['verify'] = not insecure
-            self.ssl_options['cert'] = cacert
+            if insecure:
+                self.ssl_options['verify'] = False
+            else:
+                self.ssl_options['verify'] = True if not cacert else cacert
 
     @log_request
     def get(self, url, headers=None):
@@ -97,9 +99,11 @@ class HTTPClient(object):
     def _get_request_options(self, method, headers):
         headers = self._update_headers(headers)
 
-        if method in ['post', 'put', 'patch']:
-            content_type = headers.get('content-type', 'application/json')
-            headers['content-type'] = content_type
+        CONTENT_TYPE = 'content-type'
+
+        if method in ['post', 'put', 'patch'] and CONTENT_TYPE not in headers:
+            content_type = headers.get(CONTENT_TYPE, 'application/json')
+            headers[CONTENT_TYPE] = content_type
 
         options = copy.deepcopy(self.ssl_options)
         options['headers'] = headers
