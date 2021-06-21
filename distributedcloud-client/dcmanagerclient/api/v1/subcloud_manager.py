@@ -130,8 +130,11 @@ class subcloud_manager(base.ResourceManager):
         resource.append(self.json_to_resource(json_object))
         return resource
 
-    def subcloud_reinstall(self, url):
+    def subcloud_reinstall(self, url, body, data):
         fields = dict()
+        for k, v in body.items():
+            fields.update({k: (v, open(v, 'rb'),)})
+        fields.update(data)
         enc = MultipartEncoder(fields=fields)
         headers = {'content-type': enc.content_type}
         resp = self.http_client.patch(url, enc, headers=headers)
@@ -254,9 +257,11 @@ class subcloud_manager(base.ResourceManager):
         url = '/subclouds/%s/reconfigure' % subcloud_ref
         return self.subcloud_reconfigure(url, files, data)
 
-    def reinstall_subcloud(self, subcloud_ref):
+    def reinstall_subcloud(self, subcloud_ref, **kwargs):
+        files = kwargs.get('files')
+        data = kwargs.get('data')
         url = '/subclouds/%s/reinstall' % subcloud_ref
-        return self.subcloud_reinstall(url)
+        return self.subcloud_reinstall(url, files, data)
 
     def restore_subcloud(self, subcloud_ref, **kwargs):
         files = kwargs.get('files')

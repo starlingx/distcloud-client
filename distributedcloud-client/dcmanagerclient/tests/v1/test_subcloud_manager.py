@@ -347,12 +347,16 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
         self.assertTrue('deploy-config file does not exist'
                         in str(e))
 
+    @mock.patch('getpass.getpass', return_value='testpassword')
     @mock.patch('six.moves.input', return_value='reinstall')
-    def test_reinstall_subcloud(self, mock_input):
+    def test_success_reinstall_subcloud(self, mock_input, getpass):
         self.client.subcloud_manager.reinstall_subcloud.\
             return_value = [SUBCLOUD]
-        actual_call = self.call(
-            subcloud_cmd.ReinstallSubcloud, app_args=[ID])
+        with tempfile.NamedTemporaryFile() as f:
+            file_path = os.path.abspath(f.name)
+            actual_call = self.call(
+                subcloud_cmd.ReinstallSubcloud,
+                app_args=[ID, '--bootstrap-values', file_path])
         self.assertEqual((ID, NAME,
                           DESCRIPTION, LOCATION,
                           SOFTWARE_VERSION, MANAGEMENT_STATE,
@@ -362,6 +366,22 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
                           SYSTEMCONTROLLER_GATEWAY_IP,
                           DEFAULT_SUBCLOUD_GROUP_ID,
                           TIME_NOW, TIME_NOW), actual_call[1])
+
+    @mock.patch('getpass.getpass', return_value='testpassword')
+    @mock.patch('six.moves.input', return_value='reinstall')
+    def test_reinstall_bootstrap_file_does_not_exist(
+        self, mock_input, getpass):
+        self.client.subcloud_manager.reinstall_subcloud.\
+            return_value = [SUBCLOUD]
+        with tempfile.NamedTemporaryFile() as f:
+            file_path = os.path.abspath(f.name)
+
+        e = self.assertRaises(DCManagerClientException,
+                              self.call,
+                              subcloud_cmd.ReinstallSubcloud,
+                              app_args=[ID, '--bootstrap-values', file_path])
+        self.assertTrue('bootstrap-values does not exist'
+                        in str(e))
 
     @mock.patch('getpass.getpass', return_value='testpassword')
     def test_restore_subcloud(self, getpass):
