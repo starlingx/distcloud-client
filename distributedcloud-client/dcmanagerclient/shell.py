@@ -38,6 +38,7 @@ from osc_lib.command import command
 import argparse
 from dcmanagerclient.commands.v1 import alarm_manager as am
 from dcmanagerclient.commands.v1 import fw_update_manager as fum
+from dcmanagerclient.commands.v1 import kube_rootca_update_manager as krum
 from dcmanagerclient.commands.v1 import kube_upgrade_manager as kupm
 from dcmanagerclient.commands.v1 import subcloud_deploy_manager as sdm
 from dcmanagerclient.commands.v1 import subcloud_group_manager as gm
@@ -470,7 +471,8 @@ class DCManagerShell(app.App):
                  strategy_step_manager=self.client,
                  sw_update_options_manager=self.client,
                  sw_upgrade_manager=self.client,
-                 kube_upgrade_manager=self.client)
+                 kube_upgrade_manager=self.client,
+                 kube_rootca_update_manager=self.client)
         )
         self.client_manager = ClientManager()
 
@@ -520,6 +522,16 @@ class DCManagerShell(app.App):
             'fw-update-strategy apply': fum.ApplyFwUpdateStrategy,
             'fw-update-strategy abort': fum.AbortFwUpdateStrategy,
             'fw-update-strategy show': fum.ShowFwUpdateStrategy,
+            'kube-rootca-update-strategy create':
+                krum.CreateKubeRootcaUpdateStrategy,
+            'kube-rootca-update-strategy delete':
+                krum.DeleteKubeRootcaUpdateStrategy,
+            'kube-rootca-update-strategy apply':
+                krum.ApplyKubeRootcaUpdateStrategy,
+            'kube-rootca-update-strategy abort':
+                krum.AbortKubeRootcaUpdateStrategy,
+            'kube-rootca-update-strategy show':
+                krum.ShowKubeRootcaUpdateStrategy,
             'kube-upgrade-strategy create': kupm.CreateKubeUpgradeStrategy,
             'kube-upgrade-strategy delete': kupm.DeleteKubeUpgradeStrategy,
             'kube-upgrade-strategy apply': kupm.ApplyKubeUpgradeStrategy,

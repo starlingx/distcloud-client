@@ -170,6 +170,30 @@ class CreateSwUpdateStrategy(base.DCManagerShowOne):
 
         return parser
 
+    # These validate methods can be overridden
+    def validate_force_params(self, parsed_args):
+        """Most orchestrations only support force for a single subcloud"""
+        if parsed_args.force and not parsed_args.cloud_name:
+            error_msg = 'The --force option can only be applied to a single ' \
+                        'subcloud. Please specify the subcloud name.'
+            raise exceptions.DCManagerClientException(error_msg)
+
+    def validate_group_params(self, parsed_args):
+        """When specifying a group, other inputs are considered invalid"""
+        if parsed_args.group:
+            if parsed_args.cloud_name:
+                error_msg = 'The cloud_name and group options are mutually ' \
+                            'exclusive.'
+                raise exceptions.DCManagerClientException(error_msg)
+            if parsed_args.subcloud_apply_type:
+                error_msg = 'The --subcloud-apply-type is not ' \
+                            'supported when --group option is applied.'
+                raise exceptions.DCManagerClientException(error_msg)
+            if parsed_args.max_parallel_subclouds:
+                error_msg = 'The --max-parallel-subclouds options is not ' \
+                            'supported when --group option is applied.'
+                raise exceptions.DCManagerClientException(error_msg)
+
     def _get_resources(self, parsed_args):
         kwargs = dict()
         if parsed_args.subcloud_apply_type:
@@ -186,22 +210,8 @@ class CreateSwUpdateStrategy(base.DCManagerShowOne):
         if parsed_args.group is not None:
             kwargs['subcloud_group'] = parsed_args.group
 
-        if parsed_args.force and not parsed_args.cloud_name:
-            error_msg = 'The --force option can only be applied to a single ' \
-                        'subcloud. Please specify the subcloud name.'
-            raise exceptions.DCManagerClientException(error_msg)
-
-        if parsed_args.cloud_name and parsed_args.group:
-            error_msg = 'The cloud_name and group options are mutually ' \
-                        'exclusive.'
-            raise exceptions.DCManagerClientException(error_msg)
-
-        if parsed_args.group and (parsed_args.subcloud_apply_type or
-                                  parsed_args.max_parallel_subclouds):
-            error_msg = 'The --subcloud-apply-type and ' \
-                        '--max-parallel-subclouds options are not ' \
-                        'supported when --group option is applied.'
-            raise exceptions.DCManagerClientException(error_msg)
+        self.validate_force_params(parsed_args)
+        self.validate_group_params(parsed_args)
 
         return self.get_sw_update_manager().create_sw_update_strategy(**kwargs)
 
