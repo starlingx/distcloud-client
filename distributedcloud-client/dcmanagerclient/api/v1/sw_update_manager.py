@@ -13,7 +13,7 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 #
-# Copyright (c) 2017 Wind River Systems, Inc.
+# Copyright (c) 2017-2021 Wind River Systems, Inc.
 #
 # The right to copy, distribute, modify, or otherwise make use
 # of this software may be licensed only pursuant to the terms
@@ -78,7 +78,8 @@ class sw_update_manager(base.ResourceManager):
 
     def create_sw_update_strategy(self, **kwargs):
         data = kwargs
-        data.update({'type': self.update_type})
+        if self.update_type is not None:
+            data.update({'type': self.update_type})
         return self._sw_update_create(self.create_url, data)
 
     def update_sw_strategy_detail(self):

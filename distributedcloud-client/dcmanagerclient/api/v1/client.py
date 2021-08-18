@@ -35,6 +35,7 @@ from dcmanagerclient.api.v1 import subcloud_deploy_manager as sdm
 from dcmanagerclient.api.v1 import subcloud_group_manager as gm
 from dcmanagerclient.api.v1 import subcloud_manager as sm
 from dcmanagerclient.api.v1 import sw_patch_manager as spm
+from dcmanagerclient.api.v1 import sw_strategy_manager as sstm
 from dcmanagerclient.api.v1 import sw_update_options_manager as suom
 from dcmanagerclient.api.v1 import sw_upgrade_manager as supm
 
@@ -110,6 +111,7 @@ class Client(object):
         self.sw_upgrade_manager = supm.sw_upgrade_manager(self.http_client)
         self.strategy_step_manager = \
             ssm.strategy_step_manager(self.http_client)
+        self.sw_strategy_manager = sstm.sw_strategy_manager(self.http_client)
 
 
 def authenticate(dcmanager_url=None, username=None,
