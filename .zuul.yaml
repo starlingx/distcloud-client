@@ -48,7 +48,6 @@
       tox_envlist: pylint
       tox_extra_args: -c distributedcloud-client/tox.ini
 
-
 - job:
     name: stx-distcloud-client-tox-pep8
     parent: tox
