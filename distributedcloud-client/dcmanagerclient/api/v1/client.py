@@ -29,6 +29,7 @@ import osprofiler.profiler
 from dcmanagerclient.api import httpclient
 from dcmanagerclient.api.v1 import alarm_manager as am
 from dcmanagerclient.api.v1 import fw_update_manager as fum
+from dcmanagerclient.api.v1 import kube_rootca_update_manager as krum
 from dcmanagerclient.api.v1 import kube_upgrade_manager as kupm
 from dcmanagerclient.api.v1 import strategy_step_manager as ssm
 from dcmanagerclient.api.v1 import subcloud_deploy_manager as sdm
@@ -104,6 +105,8 @@ class Client(object):
             self.http_client)
         self.alarm_manager = am.alarm_manager(self.http_client)
         self.fw_update_manager = fum.fw_update_manager(self.http_client)
+        self.kube_rootca_update_manager = \
+            krum.kube_rootca_update_manager(self.http_client)
         self.kube_upgrade_manager = kupm.kube_upgrade_manager(self.http_client)
         self.sw_patch_manager = spm.sw_patch_manager(self.http_client)
         self.sw_update_options_manager = \
