@@ -14,3 +14,4 @@ class kube_rootca_update_manager(sw_update_manager):
         super(kube_rootca_update_manager, self).__init__(
             http_client,
             update_type=SW_UPDATE_TYPE_KUBE_ROOTCA_UPDATE)
+        self.extra_args = ['subject', 'expiry-date', 'cert-file']

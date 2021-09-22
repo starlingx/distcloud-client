@@ -194,6 +194,10 @@ class CreateSwUpdateStrategy(base.DCManagerShowOne):
                             'supported when --group option is applied.'
                 raise exceptions.DCManagerClientException(error_msg)
 
+    def process_custom_params(self, parsed_args, kwargs_dict):
+        """Updates kwargs dictionary from parsed_args based on the subclass"""
+        pass
+
     def _get_resources(self, parsed_args):
         kwargs = dict()
         if parsed_args.subcloud_apply_type:
@@ -212,6 +216,9 @@ class CreateSwUpdateStrategy(base.DCManagerShowOne):
 
         self.validate_force_params(parsed_args)
         self.validate_group_params(parsed_args)
+
+        # Add more kwargs based on the update type
+        self.process_custom_params(parsed_args, kwargs)
 
         return self.get_sw_update_manager().create_sw_update_strategy(**kwargs)
 

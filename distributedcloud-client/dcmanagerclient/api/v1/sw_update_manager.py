@@ -38,7 +38,8 @@ class SwUpdateStrategy(base.Resource):
                  stop_on_failure,
                  state,
                  created_at,
-                 updated_at):
+                 updated_at,
+                 extra_args=None):
         self.manager = manager
         self.strategy_type = strategy_type
         self.subcloud_apply_type = subcloud_apply_type
@@ -47,6 +48,7 @@ class SwUpdateStrategy(base.Resource):
         self.state = state
         self.created_at = created_at
         self.updated_at = updated_at
+        self.extra_args = extra_args
 
 
 class sw_update_manager(base.ResourceManager):
@@ -75,6 +77,7 @@ class sw_update_manager(base.ResourceManager):
         # actions_url is typically /<foo>/actions
         self.actions_url = '/{url}/actions?type={update_type}'.format(
             url=url, update_type=self.update_type)
+        self.extra_args = []
 
     def create_sw_update_strategy(self, **kwargs):
         data = kwargs
@@ -96,6 +99,16 @@ class sw_update_manager(base.ResourceManager):
         data = {'action': 'abort'}
         return self._sw_update_action(self.actions_url, data)
 
+    def extract_extra_args(self, json_object):
+        args_dict = {}
+        for x in self.extra_args:
+            if json_object.get(x):
+                args_dict[x] = json_object.get(x)
+        if args_dict:
+            return args_dict
+        else:
+            return None
+
     def _build_from_json(self, json_object):
         return self.resource_class(
             self,
@@ -105,7 +118,8 @@ class sw_update_manager(base.ResourceManager):
             stop_on_failure=json_object['stop-on-failure'],
             state=json_object['state'],
             created_at=json_object['created-at'],
-            updated_at=json_object['updated-at'])
+            updated_at=json_object['updated-at'],
+            extra_args=self.extract_extra_args(json_object))
 
     def _sw_update_create(self, url, data):
         data = json.dumps(data)
