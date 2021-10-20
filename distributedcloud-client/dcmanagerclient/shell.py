@@ -560,7 +560,9 @@ class DCManagerShell(app.App):
         }
 
 
-def main(argv=sys.argv[1:]):
+def main(argv=None):
+    if argv is None:
+        argv = sys.argv[1:]
     return DCManagerShell().run(argv)
 
 
