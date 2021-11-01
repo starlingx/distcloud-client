@@ -93,11 +93,11 @@ class HelpAction(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
         outputs = []
         max_len = 0
-        app = self.default
-        parser.print_help(app.stdout)
-        app.stdout.write('\nCommands for API v1 :\n')
+        main_app = self.default
+        parser.print_help(main_app.stdout)
+        main_app.stdout.write('\nCommands for API v1 :\n')
 
-        for name, ep in sorted(app.command_manager):
+        for name, ep in sorted(main_app.command_manager):
             factory = ep.load()
             cmd = factory(self, None)
             one_liner = cmd.get_description().split('\n')[0]
@@ -105,7 +105,8 @@ class HelpAction(argparse.Action):
             max_len = max(len(name), max_len)
 
         for (name, one_liner) in outputs:
-            app.stdout.write('  %s  %s\n' % (name.ljust(max_len), one_liner))
+            main_app.stdout.write('  %s  %s\n' % (name.ljust(max_len),
+                                                  one_liner))
 
         sys.exit(0)
 

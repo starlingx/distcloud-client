@@ -123,7 +123,6 @@ enable=E1603,E1609,E1610,E1602,E1606,E1608,E1607,E1605,E1604,E1601,E1611,W1652,
 # W0403: relative-import (typically caused by six)
 # W0603: global-statement
 # W0613: unused-argument
-# W0621: redefined-outer-name
 # W0622: redefined-builtin
 # W0703: broad-except
 # W1113: keyword-arg-before-vararg
@@ -133,7 +132,7 @@ enable=E1603,E1609,E1610,E1602,E1606,E1608,E1607,E1605,E1604,E1601,E1611,W1652,
 # E1102: not-callable
 disable=fixme,C,R,
         W0107,W0201,W0212,W0231,W0403,
-        W0612,W0613,W0603,W0621,W0622,W0703,W1112,W1201,W1505,W1618,
+        W0612,W0613,W0603,W0622,W0703,W1112,W1201,W1505,W1618,
         E1102
 
 [REPORTS]
