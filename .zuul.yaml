@@ -9,14 +9,14 @@
         - openstack-tox-linters
         - stx-distcloud-client-tox-pep8
         - stx-distcloud-client-tox-py27
-        - stx-distcloud-client-tox-py36
+        - stx-distcloud-client-tox-py39
         - stx-distcloud-client-tox-pylint
     gate:
       jobs:
         - openstack-tox-linters
         - stx-distcloud-client-tox-pep8
         - stx-distcloud-client-tox-py27
-        - stx-distcloud-client-tox-py36
+        - stx-distcloud-client-tox-py39
         - stx-distcloud-client-tox-pylint
     post:
       jobs:
@@ -32,12 +32,12 @@
       tox_extra_args: -c distributedcloud-client/tox.ini
 
 - job:
-    name: stx-distcloud-client-tox-py36
-    parent: tox
-    description: Run py36 for distcloud-client
-    nodeset: ubuntu-bionic
+    name: stx-distcloud-client-tox-py39
+    parent: tox-py39
+    description: Run py39 for distcloud-client
+    nodeset: ubuntu-focal
     vars:
-      tox_envlist: py36
+      tox_envlist: py39
       tox_extra_args: -c distributedcloud-client/tox.ini
 
 - job:
@@ -52,6 +52,7 @@
     name: stx-distcloud-client-tox-pep8
     parent: tox
     description: Run pep8 for distcloud-client
+    nodeset: ubuntu-bionic
     vars:
       tox_envlist: pep8
       tox_extra_args: -c distributedcloud-client/tox.ini
