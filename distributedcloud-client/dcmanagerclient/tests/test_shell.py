@@ -35,6 +35,10 @@ class TestShell(base.BaseShellTests):
         dcmanager_version = mock.call_args
         self.assertEqual('v1.0', dcmanager_version[0][0])
 
+    def test_dcmanager_help(self):
+        help_results = self.shell('--help')
+        self.assertTrue("Commands for API" in help_results[0])
+
     @mock.patch('dcmanagerclient.api.client.determine_client_version')
     def test_default_dcmanager_version(self, mock):
         default_version = 'v1.0'
