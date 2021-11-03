@@ -26,7 +26,6 @@ from dcmanagerclient.api import base
 from dcmanagerclient.api.base import get_json
 
 
-# todo(abailey): Update SwUpdateStrategy based on 'subcloud group'
 class SwUpdateStrategy(base.Resource):
     resource_name = 'sw_update_strategy'
 
@@ -52,7 +51,7 @@ class SwUpdateStrategy(base.Resource):
 
 
 class sw_update_manager(base.ResourceManager):
-    """sw_update_managea
+    """sw_update_manager
 
        sw_update_manager is an abstract class that is used by subclasses to
        manage API actions for specific update strategy types  such as software

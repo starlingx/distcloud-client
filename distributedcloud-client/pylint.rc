@@ -113,7 +113,6 @@ enable=E1603,E1609,E1610,E1602,E1606,E1608,E1607,E1605,E1604,E1601,E1611,W1652,
 # it should appear only once).
 # http://pylint.pycqa.org/en/latest/technical_reference/features.html
 #
-# fixme: warning note, todo, etc..
 # R detect Refactor for a "good practice" metric violation
 # C detect Convention for coding standard violation
 # W0107: unnecessary-pass
@@ -130,7 +129,7 @@ enable=E1603,E1609,E1610,E1602,E1606,E1608,E1607,E1605,E1604,E1601,E1611,W1652,
 # W1505: deprecated-method
 # W1618: no-absolute-import
 # E1102: not-callable
-disable=fixme,C,R,
+disable=C,R,
         W0107,W0201,W0212,W0231,W0403,
         W0612,W0613,W0603,W0622,W0703,W1112,W1201,W1505,W1618,
         E1102
