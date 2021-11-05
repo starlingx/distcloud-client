@@ -138,6 +138,9 @@ class DCManagerShell(app.App):
         # Set v1 commands by default
         self._set_shell_commands(self._get_commands(version=1))
 
+        self.client = None
+        self.client_manager = None
+
     def configure_logging(self):
         log_lvl = logging.DEBUG if self.options.debug else logging.WARNING
         logging.basicConfig(
