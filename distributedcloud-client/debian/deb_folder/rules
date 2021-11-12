@@ -1,0 +1,23 @@
+#!/usr/bin/make -f
+#export DH_VERBOSE = 1
+
+export PBR_VERSION = 1.0.0
+
+export ROOT = debian/tmp
+
+%:
+	dh $@ --with python3 --buildsystem=pybuild --test-tox
+
+override_dh_auto_install:
+	python3 setup.py install \
+		--root=$(ROOT) \
+		--prefix=/usr \
+		--install-data=/usr/share \
+		--install-layout=deb \
+		--single-version-externally-managed
+
+	python3 setup.py bdist_wheel \
+		--universal \
+		-d $(ROOT)/wheels
+
+	rm -rf $(ROOT)/usr/lib/python3/dist-packages/dcmanagerclient/tests
