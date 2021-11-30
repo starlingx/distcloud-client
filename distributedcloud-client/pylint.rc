@@ -117,7 +117,6 @@ enable=E1603,E1609,E1610,E1602,E1606,E1608,E1607,E1605,E1604,E1601,E1611,W1652,
 # C detect Convention for coding standard violation
 # W0107: unnecessary-pass
 # W0212: protected-access
-# W0231: super-init-not-called
 # W0403: relative-import (typically caused by six)
 # W0603: global-statement
 # W0613: unused-argument
@@ -128,7 +127,7 @@ enable=E1603,E1609,E1610,E1602,E1606,E1608,E1607,E1605,E1604,E1601,E1611,W1652,
 # W1618: no-absolute-import
 # E1102: not-callable
 disable=C,R,
-        W0107,W0212,W0231,W0403,
+        W0107,W0212,W0403,
         W0612,W0613,W0603,W0622,W0703,W1112,W1505,W1618,
         E1102
 
