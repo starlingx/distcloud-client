@@ -27,7 +27,27 @@ class KubeUpgradeManagerMixin(object):
 class CreateKubeUpgradeStrategy(KubeUpgradeManagerMixin,
                                 sw_update_manager.CreateSwUpdateStrategy):
     """Create a kubernetes upgrade strategy."""
-    pass
+
+    def get_parser(self, prog_name):
+        parser = super(CreateKubeUpgradeStrategy,
+                       self).get_parser(prog_name)
+        parser.add_argument(
+            '--to-version',
+            required=False,
+            help='Specify a version other than the system controller version.'
+        )
+        return parser
+
+    def process_custom_params(self, parsed_args, kwargs_dict):
+        """Updates kwargs dictionary from parsed_args for kube upgrade"""
+        # Note the "-" vs "_" when dealing with parsed_args
+        if parsed_args.to_version:
+            kwargs_dict['to-version'] = parsed_args.to_version
+
+    # override validate_force_params defined in CreateSwUpdateStrategy
+    def validate_force_params(self, parsed_args):
+        """Disable validating the force option.  Allows multiple subclouds."""
+        pass
 
 
 class ShowKubeUpgradeStrategy(KubeUpgradeManagerMixin,

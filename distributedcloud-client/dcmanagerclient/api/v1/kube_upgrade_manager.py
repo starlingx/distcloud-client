@@ -25,3 +25,4 @@ class kube_upgrade_manager(sw_update_manager):
         super(kube_upgrade_manager, self).__init__(
             http_client,
             update_type=SW_UPDATE_TYPE_KUBERNETES)
+        self.extra_args = ['to-version']

@@ -56,7 +56,7 @@ class CreateKubeRootcaUpdateStrategy(KubeRootcaUpdateManagerMixin,
 
     # override validate_force_params defined in CreateSwUpdateStrategy
     def validate_force_params(self, parsed_args):
-        """Disable validation the force option. Allows multiple subclouds."""
+        """Disable validating the force option.  Allows multiple subclouds."""
         pass
 
 
