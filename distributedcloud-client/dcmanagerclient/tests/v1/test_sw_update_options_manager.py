@@ -15,7 +15,7 @@ FAKE_CLOUD = '1'
 FAKE_STORAGE_APPLY_TYPE = "parallel"
 NEW_FAKE_STORAGE_APPLY_TYPE = "serial"
 FAKE_WORKER_APPLY_TYPE = "serial"
-FAKE_MAX_PARALLEL = 5
+FAKE_MAX_PARALLEL = '5'
 FAKE_ALARM_RESTRICTIONS = 'strict'
 FAKE_DEFAULT_INSTANCE_ACTION = 'migrate'
 FAKE_CREATED_AT = None
@@ -110,7 +110,7 @@ class TestCLISWUpdateOptionsManagerV1(base.BaseCommandTest):
             app_args=[
                 '--storage-apply-type=' + NEW_FAKE_STORAGE_APPLY_TYPE,
                 '--worker-apply-type=' + FAKE_WORKER_APPLY_TYPE,
-                '--max-parallel-workers=' + str(FAKE_MAX_PARALLEL),
+                '--max-parallel-workers=' + FAKE_MAX_PARALLEL,
                 '--alarm-restriction-type=' + FAKE_ALARM_RESTRICTIONS,
                 '--default-instance-action=' + FAKE_DEFAULT_INSTANCE_ACTION
             ])

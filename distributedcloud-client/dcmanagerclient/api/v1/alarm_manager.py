@@ -24,7 +24,7 @@ from dcmanagerclient.api import base
 from dcmanagerclient.api.base import get_json
 
 
-class AlarmSumary(base.Resource):
+class AlarmSummary(base.Resource):
     resource_name = 'alarms'
 
     def __init__(self, manager, name, critical, major,
@@ -39,7 +39,7 @@ class AlarmSumary(base.Resource):
 
 
 class alarm_manager(base.ResourceManager):
-    resource_class = AlarmSumary
+    resource_class = AlarmSummary
 
     def alarm_summary_list(self, url):
         resp = self.http_client.get(url)
