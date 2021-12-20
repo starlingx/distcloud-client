@@ -43,6 +43,7 @@ class IllegalArgumentException(DCManagerClientException):
     code = "ILLEGAL_ARGUMENT_EXCEPTION"
 
     def __init__(self, message=None):
+        super(IllegalArgumentException, self).__init__(message)
         if message:
             self.message = message
 
@@ -52,6 +53,7 @@ class CommandError(DCManagerClientException):
     code = "COMMAND_ERROR_EXCEPTION"
 
     def __init__(self, message=None):
+        super(CommandError, self).__init__(message)
         if message:
             self.message = message
 
