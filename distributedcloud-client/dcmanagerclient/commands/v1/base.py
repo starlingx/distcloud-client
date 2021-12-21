@@ -1,4 +1,5 @@
 # Copyright (c) 2016 Ericsson AB
+# Copyright (c) 2017, 2019, 2021 Wind River Systems, Inc.
 # All Rights Reserved
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -13,12 +14,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 #
-#
-# Copyright (c) 2017 Wind River Systems, Inc.
-#
-# The right to copy, distribute, modify, or otherwise make use
-# of this software may be licensed only pursuant to the terms
-# of an applicable Wind River license agreement.
 #
 
 import abc
