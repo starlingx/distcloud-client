@@ -1,4 +1,4 @@
-# Copyright (c) 2020-2021 Wind River Systems, Inc.
+# Copyright (c) 2020-2022 Wind River Systems, Inc.
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
 #    You may obtain a copy of the License at
@@ -23,18 +23,28 @@ def _format(subcloud_deploy=None):
     columns = (
         'deploy_playbook',
         'deploy_overrides',
-        'deploy_chart'
+        'deploy_chart',
+        'prestage_images'
     )
+    temp = list()
+    try:
+        temp.append(subcloud_deploy.deploy_playbook)
+    except Exception:
+        temp.append(None)
+    try:
+        temp.append(subcloud_deploy.deploy_overrides)
+    except Exception:
+        temp.append(None)
+    try:
+        temp.append(subcloud_deploy.deploy_chart)
+    except Exception:
+        temp.append(None)
+    try:
+        temp.append(subcloud_deploy.prestage_images)
+    except Exception:
+        temp.append(None)
 
-    if subcloud_deploy:
-        data = (
-            subcloud_deploy.deploy_playbook,
-            subcloud_deploy.deploy_overrides,
-            subcloud_deploy.deploy_chart
-        )
-
-    else:
-        data = (tuple('<none>' for _ in range(len(columns))),)
+    data = tuple(temp)
 
     return columns, data
 
@@ -50,7 +60,7 @@ class SubcloudDeployUpload(base.DCManagerShowOne):
 
         parser.add_argument(
             '--deploy-playbook',
-            required=True,
+            required=False,
             help='An ansible playbook to be run after the subcloud '
                  'has been successfully bootstrapped. It will be run with the '
                  'subcloud as the target and authentication is '
@@ -60,7 +70,7 @@ class SubcloudDeployUpload(base.DCManagerShowOne):
 
         parser.add_argument(
             '--deploy-overrides',
-            required=True,
+            required=False,
             help='YAML file containing subcloud variables to be passed to the '
                  'deploy playbook.'
                  'Must be a local file path'
@@ -68,37 +78,39 @@ class SubcloudDeployUpload(base.DCManagerShowOne):
 
         parser.add_argument(
             '--deploy-chart',
-            required=True,
+            required=False,
             help='Deployment Manager helm chart to be passed to the '
                  'deploy playbook.'
                  'Must be a local file path'
         )
 
+        parser.add_argument(
+            '--prestage-images',
+            required=False,
+            help='Upload image list to subcloud local directory '
+                 '/opt/platform-backup/<release-version>.'
+                 'Must be a local file path'
+        )
         return parser
 
     def _get_resources(self, parsed_args):
         dcmanager_client = self.app.client_manager.subcloud_deploy_manager
         kwargs = dict()
-        if not os.path.isfile(parsed_args.deploy_playbook):
-            error_msg = "deploy-playbook does not exist: %s" % \
-                        parsed_args.deploy_playbook
-            raise exceptions.DCManagerClientException(error_msg)
+        variable_dict = {'deploy_playbook': parsed_args.deploy_playbook,
+                         'deploy_overrides': parsed_args.deploy_overrides,
+                         'deploy_chart': parsed_args.deploy_chart,
+                         'prestage_images': parsed_args.prestage_images}
 
-        kwargs['deploy_playbook'] = parsed_args.deploy_playbook
-
-        if not os.path.isfile(parsed_args.deploy_overrides):
-            error_msg = "deploy-overrides does not exist: %s" % \
-                        parsed_args.deploy_overrides
-            raise exceptions.DCManagerClientException(error_msg)
-
-        kwargs['deploy_overrides'] = parsed_args.deploy_overrides
-
-        if not os.path.isfile(parsed_args.deploy_chart):
-            error_msg = "deploy-chart does not exist: %s" % \
-                        parsed_args.deploy_chart
-            raise exceptions.DCManagerClientException(error_msg)
-
-        kwargs['deploy_chart'] = parsed_args.deploy_chart
+        for key, val in variable_dict.items():
+            if val is None:
+                continue
+            elif not os.path.isfile(val):
+                error_msg = "error: argument --%s directory %s not valid" \
+                            % (key, val)
+                print(error_msg)
+                return
+            else:
+                kwargs[key] = val
 
         try:
             return dcmanager_client.subcloud_deploy_manager.\

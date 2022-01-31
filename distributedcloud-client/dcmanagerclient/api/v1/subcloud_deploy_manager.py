@@ -1,4 +1,4 @@
-# Copyright (c) 2020-2021 Wind River Systems, Inc.
+# Copyright (c) 2020-2022 Wind River Systems, Inc.
 # All Rights Reserved.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,14 +23,29 @@ from dcmanagerclient.api.base import get_json
 class SubcloudDeploy(base.Resource):
     resource_name = 'subcloud_deploy'
 
-    def __init__(self, deploy_playbook, deploy_overrides, deploy_chart):
+    def __init__(self, deploy_playbook=None, deploy_overrides=None,
+                 deploy_chart=None, prestage_images=None):
         self.deploy_playbook = deploy_playbook
         self.deploy_overrides = deploy_overrides
         self.deploy_chart = deploy_chart
+        self.prestage_images = prestage_images
 
 
 class subcloud_deploy_manager(base.ResourceManager):
     resource_class = SubcloudDeploy
+
+    def _process_json_response(self, json_object):
+        resource = list()
+        deploy_playbook = json_object.get('deploy_playbook')
+        deploy_overrides = json_object.get('deploy_overrides')
+        deploy_chart = json_object.get('deploy_chart')
+        prestage_images = json_object.get('prestage_images')
+
+        resource.append(
+            self.resource_class(deploy_playbook, deploy_overrides,
+                                deploy_chart, prestage_images))
+
+        return resource
 
     def _subcloud_deploy_detail(self, url):
         resp = self.http_client.get(url)
@@ -38,12 +53,7 @@ class subcloud_deploy_manager(base.ResourceManager):
             self._raise_api_exception(resp)
         json_response_key = get_json(resp)
         json_object = json_response_key['subcloud_deploy']
-        resource = list()
-        resource.append(
-            self.resource_class(
-                deploy_playbook=json_object['deploy_playbook'],
-                deploy_overrides=json_object['deploy_overrides'],
-                deploy_chart=json_object['deploy_chart']))
+        resource = self._process_json_response(json_object)
         return resource
 
     def _deploy_upload(self, url, data):
@@ -56,12 +66,7 @@ class subcloud_deploy_manager(base.ResourceManager):
         if resp.status_code != 200:
             self._raise_api_exception(resp)
         json_object = get_json(resp)
-        resource = list()
-        resource.append(
-            self.resource_class(
-                deploy_playbook=json_object['deploy_playbook'],
-                deploy_overrides=json_object['deploy_overrides'],
-                deploy_chart=json_object['deploy_chart']))
+        resource = self._process_json_response(json_object)
         return resource
 
     def subcloud_deploy_show(self):
