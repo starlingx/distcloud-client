@@ -1,5 +1,5 @@
 # Copyright (c) 2017 Ericsson AB.
-# Copyright (c) 2017-2021 Wind River Systems, Inc.
+# Copyright (c) 2017-2022 Wind River Systems, Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
 #
 
 import base64
-import getpass
 import os
 import six
 
@@ -23,6 +22,7 @@ from osc_lib.command import command
 
 from dcmanagerclient.commands.v1 import base
 from dcmanagerclient import exceptions
+from dcmanagerclient import utils
 
 
 def format(subcloud=None):
@@ -105,23 +105,6 @@ def detail_format(subcloud=None):
         data = (tuple('<none>' for _ in range(len(columns))),)
 
     return columns, data
-
-
-def prompt_for_password(password_type='sysadmin'):
-    while True:
-        password = getpass.getpass(
-            "Enter the " + password_type + " password for the subcloud: ")
-        if len(password) < 1:
-            print("Password cannot be empty")
-            continue
-
-        confirm = getpass.getpass(
-            "Re-enter " + password_type + " password to confirm: ")
-        if password != confirm:
-            print("Passwords did not match")
-            continue
-        break
-    return password
 
 
 class AddSubcloud(base.DCManagerShowOne):
@@ -223,7 +206,7 @@ class AddSubcloud(base.DCManagerShowOne):
             data['sysadmin_password'] = base64.b64encode(
                 parsed_args.sysadmin_password.encode("utf-8"))
         else:
-            password = prompt_for_password()
+            password = utils.prompt_for_password()
             data["sysadmin_password"] = base64.b64encode(
                 password.encode("utf-8"))
 
@@ -232,7 +215,7 @@ class AddSubcloud(base.DCManagerShowOne):
                 data['bmc_password'] = base64.b64encode(
                     parsed_args.bmc_password.encode("utf-8"))
             else:
-                password = prompt_for_password('bmc')
+                password = utils.prompt_for_password('bmc')
                 data["bmc_password"] = base64.b64encode(
                     password.encode("utf-8"))
 
@@ -455,21 +438,9 @@ class UpdateSubcloud(base.DCManagerShowOne):
                 data['bmc_password'] = base64.b64encode(
                     parsed_args.bmc_password.encode("utf-8"))
             else:
-                while True:
-                    password = getpass.getpass(
-                        "Enter the bmc password for the subcloud: ")
-                    if len(password) < 1:
-                        print("Password cannot be empty")
-                        continue
-
-                    confirm = getpass.getpass(
-                        "Re-enter bmc password to confirm: ")
-                    if password != confirm:
-                        print("Passwords did not match")
-                        continue
-                    data["bmc_password"] = base64.b64encode(
-                        password.encode("utf-8"))
-                    break
+                password = utils.prompt_for_password('bmc')
+                data["bmc_password"] = base64.b64encode(
+                    password.encode("utf-8"))
 
         if len(data) == 0:
             error_msg = "Nothing to update"
@@ -533,7 +504,7 @@ class ReconfigSubcloud(base.DCManagerShowOne):
             data['sysadmin_password'] = base64.b64encode(
                 parsed_args.sysadmin_password.encode("utf-8"))
         else:
-            password = prompt_for_password()
+            password = utils.prompt_for_password()
             data["sysadmin_password"] = base64.b64encode(
                 password.encode("utf-8"))
 
@@ -607,7 +578,7 @@ class ReinstallSubcloud(base.DCManagerShowOne):
             data['sysadmin_password'] = base64.b64encode(
                 parsed_args.sysadmin_password.encode("utf-8"))
         else:
-            password = prompt_for_password()
+            password = utils.prompt_for_password()
             data["sysadmin_password"] = base64.b64encode(
                 password.encode("utf-8"))
 
@@ -688,7 +659,7 @@ class RestoreSubcloud(base.DCManagerShowOne):
             data['sysadmin_password'] = base64.b64encode(
                 parsed_args.sysadmin_password.encode("utf-8"))
         else:
-            password = prompt_for_password()
+            password = utils.prompt_for_password()
             data["sysadmin_password"] = base64.b64encode(
                 password.encode("utf-8"))
 
@@ -710,4 +681,61 @@ class RestoreSubcloud(base.DCManagerShowOne):
         except Exception as e:
             print(e)
             error_msg = "Unable to restore subcloud %s" % (subcloud_ref)
+            raise exceptions.DCManagerClientException(error_msg)
+
+
+class PrestageSubcloud(base.DCManagerShowOne):
+    """Prestage a subcloud."""
+
+    def _get_format_function(self):
+        return detail_format
+
+    def get_parser(self, prog_name):
+        parser = super(PrestageSubcloud, self).get_parser(prog_name)
+
+        parser.add_argument(
+            '--sysadmin-password',
+            required=False,
+            help='sysadmin password of the subcloud to be prestaged, '
+                 'if not provided you will be prompted.'
+        )
+
+        parser.add_argument(
+            'subcloud',
+            help='Name or ID of the subcloud to prestage.'
+        )
+
+        parser.add_argument(
+            '--force',
+            required=False,
+            action='store_true',
+            help='Disregard subcloud management alarm condition'
+        )
+
+        return parser
+
+    def _get_resources(self, parsed_args):
+        subcloud_ref = parsed_args.subcloud
+        dcmanager_client = self.app.client_manager.subcloud_manager
+        data = dict()
+
+        if parsed_args.force:
+            data['force'] = 'true'
+
+        if parsed_args.sysadmin_password is not None:
+            data['sysadmin_password'] = base64.b64encode(
+                parsed_args.sysadmin_password.encode("utf-8"))
+        else:
+            password = utils.prompt_for_password()
+            data["sysadmin_password"] = base64.b64encode(
+                password.encode("utf-8"))
+
+        try:
+            return dcmanager_client.subcloud_manager.\
+                prestage_subcloud(
+                    subcloud_ref=subcloud_ref, data=data)
+
+        except Exception as e:
+            print(e)
+            error_msg = "Unable to prestage subcloud %s" % (subcloud_ref)
             raise exceptions.DCManagerClientException(error_msg)

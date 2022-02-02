@@ -1,5 +1,5 @@
 # Copyright 2015 - Ericsson AB.
-# Copyright (c) 2017-2021 Wind River Systems, Inc.
+# Copyright (c) 2017-2022 Wind River Systems, Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -507,6 +507,7 @@ class DCManagerShell(app.App):
             'subcloud reconfig': sm.ReconfigSubcloud,
             'subcloud reinstall': sm.ReinstallSubcloud,
             'subcloud restore': sm.RestoreSubcloud,
+            'subcloud prestage': sm.PrestageSubcloud,
             'subcloud-group add': gm.AddSubcloudGroup,
             'subcloud-group delete': gm.DeleteSubcloudGroup,
             'subcloud-group list': gm.ListSubcloudGroup,

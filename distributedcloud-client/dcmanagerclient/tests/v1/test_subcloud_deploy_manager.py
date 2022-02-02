@@ -166,7 +166,6 @@ class TestCLISubcloudDeployManagerV1(base.BaseCommandTest):
                     '--deploy-overrides', file_path_1,
                     '--deploy-chart', file_path_2,
                     '--prestage-images', file_path_3])
-            print(actual_call[1])
         self.assertEqual((None,
                           DEPLOY_OVERRIDES,
                           DEPLOY_CHART,
@@ -186,7 +185,6 @@ class TestCLISubcloudDeployManagerV1(base.BaseCommandTest):
                 app_args=[
                     '--deploy-chart', file_path_1,
                     '--prestage-images', file_path_2])
-            print(actual_call[1])
         self.assertEqual((None,
                           None,
                           DEPLOY_CHART,
@@ -206,7 +204,6 @@ class TestCLISubcloudDeployManagerV1(base.BaseCommandTest):
                 app_args=[
                     '--deploy-playbook', file_path_1,
                     '--prestage-images', file_path_2])
-            print(actual_call[1])
         self.assertEqual((DEPLOY_PLAYBOOK,
                           None,
                           None,

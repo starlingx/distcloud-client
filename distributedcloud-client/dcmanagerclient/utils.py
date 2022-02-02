@@ -1,7 +1,7 @@
 # Copyright 2016 - Ericsson AB
 # Copyright 2015 - Huawei Technologies Co. Ltd
 # Copyright 2015 - StackStorm, Inc.
-# Copyright (c) 2017-2021 Wind River Systems, Inc.
+# Copyright (c) 2017-2022 Wind River Systems, Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 #    limitations under the License.
 #
 
+import getpass
 import json
 import os
 import yaml
@@ -84,3 +85,20 @@ def get_contents_if_file(contents_or_file_name):
     except Exception as e:
         raise exceptions.DCManagerClientException(
             "Error: Could not open file %s: %s" % (contents_or_file_name, e))
+
+
+def prompt_for_password(password_type='sysadmin'):
+    while True:
+        password = getpass.getpass(
+            "Enter the " + password_type + " password for the subcloud: ")
+        if len(password) < 1:
+            print("Password cannot be empty")
+            continue
+
+        confirm = getpass.getpass(
+            "Re-enter " + password_type + " password to confirm: ")
+        if password != confirm:
+            print("Passwords did not match")
+            continue
+        break
+    return password

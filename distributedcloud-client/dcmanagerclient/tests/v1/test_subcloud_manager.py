@@ -1,5 +1,5 @@
 # Copyright (c) 2017 Ericsson AB.
-# Copyright (c) 2017-2021 Wind River Systems, Inc.
+# Copyright (c) 2017-2022 Wind River Systems, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -433,3 +433,23 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
                               app_args=[ID, '--restore-values', file_path])
         self.assertTrue('does not exist'
                         in str(e))
+
+    def test_prestage_with_subcloudID(self):
+        self.client.subcloud_manager.prestage_subcloud.\
+            return_value = [SUBCLOUD]
+        actual_call = self.call(
+            subcloud_cmd.PrestageSubcloud,
+            app_args=[ID,
+                      '--sysadmin-password', 'testpassword',
+                      '--force'])
+        self.assertEqual((ID, NAME, DESCRIPTION, LOCATION, SOFTWARE_VERSION,
+                          MANAGEMENT_STATE, AVAILABILITY_STATUS, DEPLOY_STATUS,
+                          MANAGEMENT_SUBNET, MANAGEMENT_START_IP,
+                          MANAGEMENT_END_IP, MANAGEMENT_GATEWAY_IP,
+                          SYSTEMCONTROLLER_GATEWAY_IP,
+                          DEFAULT_SUBCLOUD_GROUP_ID,
+                          TIME_NOW, TIME_NOW), actual_call[1])
+
+    def test_prestage_without_subcloudID(self):
+        self.assertRaises(SystemExit, self.call,
+                          subcloud_cmd.PrestageSubcloud, app_args=[])

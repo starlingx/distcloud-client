@@ -1,5 +1,5 @@
 # Copyright (c) 2017 Ericsson AB.
-# Copyright (c) 2017-2021 Wind River Systems, Inc.
+# Copyright (c) 2017-2022 Wind River Systems, Inc.
 # All Rights Reserved.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,6 +14,8 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 #
+
+import json
 
 from requests_toolbelt import MultipartEncoder
 
@@ -155,6 +157,16 @@ class subcloud_manager(base.ResourceManager):
         resource.append(self.json_to_resource(json_object))
         return resource
 
+    def _subcloud_prestage(self, url, data):
+        data = json.dumps(data)
+        resp = self.http_client.patch(url, data)
+        if resp.status_code != 200:
+            self._raise_api_exception(resp)
+        json_object = get_json(resp)
+        resource = list()
+        resource.append(self.json_to_resource(json_object))
+        return resource
+
     def subcloud_list(self, url):
         resp = self.http_client.get(url)
         if resp.status_code != 200:
@@ -239,6 +251,11 @@ class subcloud_manager(base.ResourceManager):
     def delete_subcloud(self, subcloud_ref):
         url = '/subclouds/%s' % subcloud_ref
         return self._delete(url)
+
+    def prestage_subcloud(self, subcloud_ref, **kwargs):
+        data = kwargs.get('data')
+        url = '/subclouds/%s/prestage' % subcloud_ref
+        return self._subcloud_prestage(url, data)
 
     def update_subcloud(self, subcloud_ref, **kwargs):
         files = kwargs.get('files')

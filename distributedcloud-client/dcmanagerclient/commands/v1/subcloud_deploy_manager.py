@@ -87,8 +87,8 @@ class SubcloudDeployUpload(base.DCManagerShowOne):
         parser.add_argument(
             '--prestage-images',
             required=False,
-            help='Upload image list to subcloud local directory '
-                 '/opt/platform-backup/<release-version>.'
+            help='Container image list to be passed to '
+                 'prestage_images playbook. '
                  'Must be a local file path'
         )
         return parser
