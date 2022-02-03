@@ -117,6 +117,16 @@ class CreateSwUpdateStrategy(base.DCManagerShowOne):
     def _get_format_function(self):
         return detail_format
 
+    def add_force_argument(self, parser):
+        parser.add_argument(
+            '--force',
+            required=False,
+            action='store_true',
+            help='Disregard subcloud availability status, intended for \
+                  some upgrade recovery scenarios. Subcloud name must be \
+                  specified.'
+        )
+
     def get_parser(self, prog_name):
         parser = super(CreateSwUpdateStrategy, self).get_parser(prog_name)
 
@@ -142,15 +152,6 @@ class CreateSwUpdateStrategy(base.DCManagerShowOne):
         )
 
         parser.add_argument(
-            '--force',
-            required=False,
-            action='store_true',
-            help='Disregard subcloud availability status, intended for \
-                  some upgrade recovery scenarios. Subcloud name must be \
-                  specified.'
-        )
-
-        parser.add_argument(
             '--group',
             required=False,
             help='Name or ID of subcloud group to update.'
@@ -162,6 +163,8 @@ class CreateSwUpdateStrategy(base.DCManagerShowOne):
             default=None,
             help='Name of a single cloud to update.'
         )
+
+        self.add_force_argument(parser)
 
         return parser
 

@@ -39,6 +39,7 @@ from dcmanagerclient.commands.v1 import subcloud_deploy_manager as sdm
 from dcmanagerclient.commands.v1 import subcloud_group_manager as gm
 from dcmanagerclient.commands.v1 import subcloud_manager as sm
 from dcmanagerclient.commands.v1 import sw_patch_manager as spm
+from dcmanagerclient.commands.v1 import sw_prestage_manager as spr
 from dcmanagerclient.commands.v1 import sw_update_manager as sum
 from dcmanagerclient.commands.v1 import sw_update_options_manager as suom
 from dcmanagerclient.commands.v1 import sw_upgrade_manager as supm
@@ -471,7 +472,8 @@ class DCManagerShell(app.App):
                  sw_update_options_manager=self.client,
                  sw_upgrade_manager=self.client,
                  kube_upgrade_manager=self.client,
-                 kube_rootca_update_manager=self.client)
+                 kube_rootca_update_manager=self.client,
+                 sw_prestage_manager=self.client)
         )
         self.client_manager = ClientManager()
 
@@ -542,6 +544,11 @@ class DCManagerShell(app.App):
             'patch-strategy apply': spm.ApplyPatchUpdateStrategy,
             'patch-strategy abort': spm.AbortPatchUpdateStrategy,
             'patch-strategy show': spm.ShowPatchUpdateStrategy,
+            'prestage-strategy create': spr.CreateSwPrestageStrategy,
+            'prestage-strategy delete': spr.DeleteSwPrestageStrategy,
+            'prestage-strategy apply': spr.ApplySwPrestageStrategy,
+            'prestage-strategy abort': spr.AbortSwPrestageStrategy,
+            'prestage-strategy show': spr.ShowSwPrestageStrategy,
             'strategy-step list': sum.ListSwUpdateStrategyStep,
             'strategy-step show': sum.ShowSwUpdateStrategyStep,
             'patch-strategy-config update': suom.UpdateSwUpdateOptions,
