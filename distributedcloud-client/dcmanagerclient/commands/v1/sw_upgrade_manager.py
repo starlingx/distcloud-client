@@ -27,7 +27,24 @@ class SwUpgradeManagerMixin(object):
 class CreateSwUpgradeStrategy(SwUpgradeManagerMixin,
                               sw_update_manager.CreateSwUpdateStrategy):
     """Create a software upgrade strategy."""
-    pass
+    def add_force_argument(self, parser):
+        parser.add_argument(
+            '--force',
+            required=False,
+            action='store_true',
+            help='Allow upgrade with the subcloud group \
+                  rather than a single subcloud name/ID'
+        )
+
+    def get_parser(self, prog_name):
+        parser = super(CreateSwUpgradeStrategy,
+                       self).get_parser(prog_name)
+
+        return parser
+
+    # override validate_force_params defined in CreateSwUpdateStrategy
+    def validate_force_params(self, parsed_args):
+        pass
 
 
 class ShowSwUpgradeStrategy(SwUpgradeManagerMixin,
