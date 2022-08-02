@@ -20,6 +20,10 @@ persistent=yes
 # usually to register additional checkers.
 load-plugins=
 
+# TODO: Bo remove the following once we no longer use python2
+# Remove option files-output, bad-functions, max-branches
+# Remove E1606, E1607, E1608, E1610, E1611, E1641, W0403, W1112, W1641
+# Remove enable section since python3 checker will then by default
 
 [MESSAGES CONTROL]
 # Enable the message, report, category or checker with the given id(s). You can
@@ -100,12 +104,12 @@ load-plugins=
 # W1660: deprecated-sys-function
 # W1661: exception-escape
 # W1662: comprehension-escape
-enable=E1603,E1609,E1610,E1602,E1606,E1608,E1607,E1605,E1604,E1601,E1611,W1652,
-       W1651,W1649,W1657,W1660,W1658,W1659,W1623,W1622,W1620,W1621,W1645,W1641,
-       W1624,W1648,W1625,W1611,W1662,W1661,W1650,W1640,W1630,W1614,W1615,W1642,
-       W1616,W1628,W1643,W1629,W1627,W1644,W1617,W1601,W1602,W1603,W1604,W1605,
-       W1654,W1655,W1656,W1619,W1606,W1607,W1639,W1618,W1632,W1634,W1608,W1636,
-       W1653,W1646,W1638,W1609,W1610,W1626,W1633,W1647,W1635,W1612,W1613,W1637
+enable=E1601,E1602,E1603,E1604,E1605,E1606,E1607,E1608,E1609,E1610,E1611,W1601,
+       W1602,W1603,W1604,W1605,W1606,W1607,W1608,W1609,W1610,W1611,W1612,W1613,
+       W1614,W1615,W1616,W1617,W1618,W1619,W1620,W1621,W1622,W1623,W1624,W1625,
+       W1626,W1627,W1628,W1629,W1630,W1632,W1633,W1634,W1635,W1636,W1637,W1638,
+       W1639,W1640,W1641,W1642,W1643,W1644,W1645,W1646,W1647,W1648,W1649,W1650,
+       W1651,W1652,W1653,W1654,W1655,W1656,W1657,W1658,W1659,W1660,W1661,W1662
 
 # Disable the message, report, category or checker with the given id(s). You
 # can either give multiple identifier separated by comma (,) or put this option
@@ -115,6 +119,7 @@ enable=E1603,E1609,E1610,E1602,E1606,E1608,E1607,E1605,E1604,E1601,E1611,W1652,
 #
 # R detect Refactor for a "good practice" metric violation
 # C detect Convention for coding standard violation
+# E1102: not-callable
 # W0107: unnecessary-pass
 # W0212: protected-access
 # W0403: relative-import (typically caused by six)
@@ -125,11 +130,15 @@ enable=E1603,E1609,E1610,E1602,E1606,E1608,E1607,E1605,E1604,E1601,E1611,W1652,
 # W1113: keyword-arg-before-vararg
 # W1505: deprecated-method
 # W1618: no-absolute-import
-# E1102: not-callable
+#
+# Following alarms are suppressed because python2 does not support the new pylint 
+# suggested syntax change. Need to unsuppress once we move away from python2
+# W0707: raise-missing-from
+# W1514: unspecified-encoding
+#
 disable=C,R,
-        W0107,W0212,W0403,
-        W0612,W0613,W0603,W0622,W0703,W1112,W1505,W1618,
-        E1102
+        E1102,W0107,W0212,W0403,W0612,W0613,W0603,
+        W0622,W0703,W0707,W1112,W1505,W1514,W1618
 
 [REPORTS]
 # Set the output format. Available formats are text, parseable, colorized, msvs

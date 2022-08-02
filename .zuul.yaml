@@ -11,6 +11,8 @@
         - stx-distcloud-client-tox-py27
         - stx-distcloud-client-tox-py39
         - stx-distcloud-client-tox-pylint
+        - stx-distcloud-client-tox-pep8-debian
+        - stx-distcloud-client-tox-pylint-debian
     gate:
       jobs:
         - openstack-tox-linters
@@ -18,6 +20,8 @@
         - stx-distcloud-client-tox-py27
         - stx-distcloud-client-tox-py39
         - stx-distcloud-client-tox-pylint
+        - stx-distcloud-client-tox-pep8-debian
+        - stx-distcloud-client-tox-pylint-debian
     post:
       jobs:
         - stx-distcloud-client-upload-git-mirror
@@ -49,12 +53,32 @@
       tox_extra_args: -c distributedcloud-client/tox.ini
 
 - job:
+    name: stx-distcloud-client-tox-pylint-debian
+    parent: tox
+    description: Run pylint with py39 for distcloud-client
+    nodeset: ubuntu-focal
+    vars:
+      python_version: 3.9
+      tox_envlist: pylint_Debian
+      tox_extra_args: -c distributedcloud-client/tox.ini
+
+- job:
     name: stx-distcloud-client-tox-pep8
     parent: tox
     description: Run pep8 for distcloud-client
     nodeset: ubuntu-bionic
     vars:
       tox_envlist: pep8
+      tox_extra_args: -c distributedcloud-client/tox.ini
+
+- job:
+    name: stx-distcloud-client-tox-pep8-debian
+    parent: tox
+    description: Run pep8 for py39 distcloud client
+    nodeset: ubuntu-focal
+    vars:
+      python_version: 3.9
+      tox_envlist: pep8_Debian
       tox_extra_args: -c distributedcloud-client/tox.ini
 
 - job:
