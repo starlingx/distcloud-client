@@ -23,42 +23,8 @@ from dcmanagerclient.api import base
 from dcmanagerclient.api.base import get_json
 
 
-class Subcloud(base.Resource):
-    resource_name = 'subclouds'
-
-    def __init__(self, manager, subcloud_id, name, description, location,
-                 software_version, management_state, availability_status,
-                 deploy_status,
-                 management_subnet, management_start_ip, management_end_ip,
-                 management_gateway_ip, systemcontroller_gateway_ip,
-                 created_at, updated_at, group_id, sync_status="unknown",
-                 endpoint_sync_status=None):
-        if endpoint_sync_status is None:
-            endpoint_sync_status = {}
-        self.manager = manager
-        self.subcloud_id = subcloud_id
-        self.name = name
-        self.description = description
-        self.location = location
-        self.software_version = software_version
-        self.management_subnet = management_subnet
-        self.management_state = management_state
-        self.availability_status = availability_status
-        self.deploy_status = deploy_status
-        self.oam_floating_ip = "unavailable"
-        self.management_start_ip = management_start_ip
-        self.management_end_ip = management_end_ip
-        self.management_gateway_ip = management_gateway_ip
-        self.systemcontroller_gateway_ip = systemcontroller_gateway_ip
-        self.created_at = created_at
-        self.updated_at = updated_at
-        self.group_id = group_id
-        self.sync_status = sync_status
-        self.endpoint_sync_status = endpoint_sync_status
-
-
 class subcloud_manager(base.ResourceManager):
-    resource_class = Subcloud
+    resource_class = base.Subcloud
 
     def json_to_resource(self, json_object):
         return self.resource_class(
@@ -79,7 +45,9 @@ class subcloud_manager(base.ResourceManager):
                 'systemcontroller-gateway-ip'],
             created_at=json_object['created-at'],
             updated_at=json_object['updated-at'],
-            group_id=json_object['group_id'])
+            group_id=json_object['group_id'],
+            backup_status=json_object['backup-status'],
+            backup_datetime=json_object['backup-datetime'])
 
     def subcloud_create(self, url, body, data):
         fields = dict()
@@ -196,7 +164,9 @@ class subcloud_manager(base.ResourceManager):
                     updated_at=json_object['updated-at'],
                     group_id=json_object['group_id'],
                     sync_status=json_object['sync_status'],
-                    endpoint_sync_status=json_object['endpoint_sync_status']))
+                    endpoint_sync_status=json_object['endpoint_sync_status'],
+                    backup_status=json_object['backup-status'],
+                    backup_datetime=json_object['backup-datetime']))
         return resource
 
     def _subcloud_detail(self, url, detail=None):
@@ -225,7 +195,9 @@ class subcloud_manager(base.ResourceManager):
                 created_at=json_object['created-at'],
                 updated_at=json_object['updated-at'],
                 group_id=json_object['group_id'],
-                endpoint_sync_status=json_object['endpoint_sync_status']))
+                endpoint_sync_status=json_object['endpoint_sync_status'],
+                backup_status=json_object['backup-status'],
+                backup_datetime=json_object['backup-datetime']))
         if detail is not None:
             resource[0].oam_floating_ip = json_object['oam_floating_ip']
         return resource

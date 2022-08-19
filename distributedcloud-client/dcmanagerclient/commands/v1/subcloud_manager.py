@@ -32,7 +32,9 @@ def format(subcloud=None):
         'management',
         'availability',
         'deploy status',
-        'sync'
+        'sync',
+        'backup status',
+        'backup datetime'
     )
 
     if subcloud:
@@ -42,7 +44,9 @@ def format(subcloud=None):
             subcloud.management_state,
             subcloud.availability_status,
             subcloud.deploy_status,
-            subcloud.sync_status
+            subcloud.sync_status,
+            subcloud.backup_status,
+            subcloud.backup_datetime,
         )
 
     else:
@@ -69,6 +73,8 @@ def detail_format(subcloud=None):
         'group_id',
         'created_at',
         'updated_at',
+        'backup_status',
+        'backup_datetime'
     )
 
     if subcloud:
@@ -89,6 +95,8 @@ def detail_format(subcloud=None):
             subcloud.group_id,
             subcloud.created_at,
             subcloud.updated_at,
+            subcloud.backup_status,
+            subcloud.backup_datetime
         )
 
         for _listitem, sync_status in enumerate(subcloud.endpoint_sync_status):
