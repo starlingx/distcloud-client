@@ -195,6 +195,10 @@ class AddSubcloud(base.DCManagerShowOne):
 
         # Get the deploy config yaml file
         if parsed_args.deploy_config is not None:
+            if parsed_args.migrate:
+                error_msg = "migrate with deploy-config is not allowed"
+                raise exceptions.DCManagerClientException(error_msg)
+
             if not os.path.isfile(parsed_args.deploy_config):
                 error_msg = "deploy-config does not exist: %s" % \
                             parsed_args.deploy_config
