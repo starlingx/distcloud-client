@@ -65,6 +65,23 @@ class subcloud_backup_manager(base.ResourceManager):
             return json.loads(resp.content)
         return None
 
+    def subcloud_backup_restore(self, url, body, data):
+        if body:
+            data.update(body)
+        headers = {'Content-Type': 'application/json'}
+        enc = json.dumps(data)
+        resp = self.http_client.patch(url, enc, headers=headers)
+
+        if resp.status_code != 200:
+            self._raise_api_exception(resp)
+
+        json_response_key = get_json(resp)
+        json_objects = json_response_key['subclouds']
+        resource = []
+        for json_object in json_objects:
+            resource.append(self.json_to_resource(json_object))
+        return resource
+
     def backup_subcloud_create(self, **kwargs):
         files = kwargs.get('files')
         data = kwargs.get('data')
@@ -75,3 +92,9 @@ class subcloud_backup_manager(base.ResourceManager):
         data = kwargs.get('data')
         url = '/subcloud-backup/delete/%s' % release_version
         return self.subcloud_backup_delete(url, data)
+
+    def backup_subcloud_restore(self, **kwargs):
+        files = kwargs.get('files')
+        data = kwargs.get('data')
+        url = '/subcloud-backup/restore'
+        return self.subcloud_backup_restore(url, files, data)

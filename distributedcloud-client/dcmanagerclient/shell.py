@@ -515,6 +515,7 @@ class DCManagerShell(app.App):
             'subcloud prestage': sm.PrestageSubcloud,
             'subcloud-backup create': sbm.CreateSubcloudBackup,
             'subcloud-backup delete': sbm.DeleteSubcloudBackup,
+            'subcloud-backup restore': sbm.RestoreSubcloudBackup,
             'subcloud-group add': gm.AddSubcloudGroup,
             'subcloud-group delete': gm.DeleteSubcloudGroup,
             'subcloud-group list': gm.ListSubcloudGroup,
