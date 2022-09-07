@@ -513,6 +513,7 @@ class DCManagerShell(app.App):
             'subcloud restore': sm.RestoreSubcloud,
             'subcloud prestage': sm.PrestageSubcloud,
             'subcloud-backup create': sbm.CreateSubcloudBackup,
+            'subcloud-backup delete': sbm.DeleteSubcloudBackup,
             'subcloud-group add': gm.AddSubcloudGroup,
             'subcloud-group delete': gm.DeleteSubcloudGroup,
             'subcloud-group list': gm.ListSubcloudGroup,

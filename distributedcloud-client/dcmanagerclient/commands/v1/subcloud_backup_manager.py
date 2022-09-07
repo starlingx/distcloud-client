@@ -7,6 +7,8 @@
 import base64
 import os
 
+from osc_lib.command import command
+
 from dcmanagerclient.commands.v1 import base
 from dcmanagerclient import exceptions
 from dcmanagerclient import utils
@@ -73,7 +75,7 @@ def detail_format(subcloud=None):
 
 
 class CreateSubcloudBackup(base.DCManagerLister):
-    """Backup a subcloud or group of subcloud"""
+    """Backup a subcloud or group of subclouds"""
 
     def _get_format_function(self):
         return detail_format
@@ -187,4 +189,97 @@ class CreateSubcloudBackup(base.DCManagerLister):
         except Exception as e:
             print(e)
             error_msg = "Unable to create subcloud backup"
+            raise exceptions.DCManagerClientException(error_msg)
+
+
+class DeleteSubcloudBackup(command.Command):
+    """Delete backup from a subcloud or group of subclouds"""
+
+    def _get_format_function(self):
+        return detail_format
+
+    def get_parser(self, prog_name):
+        parser = super(DeleteSubcloudBackup, self).get_parser(prog_name)
+
+        parser.add_argument(
+            'release',
+            help='Release version that the user is trying to delete.'
+        )
+
+        parser.add_argument(
+            '--local-only',
+            required=False,
+            action='store_true',
+            help='If included, backup files will be deleted from the '
+                 'subcloud. Otherwise, they will be deleted from the '
+                 'centralized archive on the system controller.'
+        )
+
+        parser.add_argument(
+            '--sysadmin-password',
+            required=False,
+            help='sysadmin password of the subcloud to delete backup, '
+                 'if not provided you will be prompted.'
+        )
+
+        parser.add_argument(
+            '--subcloud',
+            required=False,
+            help='Name or ID of the subcloud to delete backup.'
+        )
+
+        parser.add_argument(
+            '--group',
+            required=False,
+            help='Name or ID of the subcloud to delete backup.'
+        )
+
+        return parser
+
+    def take_action(self, parsed_args):
+        dcmanager_client = self.app.client_manager.subcloud_backup_manager
+        release_version = parsed_args.release
+        subcloud_ref = parsed_args.subcloud
+        data = dict()
+
+        data['release'] = parsed_args.release
+
+        if not parsed_args.subcloud and not parsed_args.group:
+            error_msg = ('Please provide the subcloud or subcloud group'
+                         ' name or id.')
+            raise exceptions.DCManagerClientException(error_msg)
+
+        if parsed_args.subcloud and parsed_args.group:
+            error_msg = ('This command only applies to a single subcloud '
+                         'or a subcloud group, not both.')
+            raise exceptions.DCManagerClientException(error_msg)
+
+        if parsed_args.subcloud:
+            data['subcloud'] = parsed_args.subcloud
+
+        if parsed_args.group:
+            data['group'] = parsed_args.group
+
+        if parsed_args.local_only:
+            data['local_only'] = 'true'
+        else:
+            data['local_only'] = 'false'
+
+        if parsed_args.sysadmin_password is not None:
+            data['sysadmin_password'] = base64.b64encode(
+                parsed_args.sysadmin_password.encode("utf-8")).decode("utf-8")
+        else:
+            password = utils.prompt_for_password()
+            data["sysadmin_password"] = base64.b64encode(
+                password.encode("utf-8")).decode("utf-8")
+
+        try:
+            return dcmanager_client.subcloud_backup_manager.\
+                backup_subcloud_delete(subcloud_ref=subcloud_ref,
+                                       release_version=release_version,
+                                       data=data)
+
+        except Exception as e:
+            print(e)
+            error_msg = "Unable to delete backup"
             raise exceptions.DCManagerClientException(error_msg)

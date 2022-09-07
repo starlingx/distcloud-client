@@ -63,8 +63,22 @@ class subcloud_backup_manager(base.ResourceManager):
                 self.json_to_resource(json_object))
         return resource
 
+    def subcloud_backup_delete(self, url, data):
+        data = json.dumps(data)
+        resp = self.http_client.patch(url, data)
+        if resp.status_code not in {204, 207}:
+            self._raise_api_exception(resp)
+        elif resp.status_code == 207:
+            return json.loads(resp.content)
+        return None
+
     def backup_subcloud_create(self, **kwargs):
         files = kwargs.get('files')
         data = kwargs.get('data')
         url = '/subcloud-backup/'
         return self.subcloud_backup_create(url, files, data)
+
+    def backup_subcloud_delete(self, release_version, **kwargs):
+        data = kwargs.get('data')
+        url = '/subcloud-backup/delete/%s' % release_version
+        return self.subcloud_backup_delete(url, data)
