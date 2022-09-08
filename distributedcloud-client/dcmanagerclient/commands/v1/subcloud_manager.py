@@ -724,11 +724,11 @@ class PrestageSubcloud(base.DCManagerShowOne):
 
         if parsed_args.sysadmin_password is not None:
             data['sysadmin_password'] = base64.b64encode(
-                parsed_args.sysadmin_password.encode("utf-8"))
+                parsed_args.sysadmin_password.encode("utf-8")).decode("utf-8")
         else:
             password = utils.prompt_for_password()
             data["sysadmin_password"] = base64.b64encode(
-                password.encode("utf-8"))
+                password.encode("utf-8")).decode("utf-8")
 
         try:
             return dcmanager_client.subcloud_manager.\
