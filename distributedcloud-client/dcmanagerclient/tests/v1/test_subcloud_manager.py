@@ -246,6 +246,26 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
                           DEFAULT_SUBCLOUD_GROUP_ID,
                           TIME_NOW, TIME_NOW), actual_call[1])
 
+    @mock.patch('getpass.getpass', return_value='testpassword')
+    def test_add_migrate_subcloud_with_deploy_config(self, getpass):
+        self.client.subcloud_manager.add_subcloud.\
+            return_value = [SUBCLOUD]
+
+        with tempfile.NamedTemporaryFile(mode='w') as f_bootstrap:
+            bootstrap_file_path = os.path.abspath(f_bootstrap.name)
+
+            with tempfile.NamedTemporaryFile() as f_config:
+                config_file_path = os.path.abspath(f_config.name)
+
+                self.assertRaises(
+                    DCManagerClientException, self.call,
+                    subcloud_cmd.AddSubcloud, app_args=[
+                        '--bootstrap-address', BOOTSTRAP_ADDRESS,
+                        '--bootstrap-values', bootstrap_file_path,
+                        '--deploy-config', config_file_path,
+                        '--migrate',
+                    ])
+
     def test_unmanage_subcloud(self):
         self.client.subcloud_manager.update_subcloud.\
             return_value = [SUBCLOUD]
