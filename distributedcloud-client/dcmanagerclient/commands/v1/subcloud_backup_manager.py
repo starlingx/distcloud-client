@@ -164,12 +164,15 @@ class CreateSubcloudBackup(base.DCManagerLister):
             data['registry_images'] = 'false'
 
         if parsed_args.sysadmin_password is not None:
+            # The binary base64 encoded string (eg. b'dGVzdA==') is not JSON
+            # serializable in Python3.x, so it has to be decoded to a JSON
+            # serializable string (eg. 'dGVzdA==').
             data['sysadmin_password'] = base64.b64encode(
-                parsed_args.sysadmin_password.encode("utf-8"))
+                parsed_args.sysadmin_password.encode("utf-8")).decode("utf-8")
         else:
             password = utils.prompt_for_password()
             data["sysadmin_password"] = base64.b64encode(
-                password.encode("utf-8"))
+                password.encode("utf-8")).decode("utf-8")
         if parsed_args.backup_values:
             if not os.path.isfile(parsed_args.backup_values):
                 error_msg = "Backup-values file does not exist: %s" % \
