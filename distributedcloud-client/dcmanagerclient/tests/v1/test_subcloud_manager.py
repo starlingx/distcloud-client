@@ -22,7 +22,7 @@ import yaml
 
 from oslo_utils import timeutils
 
-from dcmanagerclient.api.v1 import subcloud_manager as sm
+from dcmanagerclient.api import base as api_base
 from dcmanagerclient.commands.v1 import subcloud_manager as subcloud_cmd
 from dcmanagerclient.exceptions import DCManagerClientException
 from dcmanagerclient.tests import base
@@ -50,6 +50,8 @@ EXTERNAL_OAM_SUBNET = "10.10.10.0/24"
 EXTERNAL_OAM_GATEWAY_ADDRESS = "10.10.10.1"
 EXTERNAL_OAM_FLOATING_ADDRESS = "10.10.10.12"
 DEFAULT_SUBCLOUD_GROUP_ID = '1'
+BACKUP_STATUS = 'complete'
+BACKUP_DATETIME = '2022-09-07'
 
 SUBCLOUD_DICT = {
     'SUBCLOUD_ID': ID,
@@ -68,10 +70,12 @@ SUBCLOUD_DICT = {
     'CREATED_AT': TIME_NOW,
     'UPDATED_AT': TIME_NOW,
     'GROUP_ID': DEFAULT_SUBCLOUD_GROUP_ID,
-    'OAM_FLOATING_IP': EXTERNAL_OAM_FLOATING_ADDRESS
+    'OAM_FLOATING_IP': EXTERNAL_OAM_FLOATING_ADDRESS,
+    'BACKUP_STATUS': BACKUP_STATUS,
+    'BACKUP_DATETIME': BACKUP_DATETIME
 }
 
-SUBCLOUD = sm.Subcloud(
+SUBCLOUD = api_base.Subcloud(
     mock,
     subcloud_id=SUBCLOUD_DICT['SUBCLOUD_ID'],
     name=SUBCLOUD_DICT['NAME'],
@@ -88,7 +92,9 @@ SUBCLOUD = sm.Subcloud(
     systemcontroller_gateway_ip=SUBCLOUD_DICT['SYSTEMCONTROLLER_GATEWAY_IP'],
     created_at=SUBCLOUD_DICT['CREATED_AT'],
     updated_at=SUBCLOUD_DICT['UPDATED_AT'],
-    group_id=SUBCLOUD_DICT['GROUP_ID'])
+    group_id=SUBCLOUD_DICT['GROUP_ID'],
+    backup_status=SUBCLOUD_DICT['BACKUP_STATUS'],
+    backup_datetime=SUBCLOUD_DICT['BACKUP_DATETIME'])
 
 DEFAULT_SUBCLOUD_FIELD_RESULT_LIST = (
     ID,
@@ -106,7 +112,9 @@ DEFAULT_SUBCLOUD_FIELD_RESULT_LIST = (
     SYSTEMCONTROLLER_GATEWAY_IP,
     DEFAULT_SUBCLOUD_GROUP_ID,
     TIME_NOW,
-    TIME_NOW)
+    TIME_NOW,
+    BACKUP_STATUS,
+    BACKUP_DATETIME)
 
 
 class TestCLISubcloudManagerV1(base.BaseCommandTest):
@@ -115,14 +123,15 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
         self.client.subcloud_manager.list_subclouds.return_value = [SUBCLOUD]
         actual_call = self.call(subcloud_cmd.ListSubcloud)
         self.assertEqual([(ID, NAME, MANAGEMENT_STATE, AVAILABILITY_STATUS,
-                           DEPLOY_STATUS, "unknown")],
+                           DEPLOY_STATUS, "unknown",
+                           BACKUP_STATUS, BACKUP_DATETIME)],
                          actual_call[1])
 
     def test_negative_list_subclouds(self):
         self.client.subcloud_manager.list_subclouds.return_value = []
         actual_call = self.call(subcloud_cmd.ListSubcloud)
         self.assertEqual((('<none>', '<none>', '<none>', '<none>', '<none>',
-                           '<none>'),),
+                           '<none>', '<none>', '<none>'),),
                          actual_call[1])
 
     def test_delete_subcloud_with_subcloud_id(self):
@@ -163,6 +172,7 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
                           SYSTEMCONTROLLER_GATEWAY_IP,
                           DEFAULT_SUBCLOUD_GROUP_ID,
                           TIME_NOW, TIME_NOW,
+                          BACKUP_STATUS, BACKUP_DATETIME,
                           EXTERNAL_OAM_FLOATING_ADDRESS),
                          actual_call[1])
 
@@ -172,7 +182,8 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
         self.assertEqual((('<none>', '<none>', '<none>', '<none>',
                            '<none>', '<none>', '<none>', '<none>',
                            '<none>', '<none>', '<none>', '<none>',
-                           '<none>', '<none>', '<none>', '<none>'),),
+                           '<none>', '<none>', '<none>', '<none>',
+                           '<none>', '<none>'),),
                          actual_call[1])
 
     @mock.patch('getpass.getpass', return_value='testpassword')
@@ -192,6 +203,8 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
             "external_oam_subnet": EXTERNAL_OAM_SUBNET,
             "external_oam_gateway_address": EXTERNAL_OAM_GATEWAY_ADDRESS,
             "external_oam_floating_address": EXTERNAL_OAM_FLOATING_ADDRESS,
+            'backup_status': BACKUP_STATUS,
+            'backup_datetime': BACKUP_DATETIME
         }
 
         with tempfile.NamedTemporaryFile(mode='w') as f:
@@ -208,7 +221,8 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
                           MANAGEMENT_END_IP, MANAGEMENT_GATEWAY_IP,
                           SYSTEMCONTROLLER_GATEWAY_IP,
                           DEFAULT_SUBCLOUD_GROUP_ID,
-                          TIME_NOW, TIME_NOW), actual_call[1])
+                          TIME_NOW, TIME_NOW, BACKUP_STATUS, BACKUP_DATETIME
+                          ), actual_call[1])
 
     @mock.patch('getpass.getpass', return_value='testpassword')
     def test_add_migrate_subcloud(self, getpass):
@@ -227,6 +241,10 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
             "external_oam_subnet": EXTERNAL_OAM_SUBNET,
             "external_oam_gateway_address": EXTERNAL_OAM_GATEWAY_ADDRESS,
             "external_oam_floating_address": EXTERNAL_OAM_FLOATING_ADDRESS,
+            'backup_status': BACKUP_STATUS,
+            'backup_datetime': BACKUP_DATETIME,
+            'backup_status': BACKUP_STATUS,
+            'backup_datetime': BACKUP_DATETIME
         }
 
         with tempfile.NamedTemporaryFile(mode='w') as f:
@@ -244,7 +262,8 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
                           MANAGEMENT_END_IP, MANAGEMENT_GATEWAY_IP,
                           SYSTEMCONTROLLER_GATEWAY_IP,
                           DEFAULT_SUBCLOUD_GROUP_ID,
-                          TIME_NOW, TIME_NOW), actual_call[1])
+                          TIME_NOW, TIME_NOW, BACKUP_STATUS, BACKUP_DATETIME
+                          ), actual_call[1])
 
     @mock.patch('getpass.getpass', return_value='testpassword')
     def test_add_migrate_subcloud_with_deploy_config(self, getpass):
@@ -279,7 +298,8 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
                           MANAGEMENT_END_IP, MANAGEMENT_GATEWAY_IP,
                           SYSTEMCONTROLLER_GATEWAY_IP,
                           DEFAULT_SUBCLOUD_GROUP_ID,
-                          TIME_NOW, TIME_NOW), actual_call[1])
+                          TIME_NOW, TIME_NOW, BACKUP_STATUS, BACKUP_DATETIME
+                          ), actual_call[1])
 
     def test_unmanage_subcloud_without_subcloud_id(self):
         self.assertRaises(SystemExit, self.call,
@@ -298,7 +318,8 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
                           MANAGEMENT_END_IP, MANAGEMENT_GATEWAY_IP,
                           SYSTEMCONTROLLER_GATEWAY_IP,
                           DEFAULT_SUBCLOUD_GROUP_ID,
-                          TIME_NOW, TIME_NOW), actual_call[1])
+                          TIME_NOW, TIME_NOW, BACKUP_STATUS, BACKUP_DATETIME
+                          ), actual_call[1])
 
     def test_manage_subcloud_without_subcloud_id(self):
         self.assertRaises(SystemExit, self.call,
@@ -320,7 +341,8 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
                           MANAGEMENT_END_IP, MANAGEMENT_GATEWAY_IP,
                           SYSTEMCONTROLLER_GATEWAY_IP,
                           DEFAULT_SUBCLOUD_GROUP_ID,
-                          TIME_NOW, TIME_NOW), actual_call[1])
+                          TIME_NOW, TIME_NOW, BACKUP_STATUS,
+                          BACKUP_DATETIME), actual_call[1])
 
     @mock.patch('getpass.getpass', return_value='testpassword')
     def test_success_reconfigure_subcloud(self, getpass):
@@ -343,7 +365,8 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
                           MANAGEMENT_END_IP, MANAGEMENT_GATEWAY_IP,
                           SYSTEMCONTROLLER_GATEWAY_IP,
                           DEFAULT_SUBCLOUD_GROUP_ID,
-                          TIME_NOW, TIME_NOW), actual_call[1])
+                          TIME_NOW, TIME_NOW, BACKUP_STATUS, BACKUP_DATETIME
+                          ), actual_call[1])
 
     @mock.patch('getpass.getpass', return_value='testpassword')
     def test_reconfigure_file_does_not_exist(self, getpass):
@@ -380,7 +403,8 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
                           MANAGEMENT_END_IP, MANAGEMENT_GATEWAY_IP,
                           SYSTEMCONTROLLER_GATEWAY_IP,
                           DEFAULT_SUBCLOUD_GROUP_ID,
-                          TIME_NOW, TIME_NOW), actual_call[1])
+                          TIME_NOW, TIME_NOW, BACKUP_STATUS, BACKUP_DATETIME
+                          ), actual_call[1])
 
     @mock.patch('getpass.getpass', return_value='testpassword')
     @mock.patch('six.moves.input', return_value='reinstall')
@@ -425,7 +449,8 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
                           MANAGEMENT_END_IP, MANAGEMENT_GATEWAY_IP,
                           SYSTEMCONTROLLER_GATEWAY_IP,
                           DEFAULT_SUBCLOUD_GROUP_ID,
-                          TIME_NOW, TIME_NOW), actual_call[1])
+                          TIME_NOW, TIME_NOW, BACKUP_STATUS, BACKUP_DATETIME
+                          ), actual_call[1])
 
     @mock.patch('getpass.getpass', return_value='testpassword')
     def test_restore_file_does_not_exist(self, getpass):
@@ -468,7 +493,8 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
                           MANAGEMENT_END_IP, MANAGEMENT_GATEWAY_IP,
                           SYSTEMCONTROLLER_GATEWAY_IP,
                           DEFAULT_SUBCLOUD_GROUP_ID,
-                          TIME_NOW, TIME_NOW), actual_call[1])
+                          TIME_NOW, TIME_NOW, BACKUP_STATUS,
+                          BACKUP_DATETIME), actual_call[1])
 
     def test_prestage_without_subcloudID(self):
         self.assertRaises(SystemExit, self.call,

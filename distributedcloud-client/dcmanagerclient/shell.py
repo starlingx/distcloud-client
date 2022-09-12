@@ -35,6 +35,7 @@ from dcmanagerclient.commands.v1 import alarm_manager as am
 from dcmanagerclient.commands.v1 import fw_update_manager as fum
 from dcmanagerclient.commands.v1 import kube_rootca_update_manager as krum
 from dcmanagerclient.commands.v1 import kube_upgrade_manager as kupm
+from dcmanagerclient.commands.v1 import subcloud_backup_manager as sbm
 from dcmanagerclient.commands.v1 import subcloud_deploy_manager as sdm
 from dcmanagerclient.commands.v1 import subcloud_group_manager as gm
 from dcmanagerclient.commands.v1 import subcloud_manager as sm
@@ -463,6 +464,7 @@ class DCManagerShell(app.App):
             'ClientManager',
             (object,),
             dict(subcloud_manager=self.client,
+                 subcloud_backup_manager=self.client,
                  subcloud_group_manager=self.client,
                  subcloud_deploy_manager=self.client,
                  alarm_manager=self.client,
@@ -510,6 +512,7 @@ class DCManagerShell(app.App):
             'subcloud reinstall': sm.ReinstallSubcloud,
             'subcloud restore': sm.RestoreSubcloud,
             'subcloud prestage': sm.PrestageSubcloud,
+            'subcloud-backup create': sbm.CreateSubcloudBackup,
             'subcloud-group add': gm.AddSubcloudGroup,
             'subcloud-group delete': gm.DeleteSubcloudGroup,
             'subcloud-group list': gm.ListSubcloudGroup,

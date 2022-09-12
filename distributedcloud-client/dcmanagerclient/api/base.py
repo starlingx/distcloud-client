@@ -25,6 +25,43 @@ class Resource(object):
     resource_name = 'Something'
 
 
+class Subcloud(Resource):
+    resource_name = 'subclouds'
+
+    def __init__(self, manager, subcloud_id, name, description, location,
+                 software_version, management_state, availability_status,
+                 deploy_status,
+                 management_subnet, management_start_ip, management_end_ip,
+                 management_gateway_ip, systemcontroller_gateway_ip,
+                 created_at, updated_at, group_id, sync_status="unknown",
+                 endpoint_sync_status=None, backup_status=None,
+                 backup_datetime=None):
+        if endpoint_sync_status is None:
+            endpoint_sync_status = {}
+        self.manager = manager
+        self.subcloud_id = subcloud_id
+        self.name = name
+        self.description = description
+        self.location = location
+        self.software_version = software_version
+        self.management_subnet = management_subnet
+        self.management_state = management_state
+        self.availability_status = availability_status
+        self.deploy_status = deploy_status
+        self.oam_floating_ip = "unavailable"
+        self.management_start_ip = management_start_ip
+        self.management_end_ip = management_end_ip
+        self.management_gateway_ip = management_gateway_ip
+        self.systemcontroller_gateway_ip = systemcontroller_gateway_ip
+        self.created_at = created_at
+        self.updated_at = updated_at
+        self.group_id = group_id
+        self.sync_status = sync_status
+        self.endpoint_sync_status = endpoint_sync_status
+        self.backup_status = backup_status
+        self.backup_datetime = backup_datetime
+
+
 class ResourceManager(object):
     resource_class = None
 

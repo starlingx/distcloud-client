@@ -27,6 +27,7 @@ from dcmanagerclient.api.v1 import fw_update_manager as fum
 from dcmanagerclient.api.v1 import kube_rootca_update_manager as krum
 from dcmanagerclient.api.v1 import kube_upgrade_manager as kupm
 from dcmanagerclient.api.v1 import strategy_step_manager as ssm
+from dcmanagerclient.api.v1 import subcloud_backup_manager as sbm
 from dcmanagerclient.api.v1 import subcloud_deploy_manager as sdm
 from dcmanagerclient.api.v1 import subcloud_group_manager as gm
 from dcmanagerclient.api.v1 import subcloud_manager as sm
@@ -97,6 +98,8 @@ class Client(object):
         self.subcloud_manager = sm.subcloud_manager(self.http_client)
         self.subcloud_group_manager = \
             gm.subcloud_group_manager(self.http_client, self.subcloud_manager)
+        self.subcloud_backup_manager = sbm.subcloud_backup_manager(
+            self.http_client)
         self.subcloud_deploy_manager = sdm.subcloud_deploy_manager(
             self.http_client)
         self.alarm_manager = am.alarm_manager(self.http_client)
