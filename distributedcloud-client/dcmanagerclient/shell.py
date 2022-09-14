@@ -505,6 +505,7 @@ class DCManagerShell(app.App):
             'subcloud delete': sm.DeleteSubcloud,
             'subcloud list': sm.ListSubcloud,
             'subcloud show': sm.ShowSubcloud,
+            'subcloud errors': sm.ShowSubcloudError,
             'subcloud unmanage': sm.UnmanageSubcloud,
             'subcloud manage': sm.ManageSubcloud,
             'subcloud update': sm.UpdateSubcloud,

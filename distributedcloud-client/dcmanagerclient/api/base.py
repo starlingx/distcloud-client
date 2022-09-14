@@ -1,5 +1,5 @@
 # Copyright (c) 2016 Ericsson AB
-# Copyright (c) 2017-2021 Wind River Systems, Inc.
+# Copyright (c) 2017-2022 Wind River Systems, Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ class Subcloud(Resource):
 
     def __init__(self, manager, subcloud_id, name, description, location,
                  software_version, management_state, availability_status,
-                 deploy_status,
+                 deploy_status, error_description,
                  management_subnet, management_start_ip, management_end_ip,
                  management_gateway_ip, systemcontroller_gateway_ip,
                  created_at, updated_at, group_id, sync_status="unknown",
@@ -48,6 +48,7 @@ class Subcloud(Resource):
         self.management_state = management_state
         self.availability_status = availability_status
         self.deploy_status = deploy_status
+        self.error_description = error_description
         self.oam_floating_ip = "unavailable"
         self.management_start_ip = management_start_ip
         self.management_end_ip = management_end_ip
