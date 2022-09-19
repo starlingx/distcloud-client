@@ -5,6 +5,8 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+import json
+
 from requests_toolbelt import MultipartEncoder
 
 from dcmanagerclient.api import base
@@ -39,12 +41,17 @@ class subcloud_backup_manager(base.ResourceManager):
             backup_datetime=json_object['backup-datetime'])
 
     def subcloud_backup_create(self, url, body, data):
-        fields = dict()
-        for k, v in body.items():
-            fields.update({k: (v, open(v, 'rb'),)})
-        fields.update(data)
-        enc = MultipartEncoder(fields=fields)
-        headers = {'Content-Type': enc.content_type}
+        if body:
+            fields = dict()
+            for k, v in body.items():
+                fields.update({k: (v, open(v, 'rb'),)})
+            fields.update(data)
+            enc = MultipartEncoder(fields=fields)
+            headers = {'Content-Type': enc.content_type}
+        else:
+            enc = json.dumps(data)
+            headers = {'Content-Type': 'application/json'}
+
         resp = self.http_client.post(url, enc, headers=headers)
         if resp.status_code != 200:
             self._raise_api_exception(resp)
