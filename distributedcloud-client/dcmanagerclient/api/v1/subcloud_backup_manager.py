@@ -28,6 +28,7 @@ class subcloud_backup_manager(base.ResourceManager):
             management_state=json_object['management-state'],
             availability_status=json_object['availability-status'],
             deploy_status=json_object['deploy-status'],
+            error_description=json_object['error-description'],
             management_subnet=json_object['management-subnet'],
             management_start_ip=json_object['management-start-ip'],
             management_end_ip=json_object['management-end-ip'],

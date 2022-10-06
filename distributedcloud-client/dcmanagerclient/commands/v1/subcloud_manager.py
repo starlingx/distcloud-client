@@ -289,6 +289,26 @@ class ShowSubcloud(base.DCManagerShowOne):
                 subcloud_detail(subcloud_ref)
 
 
+class ShowSubcloudError(command.Command):
+    """Show the error of the last failed operation."""
+
+    def get_parser(self, prog_name):
+        parser = super(ShowSubcloudError, self).get_parser(prog_name)
+
+        parser.add_argument(
+            'subcloud',
+            help='Name or ID of subcloud to view the errors details.'
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        subcloud_ref = parsed_args.subcloud
+        dcmanager_client = self.app.client_manager.subcloud_manager
+        ret = dcmanager_client.subcloud_manager.subcloud_detail(subcloud_ref)
+        data = ret[0].error_description
+        print(''.join(data))
+
+
 class DeleteSubcloud(command.Command):
     """Delete subcloud details from the database."""
 
