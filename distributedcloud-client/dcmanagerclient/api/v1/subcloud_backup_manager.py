@@ -7,8 +7,6 @@
 
 import json
 
-from requests_toolbelt import MultipartEncoder
-
 from dcmanagerclient.api import base
 from dcmanagerclient.api.base import get_json
 
@@ -43,15 +41,9 @@ class subcloud_backup_manager(base.ResourceManager):
 
     def subcloud_backup_create(self, url, body, data):
         if body:
-            fields = dict()
-            for k, v in body.items():
-                fields.update({k: (v, open(v, 'rb'),)})
-            fields.update(data)
-            enc = MultipartEncoder(fields=fields)
-            headers = {'Content-Type': enc.content_type}
-        else:
-            enc = json.dumps(data)
-            headers = {'Content-Type': 'application/json'}
+            data.update(body)
+        enc = json.dumps(data)
+        headers = {'Content-Type': 'application/json'}
 
         resp = self.http_client.post(url, enc, headers=headers)
         if resp.status_code != 200:

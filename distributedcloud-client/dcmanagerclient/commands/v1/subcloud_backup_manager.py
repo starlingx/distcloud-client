@@ -182,7 +182,7 @@ class CreateSubcloudBackup(base.DCManagerLister):
                 error_msg = "Backup-values file does not exist: %s" % \
                             parsed_args.backup_values
                 raise exceptions.DCManagerClientException(error_msg)
-            files['backup_values'] = parsed_args.backup_values
+            files['backup_values'] = utils.load_file(parsed_args.backup_values)
 
         try:
             return dcmanager_client.subcloud_backup_manager.\
