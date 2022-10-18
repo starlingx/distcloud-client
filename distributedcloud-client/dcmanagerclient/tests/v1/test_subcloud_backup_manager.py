@@ -41,12 +41,11 @@ EXTERNAL_OAM_SUBNET = "10.10.10.0/24"
 EXTERNAL_OAM_GATEWAY_ADDRESS = "10.10.10.1"
 EXTERNAL_OAM_FLOATING_ADDRESS = "10.10.10.12"
 DEFAULT_SUBCLOUD_GROUP_ID = '1'
-BACKUP_VALUES = """---
-                platform_backup_filename_prefix: test
-                openstack_app_name: test
-                backup_dir: test
-                host_backup_dir: test
-                """
+OVERRIDE_VALUES = """---
+                  platform_backup_filename_prefix: test
+                  openstack_app_name: test
+                  backup_dir: test
+                  """
 
 SUBCLOUD_DICT = {
     'SUBCLOUD_ID': ID,
@@ -89,7 +88,7 @@ SUBCLOUD = api_base.Subcloud(
     updated_at=SUBCLOUD_DICT['UPDATED_AT'],
     group_id=SUBCLOUD_DICT['GROUP_ID'])
 
-DEFAULT_SUBCLOUD_FIELD_RESULT_LIST = (
+DEFAULT_SUBCLOUD_FIELD_RESULT = (
     ID,
     NAME,
     DESCRIPTION,
@@ -98,6 +97,7 @@ DEFAULT_SUBCLOUD_FIELD_RESULT_LIST = (
     MANAGEMENT_STATE,
     AVAILABILITY_STATUS,
     DEPLOY_STATUS,
+    ERROR_DESCRIPTION,
     MANAGEMENT_SUBNET,
     MANAGEMENT_START_IP,
     MANAGEMENT_END_IP,
@@ -105,7 +105,9 @@ DEFAULT_SUBCLOUD_FIELD_RESULT_LIST = (
     SYSTEMCONTROLLER_GATEWAY_IP,
     DEFAULT_SUBCLOUD_GROUP_ID,
     TIME_NOW,
-    TIME_NOW)
+    TIME_NOW,
+    None,
+    None)
 
 
 class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
@@ -121,7 +123,7 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
 
         backupPath = os.path.normpath(os.path.join(os.getcwd(), "test.yaml"))
         with open(backupPath, mode='w') as f:
-            f.write(BACKUP_VALUES)
+            f.write(OVERRIDE_VALUES)
 
         actual_call = self.call(
             subcloud_backup_cmd.CreateSubcloudBackup,
@@ -130,13 +132,7 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
                       '--registry-images',
                       '--backup-values', backupPath,
                       '--sysadmin-password', 'testpassword'])
-        self.assertEqual([(ID, NAME, DESCRIPTION, LOCATION, SOFTWARE_VERSION,
-                          MANAGEMENT_STATE, AVAILABILITY_STATUS, DEPLOY_STATUS,
-                          ERROR_DESCRIPTION, MANAGEMENT_SUBNET,
-                          MANAGEMENT_START_IP, MANAGEMENT_END_IP,
-                          MANAGEMENT_GATEWAY_IP, SYSTEMCONTROLLER_GATEWAY_IP,
-                          DEFAULT_SUBCLOUD_GROUP_ID,
-                          TIME_NOW, TIME_NOW, None, None)], actual_call[1])
+        self.assertEqual([DEFAULT_SUBCLOUD_FIELD_RESULT], actual_call[1])
 
     def test_backup_create_group(self):
 
@@ -145,20 +141,14 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
 
         backupPath = os.path.normpath(os.path.join(os.getcwd(), "test.yaml"))
         with open(backupPath, mode='w') as f:
-            f.write(BACKUP_VALUES)
+            f.write(OVERRIDE_VALUES)
 
         actual_call = self.call(
             subcloud_backup_cmd.CreateSubcloudBackup,
             app_args=['--group', 'test',
                       '--backup-values', backupPath,
                       '--sysadmin-password', 'testpassword'])
-        self.assertEqual([(ID, NAME, DESCRIPTION, LOCATION, SOFTWARE_VERSION,
-                          MANAGEMENT_STATE, AVAILABILITY_STATUS, DEPLOY_STATUS,
-                          ERROR_DESCRIPTION, MANAGEMENT_SUBNET,
-                          MANAGEMENT_START_IP, MANAGEMENT_END_IP,
-                          MANAGEMENT_GATEWAY_IP, SYSTEMCONTROLLER_GATEWAY_IP,
-                          DEFAULT_SUBCLOUD_GROUP_ID,
-                          TIME_NOW, TIME_NOW, None, None)], actual_call[1])
+        self.assertEqual([DEFAULT_SUBCLOUD_FIELD_RESULT], actual_call[1])
 
     def test_backup_create_group_subcloud(self):
         self.client.subcloud_backup_manager.backup_subcloud_create.\
@@ -166,7 +156,7 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
 
         backupPath = os.path.normpath(os.path.join(os.getcwd(), "test.yaml"))
         with open(backupPath, mode='w') as f:
-            f.write(BACKUP_VALUES)
+            f.write(OVERRIDE_VALUES)
 
         e = self.assertRaises(DCManagerClientException,
                               self.call,
@@ -185,7 +175,7 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
 
         backupPath = os.path.normpath(os.path.join(os.getcwd(), "test.yaml"))
         with open(backupPath, mode='w') as f:
-            f.write(BACKUP_VALUES)
+            f.write(OVERRIDE_VALUES)
 
         e = self.assertRaises(DCManagerClientException,
                               self.call,
@@ -219,20 +209,14 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
 
         backupPath = os.path.normpath(os.path.join(os.getcwd(), "test.yaml"))
         with open(backupPath, mode='w') as f:
-            f.write(BACKUP_VALUES)
+            f.write(OVERRIDE_VALUES)
 
         actual_call = self.call(
             subcloud_backup_cmd.CreateSubcloudBackup,
             app_args=['--group', 'test',
                       '--local-only',
                       '--backup-values', backupPath])
-        self.assertEqual([(ID, NAME, DESCRIPTION, LOCATION, SOFTWARE_VERSION,
-                          MANAGEMENT_STATE, AVAILABILITY_STATUS, DEPLOY_STATUS,
-                          ERROR_DESCRIPTION, MANAGEMENT_SUBNET,
-                          MANAGEMENT_START_IP, MANAGEMENT_END_IP,
-                          MANAGEMENT_GATEWAY_IP, SYSTEMCONTROLLER_GATEWAY_IP,
-                          DEFAULT_SUBCLOUD_GROUP_ID,
-                          TIME_NOW, TIME_NOW, None, None)], actual_call[1])
+        self.assertEqual([DEFAULT_SUBCLOUD_FIELD_RESULT], actual_call[1])
 
     def test_backup_create_local_only_registry_images(self):
 
@@ -383,3 +367,136 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
         self.assertRaises(SystemExit, self.call,
                           subcloud_backup_cmd.DeleteSubcloudBackup,
                           app_args=app_args)
+
+    def test_backup_restore(self):
+
+        self.client.subcloud_backup_manager.backup_subcloud_restore.\
+            return_value = [SUBCLOUD]
+
+        backupPath = os.path.normpath(os.path.join(os.getcwd(), "test.yaml"))
+        with open(backupPath, mode='w') as f:
+            f.write(OVERRIDE_VALUES)
+
+        actual_call = self.call(
+            subcloud_backup_cmd.RestoreSubcloudBackup,
+            app_args=['--subcloud', 'subcloud1',
+                      '--local-only',
+                      '--registry-images',
+                      '--restore-values', backupPath,
+                      '--sysadmin-password', 'testpassword'])
+
+        self.assertEqual([DEFAULT_SUBCLOUD_FIELD_RESULT], actual_call[1])
+
+    def test_backup_restore_no_restore_values(self):
+
+        self.client.subcloud_backup_manager.backup_subcloud_restore.\
+            return_value = [SUBCLOUD]
+
+        actual_call = self.call(
+            subcloud_backup_cmd.RestoreSubcloudBackup,
+            app_args=['--subcloud', 'subcloud1',
+                      '--local-only',
+                      '--registry-images',
+                      '--sysadmin-password', 'testpassword'])
+        self.assertEqual([DEFAULT_SUBCLOUD_FIELD_RESULT], actual_call[1])
+
+    def test_backup_restore_with_group(self):
+
+        self.client.subcloud_backup_manager.backup_subcloud_restore.\
+            return_value = [SUBCLOUD]
+
+        backupPath = os.path.normpath(os.path.join(os.getcwd(), "test.yaml"))
+        with open(backupPath, mode='w') as f:
+            f.write(OVERRIDE_VALUES)
+
+        actual_call = self.call(
+            subcloud_backup_cmd.RestoreSubcloudBackup,
+            app_args=['--group', 'test',
+                      '--with-install',
+                      '--restore-values', backupPath,
+                      '--sysadmin-password', 'testpassword'])
+        self.assertEqual([DEFAULT_SUBCLOUD_FIELD_RESULT], actual_call[1])
+
+    def test_backup_restore_group_and_subcloud(self):
+        self.client.subcloud_backup_manager.backup_subcloud_restore.\
+            return_value = []
+
+        backupPath = os.path.normpath(os.path.join(os.getcwd(), "test.yaml"))
+
+        with open(backupPath, mode='w') as f:
+            f.write(OVERRIDE_VALUES)
+
+        e = self.assertRaises(DCManagerClientException,
+                              self.call,
+                              subcloud_backup_cmd.RestoreSubcloudBackup,
+                              app_args=['--subcloud', 'subcloud1',
+                                        '--group', 'test',
+                                        '--local-only',
+                                        '--restore-values', backupPath,
+                                        '--sysadmin-password', 'testpassword'])
+        self.assertTrue(('The command only applies to a single subcloud or a'
+                        ' subcloud group, not both.') in str(e))
+
+    def test_backup_restore_no_group_and_no_subcloud(self):
+        self.client.subcloud_backup_manager.backup_subcloud_restore.\
+            return_value = []
+
+        backupPath = os.path.normpath(os.path.join(os.getcwd(), "test.yaml"))
+
+        with open(backupPath, mode='w') as f:
+            f.write(OVERRIDE_VALUES)
+
+        e = self.assertRaises(DCManagerClientException,
+                              self.call,
+                              subcloud_backup_cmd.RestoreSubcloudBackup,
+                              app_args=['--local-only',
+                                        '--restore-values', backupPath,
+                                        '--sysadmin-password', 'testpassword'])
+
+        self.assertTrue(('Please provide the subcloud or subcloud group name'
+                        ' or id.') in str(e))
+
+    def test_backup_restore_backup_value_not_a_file(self):
+        self.client.subcloud_backup_manager.backup_subcloud_restore.\
+            return_value = []
+
+        e = self.assertRaises(DCManagerClientException,
+                              self.call,
+                              subcloud_backup_cmd.RestoreSubcloudBackup,
+                              app_args=['--subcloud', 'subcloud1',
+                                        '--local-only',
+                                        '--restore-values', 'notADirectory',
+                                        '--sysadmin-password', 'testpassword'])
+
+        self.assertTrue('Restore_values file does not exist' in str(e))
+
+    @mock.patch('getpass.getpass', return_value='testpassword')
+    def test_backup_restore_prompt_ask_for_password(self, getpass):
+
+        self.client.subcloud_backup_manager.backup_subcloud_restore.\
+            return_value = [SUBCLOUD]
+
+        backupPath = os.path.normpath(os.path.join(os.getcwd(), "test.yaml"))
+
+        with open(backupPath, mode='w') as f:
+            f.write(OVERRIDE_VALUES)
+
+        actual_call = self.call(
+            subcloud_backup_cmd.RestoreSubcloudBackup,
+            app_args=['--group', 'test',
+                      '--local-only',
+                      '--restore-values', backupPath])
+        self.assertEqual([DEFAULT_SUBCLOUD_FIELD_RESULT], actual_call[1])
+
+    def test_backup_restore_local_only_registry_images(self):
+
+        e = self.assertRaises(DCManagerClientException,
+                              self.call,
+                              subcloud_backup_cmd.RestoreSubcloudBackup,
+                              app_args=['--subcloud', 'subcloud1',
+                                        '--registry-images',
+                                        '--restore-values', 'notADirectory',
+                                        '--sysadmin-password', 'testpassword'])
+
+        self.assertTrue(('Option --registry-images cannot be used without '
+                         '--local-only option.') in str(e))
