@@ -543,7 +543,8 @@ class ReconfigSubcloud(base.DCManagerShowOne):
         try:
             return dcmanager_client.subcloud_manager.reconfigure_subcloud(
                 subcloud_ref=subcloud_ref, files=files, data=data)
-        except Exception:
+        except Exception as e:
+            print(e)
             error_msg = "Unable to reconfigure subcloud %s" % (subcloud_ref)
             raise exceptions.DCManagerClientException(error_msg)
 

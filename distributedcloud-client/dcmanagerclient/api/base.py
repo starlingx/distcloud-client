@@ -130,11 +130,13 @@ class ResourceManager(object):
         error_html = resp.content
         soup = BeautifulSoup(error_html, 'html.parser')
         # Get the raw html with get_text, strip out the blank lines on
-        # front and back, then get rid of the 2 lines of error code number
-        # and error code explanation so that we are left with just the
-        # meaningful error text.
+        # front and back, then get rid of the first line of error code
+        # so that we are left with just the meaningful error text.
         try:
-            error_msg = soup.body.get_text().lstrip().rstrip().split('\n')[2]
+            line_list = soup.body.get_text().lstrip().rstrip().split('\n')[1:]
+            error_msg = line_list[0].lstrip().rstrip()
+            for line in line_list[1:]:
+                error_msg += ' ' + line.lstrip().rstrip()
         except Exception:
             error_msg = resp.content
 
