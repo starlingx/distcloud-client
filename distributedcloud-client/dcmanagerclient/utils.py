@@ -89,16 +89,21 @@ def get_contents_if_file(contents_or_file_name):
 
 def prompt_for_password(password_type='sysadmin'):
     while True:
-        password = getpass.getpass(
-            "Enter the " + password_type + " password for the subcloud: ")
-        if len(password) < 1:
-            print("Password cannot be empty")
-            continue
+        try:
+            password = getpass.getpass(
+                "Enter the " + password_type + " password for the subcloud: ")
+            if len(password) < 1:
+                print("Password cannot be empty")
+                continue
 
-        confirm = getpass.getpass(
-            "Re-enter " + password_type + " password to confirm: ")
-        if password != confirm:
-            print("Passwords did not match")
-            continue
-        break
+            confirm = getpass.getpass(
+                "Re-enter " + password_type + " password to confirm: ")
+            if password != confirm:
+                print("Passwords did not match")
+                continue
+            break
+        except KeyboardInterrupt:
+            raise exceptions.DCManagerClientException(
+                "\nPassword prompt interrupted."
+            )
     return password
