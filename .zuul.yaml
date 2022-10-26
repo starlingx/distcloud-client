@@ -48,6 +48,7 @@
     name: stx-distcloud-client-tox-pylint
     parent: tox
     description: Run pylint for distcloud-client
+    nodeset: ubuntu-focal
     vars:
       tox_envlist: pylint
       tox_extra_args: -c distributedcloud-client/tox.ini
