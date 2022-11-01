@@ -62,6 +62,48 @@ class Subcloud(Resource):
         self.backup_status = backup_status
         self.backup_datetime = backup_datetime
 
+    @classmethod
+    def from_payload(cls, manager, payload):
+        """Returns a class instance based on payloads."""
+        optional_parameters = {'backup_status': 'backup-status',
+                               'backup_datetime': 'backup-datetime',
+                               'error_description': 'error-description'}
+
+        params = {'manager': manager,
+                  'subcloud_id': payload['id'],
+                  'name': payload['name'],
+                  'description': payload['description'],
+                  'location': payload['location'],
+                  'software_version': payload['software-version'],
+                  'management_state': payload['management-state'],
+                  'availability_status': payload['availability-status'],
+                  'deploy_status': payload['deploy-status'],
+                  'management_subnet': payload['management-subnet'],
+                  'management_start_ip': payload['management-start-ip'],
+                  'management_end_ip': payload['management-end-ip'],
+                  'management_gateway_ip': payload['management-gateway-ip'],
+                  'systemcontroller_gateway_ip': payload[
+                      'systemcontroller-gateway-ip'],
+                  'created_at': payload['created-at'],
+                  'updated_at': payload['updated-at'],
+                  'group_id': payload['group_id']}
+
+        # Optional parameters (introduced in later versions)
+        for param_name, payload_name in optional_parameters.items():
+            if payload_name in payload:
+                params[param_name] = payload[payload_name]
+
+        subcloud = cls(**params)
+        return subcloud
+
+    @classmethod
+    def from_payloads(cls, manager, payloads):
+        subclouds = list()
+        for payload in payloads:
+            subcloud = cls.from_payload(manager, payload)
+            subclouds.append(subcloud)
+        return subclouds
+
 
 class ResourceManager(object):
     resource_class = None

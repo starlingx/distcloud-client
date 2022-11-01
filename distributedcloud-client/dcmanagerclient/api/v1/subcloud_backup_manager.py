@@ -16,28 +16,7 @@ class subcloud_backup_manager(base.ResourceManager):
     resource_class = base.Subcloud
 
     def json_to_resource(self, json_object):
-        return self.resource_class(
-            self,
-            subcloud_id=json_object['id'],
-            name=json_object['name'],
-            description=json_object['description'],
-            location=json_object['location'],
-            software_version=json_object['software-version'],
-            management_state=json_object['management-state'],
-            availability_status=json_object['availability-status'],
-            deploy_status=json_object['deploy-status'],
-            error_description=json_object['error-description'],
-            management_subnet=json_object['management-subnet'],
-            management_start_ip=json_object['management-start-ip'],
-            management_end_ip=json_object['management-end-ip'],
-            management_gateway_ip=json_object['management-gateway-ip'],
-            systemcontroller_gateway_ip=json_object[
-                'systemcontroller-gateway-ip'],
-            created_at=json_object['created-at'],
-            updated_at=json_object['updated-at'],
-            group_id=json_object['group_id'],
-            backup_status=json_object['backup-status'],
-            backup_datetime=json_object['backup-datetime'])
+        return self.resource_class.from_payload(self, json_object)
 
     def subcloud_backup_create(self, url, body, data):
         if body:

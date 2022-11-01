@@ -27,28 +27,7 @@ class subcloud_manager(base.ResourceManager):
     resource_class = base.Subcloud
 
     def json_to_resource(self, json_object):
-        return self.resource_class(
-            self,
-            subcloud_id=json_object['id'],
-            name=json_object['name'],
-            description=json_object['description'],
-            location=json_object['location'],
-            software_version=json_object['software-version'],
-            management_state=json_object['management-state'],
-            availability_status=json_object['availability-status'],
-            deploy_status=json_object['deploy-status'],
-            error_description=json_object['error-description'],
-            management_subnet=json_object['management-subnet'],
-            management_start_ip=json_object['management-start-ip'],
-            management_end_ip=json_object['management-end-ip'],
-            management_gateway_ip=json_object['management-gateway-ip'],
-            systemcontroller_gateway_ip=json_object[
-                'systemcontroller-gateway-ip'],
-            created_at=json_object['created-at'],
-            updated_at=json_object['updated-at'],
-            group_id=json_object['group_id'],
-            backup_status=json_object['backup-status'],
-            backup_datetime=json_object['backup-datetime'])
+        return self.resource_class.from_payload(self, json_object)
 
     def subcloud_create(self, url, body, data):
         fields = dict()
@@ -142,33 +121,7 @@ class subcloud_manager(base.ResourceManager):
             self._raise_api_exception(resp)
         json_response_key = get_json(resp)
         json_objects = json_response_key['subclouds']
-        resource = []
-        for json_object in json_objects:
-            resource.append(
-                self.resource_class(
-                    self,
-                    subcloud_id=json_object['id'],
-                    name=json_object['name'],
-                    description=json_object['description'],
-                    location=json_object['location'],
-                    software_version=json_object['software-version'],
-                    management_state=json_object['management-state'],
-                    availability_status=json_object['availability-status'],
-                    deploy_status=json_object['deploy-status'],
-                    error_description=json_object['error-description'],
-                    management_subnet=json_object['management-subnet'],
-                    management_start_ip=json_object['management-start-ip'],
-                    management_end_ip=json_object['management-end-ip'],
-                    management_gateway_ip=json_object['management-gateway-ip'],
-                    systemcontroller_gateway_ip=json_object[
-                        'systemcontroller-gateway-ip'],
-                    created_at=json_object['created-at'],
-                    updated_at=json_object['updated-at'],
-                    group_id=json_object['group_id'],
-                    sync_status=json_object['sync_status'],
-                    endpoint_sync_status=json_object['endpoint_sync_status'],
-                    backup_status=json_object['backup-status'],
-                    backup_datetime=json_object['backup-datetime']))
+        resource = self.resource_class.from_payloads(self, json_objects)
         return resource
 
     def _subcloud_detail(self, url, detail=None):
@@ -176,31 +129,8 @@ class subcloud_manager(base.ResourceManager):
         if resp.status_code != 200:
             self._raise_api_exception(resp)
         json_object = get_json(resp)
-        resource = list()
-        resource.append(
-            self.resource_class(
-                self,
-                subcloud_id=json_object['id'],
-                name=json_object['name'],
-                description=json_object['description'],
-                location=json_object['location'],
-                software_version=json_object['software-version'],
-                management_state=json_object['management-state'],
-                availability_status=json_object['availability-status'],
-                deploy_status=json_object['deploy-status'],
-                error_description=json_object['error-description'],
-                management_subnet=json_object['management-subnet'],
-                management_start_ip=json_object['management-start-ip'],
-                management_end_ip=json_object['management-end-ip'],
-                management_gateway_ip=json_object['management-gateway-ip'],
-                systemcontroller_gateway_ip=json_object[
-                    'systemcontroller-gateway-ip'],
-                created_at=json_object['created-at'],
-                updated_at=json_object['updated-at'],
-                group_id=json_object['group_id'],
-                endpoint_sync_status=json_object['endpoint_sync_status'],
-                backup_status=json_object['backup-status'],
-                backup_datetime=json_object['backup-datetime']))
+        subcloud = self.resource_class.from_payload(self, json_object)
+        resource = [subcloud]
         if detail is not None:
             resource[0].oam_floating_ip = json_object['oam_floating_ip']
         return resource
