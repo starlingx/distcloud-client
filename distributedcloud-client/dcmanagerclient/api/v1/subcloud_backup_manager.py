@@ -7,6 +7,8 @@
 
 import json
 
+from requests_toolbelt import MultipartEncoder
+
 from dcmanagerclient.api import base
 from dcmanagerclient.api.base import get_json
 
@@ -18,13 +20,17 @@ class subcloud_backup_manager(base.ResourceManager):
     def json_to_resource(self, json_object):
         return self.resource_class.from_payload(self, json_object)
 
-    def subcloud_backup_create(self, url, body, data):
-        if body:
-            data.update(body)
-        enc = json.dumps(data)
-        headers = {'Content-Type': 'application/json'}
+    def subcloud_backup_create(self, url, files, data):
 
+        fields = dict()
+        if files:
+            for k, v in files.items():
+                fields.update({k: (v, open(v, 'rb'),)})
+        fields.update(data)
+        enc = MultipartEncoder(fields=fields)
+        headers = {'content-type': enc.content_type}
         resp = self.http_client.post(url, enc, headers=headers)
+
         if resp.status_code != 200:
             self._raise_api_exception(resp)
         json_response_key = get_json(resp)
@@ -36,19 +42,29 @@ class subcloud_backup_manager(base.ResourceManager):
         return resource
 
     def subcloud_backup_delete(self, url, data):
-        data = json.dumps(data)
-        resp = self.http_client.patch(url, data)
+
+        fields = dict()
+        fields.update(data)
+        enc = MultipartEncoder(fields=fields)
+        headers = {'content-type': enc.content_type}
+
+        resp = self.http_client.patch(url, enc, headers=headers)
         if resp.status_code not in {204, 207}:
             self._raise_api_exception(resp)
         elif resp.status_code == 207:
             return json.loads(resp.content)
         return None
 
-    def subcloud_backup_restore(self, url, body, data):
-        if body:
-            data.update(body)
-        headers = {'Content-Type': 'application/json'}
-        enc = json.dumps(data)
+    def subcloud_backup_restore(self, url, files, data):
+
+        fields = dict()
+        if files:
+            for k, v in files.items():
+                fields.update({k: (v, open(v, 'rb'),)})
+        fields.update(data)
+        enc = MultipartEncoder(fields=fields)
+        headers = {'content-type': enc.content_type}
+
         resp = self.http_client.patch(url, enc, headers=headers)
 
         if resp.status_code != 200:

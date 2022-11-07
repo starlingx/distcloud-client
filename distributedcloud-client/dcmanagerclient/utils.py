@@ -55,11 +55,6 @@ def load_content(content):
     return data
 
 
-def load_file(path):
-    with open(path, 'r') as f:
-        return load_content(f.read())
-
-
 def get_contents_if_file(contents_or_file_name):
     """Get the contents of a file.
 

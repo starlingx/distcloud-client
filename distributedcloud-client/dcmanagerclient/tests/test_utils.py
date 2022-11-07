@@ -15,8 +15,6 @@
 #
 
 import json
-import os.path
-import tempfile
 import testtools
 import yaml
 
@@ -39,21 +37,5 @@ class UtilityTest(testtools.TestCase):
     def test_load_json_content(self):
         self.assertDictEqual(ENV_DICT, utils.load_content(ENV_STR))
 
-    def test_load_json_file(self):
-        with tempfile.NamedTemporaryFile() as f:
-            f.write(ENV_STR.encode('utf-8'))
-            f.flush()
-            file_path = os.path.abspath(f.name)
-
-            self.assertDictEqual(ENV_DICT, utils.load_file(file_path))
-
     def test_load_yaml_content(self):
         self.assertDictEqual(ENV_DICT, utils.load_content(ENV_YAML))
-
-    def test_load_yaml_file(self):
-        with tempfile.NamedTemporaryFile() as f:
-            f.write(ENV_YAML.encode('utf-8'))
-            f.flush()
-            file_path = os.path.abspath(f.name)
-
-            self.assertDictEqual(ENV_DICT, utils.load_file(file_path))
