@@ -270,7 +270,7 @@ class DeleteSubcloudBackup(command.Command):
         if parsed_args.sysadmin_password is not None:
             data['sysadmin_password'] = base64.b64encode(
                 parsed_args.sysadmin_password.encode("utf-8")).decode("utf-8")
-        else:
+        elif not parsed_args.sysadmin_password and parsed_args.local_only:
             password = utils.prompt_for_password()
             data["sysadmin_password"] = base64.b64encode(
                 password.encode("utf-8")).decode("utf-8")
