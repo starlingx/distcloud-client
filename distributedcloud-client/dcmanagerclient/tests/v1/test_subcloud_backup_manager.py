@@ -132,7 +132,7 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
                       '--registry-images',
                       '--backup-values', backupPath,
                       '--sysadmin-password', 'testpassword'])
-        self.assertEqual([DEFAULT_SUBCLOUD_FIELD_RESULT], actual_call[1])
+        self.assertEqual(DEFAULT_SUBCLOUD_FIELD_RESULT, actual_call[1])
 
     def test_backup_create_group(self):
 
@@ -385,7 +385,7 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
                       '--restore-values', backupPath,
                       '--sysadmin-password', 'testpassword'])
 
-        self.assertEqual([DEFAULT_SUBCLOUD_FIELD_RESULT], actual_call[1])
+        self.assertEqual(DEFAULT_SUBCLOUD_FIELD_RESULT, actual_call[1])
 
     def test_backup_restore_no_restore_values(self):
 
@@ -398,7 +398,7 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
                       '--local-only',
                       '--registry-images',
                       '--sysadmin-password', 'testpassword'])
-        self.assertEqual([DEFAULT_SUBCLOUD_FIELD_RESULT], actual_call[1])
+        self.assertEqual(DEFAULT_SUBCLOUD_FIELD_RESULT, actual_call[1])
 
     def test_backup_restore_with_group(self):
 
