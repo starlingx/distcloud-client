@@ -427,60 +427,17 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
 
     @mock.patch('getpass.getpass', return_value='testpassword')
     def test_restore_subcloud(self, getpass):
-        self.client.subcloud_manager.subcloud_detail.\
-            return_value = [SUBCLOUD]
-
-        SUBCLOUD_BEING_RESTORED = copy.copy(SUBCLOUD)
-        setattr(SUBCLOUD_BEING_RESTORED,
-                'deploy_status',
-                DEPLOY_STATE_PRE_RESTORE)
-
-        self.client.subcloud_manager.restore_subcloud.\
-            return_value = [SUBCLOUD_BEING_RESTORED]
-
-        with tempfile.NamedTemporaryFile() as f:
-            file_path = os.path.abspath(f.name)
-            actual_call = self.call(
-                subcloud_cmd.RestoreSubcloud,
-                app_args=[ID,
-                          '--restore-values', file_path])
-        self.assertEqual((ID, NAME,
-                          DESCRIPTION, LOCATION,
-                          SOFTWARE_VERSION, MANAGEMENT_STATE,
-                          AVAILABILITY_STATUS, DEPLOY_STATE_PRE_RESTORE,
-                          MANAGEMENT_SUBNET, MANAGEMENT_START_IP,
-                          MANAGEMENT_END_IP, MANAGEMENT_GATEWAY_IP,
-                          SYSTEMCONTROLLER_GATEWAY_IP,
-                          DEFAULT_SUBCLOUD_GROUP_ID,
-                          TIME_NOW, TIME_NOW, BACKUP_STATUS, BACKUP_DATETIME
-                          ), actual_call[1])
-
-    @mock.patch('getpass.getpass', return_value='testpassword')
-    def test_restore_file_does_not_exist(self, getpass):
         with tempfile.NamedTemporaryFile() as f:
             file_path = os.path.abspath(f.name)
 
-        e = self.assertRaises(DCManagerClientException,
-                              self.call,
-                              subcloud_cmd.RestoreSubcloud,
-                              app_args=[ID, '--restore-values', file_path])
-        self.assertTrue('restore-values does not exist'
-                        in str(e))
+            e = self.assertRaises(DCManagerClientException,
+                                  self.call,
+                                  subcloud_cmd.RestoreSubcloud,
+                                  app_args=[ID, '--restore-values', file_path])
 
-    @mock.patch('getpass.getpass', return_value='testpassword')
-    def test_restore_subcloud_does_not_exist(self, getpass):
-        self.client.subcloud_manager.subcloud_detail.\
-            return_value = []
-
-        with tempfile.NamedTemporaryFile() as f:
-            file_path = os.path.abspath(f.name)
-
-        e = self.assertRaises(DCManagerClientException,
-                              self.call,
-                              subcloud_cmd.RestoreSubcloud,
-                              app_args=[ID, '--restore-values', file_path])
-        self.assertTrue('does not exist'
-                        in str(e))
+            deprecation_msg = ('This command has been deprecated. Please use '
+                               'subcloud-backup restore instead.')
+            self.assertTrue(deprecation_msg in str(e))
 
     def test_prestage_with_subcloudID(self):
         self.client.subcloud_manager.prestage_subcloud.\
