@@ -28,14 +28,38 @@ class Resource(object):
 class Subcloud(Resource):
     resource_name = 'subclouds'
 
+    _PAYLOAD_NAME_MAP = {
+        'id': 'subcloud_id',
+        'name': 'name',
+        'description': 'description',
+        'location': 'location',
+        'software-version': 'software_version',
+        'management-state': 'management_state',
+        'availability-status': 'availability_status',
+        'deploy-status': 'deploy_status',
+        'error-description': 'error_description',
+        'management-subnet': 'management_subnet',
+        'management-start-ip': 'management_start_ip',
+        'management-end-ip': 'management_end_ip',
+        'management-gateway-ip': 'management_gateway_ip',
+        'systemcontroller-gateway-ip': 'systemcontroller_gateway_ip',
+        'created-at': 'created_at',
+        'updated-at': 'updated_at',
+        'group_id': 'group_id',
+        'sync_status': 'sync_status',
+        'endpoint_sync_status': 'endpoint_sync_status',
+        'backup-status': 'backup_status',
+        'backup-datetime': 'backup_datetime'
+        }
+
     def __init__(self, manager, subcloud_id, name, description, location,
                  software_version, management_state, availability_status,
-                 deploy_status, error_description,
-                 management_subnet, management_start_ip, management_end_ip,
-                 management_gateway_ip, systemcontroller_gateway_ip,
-                 created_at, updated_at, group_id, sync_status="unknown",
-                 endpoint_sync_status=None, backup_status=None,
-                 backup_datetime=None):
+                 deploy_status, management_subnet, management_start_ip,
+                 management_end_ip, management_gateway_ip,
+                 systemcontroller_gateway_ip, created_at, updated_at,
+                 group_id, sync_status="unknown", endpoint_sync_status=None,
+                 backup_status=None, backup_datetime=None,
+                 error_description=None):
         if endpoint_sync_status is None:
             endpoint_sync_status = {}
         self.manager = manager
@@ -64,40 +88,21 @@ class Subcloud(Resource):
 
     @classmethod
     def from_payload(cls, manager, payload):
-        """Returns a class instance based on payloads."""
-        optional_parameters = {'backup_status': 'backup-status',
-                               'backup_datetime': 'backup-datetime',
-                               'error_description': 'error-description'}
+        """Returns a class instance based on a single payload."""
+        parameters = {'manager': manager}
 
-        params = {'manager': manager,
-                  'subcloud_id': payload['id'],
-                  'name': payload['name'],
-                  'description': payload['description'],
-                  'location': payload['location'],
-                  'software_version': payload['software-version'],
-                  'management_state': payload['management-state'],
-                  'availability_status': payload['availability-status'],
-                  'deploy_status': payload['deploy-status'],
-                  'management_subnet': payload['management-subnet'],
-                  'management_start_ip': payload['management-start-ip'],
-                  'management_end_ip': payload['management-end-ip'],
-                  'management_gateway_ip': payload['management-gateway-ip'],
-                  'systemcontroller_gateway_ip': payload[
-                      'systemcontroller-gateway-ip'],
-                  'created_at': payload['created-at'],
-                  'updated_at': payload['updated-at'],
-                  'group_id': payload['group_id']}
+        # Converts payload parameter name to match the class attributes
+        for payload_param, value in payload.items():
+            param_name = cls._PAYLOAD_NAME_MAP.get(payload_param)
+            if param_name is not None:
+                parameters[param_name] = value
 
-        # Optional parameters (introduced in later versions)
-        for param_name, payload_name in optional_parameters.items():
-            if payload_name in payload:
-                params[param_name] = payload[payload_name]
-
-        subcloud = cls(**params)
+        subcloud = cls(**parameters)
         return subcloud
 
     @classmethod
     def from_payloads(cls, manager, payloads):
+        """Returns a list of class instances from a payload list."""
         subclouds = list()
         for payload in payloads:
             subcloud = cls.from_payload(manager, payload)
