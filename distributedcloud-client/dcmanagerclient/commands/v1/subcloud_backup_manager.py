@@ -76,11 +76,14 @@ def detail_format(subcloud=None):
     return columns, data
 
 
-class CreateSubcloudBackup(base.DCManagerLister):
+class CreateSubcloudBackup(base.DCManagerShow):
     """Backup a subcloud or group of subclouds"""
 
     def _get_format_function(self):
         return detail_format
+
+    def should_list(self, parsed_args):
+        return parsed_args.group
 
     def get_parser(self, prog_name):
         parser = super(CreateSubcloudBackup, self).get_parser(prog_name)
@@ -287,11 +290,14 @@ class DeleteSubcloudBackup(command.Command):
             raise exceptions.DCManagerClientException(error_msg)
 
 
-class RestoreSubcloudBackup(base.DCManagerLister):
+class RestoreSubcloudBackup(base.DCManagerShow):
     """Restore a subcloud or group of subclouds from backup"""
 
     def _get_format_function(self):
         return detail_format
+
+    def should_list(self, parsed_args):
+        return parsed_args.group
 
     def get_parser(self, prog_name):
         parser = super(RestoreSubcloudBackup, self).get_parser(prog_name)
