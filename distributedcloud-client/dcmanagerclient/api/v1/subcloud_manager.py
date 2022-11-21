@@ -90,21 +90,6 @@ class subcloud_manager(base.ResourceManager):
         resource.append(self.json_to_resource(json_object))
         return resource
 
-    def subcloud_restore(self, url, body, data):
-        fields = dict()
-        for k, v in body.items():
-            fields.update({k: (v, open(v, 'rb'),)})
-        fields.update(data)
-        enc = MultipartEncoder(fields=fields)
-        headers = {'content-type': enc.content_type}
-        resp = self.http_client.patch(url, enc, headers=headers)
-        if resp.status_code != 200:
-            self._raise_api_exception(resp)
-        json_object = get_json(resp)
-        resource = list()
-        resource.append(self.json_to_resource(json_object))
-        return resource
-
     def _subcloud_prestage(self, url, data):
         data = json.dumps(data)
         resp = self.http_client.patch(url, data)
@@ -179,9 +164,3 @@ class subcloud_manager(base.ResourceManager):
         data = kwargs.get('data')
         url = '/subclouds/%s/reinstall' % subcloud_ref
         return self.subcloud_reinstall(url, files, data)
-
-    def restore_subcloud(self, subcloud_ref, **kwargs):
-        files = kwargs.get('files')
-        data = kwargs.get('data')
-        url = '/subclouds/%s/restore' % subcloud_ref
-        return self.subcloud_restore(url, files, data)
