@@ -335,7 +335,11 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
             subcloud_cmd.UpdateSubcloud,
             app_args=[ID,
                       '--description', 'subcloud description',
-                      '--location', 'subcloud location'])
+                      '--location', 'subcloud location',
+                      '--admin-subnet', 'subcloud admin subnet',
+                      '--admin-gateway-ip', 'subcloud admin gateway ip',
+                      '--admin-node-0-address', 'subcloud admin node0 addr',
+                      '--admin-node-1-address', 'subcloud admin node1 addr'])
         self.assertEqual((ID, NAME,
                           DESCRIPTION, LOCATION,
                           SOFTWARE_VERSION, MANAGEMENT_STATE,

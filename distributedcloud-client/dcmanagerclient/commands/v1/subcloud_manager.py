@@ -434,6 +434,30 @@ class UpdateSubcloud(base.DCManagerShowOne):
         )
 
         parser.add_argument(
+            '--admin-subnet',
+            required=False,
+            help='Admin subnet of subcloud.'
+        )
+
+        parser.add_argument(
+            '--admin-gateway-ip',
+            required=False,
+            help='Admin gateway ip of subcloud.'
+        )
+
+        parser.add_argument(
+            '--admin-node-0-address',
+            required=False,
+            help='Admin node-0 address of subcloud.'
+        )
+
+        parser.add_argument(
+            '--admin-node-1-address',
+            required=False,
+            help='Admin node-1 address of subcloud.'
+        )
+
+        parser.add_argument(
             '--install-values',
             required=False,
             help='YAML file containing subcloud variables required for remote '
@@ -459,6 +483,15 @@ class UpdateSubcloud(base.DCManagerShowOne):
             data['location'] = parsed_args.location
         if parsed_args.group:
             data['group_id'] = parsed_args.group
+        if parsed_args.admin_subnet:
+            data['admin_subnet'] = parsed_args.admin_subnet
+        if parsed_args.admin_gateway_ip:
+            data['admin_gateway_ip'] = parsed_args.admin_gateway_ip
+        if parsed_args.admin_node_0_address:
+            data['admin_node_0_address'] = parsed_args.admin_node_0_address
+        if parsed_args.admin_node_1_address:
+            data['admin_node_1_address'] = parsed_args.admin_node_1_address
+
         if parsed_args.install_values:
             if not os.path.isfile(parsed_args.install_values):
                 error_msg = "install-values does not exist: %s" % \
