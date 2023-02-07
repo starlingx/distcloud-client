@@ -1,5 +1,5 @@
 # Copyright (c) 2017 Ericsson AB.
-# Copyright (c) 2017-2022 Wind River Systems, Inc.
+# Copyright (c) 2017-2023 Wind River Systems, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -336,6 +336,7 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
             app_args=[ID,
                       '--description', 'subcloud description',
                       '--location', 'subcloud location',
+                      '--sysadmin-password', 'testpassword',
                       '--admin-subnet', 'subcloud admin subnet',
                       '--admin-gateway-ip', 'subcloud admin gateway ip',
                       '--admin-node-0-address', 'subcloud admin node0 addr',

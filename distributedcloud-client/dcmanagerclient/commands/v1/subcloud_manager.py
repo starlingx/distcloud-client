@@ -1,5 +1,5 @@
 # Copyright (c) 2017 Ericsson AB.
-# Copyright (c) 2017-2022 Wind River Systems, Inc.
+# Copyright (c) 2017-2023 Wind River Systems, Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -458,11 +458,19 @@ class UpdateSubcloud(base.DCManagerShowOne):
         )
 
         parser.add_argument(
+            '--sysadmin-password',
+            required=False,
+            help='sysadmin password of the subcloud to be updated, '
+                 'if not provided you will be prompted.'
+        )
+
+        parser.add_argument(
             '--install-values',
             required=False,
             help='YAML file containing subcloud variables required for remote '
                  'install playbook.'
         )
+
         parser.add_argument(
             '--bmc-password',
             required=False,
@@ -477,6 +485,8 @@ class UpdateSubcloud(base.DCManagerShowOne):
         dcmanager_client = self.app.client_manager.subcloud_manager
         files = dict()
         data = dict()
+        password_required = False
+
         if parsed_args.description:
             data['description'] = parsed_args.description
         if parsed_args.location:
@@ -485,12 +495,23 @@ class UpdateSubcloud(base.DCManagerShowOne):
             data['group_id'] = parsed_args.group
         if parsed_args.admin_subnet:
             data['admin_subnet'] = parsed_args.admin_subnet
+            password_required = True
         if parsed_args.admin_gateway_ip:
             data['admin_gateway_ip'] = parsed_args.admin_gateway_ip
         if parsed_args.admin_node_0_address:
             data['admin_node_0_address'] = parsed_args.admin_node_0_address
         if parsed_args.admin_node_1_address:
             data['admin_node_1_address'] = parsed_args.admin_node_1_address
+
+        # Prompt the user for the subcloud's password if it isn't provided
+        if password_required:
+            if parsed_args.sysadmin_password is not None:
+                data['sysadmin_password'] = base64.b64encode(
+                    parsed_args.sysadmin_password.encode("utf-8"))
+            else:
+                password = utils.prompt_for_password()
+                data["sysadmin_password"] = base64.b64encode(
+                    password.encode("utf-8"))
 
         if parsed_args.install_values:
             if not os.path.isfile(parsed_args.install_values):
@@ -507,7 +528,7 @@ class UpdateSubcloud(base.DCManagerShowOne):
                 data["bmc_password"] = base64.b64encode(
                     password.encode("utf-8"))
 
-        if len(data) == 0:
+        if not data:
             error_msg = "Nothing to update"
             raise exceptions.DCManagerClientException(error_msg)
 
