@@ -8,7 +8,6 @@
       jobs:
         - openstack-tox-linters
         - stx-distcloud-client-tox-pep8
-        - stx-distcloud-client-tox-py27
         - stx-distcloud-client-tox-py39
         - stx-distcloud-client-tox-pylint
         - stx-distcloud-client-tox-pep8-debian
@@ -17,7 +16,6 @@
       jobs:
         - openstack-tox-linters
         - stx-distcloud-client-tox-pep8
-        - stx-distcloud-client-tox-py27
         - stx-distcloud-client-tox-py39
         - stx-distcloud-client-tox-pylint
         - stx-distcloud-client-tox-pep8-debian
@@ -25,15 +23,6 @@
     post:
       jobs:
         - stx-distcloud-client-upload-git-mirror
-
-- job:
-    name: stx-distcloud-client-tox-py27
-    parent: tox
-    description: Run py27 for distcloud-client
-    nodeset: ubuntu-xenial
-    vars:
-      tox_envlist: py27
-      tox_extra_args: -c distributedcloud-client/tox.ini
 
 - job:
     name: stx-distcloud-client-tox-py39
