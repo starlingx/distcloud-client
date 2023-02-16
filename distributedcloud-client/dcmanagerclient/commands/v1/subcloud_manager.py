@@ -446,15 +446,15 @@ class UpdateSubcloud(base.DCManagerShowOne):
         )
 
         parser.add_argument(
-            '--admin-node-0-address',
+            '--admin-start-address',
             required=False,
-            help='Admin node-0 address of subcloud.'
+            help='Admin start address of subcloud.'
         )
 
         parser.add_argument(
-            '--admin-node-1-address',
+            '--admin-end-address',
             required=False,
-            help='Admin node-1 address of subcloud.'
+            help='Admin end address of subcloud.'
         )
 
         parser.add_argument(
@@ -462,6 +462,12 @@ class UpdateSubcloud(base.DCManagerShowOne):
             required=False,
             help='sysadmin password of the subcloud to be updated, '
                  'if not provided you will be prompted.'
+        )
+
+        parser.add_argument(
+            '--bootstrap-address',
+            required=False,
+            help='bootstrap address of the subcloud to be updated, '
         )
 
         parser.add_argument(
@@ -485,7 +491,7 @@ class UpdateSubcloud(base.DCManagerShowOne):
         dcmanager_client = self.app.client_manager.subcloud_manager
         files = dict()
         data = dict()
-        password_required = False
+        update_admin_network = False
 
         if parsed_args.description:
             data['description'] = parsed_args.description
@@ -495,16 +501,47 @@ class UpdateSubcloud(base.DCManagerShowOne):
             data['group_id'] = parsed_args.group
         if parsed_args.admin_subnet:
             data['admin_subnet'] = parsed_args.admin_subnet
-            password_required = True
+            update_admin_network = True
         if parsed_args.admin_gateway_ip:
             data['admin_gateway_ip'] = parsed_args.admin_gateway_ip
-        if parsed_args.admin_node_0_address:
-            data['admin_node_0_address'] = parsed_args.admin_node_0_address
-        if parsed_args.admin_node_1_address:
-            data['admin_node_1_address'] = parsed_args.admin_node_1_address
+            update_admin_network = True
+        if parsed_args.admin_start_address:
+            data['admin_start_address'] = parsed_args.admin_start_address
+            update_admin_network = True
+        if parsed_args.admin_end_address:
+            data['admin_end_address'] = parsed_args.admin_end_address
+            update_admin_network = True
+        if parsed_args.bootstrap_address:
+            data['bootstrap_address'] = parsed_args.bootstrap_address
 
-        # Prompt the user for the subcloud's password if it isn't provided
-        if password_required:
+        # Semantic check if the required arguments for updating admin network
+        if update_admin_network:
+            if not parsed_args.admin_subnet:
+                error_msg = ("Argument --admin-subnet is required for admin "
+                             "network reconfiguration request.")
+                raise exceptions.DCManagerClientException(error_msg)
+
+            if not parsed_args.admin_gateway_ip:
+                error_msg = ("Argument --admin-gateway-ip is required for "
+                             "admin network reconfiguration request.")
+                raise exceptions.DCManagerClientException(error_msg)
+
+            if not parsed_args.admin_start_address:
+                error_msg = ("Argument --admin-start-address is required for "
+                             "admin network reconfiguration request.")
+                raise exceptions.DCManagerClientException(error_msg)
+
+            if not parsed_args.admin_end_address:
+                error_msg = ("Argument --admin-end-address is required for "
+                             "admin network reconfiguration request.")
+                raise exceptions.DCManagerClientException(error_msg)
+
+            if not parsed_args.bootstrap_address:
+                error_msg = ("Argument --bootstrap-address is required for "
+                             "admin network reconfiguration request.")
+                raise exceptions.DCManagerClientException(error_msg)
+
+            # Prompt the user for the subcloud's password if it isn't provided
             if parsed_args.sysadmin_password is not None:
                 data['sysadmin_password'] = base64.b64encode(
                     parsed_args.sysadmin_password.encode("utf-8"))

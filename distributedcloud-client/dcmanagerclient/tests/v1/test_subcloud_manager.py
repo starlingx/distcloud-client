@@ -339,8 +339,9 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
                       '--sysadmin-password', 'testpassword',
                       '--admin-subnet', 'subcloud admin subnet',
                       '--admin-gateway-ip', 'subcloud admin gateway ip',
-                      '--admin-node-0-address', 'subcloud admin node0 addr',
-                      '--admin-node-1-address', 'subcloud admin node1 addr'])
+                      '--admin-start-address', 'subcloud admin start addr',
+                      '--admin-end-address', 'subcloud admin end addr',
+                      '--bootstrap-address', 'subcloud bootstrap address'])
         self.assertEqual((ID, NAME,
                           DESCRIPTION, LOCATION,
                           SOFTWARE_VERSION, MANAGEMENT_STATE,
