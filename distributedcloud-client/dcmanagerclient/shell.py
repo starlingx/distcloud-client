@@ -28,6 +28,7 @@ from dcmanagerclient import exceptions
 
 from cliff import app
 from cliff import commandmanager
+from cliff import help
 from osc_lib.command import command
 
 import argparse
@@ -74,6 +75,22 @@ class OpenStackHelpFormatter(argparse.HelpFormatter):
         # Title-case the headings.
         heading = '%s%s' % (heading[0].upper(), heading[1:])
         super(OpenStackHelpFormatter, self).start_section(heading)
+
+
+class HelpCommand(help.HelpCommand):
+    """print detailed help for another command
+
+    Provide a custom action so the help command without
+    arguments could use our custom HelpAction
+
+    """
+    def take_action(self, parsed_args):
+        if parsed_args.cmd:
+            super().take_action(parsed_args)
+        else:
+            action = HelpAction(None, None, default=self.app)
+            action(self.app.parser, self.app.options, None, None)
+        return 0
 
 
 class HelpAction(argparse.Action):
@@ -131,6 +148,9 @@ class DCManagerShell(app.App):
             version=dcmanager_version,
             command_manager=commandmanager.CommandManager('dcmanager.cli'),
         )
+
+        # Override default help command
+        self.command_manager.add_command('help', HelpCommand)
 
         # Set v1 commands by default
         self._set_shell_commands(self._get_commands(version=1))
