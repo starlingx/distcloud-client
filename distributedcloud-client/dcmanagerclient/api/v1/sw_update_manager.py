@@ -1,5 +1,5 @@
 # Copyright (c) 2017 Ericsson AB.
-# Copyright (c) 2017-2021 Wind River Systems, Inc.
+# Copyright (c) 2017-2023 Wind River Systems, Inc.
 # All Rights Reserved.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
@@ -56,7 +56,8 @@ class sw_update_manager(base.ResourceManager):
     def __init__(self, http_client,
                  update_type,
                  resource_class=SwUpdateStrategy,
-                 url='sw-update-strategy'):
+                 url='sw-update-strategy',
+                 extra_args=None):
         super(sw_update_manager, self).__init__(http_client)
         self.resource_class = resource_class
         self.update_type = update_type
@@ -71,7 +72,11 @@ class sw_update_manager(base.ResourceManager):
         # actions_url is typically /<foo>/actions
         self.actions_url = '/{url}/actions?type={update_type}'.format(
             url=url, update_type=self.update_type)
-        self.extra_args = []
+
+        if extra_args is None:
+            self.extra_args = []
+        else:
+            self.extra_args = extra_args
 
     def create_sw_update_strategy(self, **kwargs):
         data = kwargs
@@ -95,9 +100,13 @@ class sw_update_manager(base.ResourceManager):
 
     def extract_extra_args(self, json_object):
         args_dict = {}
+
         for x in self.extra_args:
-            if json_object.get(x):
-                args_dict[x] = json_object.get(x)
+            json_extra_args = json_object.get("extra-args")
+            if json_extra_args:
+                arg = json_extra_args.get(x)
+                if arg:
+                    args_dict[x] = arg
         if args_dict:
             return args_dict
         else:
