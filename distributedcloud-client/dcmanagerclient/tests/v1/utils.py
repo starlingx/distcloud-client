@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2020-2021 Wind River Systems, Inc.
+# Copyright (c) 2020-2023 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -24,7 +24,8 @@ def make_strategy(manager=None,
                   stop_on_failure=False,
                   state=DEFAULT_STATE,
                   created_at=TIME_NOW,
-                  updated_at=None):
+                  updated_at=None,
+                  extra_args=None):
     if manager is None:
         manager = mock.MagicMock()
     return SwUpdateStrategy(manager,
@@ -34,4 +35,5 @@ def make_strategy(manager=None,
                             stop_on_failure,
                             state,
                             created_at,
-                            updated_at)
+                            updated_at,
+                            extra_args)
