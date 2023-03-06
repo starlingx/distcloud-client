@@ -1,5 +1,5 @@
 # Copyright (c) 2017 Ericsson AB.
-# Copyright (c) 2021 Wind River Systems, Inc.
+# Copyright (c) 2021-2023 Wind River Systems, Inc.
 # All Rights Reserved.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,3 +27,13 @@ class sw_strategy_manager(sw_update_manager):
         self.get_url = '/{url}'.format(url=url)
         self.delete_url = '/{url}'.format(url=url)
         self.actions_url = '/{url}/actions'.format(url=url)
+
+    def extract_extra_args(self, json_object):
+        # Since this generic strategy manager can interact with any strategy
+        # type, it overrides extract_extra_args method of the sw_update_manager
+        # class to return all extra-args without filtering by type so they are
+        # available to the caller
+        extra_args = json_object.get("extra-args")
+        if extra_args:
+            return extra_args
+        return None
