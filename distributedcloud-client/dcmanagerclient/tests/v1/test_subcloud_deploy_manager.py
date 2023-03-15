@@ -1,4 +1,4 @@
-# Copyright (c) 2020-2022 Wind River Systems, Inc.
+# Copyright (c) 2020-2023 Wind River Systems, Inc.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 #    You may obtain a copy of the License at
@@ -12,6 +12,7 @@
 #    limitations under the License.
 #
 
+import mock
 import os
 import tempfile
 
@@ -25,45 +26,53 @@ DEPLOY_PLAYBOOK = 'deployment-manager-playbook.yaml'
 DEPLOY_OVERRIDES = 'deployment-manager-overrides-subcloud.yaml'
 DEPLOY_CHART = 'deployment-manager.tgz'
 DEPLOY_PRESTAGE_IMAGES = 'prebuilt-images.lst'
+SOFTWARE_VERSION = '21.12'
 
 SUBCLOUD_DEPLOY_DICT = {
     'DEPLOY_PLAYBOOK': DEPLOY_PLAYBOOK,
     'DEPLOY_OVERRIDES': DEPLOY_OVERRIDES,
     'DEPLOY_CHART': DEPLOY_CHART,
-    'DEPLOY_PRESTAGE_IMAGES': DEPLOY_PRESTAGE_IMAGES
+    'DEPLOY_PRESTAGE_IMAGES': DEPLOY_PRESTAGE_IMAGES,
+    'SOFTWARE_VERSION': SOFTWARE_VERSION
 }
 
 SUBCLOUD_DEPLOY_ALL = sdm.SubcloudDeploy(
     deploy_playbook=SUBCLOUD_DEPLOY_DICT['DEPLOY_PLAYBOOK'],
     deploy_overrides=SUBCLOUD_DEPLOY_DICT['DEPLOY_OVERRIDES'],
     deploy_chart=SUBCLOUD_DEPLOY_DICT['DEPLOY_CHART'],
-    prestage_images=SUBCLOUD_DEPLOY_DICT['DEPLOY_PRESTAGE_IMAGES']
+    prestage_images=SUBCLOUD_DEPLOY_DICT['DEPLOY_PRESTAGE_IMAGES'],
+    software_version=SUBCLOUD_DEPLOY_DICT['SOFTWARE_VERSION']
 )
 
 SUBCLOUD_DEPLOY_PRESTAGE = sdm.SubcloudDeploy(
-    prestage_images=SUBCLOUD_DEPLOY_DICT['DEPLOY_PRESTAGE_IMAGES']
+    prestage_images=SUBCLOUD_DEPLOY_DICT['DEPLOY_PRESTAGE_IMAGES'],
+    software_version=SUBCLOUD_DEPLOY_DICT['SOFTWARE_VERSION']
 )
 
 SUBCLOUD_DEPLOY_NO_PRESTAGE = sdm.SubcloudDeploy(
     deploy_playbook=SUBCLOUD_DEPLOY_DICT['DEPLOY_PLAYBOOK'],
     deploy_overrides=SUBCLOUD_DEPLOY_DICT['DEPLOY_OVERRIDES'],
-    deploy_chart=SUBCLOUD_DEPLOY_DICT['DEPLOY_CHART']
+    deploy_chart=SUBCLOUD_DEPLOY_DICT['DEPLOY_CHART'],
+    software_version=SUBCLOUD_DEPLOY_DICT['SOFTWARE_VERSION']
 )
 
 SUBCLOUD_DEPLOY_NO_PLAYBOOK = sdm.SubcloudDeploy(
     deploy_overrides=SUBCLOUD_DEPLOY_DICT['DEPLOY_OVERRIDES'],
     deploy_chart=SUBCLOUD_DEPLOY_DICT['DEPLOY_CHART'],
-    prestage_images=SUBCLOUD_DEPLOY_DICT['DEPLOY_PRESTAGE_IMAGES']
+    prestage_images=SUBCLOUD_DEPLOY_DICT['DEPLOY_PRESTAGE_IMAGES'],
+    software_version=SUBCLOUD_DEPLOY_DICT['SOFTWARE_VERSION']
 )
 
 SUBCLOUD_DEPLOY_NO_PLAYBOOK_OVERRIDES = sdm.SubcloudDeploy(
     deploy_chart=SUBCLOUD_DEPLOY_DICT['DEPLOY_CHART'],
-    prestage_images=SUBCLOUD_DEPLOY_DICT['DEPLOY_PRESTAGE_IMAGES']
+    prestage_images=SUBCLOUD_DEPLOY_DICT['DEPLOY_PRESTAGE_IMAGES'],
+    software_version=SUBCLOUD_DEPLOY_DICT['SOFTWARE_VERSION']
 )
 
 SUBCLOUD_DEPLOY_NO_OVERRIDES_CHART = sdm.SubcloudDeploy(
     deploy_playbook=SUBCLOUD_DEPLOY_DICT['DEPLOY_PLAYBOOK'],
-    prestage_images=SUBCLOUD_DEPLOY_DICT['DEPLOY_PRESTAGE_IMAGES']
+    prestage_images=SUBCLOUD_DEPLOY_DICT['DEPLOY_PRESTAGE_IMAGES'],
+    software_version=SUBCLOUD_DEPLOY_DICT['SOFTWARE_VERSION']
 )
 
 
@@ -77,13 +86,28 @@ class TestCLISubcloudDeployManagerV1(base.BaseCommandTest):
     def test_subcloud_deploy_show(self):
         self.client.subcloud_deploy_manager.subcloud_deploy_show.\
             return_value = [SUBCLOUD_DEPLOY_ALL]
-        actual_call = self.call(subcloud_deploy_cmd.SubcloudDeployShow)
+
+        # Without "--release" parameter
+        actual_call1 = self.call(subcloud_deploy_cmd.SubcloudDeployShow)
 
         self.assertEqual((DEPLOY_PLAYBOOK,
                           DEPLOY_OVERRIDES,
                           DEPLOY_CHART,
-                          DEPLOY_PRESTAGE_IMAGES),
-                         actual_call[1])
+                          DEPLOY_PRESTAGE_IMAGES,
+                          SOFTWARE_VERSION),
+                         actual_call1[1])
+
+        # With "--release" parameter
+        actual_call2 = self.call(
+            subcloud_deploy_cmd.SubcloudDeployShow,
+            app_args=['--release', SOFTWARE_VERSION])
+
+        self.assertEqual((DEPLOY_PLAYBOOK,
+                          DEPLOY_OVERRIDES,
+                          DEPLOY_CHART,
+                          DEPLOY_PRESTAGE_IMAGES,
+                          SOFTWARE_VERSION),
+                         actual_call2[1])
 
     def test_subcloud_deploy_upload_all(self):
         self.client.subcloud_deploy_manager.subcloud_deploy_upload.\
@@ -108,7 +132,8 @@ class TestCLISubcloudDeployManagerV1(base.BaseCommandTest):
         self.assertEqual((DEPLOY_PLAYBOOK,
                           DEPLOY_OVERRIDES,
                           DEPLOY_CHART,
-                          DEPLOY_PRESTAGE_IMAGES),
+                          DEPLOY_PRESTAGE_IMAGES,
+                          SOFTWARE_VERSION),
                          actual_call[1])
 
     def test_subcloud_deploy_upload_no_prestage(self):
@@ -131,7 +156,8 @@ class TestCLISubcloudDeployManagerV1(base.BaseCommandTest):
         self.assertEqual((DEPLOY_PLAYBOOK,
                           DEPLOY_OVERRIDES,
                           DEPLOY_CHART,
-                          None),
+                          None,
+                          SOFTWARE_VERSION),
                          actual_call[1])
 
     def test_subcloud_deploy_upload_prestage(self):
@@ -147,7 +173,8 @@ class TestCLISubcloudDeployManagerV1(base.BaseCommandTest):
         self.assertEqual((None,
                           None,
                           None,
-                          DEPLOY_PRESTAGE_IMAGES),
+                          DEPLOY_PRESTAGE_IMAGES,
+                          SOFTWARE_VERSION),
                          actual_call[1])
 
     def test_subcloud_deploy_upload_no_playbook(self):
@@ -169,7 +196,8 @@ class TestCLISubcloudDeployManagerV1(base.BaseCommandTest):
         self.assertEqual((None,
                           DEPLOY_OVERRIDES,
                           DEPLOY_CHART,
-                          DEPLOY_PRESTAGE_IMAGES),
+                          DEPLOY_PRESTAGE_IMAGES,
+                          SOFTWARE_VERSION),
                          actual_call[1])
 
     def test_subcloud_deploy_upload_no_playbook_overrides(self):
@@ -188,7 +216,8 @@ class TestCLISubcloudDeployManagerV1(base.BaseCommandTest):
         self.assertEqual((None,
                           None,
                           DEPLOY_CHART,
-                          DEPLOY_PRESTAGE_IMAGES),
+                          DEPLOY_PRESTAGE_IMAGES,
+                          SOFTWARE_VERSION),
                          actual_call[1])
 
     def test_subcloud_deploy_upload_no_overrides_chart(self):
@@ -203,14 +232,17 @@ class TestCLISubcloudDeployManagerV1(base.BaseCommandTest):
                 subcloud_deploy_cmd.SubcloudDeployUpload,
                 app_args=[
                     '--deploy-playbook', file_path_1,
-                    '--prestage-images', file_path_2])
+                    '--prestage-images', file_path_2,
+                    '--release', SOFTWARE_VERSION])
         self.assertEqual((DEPLOY_PLAYBOOK,
                           None,
                           None,
-                          DEPLOY_PRESTAGE_IMAGES),
+                          DEPLOY_PRESTAGE_IMAGES,
+                          SOFTWARE_VERSION),
                          actual_call[1])
 
-    def test_subcloud_deploy_upload_invalid_path(self):
+    @mock.patch('builtins.print')
+    def test_subcloud_deploy_upload_invalid_path(self, mock_print):
         self.client.subcloud_deploy_manager.subcloud_deploy_upload.\
             return_value = [SUBCLOUD_DEPLOY_NO_PRESTAGE]
         file_path_1 = 'not_a_valid_path'
@@ -218,15 +250,12 @@ class TestCLISubcloudDeployManagerV1(base.BaseCommandTest):
                 tempfile.NamedTemporaryFile() as f3:
             file_path_2 = os.path.abspath(f2.name)
             file_path_3 = os.path.abspath(f3.name)
-            actual_call = self.call(
+            self.call(
                 subcloud_deploy_cmd.SubcloudDeployUpload,
                 app_args=[
                     '--deploy-playbook', file_path_1,
                     '--deploy-overrides', file_path_2,
                     '--deploy-chart', file_path_3])
 
-        self.assertEqual((None,
-                          None,
-                          None,
-                          None),
-                         actual_call[1])
+        mock_print.assert_called_with('error: argument --deploy_playbook'
+                                      ' directory not_a_valid_path not valid')

@@ -1,4 +1,4 @@
-# Copyright (c) 2020-2022 Wind River Systems, Inc.
+# Copyright (c) 2020-2023 Wind River Systems, Inc.
 # All Rights Reserved.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,11 +24,13 @@ class SubcloudDeploy(base.Resource):
     resource_name = 'subcloud_deploy'
 
     def __init__(self, deploy_playbook=None, deploy_overrides=None,
-                 deploy_chart=None, prestage_images=None):
+                 deploy_chart=None, prestage_images=None,
+                 software_version=None):
         self.deploy_playbook = deploy_playbook
         self.deploy_overrides = deploy_overrides
         self.deploy_chart = deploy_chart
         self.prestage_images = prestage_images
+        self.software_version = software_version
 
 
 class subcloud_deploy_manager(base.ResourceManager):
@@ -40,10 +42,12 @@ class subcloud_deploy_manager(base.ResourceManager):
         deploy_overrides = json_object.get('deploy_overrides')
         deploy_chart = json_object.get('deploy_chart')
         prestage_images = json_object.get('prestage_images')
+        software_version = json_object.get('software_version')
 
         resource.append(
             self.resource_class(deploy_playbook, deploy_overrides,
-                                deploy_chart, prestage_images))
+                                deploy_chart, prestage_images,
+                                software_version))
 
         return resource
 
@@ -56,10 +60,11 @@ class subcloud_deploy_manager(base.ResourceManager):
         resource = self._process_json_response(json_object)
         return resource
 
-    def _deploy_upload(self, url, data):
+    def _deploy_upload(self, url, files, data):
         fields = dict()
-        for k, v in data.items():
+        for k, v in files.items():
             fields.update({k: (v, open(v, 'rb'),)})
+        fields.update(data)
         enc = MultipartEncoder(fields=fields)
         headers = {'content-type': enc.content_type}
         resp = self.http_client.post(url, enc, headers=headers)
@@ -69,11 +74,14 @@ class subcloud_deploy_manager(base.ResourceManager):
         resource = self._process_json_response(json_object)
         return resource
 
-    def subcloud_deploy_show(self):
+    def subcloud_deploy_show(self, release):
         url = '/subcloud-deploy/'
+        if release:
+            url += release
         return self._subcloud_deploy_detail(url)
 
     def subcloud_deploy_upload(self, **kwargs):
-        data = kwargs
+        files = kwargs.get('files')
+        data = kwargs.get('data')
         url = '/subcloud-deploy/'
-        return self._deploy_upload(url, data)
+        return self._deploy_upload(url, files, data)

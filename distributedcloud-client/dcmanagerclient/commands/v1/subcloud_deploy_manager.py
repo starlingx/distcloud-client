@@ -1,4 +1,4 @@
-# Copyright (c) 2020-2022 Wind River Systems, Inc.
+# Copyright (c) 2020-2023 Wind River Systems, Inc.
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
 #    You may obtain a copy of the License at
@@ -24,7 +24,8 @@ def _format(subcloud_deploy=None):
         'deploy_playbook',
         'deploy_overrides',
         'deploy_chart',
-        'prestage_images'
+        'prestage_images',
+        'software_version'
     )
     temp = list()
     try:
@@ -41,6 +42,10 @@ def _format(subcloud_deploy=None):
         temp.append(None)
     try:
         temp.append(subcloud_deploy.prestage_images)
+    except Exception:
+        temp.append(None)
+    try:
+        temp.append(subcloud_deploy.software_version)
     except Exception:
         temp.append(None)
 
@@ -91,16 +96,25 @@ class SubcloudDeployUpload(base.DCManagerShowOne):
                  'prestage_images playbook. '
                  'Must be a local file path'
         )
+
+        parser.add_argument(
+            '--release',
+            required=False,
+            help='software release used to install, bootstrap and/or deploy '
+                 'the subcloud with. If not specified, the current software '
+                 'release of the system controller will be used.'
+        )
         return parser
 
     def _get_resources(self, parsed_args):
         dcmanager_client = self.app.client_manager.subcloud_deploy_manager
-        kwargs = dict()
+
+        data = dict()
+        files = dict()
         variable_dict = {'deploy_playbook': parsed_args.deploy_playbook,
                          'deploy_overrides': parsed_args.deploy_overrides,
                          'deploy_chart': parsed_args.deploy_chart,
                          'prestage_images': parsed_args.prestage_images}
-
         for key, val in variable_dict.items():
             if val is None:
                 continue
@@ -110,11 +124,14 @@ class SubcloudDeployUpload(base.DCManagerShowOne):
                 print(error_msg)
                 return
             else:
-                kwargs[key] = val
+                files[key] = val
+
+        if parsed_args.release is not None:
+            data['release'] = parsed_args.release
 
         try:
             return dcmanager_client.subcloud_deploy_manager.\
-                subcloud_deploy_upload(**kwargs)
+                subcloud_deploy_upload(files=files, data=data)
         except Exception as e:
             print(e)
             error_msg = "Unable to upload subcloud deploy files"
@@ -130,8 +147,16 @@ class SubcloudDeployShow(base.DCManagerShowOne):
     def get_parser(self, prog_name):
         parser = super(SubcloudDeployShow, self).get_parser(prog_name)
 
+        parser.add_argument(
+            '--release',
+            required=False,
+            help='software release used to install, bootstrap and/or deploy '
+                 'the subcloud with. If not specified, the current software '
+                 'release of the system controller will be used.'
+        )
         return parser
 
     def _get_resources(self, parsed_args):
         dcmanager_client = self.app.client_manager.subcloud_deploy_manager
-        return dcmanager_client.subcloud_deploy_manager.subcloud_deploy_show()
+        return dcmanager_client.subcloud_deploy_manager.subcloud_deploy_show(
+            parsed_args.release)
