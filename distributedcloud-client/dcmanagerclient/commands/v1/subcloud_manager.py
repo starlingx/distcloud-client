@@ -178,6 +178,14 @@ class AddSubcloud(base.DCManagerShowOne):
             action='store_true',
             help='Migrate a subcloud from another distributed cloud.'
         )
+
+        parser.add_argument(
+            '--release',
+            required=False,
+            help='software release used to install, bootstrap and/or deploy '
+                 'the subcloud with. If not specified, the current software '
+                 'release of the system controller will be used.'
+        )
         return parser
 
     def _get_resources(self, parsed_args):
@@ -236,6 +244,9 @@ class AddSubcloud(base.DCManagerShowOne):
 
         if parsed_args.migrate:
             data['migrate'] = 'true'
+
+        if parsed_args.release is not None:
+            data['release'] = parsed_args.release
 
         return dcmanager_client.subcloud_manager.add_subcloud(files=files,
                                                               data=data)
@@ -674,6 +685,14 @@ class ReinstallSubcloud(base.DCManagerShowOne):
             help='sysadmin password of the subcloud to be configured, '
                  'if not provided you will be prompted.'
         )
+
+        parser.add_argument(
+            '--release',
+            required=False,
+            help='software release used to install, bootstrap and/or deploy '
+                 'the subcloud with. If not specified, the current software '
+                 'release of the system controller will be used.'
+        )
         return parser
 
     def _get_resources(self, parsed_args):
@@ -705,6 +724,9 @@ class ReinstallSubcloud(base.DCManagerShowOne):
             password = utils.prompt_for_password()
             data["sysadmin_password"] = base64.b64encode(
                 password.encode("utf-8"))
+
+        if parsed_args.release is not None:
+            data['release'] = parsed_args.release
 
         # Require user to type reinstall to confirm
         print("WARNING: This will reinstall the subcloud. "

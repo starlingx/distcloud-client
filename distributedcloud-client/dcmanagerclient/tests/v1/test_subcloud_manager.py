@@ -119,6 +119,24 @@ DEFAULT_SUBCLOUD_FIELD_RESULT_LIST = (
     BACKUP_STATUS,
     BACKUP_DATETIME)
 
+FAKE_BOOTSTRAP_VALUES = {
+    "system_mode": SYSTEM_MODE,
+    "name": NAME,
+    "description": DESCRIPTION,
+    "location": LOCATION,
+    "management_subnet": MANAGEMENT_SUBNET,
+    "management_start_address": MANAGEMENT_START_IP,
+    "management_end_address": MANAGEMENT_END_IP,
+    "management_gateway_address": MANAGEMENT_GATEWAY_IP,
+    "external_oam_subnet": EXTERNAL_OAM_SUBNET,
+    "external_oam_gateway_address": EXTERNAL_OAM_GATEWAY_ADDRESS,
+    "external_oam_floating_address": EXTERNAL_OAM_FLOATING_ADDRESS,
+    'backup_status': BACKUP_STATUS,
+    'backup_datetime': BACKUP_DATETIME,
+    'backup_status': BACKUP_STATUS,
+    'backup_datetime': BACKUP_DATETIME
+}
+
 
 class TestCLISubcloudManagerV1(base.BaseCommandTest):
 
@@ -194,29 +212,21 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
         self.client.subcloud_manager.add_subcloud.\
             return_value = [SUBCLOUD]
 
-        values = {
-            "system_mode": SYSTEM_MODE,
-            "name": NAME,
-            "description": DESCRIPTION,
-            "location": LOCATION,
-            "management_subnet": MANAGEMENT_SUBNET,
-            "management_start_address": MANAGEMENT_START_IP,
-            "management_end_address": MANAGEMENT_END_IP,
-            "management_gateway_address": MANAGEMENT_GATEWAY_IP,
-            "external_oam_subnet": EXTERNAL_OAM_SUBNET,
-            "external_oam_gateway_address": EXTERNAL_OAM_GATEWAY_ADDRESS,
-            "external_oam_floating_address": EXTERNAL_OAM_FLOATING_ADDRESS,
-            'backup_status': BACKUP_STATUS,
-            'backup_datetime': BACKUP_DATETIME
-        }
-
         with tempfile.NamedTemporaryFile(mode='w') as f:
-            yaml.dump(values, f)
+            yaml.dump(FAKE_BOOTSTRAP_VALUES, f)
             file_path = os.path.abspath(f.name)
-            actual_call = self.call(
+            # Without "--release" parameter
+            actual_call1 = self.call(
                 subcloud_cmd.AddSubcloud, app_args=[
                     '--bootstrap-address', BOOTSTRAP_ADDRESS,
                     '--bootstrap-values', file_path,
+                ])
+            # With "--release" parameter
+            actual_call2 = self.call(
+                subcloud_cmd.AddSubcloud, app_args=[
+                    '--bootstrap-address', BOOTSTRAP_ADDRESS,
+                    '--bootstrap-values', file_path,
+                    '--release', SOFTWARE_VERSION,
                 ])
         self.assertEqual((ID, NAME, DESCRIPTION, LOCATION, SOFTWARE_VERSION,
                           MANAGEMENT_STATE, AVAILABILITY_STATUS, DEPLOY_STATUS,
@@ -225,7 +235,15 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
                           SYSTEMCONTROLLER_GATEWAY_IP,
                           DEFAULT_SUBCLOUD_GROUP_ID,
                           TIME_NOW, TIME_NOW, BACKUP_STATUS, BACKUP_DATETIME
-                          ), actual_call[1])
+                          ), actual_call1[1])
+        self.assertEqual((ID, NAME, DESCRIPTION, LOCATION, SOFTWARE_VERSION,
+                          MANAGEMENT_STATE, AVAILABILITY_STATUS, DEPLOY_STATUS,
+                          MANAGEMENT_SUBNET, MANAGEMENT_START_IP,
+                          MANAGEMENT_END_IP, MANAGEMENT_GATEWAY_IP,
+                          SYSTEMCONTROLLER_GATEWAY_IP,
+                          DEFAULT_SUBCLOUD_GROUP_ID,
+                          TIME_NOW, TIME_NOW, BACKUP_STATUS, BACKUP_DATETIME
+                          ), actual_call2[1])
 
     @mock.patch('getpass.getpass', return_value='testpassword')
     def test_add_migrate_subcloud(self, getpass):
@@ -414,6 +432,45 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
                           DEFAULT_SUBCLOUD_GROUP_ID,
                           TIME_NOW, TIME_NOW, BACKUP_STATUS, BACKUP_DATETIME
                           ), actual_call[1])
+
+    @mock.patch('getpass.getpass', return_value='testpassword')
+    @mock.patch('six.moves.input', return_value='reinstall')
+    def test_reinstall_subcloud(self, mock_input, getpass):
+        self.client.subcloud_manager.reinstall_subcloud. \
+            return_value = [SUBCLOUD]
+
+        with tempfile.NamedTemporaryFile(mode='w') as f:
+            yaml.dump(FAKE_BOOTSTRAP_VALUES, f)
+            file_path = os.path.abspath(f.name)
+            # Without "--release" parameter
+            actual_call1 = self.call(
+                subcloud_cmd.ReinstallSubcloud, app_args=[
+                    ID,
+                    '--bootstrap-values', file_path,
+                ])
+            # With "--release" parameter
+            actual_call2 = self.call(
+                subcloud_cmd.ReinstallSubcloud, app_args=[
+                    ID,
+                    '--bootstrap-values', file_path,
+                    '--release', SOFTWARE_VERSION,
+                ])
+        self.assertEqual((ID, NAME, DESCRIPTION, LOCATION, SOFTWARE_VERSION,
+                          MANAGEMENT_STATE, AVAILABILITY_STATUS, DEPLOY_STATUS,
+                          MANAGEMENT_SUBNET, MANAGEMENT_START_IP,
+                          MANAGEMENT_END_IP, MANAGEMENT_GATEWAY_IP,
+                          SYSTEMCONTROLLER_GATEWAY_IP,
+                          DEFAULT_SUBCLOUD_GROUP_ID,
+                          TIME_NOW, TIME_NOW, BACKUP_STATUS, BACKUP_DATETIME
+                          ), actual_call1[1])
+        self.assertEqual((ID, NAME, DESCRIPTION, LOCATION, SOFTWARE_VERSION,
+                          MANAGEMENT_STATE, AVAILABILITY_STATUS, DEPLOY_STATUS,
+                          MANAGEMENT_SUBNET, MANAGEMENT_START_IP,
+                          MANAGEMENT_END_IP, MANAGEMENT_GATEWAY_IP,
+                          SYSTEMCONTROLLER_GATEWAY_IP,
+                          DEFAULT_SUBCLOUD_GROUP_ID,
+                          TIME_NOW, TIME_NOW, BACKUP_STATUS, BACKUP_DATETIME
+                          ), actual_call2[1])
 
     @mock.patch('getpass.getpass', return_value='testpassword')
     @mock.patch('six.moves.input', return_value='reinstall')
