@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2022 Wind River Systems, Inc.
+# Copyright (c) 2022-2023 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -309,6 +309,14 @@ class RestoreSubcloudBackup(base.DCManagerShow):
         )
 
         parser.add_argument(
+            '--release',
+            required=False,
+            help='Software release used to install, bootstrap and/or deploy '
+                 'the subcloud with. If not specified, the current software '
+                 'release of the system controller will be used.'
+        )
+
+        parser.add_argument(
             '--local-only',
             required=False,
             action='store_true',
@@ -383,6 +391,11 @@ class RestoreSubcloudBackup(base.DCManagerShow):
                          '--local-only option.')
             raise exceptions.DCManagerClientException(error_msg)
 
+        if not parsed_args.with_install and parsed_args.release:
+            error_msg = ('Option --release cannot be used without '
+                         '--with-install option.')
+            raise exceptions.DCManagerClientException(error_msg)
+
         if parsed_args.with_install:
             data['with_install'] = 'true'
         else:
@@ -398,6 +411,9 @@ class RestoreSubcloudBackup(base.DCManagerShow):
         else:
             data['registry_images'] = 'false'
 
+        if parsed_args.release is not None:
+            data['release'] = parsed_args.release
+
         if parsed_args.sysadmin_password is not None:
             data['sysadmin_password'] = base64.b64encode(
                 parsed_args.sysadmin_password.encode("utf-8")).decode("utf-8")
@@ -405,12 +421,14 @@ class RestoreSubcloudBackup(base.DCManagerShow):
             password = utils.prompt_for_password()
             data["sysadmin_password"] = base64.b64encode(
                 password.encode("utf-8")).decode("utf-8")
+
         if parsed_args.restore_values:
             if not os.path.isfile(parsed_args.restore_values):
                 error_msg = "Restore_values file does not exist: %s" % \
                             parsed_args.restore_values
                 raise exceptions.DCManagerClientException(error_msg)
             files['restore_values'] = parsed_args.restore_values
+
         try:
             return dcmanager_client.subcloud_backup_manager.\
                 backup_subcloud_restore(data=data, files=files)

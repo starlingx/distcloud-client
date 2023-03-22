@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2022 Wind River Systems, Inc.
+# Copyright (c) 2022-2023 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -499,3 +499,63 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
 
         self.assertTrue(('Option --registry-images cannot be used without '
                          '--local-only option.') in str(e))
+
+    def test_backup_restore_with_install_no_release(self):
+        self.client.subcloud_backup_manager.backup_subcloud_restore.\
+            return_value = [SUBCLOUD]
+
+        backupPath = os.path.normpath(os.path.join(os.getcwd(), "test.yaml"))
+        with open(backupPath, mode='w') as f:
+            f.write(OVERRIDE_VALUES)
+
+        actual_call = self.call(
+            subcloud_backup_cmd.RestoreSubcloudBackup,
+            app_args=['--subcloud', 'subcloud1',
+                      '--with-install',
+                      '--local-only',
+                      '--registry-images',
+                      '--restore-values', backupPath,
+                      '--sysadmin-password', 'testpassword'])
+
+        self.assertEqual(DEFAULT_SUBCLOUD_FIELD_RESULT, actual_call[1])
+
+    def test_backup_restore_with_install_with_release(self):
+        self.client.subcloud_backup_manager.backup_subcloud_restore.\
+            return_value = [SUBCLOUD]
+
+        backupPath = os.path.normpath(os.path.join(os.getcwd(), "test.yaml"))
+        with open(backupPath, mode='w') as f:
+            f.write(OVERRIDE_VALUES)
+
+        actual_call = self.call(
+            subcloud_backup_cmd.RestoreSubcloudBackup,
+            app_args=['--subcloud', 'subcloud1',
+                      '--with-install',
+                      '--release', SOFTWARE_VERSION,
+                      '--local-only',
+                      '--registry-images',
+                      '--restore-values', backupPath,
+                      '--sysadmin-password', 'testpassword'])
+
+        self.assertEqual(DEFAULT_SUBCLOUD_FIELD_RESULT, actual_call[1])
+
+    def test_backup_restore_no_install_with_release(self):
+        self.client.subcloud_backup_manager.backup_subcloud_restore.\
+            return_value = [SUBCLOUD]
+
+        backupPath = os.path.normpath(os.path.join(os.getcwd(), "test.yaml"))
+        with open(backupPath, mode='w') as f:
+            f.write(OVERRIDE_VALUES)
+
+        e = self.assertRaises(DCManagerClientException,
+                              self.call,
+                              subcloud_backup_cmd.RestoreSubcloudBackup,
+                              app_args=['--subcloud', 'subcloud1',
+                                        '--release', SOFTWARE_VERSION,
+                                        '--local-only',
+                                        '--registry-images',
+                                        '--restore-values', backupPath,
+                                        '--sysadmin-password', 'testpassword'])
+
+        self.assertTrue(('Option --release cannot be used without '
+                         '--with-install option.') in str(e))
