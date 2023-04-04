@@ -445,27 +445,27 @@ class UpdateSubcloud(base.DCManagerShowOne):
         )
 
         parser.add_argument(
-            '--admin-subnet',
+            '--management-subnet',
             required=False,
-            help='Admin subnet of subcloud.'
+            help='Network subnet of subcloud.'
         )
 
         parser.add_argument(
-            '--admin-gateway-ip',
+            '--management-gateway-ip',
             required=False,
-            help='Admin gateway ip of subcloud.'
+            help='Network gateway IP of subcloud.'
         )
 
         parser.add_argument(
-            '--admin-start-address',
+            '--management-start-ip',
             required=False,
-            help='Admin start address of subcloud.'
+            help='Network start IP of subcloud.'
         )
 
         parser.add_argument(
-            '--admin-end-address',
+            '--management-end-ip',
             required=False,
-            help='Admin end address of subcloud.'
+            help='Network end IP of subcloud.'
         )
 
         parser.add_argument(
@@ -478,7 +478,7 @@ class UpdateSubcloud(base.DCManagerShowOne):
         parser.add_argument(
             '--bootstrap-address',
             required=False,
-            help='bootstrap address of the subcloud to be updated, '
+            help='bootstrap address of the subcloud to be updated.'
         )
 
         parser.add_argument(
@@ -502,7 +502,6 @@ class UpdateSubcloud(base.DCManagerShowOne):
         dcmanager_client = self.app.client_manager.subcloud_manager
         files = dict()
         data = dict()
-        update_admin_network = False
 
         if parsed_args.description:
             data['description'] = parsed_args.description
@@ -510,48 +509,26 @@ class UpdateSubcloud(base.DCManagerShowOne):
             data['location'] = parsed_args.location
         if parsed_args.group:
             data['group_id'] = parsed_args.group
-        if parsed_args.admin_subnet:
-            data['admin_subnet'] = parsed_args.admin_subnet
-            update_admin_network = True
-        if parsed_args.admin_gateway_ip:
-            data['admin_gateway_ip'] = parsed_args.admin_gateway_ip
-            update_admin_network = True
-        if parsed_args.admin_start_address:
-            data['admin_start_address'] = parsed_args.admin_start_address
-            update_admin_network = True
-        if parsed_args.admin_end_address:
-            data['admin_end_address'] = parsed_args.admin_end_address
-            update_admin_network = True
+        if parsed_args.management_subnet:
+            data['management_subnet'] = parsed_args.management_subnet
+        if parsed_args.management_gateway_ip:
+            data['management_gateway_ip'] = parsed_args.management_gateway_ip
+        if parsed_args.management_start_ip:
+            data['management_start_ip'] = parsed_args.management_start_ip
+        if parsed_args.management_end_ip:
+            data['management_end_ip'] = parsed_args.management_end_ip
         if parsed_args.bootstrap_address:
             data['bootstrap_address'] = parsed_args.bootstrap_address
 
+        subcloud_network_values = [
+            data.get('management_subnet'),
+            data.get('management_gateway_ip'),
+            data.get('management_start_ip'),
+            data.get('management_end_ip'),
+            data.get('bootstrap_address')
+        ]
         # Semantic check if the required arguments for updating admin network
-        if update_admin_network:
-            if not parsed_args.admin_subnet:
-                error_msg = ("Argument --admin-subnet is required for admin "
-                             "network reconfiguration request.")
-                raise exceptions.DCManagerClientException(error_msg)
-
-            if not parsed_args.admin_gateway_ip:
-                error_msg = ("Argument --admin-gateway-ip is required for "
-                             "admin network reconfiguration request.")
-                raise exceptions.DCManagerClientException(error_msg)
-
-            if not parsed_args.admin_start_address:
-                error_msg = ("Argument --admin-start-address is required for "
-                             "admin network reconfiguration request.")
-                raise exceptions.DCManagerClientException(error_msg)
-
-            if not parsed_args.admin_end_address:
-                error_msg = ("Argument --admin-end-address is required for "
-                             "admin network reconfiguration request.")
-                raise exceptions.DCManagerClientException(error_msg)
-
-            if not parsed_args.bootstrap_address:
-                error_msg = ("Argument --bootstrap-address is required for "
-                             "admin network reconfiguration request.")
-                raise exceptions.DCManagerClientException(error_msg)
-
+        if all(value is not None for value in subcloud_network_values):
             # Prompt the user for the subcloud's password if it isn't provided
             if parsed_args.sysadmin_password is not None:
                 data['sysadmin_password'] = base64.b64encode(
@@ -560,6 +537,14 @@ class UpdateSubcloud(base.DCManagerShowOne):
                 password = utils.prompt_for_password()
                 data["sysadmin_password"] = base64.b64encode(
                     password.encode("utf-8"))
+        # Not all network values exist
+        elif any(value is not None for value in subcloud_network_values):
+            error_msg = (
+                "For subcloud network reconfiguration request all the "
+                "following parameters are necessary: --management-subnet, "
+                "--management-gateway-ip, --management-start-ip, "
+                "--management-end-ip and --bootstrap-address")
+            raise exceptions.DCManagerClientException(error_msg)
 
         if parsed_args.install_values:
             if not os.path.isfile(parsed_args.install_values):
