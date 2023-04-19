@@ -109,6 +109,10 @@ def detail_format(subcloud=None):
         if subcloud.oam_floating_ip != "unavailable":
             columns += ('oam_floating_ip',)
             data += (subcloud.oam_floating_ip,)
+
+        if subcloud.prestage_software_version:
+            columns += ('prestage_software_version',)
+            data += (subcloud.prestage_software_version,)
     else:
         data = (tuple('<none>' for _ in range(len(columns))),)
 
@@ -803,6 +807,14 @@ class PrestageSubcloud(base.DCManagerShowOne):
             help='Disregard subcloud management alarm condition'
         )
 
+        parser.add_argument(
+            '--release',
+            required=False,
+            help="software release used to prestage the subcloud with. "
+                 "If not specified, the current software release of "
+                 "the subcloud will be used."
+        )
+
         return parser
 
     def _get_resources(self, parsed_args):
@@ -820,6 +832,9 @@ class PrestageSubcloud(base.DCManagerShowOne):
             password = utils.prompt_for_password()
             data["sysadmin_password"] = base64.b64encode(
                 password.encode("utf-8")).decode("utf-8")
+
+        if parsed_args.release:
+            data['release'] = parsed_args.release
 
         try:
             return dcmanager_client.subcloud_manager.\

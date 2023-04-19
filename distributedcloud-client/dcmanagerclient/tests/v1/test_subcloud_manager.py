@@ -503,9 +503,9 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
             self.assertTrue(deprecation_msg in str(e))
 
     def test_prestage_with_subcloudID(self):
-        self.client.subcloud_manager.prestage_subcloud.\
-            return_value = [SUBCLOUD]
-        actual_call = self.call(
+        self.client.subcloud_manager.prestage_subcloud.return_value = \
+            [SUBCLOUD]
+        actual_call_without_release = self.call(
             subcloud_cmd.PrestageSubcloud,
             app_args=[ID,
                       '--sysadmin-password', 'testpassword',
@@ -517,8 +517,30 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
                           SYSTEMCONTROLLER_GATEWAY_IP,
                           DEFAULT_SUBCLOUD_GROUP_ID,
                           TIME_NOW, TIME_NOW, BACKUP_STATUS,
-                          BACKUP_DATETIME), actual_call[1])
+                          BACKUP_DATETIME), actual_call_without_release[1])
 
     def test_prestage_without_subcloudID(self):
         self.assertRaises(SystemExit, self.call,
                           subcloud_cmd.PrestageSubcloud, app_args=[])
+
+    def test_prestage_with_release(self):
+        SUBCLOUD_WITH_ADDITIONAL_DETAIL = copy.copy(SUBCLOUD)
+        SUBCLOUD_WITH_ADDITIONAL_DETAIL.prestage_software_version = \
+            SOFTWARE_VERSION
+        self.client.subcloud_manager.prestage_subcloud.return_value = \
+            [SUBCLOUD_WITH_ADDITIONAL_DETAIL]
+        actual_call_with_release = self.call(
+            subcloud_cmd.PrestageSubcloud,
+            app_args=[ID,
+                      '--sysadmin-password', 'testpassword',
+                      '--force',
+                      '--release', SOFTWARE_VERSION])
+        self.assertEqual((ID, NAME, DESCRIPTION, LOCATION, SOFTWARE_VERSION,
+                          MANAGEMENT_STATE, AVAILABILITY_STATUS, DEPLOY_STATUS,
+                          MANAGEMENT_SUBNET, MANAGEMENT_START_IP,
+                          MANAGEMENT_END_IP, MANAGEMENT_GATEWAY_IP,
+                          SYSTEMCONTROLLER_GATEWAY_IP,
+                          DEFAULT_SUBCLOUD_GROUP_ID,
+                          TIME_NOW, TIME_NOW, BACKUP_STATUS,
+                          BACKUP_DATETIME, SOFTWARE_VERSION),
+                         actual_call_with_release[1])
