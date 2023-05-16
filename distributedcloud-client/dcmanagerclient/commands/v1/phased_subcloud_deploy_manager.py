@@ -186,3 +186,66 @@ class BootstrapPhasedSubcloudDeploy(base.DCManagerShowOne):
 
         return dcmanager_client.subcloud_deploy_bootstrap(
             subcloud_ref, files=files, data=data)
+
+
+class ConfigPhasedSubcloudDeploy(base.DCManagerShowOne):
+    """Configure a subcloud."""
+
+    def _get_format_function(self):
+        return utils.subcloud_detail_format
+
+    def get_parser(self, prog_name):
+        parser = super(ConfigPhasedSubcloudDeploy, self).get_parser(prog_name)
+
+        parser.add_argument(
+            'subcloud',
+            help='Name or ID of the subcloud to update.'
+        )
+
+        parser.add_argument(
+            '--deploy-config',
+            required=False,
+            help='YAML file containing subcloud variables to be passed to the '
+                 'deploy playbook.'
+        )
+
+        parser.add_argument(
+            '--sysadmin-password',
+            required=False,
+            help='sysadmin password of the subcloud to be configured, '
+                 'if not provided you will be prompted.'
+        )
+
+        return parser
+
+    def _get_resources(self, parsed_args):
+        subcloud_ref = parsed_args.subcloud
+        dcmanager_client = self.app.client_manager.\
+            phased_subcloud_deploy_manager.phased_subcloud_deploy_manager
+        files = dict()
+        data = dict()
+
+        # Get the deploy config yaml file
+        if parsed_args.deploy_config is not None:
+            if not os.path.isfile(parsed_args.deploy_config):
+                error_msg = "deploy-config file does not exist: %s" % \
+                            parsed_args.deploy_config
+                raise exceptions.DCManagerClientException(error_msg)
+            files['deploy_config'] = parsed_args.deploy_config
+
+        # Prompt the user for the subcloud's password if it isn't provided
+        if parsed_args.sysadmin_password is not None:
+            data['sysadmin_password'] = base64.b64encode(
+                parsed_args.sysadmin_password.encode("utf-8"))
+        else:
+            password = utils.prompt_for_password()
+            data["sysadmin_password"] = base64.b64encode(
+                password.encode("utf-8"))
+
+        try:
+            return dcmanager_client.subcloud_deploy_config(
+                subcloud_ref=subcloud_ref, files=files, data=data)
+        except Exception as e:
+            print(e)
+            error_msg = "Unable to configure subcloud %s" % (subcloud_ref)
+            raise exceptions.DCManagerClientException(error_msg)

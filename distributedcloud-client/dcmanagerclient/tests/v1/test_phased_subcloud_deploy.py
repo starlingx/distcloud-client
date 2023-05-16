@@ -4,11 +4,13 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-import mock
 import os
 import tempfile
 
+import mock
+
 from dcmanagerclient.commands.v1 import phased_subcloud_deploy_manager as cmd
+from dcmanagerclient.exceptions import DCManagerClientException
 from dcmanagerclient.tests import base
 
 
@@ -57,3 +59,30 @@ class TestCLIPhasedSubcloudDeployManagerV1(base.BaseCommandTest):
                     '--bootstrap-values', bootstrap_file_path,
                 ])
         self.assertEqual(base.SUBCLOUD_FIELD_RESULT_LIST, actual_call[1])
+
+    @mock.patch('getpass.getpass', return_value='testpassword')
+    def test_success_configure_subcloud(self, getpass):
+        self.client.subcloud_deploy_config.return_value = [
+            base.SUBCLOUD_RESOURCE]
+
+        with tempfile.NamedTemporaryFile() as f:
+            file_path = os.path.abspath(f.name)
+            actual_call = self.call(
+                cmd.ConfigPhasedSubcloudDeploy,
+                app_args=[base.NAME, '--deploy-config', file_path])
+        self.assertEqual(base.SUBCLOUD_FIELD_RESULT_LIST, actual_call[1])
+
+    @mock.patch('getpass.getpass', return_value='testpassword')
+    def test_configure_file_does_not_exist(self, getpass):
+        self.client.subcloud_deploy_config.return_value = [
+            base.SUBCLOUD_RESOURCE]
+
+        with tempfile.NamedTemporaryFile() as f:
+            file_path = os.path.abspath(f.name)
+
+        e = self.assertRaises(DCManagerClientException,
+                              self.call,
+                              cmd.ConfigPhasedSubcloudDeploy,
+                              app_args=[base.NAME,
+                                        '--deploy-config', file_path])
+        self.assertTrue('deploy-config file does not exist' in str(e))
