@@ -75,6 +75,7 @@ class Subcloud(Resource):
         self.deploy_status = deploy_status
         self.error_description = error_description
         self.oam_floating_ip = "unavailable"
+        self.deploy_config_sync_status = "unknown"
         self.management_start_ip = management_start_ip
         self.management_end_ip = management_end_ip
         self.management_gateway_ip = management_gateway_ip

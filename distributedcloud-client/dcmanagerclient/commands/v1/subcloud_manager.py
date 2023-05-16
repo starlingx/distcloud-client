@@ -113,6 +113,10 @@ def detail_format(subcloud=None):
         if subcloud.prestage_software_version:
             columns += ('prestage_software_version',)
             data += (subcloud.prestage_software_version,)
+
+        if subcloud.deploy_config_sync_status != "unknown":
+            columns += ('deploy_config_sync_status',)
+            data += (subcloud.deploy_config_sync_status,)
     else:
         data = (tuple('<none>' for _ in range(len(columns))),)
 

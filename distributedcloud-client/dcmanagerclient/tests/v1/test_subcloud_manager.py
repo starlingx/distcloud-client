@@ -50,6 +50,7 @@ SYSTEMCONTROLLER_GATEWAY_IP = '192.168.204.101'
 EXTERNAL_OAM_SUBNET = "10.10.10.0/24"
 EXTERNAL_OAM_GATEWAY_ADDRESS = "10.10.10.1"
 EXTERNAL_OAM_FLOATING_ADDRESS = "10.10.10.12"
+DEPLOY_CONFIG_SYNC_STATUS = 'Deployment: configurations up-to-date'
 DEFAULT_SUBCLOUD_GROUP_ID = '1'
 BACKUP_STATUS = 'complete'
 BACKUP_DATETIME = '2022-09-07'
@@ -73,6 +74,7 @@ SUBCLOUD_DICT = {
     'UPDATED_AT': TIME_NOW,
     'GROUP_ID': DEFAULT_SUBCLOUD_GROUP_ID,
     'OAM_FLOATING_IP': EXTERNAL_OAM_FLOATING_ADDRESS,
+    'DEPLOY_CONFIG_SYNC_STATUS': DEPLOY_CONFIG_SYNC_STATUS,
     'BACKUP_STATUS': BACKUP_STATUS,
     'BACKUP_DATETIME': BACKUP_DATETIME
 }
@@ -175,6 +177,8 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
         SUBCLOUD_WITH_ADDITIONAL_DETAIL = copy.copy(SUBCLOUD)
         SUBCLOUD_WITH_ADDITIONAL_DETAIL.oam_floating_ip =  \
             SUBCLOUD_DICT['OAM_FLOATING_IP']
+        SUBCLOUD_WITH_ADDITIONAL_DETAIL.deploy_config_sync_status =  \
+            SUBCLOUD_DICT['DEPLOY_CONFIG_SYNC_STATUS']
         self.client.subcloud_manager.subcloud_additional_details.\
             return_value = [SUBCLOUD_WITH_ADDITIONAL_DETAIL]
         actual_call = self.call(subcloud_cmd.ShowSubcloud,
@@ -194,7 +198,8 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
                           DEFAULT_SUBCLOUD_GROUP_ID,
                           TIME_NOW, TIME_NOW,
                           BACKUP_STATUS, BACKUP_DATETIME,
-                          EXTERNAL_OAM_FLOATING_ADDRESS),
+                          EXTERNAL_OAM_FLOATING_ADDRESS,
+                          DEPLOY_CONFIG_SYNC_STATUS),
                          actual_call[1])
 
     def test_show_subcloud_negative(self):
