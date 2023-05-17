@@ -1,5 +1,5 @@
 # Copyright (c) 2017 Ericsson AB.
-# Copyright (c) 2017-2021 Wind River Systems, Inc.
+# Copyright (c) 2017-2023 Wind River Systems, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ from dcmanagerclient.api.v1 import subcloud_group_manager as zm
 from dcmanagerclient.commands.v1 \
     import subcloud_group_manager as subcloud_group_cmd
 from dcmanagerclient.tests import base
-from dcmanagerclient.tests.v1 import test_subcloud_manager as tsm
 
 
 ID = '2'
@@ -79,12 +78,13 @@ class TestCLISubcloudGroupManagerV1(base.BaseCommandTest):
 
     def test_list_subcloud_group_subclouds(self):
         self.client.subcloud_group_manager.\
-            subcloud_group_list_subclouds.return_value = [tsm.SUBCLOUD]
+            subcloud_group_list_subclouds.return_value = [
+                base.SUBCLOUD_RESOURCE]
         actual_call = self.call(subcloud_group_cmd.ListSubcloudGroupSubclouds,
                                 app_args=[ID])
         self.client.subcloud_group_manager.subcloud_group_list_subclouds.\
             assert_called_once_with(ID)
-        self.assertEqual([tsm.DEFAULT_SUBCLOUD_FIELD_RESULT_LIST],
+        self.assertEqual([base.SUBCLOUD_FIELD_RESULT_LIST],
                          actual_call[1])
 
     def test_delete_subcloud_group_by_id(self):

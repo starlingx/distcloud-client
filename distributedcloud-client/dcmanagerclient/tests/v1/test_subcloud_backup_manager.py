@@ -8,105 +8,17 @@ import base64
 import mock
 import os
 
-from oslo_utils import timeutils
-
-from dcmanagerclient.api import base as api_base
 from dcmanagerclient.commands.v1 \
     import subcloud_backup_manager as subcloud_backup_cmd
 from dcmanagerclient.exceptions import DCManagerClientException
 from dcmanagerclient.tests import base
 
 
-BOOTSTRAP_ADDRESS = '10.10.10.12'
-TIME_NOW = timeutils.utcnow().isoformat()
-ID = '1'
-ID_1 = '2'
-NAME = 'subcloud1'
-SYSTEM_MODE = "duplex"
-DESCRIPTION = 'subcloud1 description'
-LOCATION = 'subcloud1 location'
-SOFTWARE_VERSION = '12.34'
-MANAGEMENT_STATE = 'unmanaged'
-AVAILABILITY_STATUS = 'offline'
-DEPLOY_STATUS = 'not-deployed'
-ERROR_DESCRIPTION = 'test error description'
-DEPLOY_STATE_PRE_DEPLOY = 'pre-deploy'
-DEPLOY_STATE_PRE_RESTORE = 'pre-restore'
-MANAGEMENT_SUBNET = '192.168.101.0/24'
-MANAGEMENT_START_IP = '192.168.101.2'
-MANAGEMENT_END_IP = '192.168.101.50'
-MANAGEMENT_GATEWAY_IP = '192.168.101.1'
-SYSTEMCONTROLLER_GATEWAY_IP = '192.168.204.101'
-EXTERNAL_OAM_SUBNET = "10.10.10.0/24"
-EXTERNAL_OAM_GATEWAY_ADDRESS = "10.10.10.1"
-EXTERNAL_OAM_FLOATING_ADDRESS = "10.10.10.12"
-DEFAULT_SUBCLOUD_GROUP_ID = '1'
 OVERRIDE_VALUES = """---
                   platform_backup_filename_prefix: test
                   openstack_app_name: test
                   backup_dir: test
                   """
-
-SUBCLOUD_DICT = {
-    'SUBCLOUD_ID': ID,
-    'NAME': NAME,
-    'DESCRIPTION': DESCRIPTION,
-    'LOCATION': LOCATION,
-    'SOFTWARE_VERSION': SOFTWARE_VERSION,
-    'MANAGEMENT_STATE': MANAGEMENT_STATE,
-    'AVAILABILITY_STATUS': AVAILABILITY_STATUS,
-    'DEPLOY_STATUS': DEPLOY_STATUS,
-    'ERROR_DESCRIPTION': ERROR_DESCRIPTION,
-    'MANAGEMENT_SUBNET': MANAGEMENT_SUBNET,
-    'MANAGEMENT_START_IP': MANAGEMENT_START_IP,
-    'MANAGEMENT_END_IP': MANAGEMENT_END_IP,
-    'MANAGEMENT_GATEWAY_IP': MANAGEMENT_GATEWAY_IP,
-    'SYSTEMCONTROLLER_GATEWAY_IP': SYSTEMCONTROLLER_GATEWAY_IP,
-    'CREATED_AT': TIME_NOW,
-    'UPDATED_AT': TIME_NOW,
-    'GROUP_ID': DEFAULT_SUBCLOUD_GROUP_ID,
-    'OAM_FLOATING_IP': EXTERNAL_OAM_FLOATING_ADDRESS
-}
-
-SUBCLOUD = api_base.Subcloud(
-    mock,
-    subcloud_id=SUBCLOUD_DICT['SUBCLOUD_ID'],
-    name=SUBCLOUD_DICT['NAME'],
-    description=SUBCLOUD_DICT['DESCRIPTION'],
-    location=SUBCLOUD_DICT['LOCATION'],
-    software_version=SUBCLOUD_DICT['SOFTWARE_VERSION'],
-    management_state=SUBCLOUD_DICT['MANAGEMENT_STATE'],
-    availability_status=SUBCLOUD_DICT['AVAILABILITY_STATUS'],
-    deploy_status=SUBCLOUD_DICT['DEPLOY_STATUS'],
-    error_description=SUBCLOUD_DICT['ERROR_DESCRIPTION'],
-    management_subnet=SUBCLOUD_DICT['MANAGEMENT_SUBNET'],
-    management_start_ip=SUBCLOUD_DICT['MANAGEMENT_START_IP'],
-    management_end_ip=SUBCLOUD_DICT['MANAGEMENT_END_IP'],
-    management_gateway_ip=SUBCLOUD_DICT['MANAGEMENT_GATEWAY_IP'],
-    systemcontroller_gateway_ip=SUBCLOUD_DICT['SYSTEMCONTROLLER_GATEWAY_IP'],
-    created_at=SUBCLOUD_DICT['CREATED_AT'],
-    updated_at=SUBCLOUD_DICT['UPDATED_AT'],
-    group_id=SUBCLOUD_DICT['GROUP_ID'])
-
-DEFAULT_SUBCLOUD_FIELD_RESULT = (
-    ID,
-    NAME,
-    DESCRIPTION,
-    LOCATION,
-    SOFTWARE_VERSION,
-    MANAGEMENT_STATE,
-    AVAILABILITY_STATUS,
-    DEPLOY_STATUS,
-    MANAGEMENT_SUBNET,
-    MANAGEMENT_START_IP,
-    MANAGEMENT_END_IP,
-    MANAGEMENT_GATEWAY_IP,
-    SYSTEMCONTROLLER_GATEWAY_IP,
-    DEFAULT_SUBCLOUD_GROUP_ID,
-    TIME_NOW,
-    TIME_NOW,
-    None,
-    None)
 
 
 class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
@@ -118,7 +30,7 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
     def test_backup_create_subcloud(self):
 
         self.client.subcloud_backup_manager.backup_subcloud_create.\
-            return_value = [SUBCLOUD]
+            return_value = [base.SUBCLOUD_RESOURCE]
 
         backupPath = os.path.normpath(os.path.join(os.getcwd(), "test.yaml"))
         with open(backupPath, mode='w') as f:
@@ -131,12 +43,12 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
                       '--registry-images',
                       '--backup-values', backupPath,
                       '--sysadmin-password', 'testpassword'])
-        self.assertEqual(DEFAULT_SUBCLOUD_FIELD_RESULT, actual_call[1])
+        self.assertEqual(base.SUBCLOUD_FIELD_RESULT_LIST, actual_call[1])
 
     def test_backup_create_group(self):
 
         self.client.subcloud_backup_manager.backup_subcloud_create.\
-            return_value = [SUBCLOUD]
+            return_value = [base.SUBCLOUD_RESOURCE]
 
         backupPath = os.path.normpath(os.path.join(os.getcwd(), "test.yaml"))
         with open(backupPath, mode='w') as f:
@@ -147,7 +59,7 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
             app_args=['--group', 'test',
                       '--backup-values', backupPath,
                       '--sysadmin-password', 'testpassword'])
-        self.assertEqual([DEFAULT_SUBCLOUD_FIELD_RESULT], actual_call[1])
+        self.assertEqual([base.SUBCLOUD_FIELD_RESULT_LIST], actual_call[1])
 
     def test_backup_create_group_subcloud(self):
         self.client.subcloud_backup_manager.backup_subcloud_create.\
@@ -204,7 +116,7 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
     def test_backup_create_prompt_ask_for_password(self, getpass):
 
         self.client.subcloud_backup_manager.backup_subcloud_create.\
-            return_value = [SUBCLOUD]
+            return_value = [base.SUBCLOUD_RESOURCE]
 
         backupPath = os.path.normpath(os.path.join(os.getcwd(), "test.yaml"))
         with open(backupPath, mode='w') as f:
@@ -215,7 +127,7 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
             app_args=['--group', 'test',
                       '--local-only',
                       '--backup-values', backupPath])
-        self.assertEqual([DEFAULT_SUBCLOUD_FIELD_RESULT], actual_call[1])
+        self.assertEqual([base.SUBCLOUD_FIELD_RESULT_LIST], actual_call[1])
 
     def test_backup_create_local_only_registry_images(self):
 
@@ -370,7 +282,7 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
     def test_backup_restore(self):
 
         self.client.subcloud_backup_manager.backup_subcloud_restore.\
-            return_value = [SUBCLOUD]
+            return_value = [base.SUBCLOUD_RESOURCE]
 
         backupPath = os.path.normpath(os.path.join(os.getcwd(), "test.yaml"))
         with open(backupPath, mode='w') as f:
@@ -384,12 +296,12 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
                       '--restore-values', backupPath,
                       '--sysadmin-password', 'testpassword'])
 
-        self.assertEqual(DEFAULT_SUBCLOUD_FIELD_RESULT, actual_call[1])
+        self.assertEqual(base.SUBCLOUD_FIELD_RESULT_LIST, actual_call[1])
 
     def test_backup_restore_no_restore_values(self):
 
         self.client.subcloud_backup_manager.backup_subcloud_restore.\
-            return_value = [SUBCLOUD]
+            return_value = [base.SUBCLOUD_RESOURCE]
 
         actual_call = self.call(
             subcloud_backup_cmd.RestoreSubcloudBackup,
@@ -397,12 +309,12 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
                       '--local-only',
                       '--registry-images',
                       '--sysadmin-password', 'testpassword'])
-        self.assertEqual(DEFAULT_SUBCLOUD_FIELD_RESULT, actual_call[1])
+        self.assertEqual(base.SUBCLOUD_FIELD_RESULT_LIST, actual_call[1])
 
     def test_backup_restore_with_group(self):
 
         self.client.subcloud_backup_manager.backup_subcloud_restore.\
-            return_value = [SUBCLOUD]
+            return_value = [base.SUBCLOUD_RESOURCE]
 
         backupPath = os.path.normpath(os.path.join(os.getcwd(), "test.yaml"))
         with open(backupPath, mode='w') as f:
@@ -414,7 +326,7 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
                       '--with-install',
                       '--restore-values', backupPath,
                       '--sysadmin-password', 'testpassword'])
-        self.assertEqual([DEFAULT_SUBCLOUD_FIELD_RESULT], actual_call[1])
+        self.assertEqual([base.SUBCLOUD_FIELD_RESULT_LIST], actual_call[1])
 
     def test_backup_restore_group_and_subcloud(self):
         self.client.subcloud_backup_manager.backup_subcloud_restore.\
@@ -473,7 +385,7 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
     def test_backup_restore_prompt_ask_for_password(self, getpass):
 
         self.client.subcloud_backup_manager.backup_subcloud_restore.\
-            return_value = [SUBCLOUD]
+            return_value = [base.SUBCLOUD_RESOURCE]
 
         backupPath = os.path.normpath(os.path.join(os.getcwd(), "test.yaml"))
 
@@ -485,7 +397,7 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
             app_args=['--group', 'test',
                       '--local-only',
                       '--restore-values', backupPath])
-        self.assertEqual([DEFAULT_SUBCLOUD_FIELD_RESULT], actual_call[1])
+        self.assertEqual([base.SUBCLOUD_FIELD_RESULT_LIST], actual_call[1])
 
     def test_backup_restore_local_only_registry_images(self):
 
@@ -502,7 +414,7 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
 
     def test_backup_restore_with_install_no_release(self):
         self.client.subcloud_backup_manager.backup_subcloud_restore.\
-            return_value = [SUBCLOUD]
+            return_value = [base.SUBCLOUD_RESOURCE]
 
         backupPath = os.path.normpath(os.path.join(os.getcwd(), "test.yaml"))
         with open(backupPath, mode='w') as f:
@@ -517,11 +429,11 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
                       '--restore-values', backupPath,
                       '--sysadmin-password', 'testpassword'])
 
-        self.assertEqual(DEFAULT_SUBCLOUD_FIELD_RESULT, actual_call[1])
+        self.assertEqual(base.SUBCLOUD_FIELD_RESULT_LIST, actual_call[1])
 
     def test_backup_restore_with_install_with_release(self):
         self.client.subcloud_backup_manager.backup_subcloud_restore.\
-            return_value = [SUBCLOUD]
+            return_value = [base.SUBCLOUD_RESOURCE]
 
         backupPath = os.path.normpath(os.path.join(os.getcwd(), "test.yaml"))
         with open(backupPath, mode='w') as f:
@@ -531,17 +443,17 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
             subcloud_backup_cmd.RestoreSubcloudBackup,
             app_args=['--subcloud', 'subcloud1',
                       '--with-install',
-                      '--release', SOFTWARE_VERSION,
+                      '--release', base.SOFTWARE_VERSION,
                       '--local-only',
                       '--registry-images',
                       '--restore-values', backupPath,
                       '--sysadmin-password', 'testpassword'])
 
-        self.assertEqual(DEFAULT_SUBCLOUD_FIELD_RESULT, actual_call[1])
+        self.assertEqual(base.SUBCLOUD_FIELD_RESULT_LIST, actual_call[1])
 
     def test_backup_restore_no_install_with_release(self):
         self.client.subcloud_backup_manager.backup_subcloud_restore.\
-            return_value = [SUBCLOUD]
+            return_value = [base.SUBCLOUD_RESOURCE]
 
         backupPath = os.path.normpath(os.path.join(os.getcwd(), "test.yaml"))
         with open(backupPath, mode='w') as f:
@@ -551,7 +463,7 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
                               self.call,
                               subcloud_backup_cmd.RestoreSubcloudBackup,
                               app_args=['--subcloud', 'subcloud1',
-                                        '--release', SOFTWARE_VERSION,
+                                        '--release', base.SOFTWARE_VERSION,
                                         '--local-only',
                                         '--registry-images',
                                         '--restore-values', backupPath,

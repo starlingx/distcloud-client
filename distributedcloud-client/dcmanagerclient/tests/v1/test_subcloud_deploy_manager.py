@@ -26,14 +26,13 @@ DEPLOY_PLAYBOOK = 'deployment-manager-playbook.yaml'
 DEPLOY_OVERRIDES = 'deployment-manager-overrides-subcloud.yaml'
 DEPLOY_CHART = 'deployment-manager.tgz'
 DEPLOY_PRESTAGE_IMAGES = 'prebuilt-images.lst'
-SOFTWARE_VERSION = '21.12'
 
 SUBCLOUD_DEPLOY_DICT = {
     'DEPLOY_PLAYBOOK': DEPLOY_PLAYBOOK,
     'DEPLOY_OVERRIDES': DEPLOY_OVERRIDES,
     'DEPLOY_CHART': DEPLOY_CHART,
     'DEPLOY_PRESTAGE_IMAGES': DEPLOY_PRESTAGE_IMAGES,
-    'SOFTWARE_VERSION': SOFTWARE_VERSION
+    'SOFTWARE_VERSION': base.SOFTWARE_VERSION
 }
 
 SUBCLOUD_DEPLOY_ALL = sdm.SubcloudDeploy(
@@ -94,19 +93,19 @@ class TestCLISubcloudDeployManagerV1(base.BaseCommandTest):
                           DEPLOY_OVERRIDES,
                           DEPLOY_CHART,
                           DEPLOY_PRESTAGE_IMAGES,
-                          SOFTWARE_VERSION),
+                          base.SOFTWARE_VERSION),
                          actual_call1[1])
 
         # With "--release" parameter
         actual_call2 = self.call(
             subcloud_deploy_cmd.SubcloudDeployShow,
-            app_args=['--release', SOFTWARE_VERSION])
+            app_args=['--release', base.SOFTWARE_VERSION])
 
         self.assertEqual((DEPLOY_PLAYBOOK,
                           DEPLOY_OVERRIDES,
                           DEPLOY_CHART,
                           DEPLOY_PRESTAGE_IMAGES,
-                          SOFTWARE_VERSION),
+                          base.SOFTWARE_VERSION),
                          actual_call2[1])
 
     def test_subcloud_deploy_upload_all(self):
@@ -133,7 +132,7 @@ class TestCLISubcloudDeployManagerV1(base.BaseCommandTest):
                           DEPLOY_OVERRIDES,
                           DEPLOY_CHART,
                           DEPLOY_PRESTAGE_IMAGES,
-                          SOFTWARE_VERSION),
+                          base.SOFTWARE_VERSION),
                          actual_call[1])
 
     def test_subcloud_deploy_upload_no_prestage(self):
@@ -157,7 +156,7 @@ class TestCLISubcloudDeployManagerV1(base.BaseCommandTest):
                           DEPLOY_OVERRIDES,
                           DEPLOY_CHART,
                           None,
-                          SOFTWARE_VERSION),
+                          base.SOFTWARE_VERSION),
                          actual_call[1])
 
     def test_subcloud_deploy_upload_prestage(self):
@@ -174,7 +173,7 @@ class TestCLISubcloudDeployManagerV1(base.BaseCommandTest):
                           None,
                           None,
                           DEPLOY_PRESTAGE_IMAGES,
-                          SOFTWARE_VERSION),
+                          base.SOFTWARE_VERSION),
                          actual_call[1])
 
     def test_subcloud_deploy_upload_no_playbook(self):
@@ -197,7 +196,7 @@ class TestCLISubcloudDeployManagerV1(base.BaseCommandTest):
                           DEPLOY_OVERRIDES,
                           DEPLOY_CHART,
                           DEPLOY_PRESTAGE_IMAGES,
-                          SOFTWARE_VERSION),
+                          base.SOFTWARE_VERSION),
                          actual_call[1])
 
     def test_subcloud_deploy_upload_no_playbook_overrides(self):
@@ -217,7 +216,7 @@ class TestCLISubcloudDeployManagerV1(base.BaseCommandTest):
                           None,
                           DEPLOY_CHART,
                           DEPLOY_PRESTAGE_IMAGES,
-                          SOFTWARE_VERSION),
+                          base.SOFTWARE_VERSION),
                          actual_call[1])
 
     def test_subcloud_deploy_upload_no_overrides_chart(self):
@@ -233,12 +232,12 @@ class TestCLISubcloudDeployManagerV1(base.BaseCommandTest):
                 app_args=[
                     '--deploy-playbook', file_path_1,
                     '--prestage-images', file_path_2,
-                    '--release', SOFTWARE_VERSION])
+                    '--release', base.SOFTWARE_VERSION])
         self.assertEqual((DEPLOY_PLAYBOOK,
                           None,
                           None,
                           DEPLOY_PRESTAGE_IMAGES,
-                          SOFTWARE_VERSION),
+                          base.SOFTWARE_VERSION),
                          actual_call[1])
 
     @mock.patch('builtins.print')

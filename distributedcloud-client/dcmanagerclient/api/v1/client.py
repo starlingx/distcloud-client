@@ -1,7 +1,7 @@
 # Copyright 2014 - Mirantis, Inc.
 # Copyright 2015 - StackStorm, Inc.
 # Copyright 2016 - Ericsson AB.
-# Copyright (c) 2017-2022 Wind River Systems, Inc.
+# Copyright (c) 2017-2023 Wind River Systems, Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ from dcmanagerclient.api.v1 import alarm_manager as am
 from dcmanagerclient.api.v1 import fw_update_manager as fum
 from dcmanagerclient.api.v1 import kube_rootca_update_manager as krum
 from dcmanagerclient.api.v1 import kube_upgrade_manager as kupm
+from dcmanagerclient.api.v1 import phased_subcloud_deploy_manager as psdm
 from dcmanagerclient.api.v1 import strategy_step_manager as ssm
 from dcmanagerclient.api.v1 import subcloud_backup_manager as sbm
 from dcmanagerclient.api.v1 import subcloud_deploy_manager as sdm
@@ -115,6 +116,8 @@ class Client(object):
         self.strategy_step_manager = \
             ssm.strategy_step_manager(self.http_client)
         self.sw_strategy_manager = sstm.sw_strategy_manager(self.http_client)
+        self.phased_subcloud_deploy_manager = \
+            psdm.phased_subcloud_deploy_manager(self.http_client)
 
 
 def authenticate(dcmanager_url=None, username=None,
