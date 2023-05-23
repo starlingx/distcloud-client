@@ -1,4 +1,4 @@
-# Copyright (c) 2022 Wind River Systems, Inc.
+# Copyright (c) 2022-2023 Wind River Systems, Inc.
 # All Rights Reserved.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,4 +23,5 @@ class sw_prestage_manager(sw_update_manager):
     def __init__(self, http_client):
         super(sw_prestage_manager, self).__init__(
             http_client,
-            update_type=SW_UPDATE_TYPE_PRESTAGE)
+            update_type=SW_UPDATE_TYPE_PRESTAGE,
+            extra_args=['prestage-software-version'])

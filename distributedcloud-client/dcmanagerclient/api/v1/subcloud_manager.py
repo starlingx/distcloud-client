@@ -1,5 +1,5 @@
 # Copyright (c) 2017 Ericsson AB.
-# Copyright (c) 2017-2022 Wind River Systems, Inc.
+# Copyright (c) 2017-2023 Wind River Systems, Inc.
 # All Rights Reserved.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
@@ -98,6 +98,9 @@ class subcloud_manager(base.ResourceManager):
         json_object = get_json(resp)
         resource = list()
         resource.append(self.json_to_resource(json_object))
+        if json_object.get('prestage_software_version'):
+            resource[0].prestage_software_version = \
+                json_object['prestage_software_version']
         return resource
 
     def subcloud_list(self, url):
@@ -118,6 +121,8 @@ class subcloud_manager(base.ResourceManager):
         resource = [subcloud]
         if detail is not None:
             resource[0].oam_floating_ip = json_object['oam_floating_ip']
+            resource[0].prestage_software_version = \
+                json_object['prestage_software_version']
         return resource
 
     def add_subcloud(self, **kwargs):

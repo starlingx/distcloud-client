@@ -1,5 +1,5 @@
 # Copyright (c) 2016 Ericsson AB
-# Copyright (c) 2017-2022 Wind River Systems, Inc.
+# Copyright (c) 2017-2023 Wind River Systems, Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -49,7 +49,8 @@ class Subcloud(Resource):
         'sync_status': 'sync_status',
         'endpoint_sync_status': 'endpoint_sync_status',
         'backup-status': 'backup_status',
-        'backup-datetime': 'backup_datetime'
+        'backup-datetime': 'backup_datetime',
+        'prestage-software-version': 'prestage_software_version'
         }
 
     def __init__(self, manager, subcloud_id, name, description, location,
@@ -59,7 +60,7 @@ class Subcloud(Resource):
                  systemcontroller_gateway_ip, created_at, updated_at,
                  group_id, sync_status="unknown", endpoint_sync_status=None,
                  backup_status=None, backup_datetime=None,
-                 error_description=None):
+                 error_description=None, prestage_software_version=None):
         if endpoint_sync_status is None:
             endpoint_sync_status = {}
         self.manager = manager
@@ -85,6 +86,7 @@ class Subcloud(Resource):
         self.endpoint_sync_status = endpoint_sync_status
         self.backup_status = backup_status
         self.backup_datetime = backup_datetime
+        self.prestage_software_version = prestage_software_version
 
     @classmethod
     def from_payload(cls, manager, payload):

@@ -1,4 +1,4 @@
-# Copyright (c) 2022 Wind River Systems, Inc.
+# Copyright (c) 2022-2023 Wind River Systems, Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -26,6 +26,25 @@ class SwPrestageManagerMixin(object):
         dcmanager_client = self.app.client_manager.sw_prestage_manager
         return dcmanager_client.sw_prestage_manager
 
+    def custom_format_function(self, sw_update_strategy=None):
+        original_fmt_func = super()._get_format_function()
+        columns, data = original_fmt_func(sw_update_strategy)
+
+        if sw_update_strategy.extra_args:
+            prestage_software_version = sw_update_strategy.extra_args.get(
+                "prestage-software-version")
+            if prestage_software_version:
+                # Insert the 'software version' field before the 'state',
+                # 'created_at' and 'updated_at' fields if it's present
+                columns = columns[:-3] + ("prestage software version",) + \
+                    columns[-3:]
+                data = data[:-3] + (prestage_software_version,) + data[-3:]
+
+        return columns, data
+
+    def _get_format_function(self):
+        return self.custom_format_function
+
 
 class CreateSwPrestageStrategy(SwPrestageManagerMixin,
                                sw_update_manager.CreateSwUpdateStrategy):
@@ -48,6 +67,13 @@ class CreateSwPrestageStrategy(SwPrestageManagerMixin,
             required=False,
             help='sysadmin password, will be prompted if not provided.'
         )
+        parser.add_argument(
+            '--release',
+            required=False,
+            help="software release used to prestage the subcloud with. "
+                 "If not specified, the current software release of "
+                 "the subcloud will be used."
+        )
 
         return parser
 
@@ -65,6 +91,9 @@ class CreateSwPrestageStrategy(SwPrestageManagerMixin,
             password = utils.prompt_for_password()
             kwargs_dict["sysadmin_password"] = base64.b64encode(
                 password.encode("utf-8")).decode("utf-8")
+
+        if parsed_args.release is not None:
+            kwargs_dict["release"] = parsed_args.release
 
     # override validate_force_params defined in CreateSwUpdateStrategy
     def validate_force_params(self, parsed_args):
