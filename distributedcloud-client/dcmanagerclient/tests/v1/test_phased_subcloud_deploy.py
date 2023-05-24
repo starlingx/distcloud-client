@@ -8,6 +8,7 @@ import os
 import tempfile
 
 import mock
+import yaml
 
 from dcmanagerclient.commands.v1 import phased_subcloud_deploy_manager as cmd
 from dcmanagerclient.exceptions import DCManagerClientException
@@ -59,6 +60,62 @@ class TestCLIPhasedSubcloudDeployManagerV1(base.BaseCommandTest):
                     '--bootstrap-values', bootstrap_file_path,
                 ])
         self.assertEqual(base.SUBCLOUD_FIELD_RESULT_LIST, actual_call[1])
+
+    @mock.patch('getpass.getpass', return_value='testpassword')
+    def test_install_subcloud(self, getpass):
+        self.client.subcloud_deploy_install.return_value = [
+            base.SUBCLOUD_RESOURCE]
+
+        with tempfile.NamedTemporaryFile(mode='w') as f:
+            yaml.dump(base.FAKE_INSTALL_VALUES, f)
+            file_path = os.path.abspath(f.name)
+            actual_call = self.call(
+                cmd.InstallPhasedSubcloudDeploy, app_args=[
+                    base.NAME, '--install-values', file_path,
+                ])
+        self.assertEqual(base.SUBCLOUD_FIELD_RESULT_LIST, actual_call[1])
+
+    @mock.patch('getpass.getpass', return_value='testpassword')
+    def test_install_subcloud_with_release(self, getpass):
+        self.client.subcloud_deploy_install.return_value = [
+            base.SUBCLOUD_RESOURCE]
+
+        with tempfile.NamedTemporaryFile(mode='w') as f:
+            yaml.dump(base.FAKE_INSTALL_VALUES, f)
+            file_path = os.path.abspath(f.name)
+            actual_call = self.call(
+                cmd.InstallPhasedSubcloudDeploy, app_args=[
+                    base.NAME,
+                    '--install-values', file_path,
+                    '--release', base.SOFTWARE_VERSION,
+                ])
+        self.assertEqual(base.SUBCLOUD_FIELD_RESULT_LIST, actual_call[1])
+
+    @mock.patch('getpass.getpass', return_value='testpassword')
+    def test_install_subcloud_without_install_values(self, getpass):
+        self.client.subcloud_deploy_install.return_value = [
+            base.SUBCLOUD_RESOURCE]
+
+        actual_call = self.call(
+            cmd.InstallPhasedSubcloudDeploy, app_args=[base.NAME])
+
+        self.assertEqual(base.SUBCLOUD_FIELD_RESULT_LIST, actual_call[1])
+
+    @mock.patch('getpass.getpass', return_value='testpassword')
+    def test_install_file_does_not_exist(self, getpass):
+        self.client.subcloud_deploy_install.return_value = [
+            base.SUBCLOUD_RESOURCE]
+        with tempfile.NamedTemporaryFile() as f:
+            file_path = os.path.abspath(f.name)
+
+        e = self.assertRaises(DCManagerClientException,
+                              self.call,
+                              cmd.InstallPhasedSubcloudDeploy,
+                              app_args=[base.NAME,
+                                        '--install-values', file_path]
+                              )
+        self.assertTrue('install-values does not exist'
+                        in str(e))
 
     @mock.patch('getpass.getpass', return_value='testpassword')
     def test_success_configure_subcloud(self, getpass):
