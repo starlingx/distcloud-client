@@ -42,3 +42,9 @@ class phased_subcloud_deploy_manager(base.ResourceManager):
         data = kwargs.get('data')
         files = kwargs.get('files')
         return self._deploy_operation(BASE_URL, files, data)
+
+    def subcloud_deploy_bootstrap(self, subcloud_ref, **kwargs):
+        data = kwargs.get('data')
+        files = kwargs.get('files')
+        url = BASE_URL + "%s/bootstrap" % subcloud_ref
+        return self._deploy_operation(url, files, data, "patch")

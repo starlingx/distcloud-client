@@ -545,6 +545,7 @@ class DCManagerShell(app.App):
             'subcloud-group show': gm.ShowSubcloudGroup,
             'subcloud-group update': gm.UpdateSubcloudGroup,
             'subcloud deploy create': psdm.CreatePhasedSubcloudDeploy,
+            'subcloud deploy bootstrap': psdm.BootstrapPhasedSubcloudDeploy,
             'subcloud-deploy upload': sdm.SubcloudDeployUpload,
             'subcloud-deploy show': sdm.SubcloudDeployShow,
             'alarm summary': am.ListAlarmSummary,
