@@ -24,7 +24,7 @@ class phased_subcloud_deploy_manager(base.ResourceManager):
             raise ValueError("Invalid request method: %s" % method)
         return getattr(self.http_client, method)(url, body, headers)
 
-    def _deploy_operation(self, url, body, data, method="post"):
+    def _deploy_operation(self, url, body, data, method='post'):
         fields = dict()
         for k, v in body.items():
             fields.update({k: (v, open(v, 'rb'),)})
@@ -53,10 +53,18 @@ class phased_subcloud_deploy_manager(base.ResourceManager):
         data = kwargs.get('data')
         files = kwargs.get('files')
         url = BASE_URL + "%s/bootstrap" % subcloud_ref
-        return self._deploy_operation(url, files, data, "patch")
+        return self._deploy_operation(url, files, data, method='patch')
 
     def subcloud_deploy_config(self, subcloud_ref, **kwargs):
         data = kwargs.get('data')
         files = kwargs.get('files')
         url = BASE_URL + "%s/configure" % subcloud_ref
+        return self._deploy_operation(url, files, data, method='patch')
+
+    def subcloud_deploy_abort(self, subcloud_ref, **kwargs):
+        # Currently it's not passed neither data or files to abort,
+        # so we pass an empty dict to use the _deploy_operation function
+        data = kwargs.get('data', {})
+        files = kwargs.get('files', {})
+        url = BASE_URL + "%s/abort" % subcloud_ref
         return self._deploy_operation(url, files, data, method='patch')

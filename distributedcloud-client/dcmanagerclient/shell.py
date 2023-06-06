@@ -544,6 +544,7 @@ class DCManagerShell(app.App):
             'subcloud-group list-subclouds': gm.ListSubcloudGroupSubclouds,
             'subcloud-group show': gm.ShowSubcloudGroup,
             'subcloud-group update': gm.UpdateSubcloudGroup,
+            'subcloud deploy abort': psdm.AbortPhasedSubcloudDeploy,
             'subcloud deploy create': psdm.CreatePhasedSubcloudDeploy,
             'subcloud deploy bootstrap': psdm.BootstrapPhasedSubcloudDeploy,
             'subcloud deploy config': psdm.ConfigPhasedSubcloudDeploy,

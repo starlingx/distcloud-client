@@ -12,6 +12,36 @@ from dcmanagerclient import exceptions
 from dcmanagerclient import utils
 
 
+class AbortPhasedSubcloudDeploy(base.DCManagerShowOne):
+    """Abort the subcloud deploy phase."""
+
+    def _get_format_function(self):
+        return utils.subcloud_detail_format
+
+    def get_parser(self, prog_name):
+        parser = super(AbortPhasedSubcloudDeploy, self).get_parser(prog_name)
+
+        parser.add_argument(
+            'subcloud',
+            help='Name or ID of the subcloud to abort the on-going deployment.'
+        )
+
+        return parser
+
+    def _get_resources(self, parsed_args):
+        subcloud_ref = parsed_args.subcloud
+        dcmanager_client = self.app.client_manager.\
+            phased_subcloud_deploy_manager.phased_subcloud_deploy_manager
+
+        try:
+            return dcmanager_client.subcloud_deploy_abort(
+                subcloud_ref=subcloud_ref)
+        except Exception as e:
+            print(e)
+            error_msg = "Unable to abort subcloud deploy %s" % (subcloud_ref)
+            raise exceptions.DCManagerClientException(error_msg)
+
+
 class CreatePhasedSubcloudDeploy(base.DCManagerShowOne):
     """Creates a new subcloud."""
 
