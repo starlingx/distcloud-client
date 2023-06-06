@@ -121,8 +121,6 @@ class subcloud_manager(base.ResourceManager):
         resource = [subcloud]
         if detail is not None:
             resource[0].oam_floating_ip = json_object['oam_floating_ip']
-            resource[0].prestage_software_version = \
-                json_object['prestage_software_version']
             resource[0].deploy_config_sync_status = \
                 json_object['deploy_config_sync_status']
         return resource
