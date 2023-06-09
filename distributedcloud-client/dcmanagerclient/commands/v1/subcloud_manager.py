@@ -141,15 +141,15 @@ class AddSubcloud(base.DCManagerShowOne):
         parser.add_argument(
             '--bootstrap-values',
             required=True,
-            help='YAML file containing subcloud configuration settings. '
-                 'Can be either a local file path or a URL.'
+            help='YAML file containing parameters required for the bootstrap '
+                 'of the subcloud.'
         )
 
         parser.add_argument(
             '--deploy-config',
             required=False,
-            help='YAML file containing subcloud variables to be passed to the '
-                 'deploy playbook.'
+            help='YAML file containing parameters required for the initial '
+                 'configuration and unlock of the subcloud.'
         )
 
         parser.add_argument(
@@ -599,8 +599,8 @@ class ReconfigSubcloud(base.DCManagerShowOne):
         parser.add_argument(
             '--deploy-config',
             required=True,
-            help='YAML file containing subcloud variables to be passed to the '
-                 'deploy playbook.'
+            help='YAML file containing parameters required for the initial '
+                 'configuration and unlock of the subcloud.'
         )
 
         parser.add_argument(
@@ -661,15 +661,15 @@ class ReinstallSubcloud(base.DCManagerShowOne):
         parser.add_argument(
             '--bootstrap-values',
             required=True,
-            help='YAML file containing subcloud configuration settings. '
-                 'Can be either a local file path or a URL.'
+            help='YAML file containing parameters required for the bootstrap '
+                 'of the subcloud.'
         )
 
         parser.add_argument(
             '--deploy-config',
             required=False,
-            help='YAML file containing subcloud variables to be passed to the '
-                 'deploy playbook.'
+            help='YAML file containing parameters required for the initial '
+                 'configuration and unlock of the subcloud.'
         )
 
         parser.add_argument(
