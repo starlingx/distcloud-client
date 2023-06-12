@@ -25,6 +25,11 @@ from dcmanagerclient import exceptions
 from dcmanagerclient import utils
 
 
+SET_FIELD_VALUE_DICT = {
+    "region_name": None
+}
+
+
 def format(subcloud=None):
     columns = (
         'id',
@@ -119,10 +124,29 @@ def detail_format(subcloud=None):
         if subcloud.deploy_config_sync_status != "unknown":
             columns += ('deploy_config_sync_status',)
             data += (subcloud.deploy_config_sync_status,)
+
+        if subcloud.region_name is not None:
+            columns += ('region_name',)
+            data += (subcloud.region_name,)
     else:
         data = (tuple('<none>' for _ in range(len(columns))),)
 
     return columns, data
+
+
+# The API is returning the region_name field, however only the list
+# and show commands should consider the region name field.
+# The other commands do not required it, since the output should
+# not show that field
+def update_fields_values(result):
+
+    if len(result) == 0:
+        return
+
+    for i in range(len(result)):
+        for field, value in SET_FIELD_VALUE_DICT.items():
+            if field in dir(result[i]):
+                setattr(result[i], field, value)
 
 
 class AddSubcloud(base.DCManagerShowOne):
@@ -133,6 +157,12 @@ class AddSubcloud(base.DCManagerShowOne):
 
     def get_parser(self, prog_name):
         parser = super(AddSubcloud, self).get_parser(prog_name)
+
+        parser.add_argument(
+            '--name',
+            required=False,
+            help='Subcloud name'
+        )
 
         parser.add_argument(
             '--bootstrap-address',
@@ -276,8 +306,18 @@ class AddSubcloud(base.DCManagerShowOne):
         if parsed_args.secondary:
             data['secondary'] = 'true'
 
-        return dcmanager_client.subcloud_manager.add_subcloud(files=files,
-                                                              data=data)
+        if parsed_args.name is not None:
+            if parsed_args.migrate:
+                data['name'] = parsed_args.name
+            else:
+                error_msg = 'The --name option can only be used with \
+                    --migrate option.'
+                raise exceptions.DCManagerClientException(error_msg)
+
+        result = dcmanager_client.subcloud_manager.add_subcloud(files=files,
+                                                                data=data)
+        update_fields_values(result)
+        return result
 
 
 class ListSubcloud(base.DCManagerLister):
@@ -407,8 +447,10 @@ class UnmanageSubcloud(base.DCManagerShowOne):
         kwargs = dict()
         kwargs['management-state'] = 'unmanaged'
         try:
-            return dcmanager_client.subcloud_manager.update_subcloud(
+            result = dcmanager_client.subcloud_manager.update_subcloud(
                 subcloud_ref, files=None, data=kwargs)
+            update_fields_values(result)
+            return result
         except Exception as e:
             print(e)
             error_msg = "Unable to unmanage subcloud %s" % (subcloud_ref)
@@ -447,8 +489,10 @@ class ManageSubcloud(base.DCManagerShowOne):
             kwargs['force'] = 'true'
 
         try:
-            return dcmanager_client.subcloud_manager.update_subcloud(
+            result = dcmanager_client.subcloud_manager.update_subcloud(
                 subcloud_ref, files=None, data=kwargs)
+            update_fields_values(result)
+            return result
         except Exception as e:
             print(e)
             error_msg = "Unable to manage subcloud %s" % (subcloud_ref)
@@ -467,6 +511,12 @@ class UpdateSubcloud(base.DCManagerShowOne):
         parser.add_argument(
             'subcloud',
             help='Name or ID of the subcloud to update.'
+        )
+
+        parser.add_argument(
+            '--name',
+            required=False,
+            help='Name of subcloud.'
         )
 
         parser.add_argument(
@@ -552,6 +602,8 @@ class UpdateSubcloud(base.DCManagerShowOne):
         files = dict()
         data = dict()
 
+        if parsed_args.name:
+            data['name'] = parsed_args.name
         if parsed_args.description:
             data['description'] = parsed_args.description
         if parsed_args.location:
@@ -630,8 +682,10 @@ class UpdateSubcloud(base.DCManagerShowOne):
             raise exceptions.DCManagerClientException(error_msg)
 
         try:
-            return dcmanager_client.subcloud_manager.update_subcloud(
+            result = dcmanager_client.subcloud_manager.update_subcloud(
                 subcloud_ref, files=files, data=data)
+            update_fields_values(result)
+            return result
         except Exception as e:
             print(e)
             error_msg = "Unable to update subcloud %s" % (subcloud_ref)
@@ -892,9 +946,11 @@ class PrestageSubcloud(base.DCManagerShowOne):
             data['release'] = parsed_args.release
 
         try:
-            return dcmanager_client.subcloud_manager.\
+            result = dcmanager_client.subcloud_manager.\
                 prestage_subcloud(
                     subcloud_ref=subcloud_ref, data=data)
+            update_fields_values(result)
+            return result
 
         except Exception as e:
             print(e)
@@ -936,8 +992,10 @@ class MigrateSubcloud(base.DCManagerShowOne):
                 password.encode("utf-8")).decode("utf-8")
 
         try:
-            return dcmanager_client.subcloud_manager.migrate_subcloud(
+            result = dcmanager_client.subcloud_manager.migrate_subcloud(
                 subcloud_ref=subcloud_ref, data=data)
+            update_fields_values(result)
+            return result
 
         except Exception as e:
             print(e)

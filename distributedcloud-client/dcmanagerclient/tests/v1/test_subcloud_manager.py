@@ -63,6 +63,8 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
             base.EXTERNAL_OAM_FLOATING_ADDRESS
         SUBCLOUD_WITH_ADDITIONAL_DETAIL.deploy_config_sync_status =  \
             base.DEPLOY_CONFIG_SYNC_STATUS
+        SUBCLOUD_WITH_ADDITIONAL_DETAIL.region_name = \
+            base.REGION_NAME
         self.client.subcloud_manager.subcloud_additional_details.\
             return_value = [SUBCLOUD_WITH_ADDITIONAL_DETAIL]
         actual_call = self.call(subcloud_cmd.ShowSubcloud,
@@ -70,7 +72,7 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
         self.assertEqual(
             base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID_REHOME_DATA +
             (base.EXTERNAL_OAM_FLOATING_ADDRESS,
-             base.DEPLOY_CONFIG_SYNC_STATUS),
+             base.DEPLOY_CONFIG_SYNC_STATUS, base.REGION_NAME),
             actual_call[1])
 
     def test_show_subcloud_negative(self):
@@ -145,6 +147,70 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
                         '--deploy-config', config_file_path,
                         '--migrate',
                     ])
+
+    @mock.patch('getpass.getpass', return_value='testpassword')
+    def test_add_migrate_subcloud_with_name_change(self, getpass):
+        SUBCLOUD_RESOURCE = copy.\
+            copy(base.SUBCLOUD_RESOURCE_WITH_PEERID_REHOME_DATA)
+        SUBCLOUD_RESOURCE.name = base.NAME_SC2
+        self.client.subcloud_manager.add_subcloud.\
+            return_value = [SUBCLOUD_RESOURCE]
+
+        with tempfile.NamedTemporaryFile(mode='w') as f:
+            yaml.dump(base.FAKE_BOOTSTRAP_VALUES, f)
+            file_path = os.path.abspath(f.name)
+            actual_call = self.call(
+                subcloud_cmd.AddSubcloud, app_args=[
+                    '--bootstrap-address', base.BOOTSTRAP_ADDRESS,
+                    '--bootstrap-values', file_path,
+                    '--migrate',
+                    '--name', base.NAME_SC2
+                ])
+        SUBCLOUD_FIELD_RESULT = base.\
+            SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID_REHOME_DATA
+        RESULT_LIST = list(SUBCLOUD_FIELD_RESULT)
+        RESULT_LIST[1] = base.NAME_SC2
+        self.assertEqual(tuple(RESULT_LIST), actual_call[1])
+
+    def test_rename_subcloud(self):
+        SUBCLOUD_RENAMED = copy.\
+            copy(base.SUBCLOUD_RESOURCE_WITH_PEERID_REHOME_DATA)
+        SUBCLOUD_RENAMED.name = base.NAME_SC2
+        self.client.subcloud_manager.update_subcloud.\
+            return_value = [SUBCLOUD_RENAMED]
+
+        # Rename by id
+        actual_call1 = self.call(
+            subcloud_cmd.UpdateSubcloud,
+            app_args=[base.ID, '--name', base.NAME_SC2])
+        results_by_id = \
+            list(base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID_REHOME_DATA)
+        results_by_id[1] = base.NAME_SC2
+
+        # Rename by name
+        actual_call2 = self.call(
+            subcloud_cmd.UpdateSubcloud,
+            app_args=[base.NAME, '--name', base.NAME_SC2])
+
+        SUBCLOUD_FIELD_RESULT = base.\
+            SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID_REHOME_DATA
+        results_by_name = list(SUBCLOUD_FIELD_RESULT)
+        results_by_name[1] = base.NAME_SC2
+
+        self.assertEqual(tuple(results_by_id), actual_call1[1])
+        self.assertEqual(tuple(results_by_name), actual_call2[1])
+
+    def test_update_fields_values(self):
+        SUBCLOUD_WITH_REGION_DETAIL = copy.copy(base.SUBCLOUD_RESOURCE)
+        SUBCLOUD_WITH_REGION_DETAIL.region_name = base.REGION_NAME
+
+        SUBCLOUD_WITH_REGION_NONE = copy.copy(base.SUBCLOUD_RESOURCE)
+        SUBCLOUD_WITH_REGION_NONE.region_name = None
+
+        subcloud_cmd.update_fields_values([SUBCLOUD_WITH_REGION_DETAIL])
+
+        self.assertEqual(SUBCLOUD_WITH_REGION_DETAIL.region_name,
+                         SUBCLOUD_WITH_REGION_NONE.region_name)
 
     def test_unmanage_subcloud(self):
         self.client.subcloud_manager.update_subcloud.\

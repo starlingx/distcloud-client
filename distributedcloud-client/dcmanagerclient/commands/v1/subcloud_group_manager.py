@@ -18,6 +18,8 @@ from osc_lib.command import command
 
 from dcmanagerclient.commands.v1 import base
 from dcmanagerclient.commands.v1.subcloud_manager import detail_format
+from dcmanagerclient.commands.v1.subcloud_manager \
+    import update_fields_values
 from dcmanagerclient import exceptions
 
 
@@ -159,8 +161,10 @@ class ListSubcloudGroupSubclouds(base.DCManagerLister):
     def _get_resources(self, parsed_args):
         subcloud_group_ref = parsed_args.group
         dcmanager_client = self.app.client_manager.subcloud_group_manager
-        return dcmanager_client.subcloud_group_manager. \
+        result = dcmanager_client.subcloud_group_manager. \
             subcloud_group_list_subclouds(subcloud_group_ref)
+        update_fields_values(result)
+        return result
 
 
 class ShowSubcloudGroup(base.DCManagerShowOne):

@@ -39,6 +39,7 @@ AVAILABILITY_STATUS = 'offline'
 DEPLOY_STATUS = 'not-deployed'
 SYNC_STATUS = 'unknown'
 ERROR_DESCRIPTION = 'No errors present'
+REGION_NAME = '2ec93dfb654846909efe61d1b39dd2ce'
 DEPLOY_STATE_PRE_DEPLOY = 'pre-deploy'
 DEPLOY_STATE_PRE_RESTORE = 'pre-restore'
 MANAGEMENT_SUBNET = '192.168.101.0/24'
@@ -54,6 +55,12 @@ DEPLOY_CONFIG_SYNC_STATUS = 'Deployment: configurations up-to-date'
 SUBCLOUD_REHOME_DATA = None
 BACKUP_STATUS = 'None'
 BACKUP_DATETIME = 'None'
+
+# Useful for subcloud name configuration
+NAME_SC2 = "subcloud2"
+SET_FIELD_VALUE_DICT = {
+    "region_name": None
+}
 
 # Subcloud CLI resource object
 SUBCLOUD_RESOURCE = api_base.Subcloud(

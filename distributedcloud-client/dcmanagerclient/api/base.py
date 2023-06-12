@@ -51,7 +51,8 @@ class Subcloud(Resource):
         'endpoint_sync_status': 'endpoint_sync_status',
         'backup-status': 'backup_status',
         'backup-datetime': 'backup_datetime',
-        'prestage-software-version': 'prestage_software_version'
+        'prestage-software-version': 'prestage_software_version',
+        'region-name': 'region_name'
         }
 
     def __init__(self, manager, subcloud_id, name, description, location,
@@ -62,7 +63,7 @@ class Subcloud(Resource):
                  group_id, sync_status="unknown", endpoint_sync_status=None,
                  backup_status=None, backup_datetime=None,
                  error_description=None, prestage_software_version=None,
-                 rehome_data=None):
+                 rehome_data=None, region_name=None):
         if endpoint_sync_status is None:
             endpoint_sync_status = {}
         self.manager = manager
@@ -91,6 +92,7 @@ class Subcloud(Resource):
         self.backup_status = backup_status
         self.backup_datetime = backup_datetime
         self.prestage_software_version = prestage_software_version
+        self.region_name = region_name
 
     @classmethod
     def from_payload(cls, manager, payload):
