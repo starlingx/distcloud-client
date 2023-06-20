@@ -1,7 +1,7 @@
 # Copyright 2016 - Ericsson AB
 # Copyright 2015 - Huawei Technologies Co. Ltd
 # Copyright 2015 - StackStorm, Inc.
-# Copyright (c) 2017-2022 Wind River Systems, Inc.
+# Copyright (c) 2017-2023 Wind River Systems, Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -102,3 +102,63 @@ def prompt_for_password(password_type='sysadmin'):
                 "\nPassword prompt interrupted."
             )
     return password
+
+
+def subcloud_detail_format(subcloud=None):
+    columns = (
+        'id',
+        'name',
+        'description',
+        'location',
+        'software_version',
+        'management',
+        'availability',
+        'deploy_status',
+        'management_subnet',
+        'management_start_ip',
+        'management_end_ip',
+        'management_gateway_ip',
+        'systemcontroller_gateway_ip',
+        'group_id',
+        'created_at',
+        'updated_at',
+        'backup_status',
+        'backup_datetime'
+    )
+
+    if subcloud:
+        data = (
+            subcloud.subcloud_id,
+            subcloud.name,
+            subcloud.description,
+            subcloud.location,
+            subcloud.software_version,
+            subcloud.management_state,
+            subcloud.availability_status,
+            subcloud.deploy_status,
+            subcloud.management_subnet,
+            subcloud.management_start_ip,
+            subcloud.management_end_ip,
+            subcloud.management_gateway_ip,
+            subcloud.systemcontroller_gateway_ip,
+            subcloud.group_id,
+            subcloud.created_at,
+            subcloud.updated_at,
+            subcloud.backup_status,
+            subcloud.backup_datetime
+        )
+
+        for _listitem, sync_status in enumerate(subcloud.endpoint_sync_status):
+            added_field = (sync_status['endpoint_type'] +
+                           "_sync_status",)
+            added_value = (sync_status['sync_status'],)
+            columns += tuple(added_field)
+            data += tuple(added_value)
+
+        if subcloud.oam_floating_ip != "unavailable":
+            columns += ('oam_floating_ip',)
+            data += (subcloud.oam_floating_ip,)
+    else:
+        data = (('<none>',) * len(columns),)
+
+    return columns, data

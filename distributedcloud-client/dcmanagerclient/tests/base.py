@@ -16,8 +16,122 @@
 #
 
 import json
+
 import mock
+from oslo_utils import timeutils
 import testtools
+
+from dcmanagerclient.api import base as api_base
+
+
+# Subcloud sample data
+BOOTSTRAP_ADDRESS = '10.10.10.12'
+TIME_NOW = timeutils.utcnow().isoformat()
+ID = '1'
+ID_1 = '2'
+NAME = 'subcloud1'
+SYSTEM_MODE = "duplex"
+DESCRIPTION = 'subcloud1 description'
+LOCATION = 'subcloud1 location'
+SOFTWARE_VERSION = '12.34'
+MANAGEMENT_STATE = 'unmanaged'
+AVAILABILITY_STATUS = 'offline'
+DEPLOY_STATUS = 'not-deployed'
+SYNC_STATUS = 'unknown'
+ERROR_DESCRIPTION = 'No errors present'
+DEPLOY_STATE_PRE_DEPLOY = 'pre-deploy'
+DEPLOY_STATE_PRE_RESTORE = 'pre-restore'
+MANAGEMENT_SUBNET = '192.168.101.0/24'
+MANAGEMENT_START_IP = '192.168.101.2'
+MANAGEMENT_END_IP = '192.168.101.50'
+MANAGEMENT_GATEWAY_IP = '192.168.101.1'
+SYSTEMCONTROLLER_GATEWAY_IP = '192.168.204.101'
+EXTERNAL_OAM_SUBNET = "10.10.10.0/24"
+EXTERNAL_OAM_GATEWAY_ADDRESS = "10.10.10.1"
+EXTERNAL_OAM_FLOATING_ADDRESS = "10.10.10.12"
+DEFAULT_SUBCLOUD_GROUP_ID = '1'
+DEPLOY_CONFIG_SYNC_STATUS = 'Deployment: configurations up-to-date'
+BACKUP_STATUS = 'None'
+BACKUP_DATETIME = 'None'
+
+# Subcloud CLI resource object
+SUBCLOUD_RESOURCE = api_base.Subcloud(
+    mock,
+    subcloud_id=ID,
+    name=NAME,
+    description=DESCRIPTION,
+    location=LOCATION,
+    software_version=SOFTWARE_VERSION,
+    management_state=MANAGEMENT_STATE,
+    availability_status=AVAILABILITY_STATUS,
+    deploy_status=DEPLOY_STATUS,
+    error_description=ERROR_DESCRIPTION,
+    management_subnet=MANAGEMENT_SUBNET,
+    management_start_ip=MANAGEMENT_START_IP,
+    management_end_ip=MANAGEMENT_END_IP,
+    management_gateway_ip=MANAGEMENT_GATEWAY_IP,
+    systemcontroller_gateway_ip=SYSTEMCONTROLLER_GATEWAY_IP,
+    created_at=TIME_NOW,
+    updated_at=TIME_NOW,
+    group_id=DEFAULT_SUBCLOUD_GROUP_ID,
+    backup_status=BACKUP_STATUS,
+    backup_datetime=BACKUP_DATETIME)
+
+# Subcloud result values returned from various API calls (e.g. subcloud show)
+SUBCLOUD_FIELD_RESULT_LIST = (
+    ID,
+    NAME,
+    DESCRIPTION,
+    LOCATION,
+    SOFTWARE_VERSION,
+    MANAGEMENT_STATE,
+    AVAILABILITY_STATUS,
+    DEPLOY_STATUS,
+    MANAGEMENT_SUBNET,
+    MANAGEMENT_START_IP,
+    MANAGEMENT_END_IP,
+    MANAGEMENT_GATEWAY_IP,
+    SYSTEMCONTROLLER_GATEWAY_IP,
+    DEFAULT_SUBCLOUD_GROUP_ID,
+    TIME_NOW,
+    TIME_NOW,
+    BACKUP_STATUS,
+    BACKUP_DATETIME
+)
+
+EMPTY_SUBCLOUD_FIELD_RESULT = (('<none>',) * len(SUBCLOUD_FIELD_RESULT_LIST),)
+
+# Subcloud result values returned from subcloud list command
+SUBCLOUD_LIST_RESULT = (
+    ID,
+    NAME,
+    MANAGEMENT_STATE,
+    AVAILABILITY_STATUS,
+    DEPLOY_STATUS,
+    SYNC_STATUS,
+    BACKUP_STATUS,
+    BACKUP_DATETIME
+)
+
+EMPTY_SUBCLOUD_LIST_RESULT = (('<none>',) * len(SUBCLOUD_LIST_RESULT),)
+
+FAKE_BOOTSTRAP_VALUES = {
+    "system_mode": SYSTEM_MODE,
+    "name": NAME,
+    "description": DESCRIPTION,
+    "location": LOCATION,
+    "management_subnet": MANAGEMENT_SUBNET,
+    "management_start_address": MANAGEMENT_START_IP,
+    "management_end_address": MANAGEMENT_END_IP,
+    "management_gateway_address": MANAGEMENT_GATEWAY_IP,
+    "external_oam_subnet": EXTERNAL_OAM_SUBNET,
+    "external_oam_gateway_address": EXTERNAL_OAM_GATEWAY_ADDRESS,
+    "external_oam_floating_address": EXTERNAL_OAM_FLOATING_ADDRESS,
+    'backup_status': BACKUP_STATUS,
+    'backup_datetime': BACKUP_DATETIME,
+    'backup_status': BACKUP_STATUS,
+    'backup_datetime': BACKUP_DATETIME
+}
 
 
 class FakeResponse(object):

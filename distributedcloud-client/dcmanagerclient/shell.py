@@ -1,5 +1,5 @@
 # Copyright 2015 - Ericsson AB.
-# Copyright (c) 2017-2022 Wind River Systems, Inc.
+# Copyright (c) 2017-2023 Wind River Systems, Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@ from dcmanagerclient.commands.v1 import alarm_manager as am
 from dcmanagerclient.commands.v1 import fw_update_manager as fum
 from dcmanagerclient.commands.v1 import kube_rootca_update_manager as krum
 from dcmanagerclient.commands.v1 import kube_upgrade_manager as kupm
+from dcmanagerclient.commands.v1 import phased_subcloud_deploy_manager as psdm
 from dcmanagerclient.commands.v1 import subcloud_backup_manager as sbm
 from dcmanagerclient.commands.v1 import subcloud_deploy_manager as sdm
 from dcmanagerclient.commands.v1 import subcloud_group_manager as gm
@@ -495,7 +496,8 @@ class DCManagerShell(app.App):
                  sw_upgrade_manager=self.client,
                  kube_upgrade_manager=self.client,
                  kube_rootca_update_manager=self.client,
-                 sw_prestage_manager=self.client)
+                 sw_prestage_manager=self.client,
+                 phased_subcloud_deploy_manager=self.client)
         )
         self.client_manager = ClientManager()
 
@@ -542,6 +544,7 @@ class DCManagerShell(app.App):
             'subcloud-group list-subclouds': gm.ListSubcloudGroupSubclouds,
             'subcloud-group show': gm.ShowSubcloudGroup,
             'subcloud-group update': gm.UpdateSubcloudGroup,
+            'subcloud deploy create': psdm.CreatePhasedSubcloudDeploy,
             'subcloud-deploy upload': sdm.SubcloudDeployUpload,
             'subcloud-deploy show': sdm.SubcloudDeployShow,
             'alarm summary': am.ListAlarmSummary,
