@@ -155,8 +155,8 @@ class AddSubcloud(base.DCManagerShowOne):
         parser.add_argument(
             '--install-values',
             required=False,
-            help='YAML file containing subcloud variables required for remote '
-                 'install playbook.'
+            help='YAML file containing parameters required for the '
+                 'remote install of the subcloud.'
         )
 
         parser.add_argument(
@@ -492,8 +492,8 @@ class UpdateSubcloud(base.DCManagerShowOne):
         parser.add_argument(
             '--install-values',
             required=False,
-            help='YAML file containing subcloud variables required for remote '
-                 'install playbook.'
+            help='YAML file containing parameters required for the '
+                 'remote install of the subcloud.'
         )
 
         parser.add_argument(
