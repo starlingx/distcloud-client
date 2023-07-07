@@ -246,12 +246,7 @@ class DeleteSwUpdateStrategy(base.DCManagerShowOne):
         return detail_format
 
     def _get_resources(self, parsed_args):
-        try:
-            return self.get_sw_update_manager().delete_sw_update_strategy()
-        except Exception as e:
-            print(e)
-            error_msg = "Unable to delete sw update strategy"
-            raise exceptions.DCManagerClientException(error_msg)
+        return self.get_sw_update_manager().delete_sw_update_strategy()
 
 
 class ApplySwUpdateStrategy(base.DCManagerShowOne):
@@ -265,12 +260,7 @@ class ApplySwUpdateStrategy(base.DCManagerShowOne):
         return detail_format
 
     def _get_resources(self, parsed_args):
-        try:
-            return self.get_sw_update_manager().apply_sw_update_strategy()
-        except Exception as e:
-            print(e)
-            error_msg = "Unable to apply sw update strategy"
-            raise exceptions.DCManagerClientException(error_msg)
+        return self.get_sw_update_manager().apply_sw_update_strategy()
 
 
 class AbortSwUpdateStrategy(base.DCManagerShowOne):
@@ -284,12 +274,7 @@ class AbortSwUpdateStrategy(base.DCManagerShowOne):
         return detail_format
 
     def _get_resources(self, parsed_args):
-        try:
-            return self.get_sw_update_manager().abort_sw_update_strategy()
-        except Exception as e:
-            print(e)
-            error_msg = "Unable to abort sw update strategy"
-            raise exceptions.DCManagerClientException(error_msg)
+        return self.get_sw_update_manager().abort_sw_update_strategy()
 
 
 class ListSwUpdateStrategyStep(base.DCManagerLister):
