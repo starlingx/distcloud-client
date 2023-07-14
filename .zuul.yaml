@@ -10,16 +10,12 @@
         - stx-distcloud-client-tox-pep8
         - stx-distcloud-client-tox-py39
         - stx-distcloud-client-tox-pylint
-        - stx-distcloud-client-tox-pep8-debian
-        - stx-distcloud-client-tox-pylint-debian
     gate:
       jobs:
         - openstack-tox-linters
         - stx-distcloud-client-tox-pep8
         - stx-distcloud-client-tox-py39
         - stx-distcloud-client-tox-pylint
-        - stx-distcloud-client-tox-pep8-debian
-        - stx-distcloud-client-tox-pylint-debian
     post:
       jobs:
         - stx-distcloud-client-upload-git-mirror
@@ -28,8 +24,9 @@
     name: stx-distcloud-client-tox-py39
     parent: tox-py39
     description: Run py39 for distcloud-client
-    nodeset: ubuntu-focal
+    nodeset: debian-bullseye
     vars:
+      python_version: 3.9
       tox_envlist: py39
       tox_extra_args: -c distributedcloud-client/tox.ini
 
@@ -37,38 +34,20 @@
     name: stx-distcloud-client-tox-pylint
     parent: tox
     description: Run pylint for distcloud-client
-    nodeset: ubuntu-focal
-    vars:
-      tox_envlist: pylint
-      tox_extra_args: -c distributedcloud-client/tox.ini
-
-- job:
-    name: stx-distcloud-client-tox-pylint-debian
-    parent: tox
-    description: Run pylint with py39 for distcloud-client
-    nodeset: ubuntu-focal
+    nodeset: debian-bullseye
     vars:
       python_version: 3.9
-      tox_envlist: pylint_Debian
+      tox_envlist: pylint
       tox_extra_args: -c distributedcloud-client/tox.ini
 
 - job:
     name: stx-distcloud-client-tox-pep8
     parent: tox
     description: Run pep8 for distcloud-client
-    nodeset: ubuntu-bionic
-    vars:
-      tox_envlist: pep8
-      tox_extra_args: -c distributedcloud-client/tox.ini
-
-- job:
-    name: stx-distcloud-client-tox-pep8-debian
-    parent: tox
-    description: Run pep8 for py39 distcloud client
-    nodeset: ubuntu-focal
+    nodeset: debian-bullseye
     vars:
       python_version: 3.9
-      tox_envlist: pep8_Debian
+      tox_envlist: pep8
       tox_extra_args: -c distributedcloud-client/tox.ini
 
 - job:
