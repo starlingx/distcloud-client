@@ -61,8 +61,7 @@ class TestCLIPhasedSubcloudDeployManagerV1(base.BaseCommandTest):
                 ])
         self.assertEqual(base.SUBCLOUD_FIELD_RESULT_LIST, actual_call[1])
 
-    @mock.patch('getpass.getpass', return_value='testpassword')
-    def test_install_subcloud(self, getpass):
+    def test_install_subcloud(self):
         self.client.subcloud_deploy_install.return_value = [
             base.SUBCLOUD_RESOURCE]
 
@@ -75,8 +74,7 @@ class TestCLIPhasedSubcloudDeployManagerV1(base.BaseCommandTest):
                 ])
         self.assertEqual(base.SUBCLOUD_FIELD_RESULT_LIST, actual_call[1])
 
-    @mock.patch('getpass.getpass', return_value='testpassword')
-    def test_install_subcloud_with_release(self, getpass):
+    def test_install_subcloud_with_release(self):
         self.client.subcloud_deploy_install.return_value = [
             base.SUBCLOUD_RESOURCE]
 
@@ -91,8 +89,7 @@ class TestCLIPhasedSubcloudDeployManagerV1(base.BaseCommandTest):
                 ])
         self.assertEqual(base.SUBCLOUD_FIELD_RESULT_LIST, actual_call[1])
 
-    @mock.patch('getpass.getpass', return_value='testpassword')
-    def test_install_subcloud_without_install_values(self, getpass):
+    def test_install_subcloud_without_install_values(self):
         self.client.subcloud_deploy_install.return_value = [
             base.SUBCLOUD_RESOURCE]
 
@@ -101,8 +98,7 @@ class TestCLIPhasedSubcloudDeployManagerV1(base.BaseCommandTest):
 
         self.assertEqual(base.SUBCLOUD_FIELD_RESULT_LIST, actual_call[1])
 
-    @mock.patch('getpass.getpass', return_value='testpassword')
-    def test_install_file_does_not_exist(self, getpass):
+    def test_install_file_does_not_exist(self):
         self.client.subcloud_deploy_install.return_value = [
             base.SUBCLOUD_RESOURCE]
         with tempfile.NamedTemporaryFile() as f:
@@ -117,8 +113,7 @@ class TestCLIPhasedSubcloudDeployManagerV1(base.BaseCommandTest):
         self.assertTrue('install-values does not exist'
                         in str(e))
 
-    @mock.patch('getpass.getpass', return_value='testpassword')
-    def test_success_configure_subcloud(self, getpass):
+    def test_configure_subcloud(self):
         self.client.subcloud_deploy_config.return_value = [
             base.SUBCLOUD_RESOURCE]
 
@@ -129,8 +124,7 @@ class TestCLIPhasedSubcloudDeployManagerV1(base.BaseCommandTest):
                 app_args=[base.NAME, '--deploy-config', file_path])
         self.assertEqual(base.SUBCLOUD_FIELD_RESULT_LIST, actual_call[1])
 
-    @mock.patch('getpass.getpass', return_value='testpassword')
-    def test_configure_file_does_not_exist(self, getpass):
+    def test_configure_file_does_not_exist(self):
         self.client.subcloud_deploy_config.return_value = [
             base.SUBCLOUD_RESOURCE]
 
@@ -143,3 +137,11 @@ class TestCLIPhasedSubcloudDeployManagerV1(base.BaseCommandTest):
                               app_args=[base.NAME,
                                         '--deploy-config', file_path])
         self.assertTrue('deploy-config file does not exist' in str(e))
+
+    def test_abort_subcloud(self):
+        self.client.subcloud_deploy_abort.return_value = [
+            base.SUBCLOUD_RESOURCE]
+        actual_call = self.call(
+            cmd.AbortPhasedSubcloudDeploy,
+            app_args=[base.NAME])
+        self.assertEqual(base.SUBCLOUD_FIELD_RESULT_LIST, actual_call[1])
