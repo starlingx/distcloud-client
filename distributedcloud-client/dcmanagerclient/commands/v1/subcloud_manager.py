@@ -739,6 +739,134 @@ class ReinstallSubcloud(base.DCManagerShowOne):
             raise exceptions.DCManagerClientException(msg)
 
 
+class RedeploySubcloud(base.DCManagerShowOne):
+    """Redeploy a subcloud."""
+
+    def _get_format_function(self):
+        return detail_format
+
+    def get_parser(self, prog_name):
+        parser = super(RedeploySubcloud, self).get_parser(prog_name)
+
+        parser.add_argument(
+            'subcloud',
+            help='Name or ID of the subcloud to redeploy.'
+        )
+
+        parser.add_argument(
+            '--install-values',
+            required=False,
+            help='YAML file containing parameters required for the '
+                 'remote install of the subcloud.'
+        )
+
+        parser.add_argument(
+            '--bootstrap-values',
+            required=False,
+            help='YAML file containing subcloud configuration settings. '
+                 'Can be either a local file path or a URL.'
+        )
+
+        parser.add_argument(
+            '--deploy-config',
+            required=False,
+            help='YAML file containing subcloud variables to be passed to the '
+                 'deploy playbook.'
+        )
+
+        parser.add_argument(
+            '--sysadmin-password',
+            required=False,
+            help='sysadmin password of the subcloud to be configured, '
+                 'if not provided you will be prompted.'
+        )
+
+        parser.add_argument(
+            '--bmc-password',
+            required=False,
+            help='bmc password of the subcloud to be configured, if not '
+                 'provided you will be prompted. This parameter is only'
+                 ' valid if the --install-values are specified.'
+        )
+
+        parser.add_argument(
+            '--release',
+            required=False,
+            help='software release used to install, bootstrap and/or deploy '
+                 'the subcloud with. If not specified, the current software '
+                 'release of the system controller will be used.'
+        )
+        return parser
+
+    def _get_resources(self, parsed_args):
+        subcloud_ref = parsed_args.subcloud
+        dcmanager_client = self.app.client_manager.subcloud_manager
+        files = dict()
+        data = dict()
+
+        # Get the install values yaml file
+        if parsed_args.install_values is not None:
+            if not os.path.isfile(parsed_args.install_values):
+                error_msg = "install-values does not exist: %s" % \
+                            parsed_args.install_values
+                raise exceptions.DCManagerClientException(error_msg)
+            files['install_values'] = parsed_args.install_values
+
+        # Get the bootstrap values yaml file
+        if parsed_args.bootstrap_values is not None:
+            if not os.path.isfile(parsed_args.bootstrap_values):
+                error_msg = "bootstrap-values does not exist: %s" % \
+                            parsed_args.bootstrap_values
+                raise exceptions.DCManagerClientException(error_msg)
+            files['bootstrap_values'] = parsed_args.bootstrap_values
+
+        # Get the deploy config yaml file
+        if parsed_args.deploy_config is not None:
+            if not os.path.isfile(parsed_args.deploy_config):
+                error_msg = "deploy-config does not exist: %s" % \
+                            parsed_args.deploy_config
+                raise exceptions.DCManagerClientException(error_msg)
+            files['deploy_config'] = parsed_args.deploy_config
+
+        # Prompt the user for the subcloud's password if it isn't provided
+        if parsed_args.sysadmin_password is not None:
+            data['sysadmin_password'] = base64.b64encode(
+                parsed_args.sysadmin_password.encode("utf-8"))
+        else:
+            password = utils.prompt_for_password()
+            data["sysadmin_password"] = base64.b64encode(
+                password.encode("utf-8"))
+
+        if parsed_args.install_values:
+            if parsed_args.bmc_password:
+                data['bmc_password'] = base64.b64encode(
+                    parsed_args.bmc_password.encode("utf-8"))
+            else:
+                password = utils.prompt_for_password('bmc')
+                data["bmc_password"] = base64.b64encode(
+                    password.encode("utf-8"))
+
+        if parsed_args.release is not None:
+            data['release'] = parsed_args.release
+
+        # Require user to type redeploy to confirm
+        print("WARNING: This will redeploy the subcloud. "
+              "All applications and data on the subcloud will be lost.")
+        confirm = six.moves.input(
+            "Please type \"redeploy\" to confirm: ").strip().lower()
+        if confirm == 'redeploy':
+            try:
+                return dcmanager_client.subcloud_manager.redeploy_subcloud(
+                    subcloud_ref=subcloud_ref, files=files, data=data)
+            except Exception as e:
+                print(e)
+                error_msg = "Unable to redeploy subcloud %s" % (subcloud_ref)
+                raise exceptions.DCManagerClientException(error_msg)
+        else:
+            msg = "Subcloud %s will not be redeployed" % (subcloud_ref)
+            raise exceptions.DCManagerClientException(msg)
+
+
 class RestoreSubcloud(base.DCManagerShowOne):
     """Restore a subcloud."""
 
