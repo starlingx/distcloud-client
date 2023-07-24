@@ -138,6 +138,14 @@ class TestCLIPhasedSubcloudDeployManagerV1(base.BaseCommandTest):
                                         '--deploy-config', file_path])
         self.assertTrue('deploy-config file does not exist' in str(e))
 
+    def test_complete_subcloud_deployment(self):
+        self.client.subcloud_deploy_complete.return_value = [
+            base.SUBCLOUD_RESOURCE]
+        actual_call = self.call(
+            cmd.CompletePhasedSubcloudDeploy,
+            app_args=[base.NAME])
+        self.assertEqual(base.SUBCLOUD_FIELD_RESULT_LIST, actual_call[1])
+
     def test_abort_subcloud(self):
         self.client.subcloud_deploy_abort.return_value = [
             base.SUBCLOUD_RESOURCE]

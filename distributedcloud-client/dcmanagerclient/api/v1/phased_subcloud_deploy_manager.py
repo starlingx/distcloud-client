@@ -61,6 +61,10 @@ class phased_subcloud_deploy_manager(base.ResourceManager):
         url = BASE_URL + "%s/configure" % subcloud_ref
         return self._deploy_operation(url, files, data, method='patch')
 
+    def subcloud_deploy_complete(self, subcloud_ref):
+        url = BASE_URL + "%s/complete" % subcloud_ref
+        return self._deploy_operation(url, {}, {}, method='patch')
+
     def subcloud_deploy_abort(self, subcloud_ref, **kwargs):
         # Currently it's not passed neither data or files to abort,
         # so we pass an empty dict to use the _deploy_operation function

@@ -549,6 +549,7 @@ class DCManagerShell(app.App):
             'subcloud deploy bootstrap': psdm.BootstrapPhasedSubcloudDeploy,
             'subcloud deploy config': psdm.ConfigPhasedSubcloudDeploy,
             'subcloud deploy install': psdm.InstallPhasedSubcloudDeploy,
+            'subcloud deploy complete': psdm.CompletePhasedSubcloudDeploy,
             'subcloud deploy resume': psdm.PhasedSubcloudDeployResume,
             'subcloud deploy upload': sdm.SubcloudDeployUpload,
             'subcloud deploy show': sdm.SubcloudDeployShow,

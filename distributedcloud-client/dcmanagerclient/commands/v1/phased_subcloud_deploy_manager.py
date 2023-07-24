@@ -490,3 +490,33 @@ class ConfigPhasedSubcloudDeploy(base.DCManagerShowOne):
             print(e)
             error_msg = "Unable to configure subcloud %s" % (subcloud_ref)
             raise exceptions.DCManagerClientException(error_msg)
+
+
+class CompletePhasedSubcloudDeploy(base.DCManagerShowOne):
+    """Complete a subcloud deployment."""
+
+    def _get_format_function(self):
+        return utils.subcloud_detail_format
+
+    def get_parser(self, prog_name):
+        parser = super().get_parser(prog_name)
+
+        parser.add_argument(
+            'subcloud',
+            help='Name or ID of the subcloud to complete the deployment.'
+        )
+
+        return parser
+
+    def _get_resources(self, parsed_args):
+        subcloud_ref = parsed_args.subcloud
+        dcmanager_client = self.app.client_manager.\
+            phased_subcloud_deploy_manager.phased_subcloud_deploy_manager
+
+        try:
+            return dcmanager_client.subcloud_deploy_complete(subcloud_ref)
+        except Exception as e:
+            print(e)
+            error_msg = "Unable to complete the deployment of subcloud %s" % (
+                subcloud_ref)
+            raise exceptions.DCManagerClientException(error_msg)
