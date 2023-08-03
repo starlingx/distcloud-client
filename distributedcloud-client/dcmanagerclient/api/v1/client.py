@@ -37,6 +37,7 @@ from dcmanagerclient.api.v1 import sw_prestage_manager as spr
 from dcmanagerclient.api.v1 import sw_strategy_manager as sstm
 from dcmanagerclient.api.v1 import sw_update_options_manager as suom
 from dcmanagerclient.api.v1 import sw_upgrade_manager as supm
+from dcmanagerclient.api.v1 import system_peer_manager as sp
 
 _DEFAULT_DCMANAGER_URL = "http://localhost:8119/v1.0"
 
@@ -103,6 +104,7 @@ class Client(object):
             self.http_client)
         self.subcloud_deploy_manager = sdm.subcloud_deploy_manager(
             self.http_client)
+        self.system_peer_manager = sp.system_peer_manager(self.http_client)
         self.alarm_manager = am.alarm_manager(self.http_client)
         self.fw_update_manager = fum.fw_update_manager(self.http_client)
         self.kube_rootca_update_manager = \
