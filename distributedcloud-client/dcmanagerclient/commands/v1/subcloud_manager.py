@@ -644,60 +644,10 @@ class ReconfigSubcloud(base.DCManagerShowOne):
     def _get_format_function(self):
         return detail_format
 
-    def get_parser(self, prog_name):
-        parser = super(ReconfigSubcloud, self).get_parser(prog_name)
-
-        parser.add_argument(
-            'subcloud',
-            help='Name or ID of the subcloud to update.'
-        )
-
-        parser.add_argument(
-            '--deploy-config',
-            required=True,
-            help='YAML file containing parameters required for the initial '
-                 'configuration and unlock of the subcloud.'
-        )
-
-        parser.add_argument(
-            '--sysadmin-password',
-            required=False,
-            help='sysadmin password of the subcloud to be configured, '
-                 'if not provided you will be prompted.'
-        )
-
-        return parser
-
     def _get_resources(self, parsed_args):
-        subcloud_ref = parsed_args.subcloud
-        dcmanager_client = self.app.client_manager.subcloud_manager
-        files = dict()
-        data = dict()
-
-        # Get the deploy config yaml file
-        if parsed_args.deploy_config is not None:
-            if not os.path.isfile(parsed_args.deploy_config):
-                error_msg = "deploy-config file does not exist: %s" % \
-                            parsed_args.deploy_config
-                raise exceptions.DCManagerClientException(error_msg)
-            files['deploy_config'] = parsed_args.deploy_config
-
-        # Prompt the user for the subcloud's password if it isn't provided
-        if parsed_args.sysadmin_password is not None:
-            data['sysadmin_password'] = base64.b64encode(
-                parsed_args.sysadmin_password.encode("utf-8"))
-        else:
-            password = utils.prompt_for_password()
-            data["sysadmin_password"] = base64.b64encode(
-                password.encode("utf-8"))
-
-        try:
-            return dcmanager_client.subcloud_manager.reconfigure_subcloud(
-                subcloud_ref=subcloud_ref, files=files, data=data)
-        except Exception as e:
-            print(e)
-            error_msg = "Unable to reconfigure subcloud %s" % (subcloud_ref)
-            raise exceptions.DCManagerClientException(error_msg)
+        deprecation_msg = ("This command has been deprecated. Please use "
+                           "'subcloud deploy config' instead.")
+        raise exceptions.DCManagerClientException(deprecation_msg)
 
 
 class ReinstallSubcloud(base.DCManagerShowOne):
@@ -706,93 +656,10 @@ class ReinstallSubcloud(base.DCManagerShowOne):
     def _get_format_function(self):
         return detail_format
 
-    def get_parser(self, prog_name):
-        parser = super(ReinstallSubcloud, self).get_parser(prog_name)
-
-        parser.add_argument(
-            'subcloud',
-            help='Name or ID of the subcloud to reinstall.'
-        )
-
-        parser.add_argument(
-            '--bootstrap-values',
-            required=True,
-            help='YAML file containing parameters required for the bootstrap '
-                 'of the subcloud.'
-        )
-
-        parser.add_argument(
-            '--deploy-config',
-            required=False,
-            help='YAML file containing parameters required for the initial '
-                 'configuration and unlock of the subcloud.'
-        )
-
-        parser.add_argument(
-            '--sysadmin-password',
-            required=False,
-            help='sysadmin password of the subcloud to be configured, '
-                 'if not provided you will be prompted.'
-        )
-
-        parser.add_argument(
-            '--release',
-            required=False,
-            help='software release used to install, bootstrap and/or deploy '
-                 'the subcloud with. If not specified, the current software '
-                 'release of the system controller will be used.'
-        )
-        return parser
-
     def _get_resources(self, parsed_args):
-        subcloud_ref = parsed_args.subcloud
-        dcmanager_client = self.app.client_manager.subcloud_manager
-        files = dict()
-        data = dict()
-
-        # Get the bootstrap values yaml file
-        if not os.path.isfile(parsed_args.bootstrap_values):
-            error_msg = "bootstrap-values does not exist: %s" % \
-                        parsed_args.bootstrap_values
-            raise exceptions.DCManagerClientException(error_msg)
-        files['bootstrap_values'] = parsed_args.bootstrap_values
-
-        # Get the deploy config yaml file
-        if parsed_args.deploy_config is not None:
-            if not os.path.isfile(parsed_args.deploy_config):
-                error_msg = "deploy-config does not exist: %s" % \
-                            parsed_args.deploy_config
-                raise exceptions.DCManagerClientException(error_msg)
-            files['deploy_config'] = parsed_args.deploy_config
-
-        # Prompt the user for the subcloud's password if it isn't provided
-        if parsed_args.sysadmin_password is not None:
-            data['sysadmin_password'] = base64.b64encode(
-                parsed_args.sysadmin_password.encode("utf-8"))
-        else:
-            password = utils.prompt_for_password()
-            data["sysadmin_password"] = base64.b64encode(
-                password.encode("utf-8"))
-
-        if parsed_args.release is not None:
-            data['release'] = parsed_args.release
-
-        # Require user to type reinstall to confirm
-        print("WARNING: This will reinstall the subcloud. "
-              "All applications and data on the subcloud will be lost.")
-        confirm = six.moves.input(
-            "Please type \"reinstall\" to confirm:").strip().lower()
-        if confirm == 'reinstall':
-            try:
-                return dcmanager_client.subcloud_manager.reinstall_subcloud(
-                    subcloud_ref=subcloud_ref, files=files, data=data)
-            except Exception as e:
-                print(e)
-                error_msg = "Unable to reinstall subcloud %s" % (subcloud_ref)
-                raise exceptions.DCManagerClientException(error_msg)
-        else:
-            msg = "Subcloud %s will not be reinstalled" % (subcloud_ref)
-            raise exceptions.DCManagerClientException(msg)
+        deprecation_msg = ("This command has been deprecated. Please use "
+                           "'subcloud redeploy' instead.")
+        raise exceptions.DCManagerClientException(deprecation_msg)
 
 
 class RedeploySubcloud(base.DCManagerShowOne):
