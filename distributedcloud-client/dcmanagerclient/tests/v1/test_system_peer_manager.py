@@ -1,3 +1,4 @@
+#
 # Copyright (c) 2023 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
@@ -8,12 +9,14 @@ import mock
 
 from oslo_utils import timeutils
 
+from dcmanagerclient.api.v1.subcloud_peer_group_manager \
+    import SubcloudPeerGroup as Peergroup
 from dcmanagerclient.api.v1 import system_peer_manager as spm
 from dcmanagerclient.commands.v1 \
     import system_peer_manager as system_peer_cmd
 from dcmanagerclient.tests import base
 
-
+# Sample System Peer data
 ID = '2'
 SYSTEM_PEER_UUID = 'test1234-0dfd-46cd-9a93-e3c2b74ef20f'
 SYSTEM_PEER_NAME = 'SystemPeer1'
@@ -29,6 +32,17 @@ HEARTBEAT_STATUS = 'alive'
 PEER_CONTROLLER_GATEWAY_IP = '128.128.128.1'
 TIME_NOW = timeutils.utcnow().isoformat()
 NEW_PEER_CONTROLLER_GATEWAY_IP = '128.1.1.1'
+
+# Sample Subcloud Peer Group data
+PG_ID = "1"
+PG_NAME = "SubcloudPeerGroup1"
+PG_GROUP_PRIORITY = "99"
+PG_GROUP_STATE = "disabled"
+PG_MAX_SUBCLOUD_REHOMING = "10"
+PG_SYSTEM_LEADER_ID = "d9dea83f-f271-470d-9cce-44b0162a800b"
+PG_SYSTEM_LEADER_NAME = "DC-1"
+PG_CREATED_AT = TIME_NOW
+PG_UPDATED_AT = TIME_NOW
 
 SYSTEM_PEER_DICT = {
     'PEER_ID': ID,
@@ -47,7 +61,7 @@ SYSTEM_PEER_DICT = {
     'UPDATED_AT': TIME_NOW
 }
 
-
+# System Peer CLI resource object
 SYSTEM_PEER = spm.SystemPeer(
     mock,
     peer_id=SYSTEM_PEER_DICT['PEER_ID'],
@@ -68,6 +82,27 @@ SYSTEM_PEER = spm.SystemPeer(
     created_at=SYSTEM_PEER_DICT['CREATED_AT'],
     updated_at=SYSTEM_PEER_DICT['UPDATED_AT']
 )
+
+# Subcloud Peer Group CLI resource object
+PEER_GROUP = Peergroup(
+    mock,
+    PG_ID,
+    PG_NAME,
+    PG_GROUP_PRIORITY,
+    PG_GROUP_STATE,
+    PG_SYSTEM_LEADER_ID,
+    PG_SYSTEM_LEADER_NAME,
+    PG_MAX_SUBCLOUD_REHOMING,
+    PG_CREATED_AT,
+    PG_UPDATED_AT
+)
+PG_TUPLE = (PG_ID,
+            PG_NAME,
+            PG_GROUP_PRIORITY,
+            PG_GROUP_STATE,
+            PG_SYSTEM_LEADER_ID,
+            PG_SYSTEM_LEADER_NAME,
+            PG_MAX_SUBCLOUD_REHOMING)
 
 
 class TestCLISystemPeerManagerV1(base.BaseCommandTest):
@@ -129,6 +164,14 @@ class TestCLISystemPeerManagerV1(base.BaseCommandTest):
                                 app_args=[ID])
         self.assertEqual((tuple('<none>' for _ in range(14)),),
                          actual_call[1])
+
+    def test_list_system_peer_subcloud_peer_groups(self):
+        self.client.system_peer_manager.\
+            system_peer_list_peer_groups.return_value = [PEER_GROUP]
+        actual_call = self.call(
+            system_peer_cmd.ListSystemPeerSubcloudPeerGroups,
+            app_args=[ID])
+        self.assertEqual([PG_TUPLE], actual_call[1])
 
     def test_add_system_peer(self):
         self.client.system_peer_manager.add_system_peer.\

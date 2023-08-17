@@ -26,6 +26,7 @@ from dcmanagerclient.api.v1 import alarm_manager as am
 from dcmanagerclient.api.v1 import fw_update_manager as fum
 from dcmanagerclient.api.v1 import kube_rootca_update_manager as krum
 from dcmanagerclient.api.v1 import kube_upgrade_manager as kupm
+from dcmanagerclient.api.v1 import peer_group_association_manager as pgam
 from dcmanagerclient.api.v1 import phased_subcloud_deploy_manager as psdm
 from dcmanagerclient.api.v1 import strategy_step_manager as ssm
 from dcmanagerclient.api.v1 import subcloud_backup_manager as sbm
@@ -104,11 +105,14 @@ class Client(object):
         self.subcloud_peer_group_manager = \
             pm.subcloud_peer_group_manager(self.http_client,
                                            self.subcloud_manager)
+        self.peer_group_association_manager = \
+            pgam.peer_group_association_manager(self.http_client)
         self.subcloud_backup_manager = sbm.subcloud_backup_manager(
             self.http_client)
         self.subcloud_deploy_manager = sdm.subcloud_deploy_manager(
             self.http_client)
-        self.system_peer_manager = sp.system_peer_manager(self.http_client)
+        self.system_peer_manager = sp.system_peer_manager(
+            self.http_client, self.subcloud_peer_group_manager)
         self.alarm_manager = am.alarm_manager(self.http_client)
         self.fw_update_manager = fum.fw_update_manager(self.http_client)
         self.kube_rootca_update_manager = \

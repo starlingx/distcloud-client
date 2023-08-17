@@ -36,6 +36,7 @@ from dcmanagerclient.commands.v1 import alarm_manager as am
 from dcmanagerclient.commands.v1 import fw_update_manager as fum
 from dcmanagerclient.commands.v1 import kube_rootca_update_manager as krum
 from dcmanagerclient.commands.v1 import kube_upgrade_manager as kupm
+from dcmanagerclient.commands.v1 import peer_group_association_manager as pgam
 from dcmanagerclient.commands.v1 import phased_subcloud_deploy_manager as psdm
 from dcmanagerclient.commands.v1 import subcloud_backup_manager as sbm
 from dcmanagerclient.commands.v1 import subcloud_deploy_manager as sdm
@@ -501,7 +502,8 @@ class DCManagerShell(app.App):
                  kube_rootca_update_manager=self.client,
                  sw_prestage_manager=self.client,
                  phased_subcloud_deploy_manager=self.client,
-                 subcloud_peer_group_manager=self.client)
+                 subcloud_peer_group_manager=self.client,
+                 peer_group_association_manager=self.client)
         )
         self.client_manager = ClientManager()
 
@@ -575,6 +577,14 @@ class DCManagerShell(app.App):
             'system-peer show': sp.ShowSystemPeer,
             'system-peer update': sp.UpdateSystemPeer,
             'system-peer delete': sp.DeleteSystemPeer,
+            'system-peer list-subcloud-peer-groups':
+            sp.ListSystemPeerSubcloudPeerGroups,
+            'peer-group-association add': pgam.AddPeerGroupAssociation,
+            'peer-group-association list': pgam.ListPeerGroupAssociation,
+            'peer-group-association show': pgam.ShowPeerGroupAssociation,
+            'peer-group-association sync': pgam.SyncPeerGroupAssociation,
+            'peer-group-association update': pgam.UpdatePeerGroupAssociation,
+            'peer-group-association delete': pgam.DeletePeerGroupAssociation,
             'alarm summary': am.ListAlarmSummary,
             'fw-update-strategy create': fum.CreateFwUpdateStrategy,
             'fw-update-strategy delete': fum.DeleteFwUpdateStrategy,

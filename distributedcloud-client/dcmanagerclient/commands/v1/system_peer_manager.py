@@ -1,3 +1,4 @@
+#
 # Copyright (c) 2023 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
@@ -9,6 +10,34 @@ from osc_lib.command import command
 from dcmanagerclient.commands.v1 import base
 from dcmanagerclient import exceptions
 from dcmanagerclient import utils
+
+
+def group_format(subcloud_peer_group=None):
+    columns = (
+        'id',
+        'peer_group_name',
+        'group_priority',
+        'group_state',
+        'system_leader_id',
+        'system_leader_name',
+        'max_subcloud_rehoming',
+    )
+
+    if subcloud_peer_group:
+        data = (
+            subcloud_peer_group.id,
+            subcloud_peer_group.peer_group_name,
+            subcloud_peer_group.group_priority,
+            subcloud_peer_group.group_state,
+            subcloud_peer_group.system_leader_id,
+            subcloud_peer_group.system_leader_name,
+            subcloud_peer_group.max_subcloud_rehoming,
+        )
+
+    else:
+        data = (tuple('<none>' for _ in range(len(columns))),)
+
+    return columns, data
 
 
 def peer_format(system_peer=None):
@@ -230,6 +259,29 @@ class ListSystemPeer(base.DCManagerLister):
     def _get_resources(self, parsed_args):
         dcmanager_client = self.app.client_manager.system_peer_manager
         return dcmanager_client.system_peer_manager.list_system_peers()
+
+
+class ListSystemPeerSubcloudPeerGroups(base.DCManagerLister):
+    """List Subcloud Peer Groups referencing a System Peer."""
+
+    def _get_format_function(self):
+        return group_format
+
+    def get_parser(self, prog_name):
+        parser = super(ListSystemPeerSubcloudPeerGroups,
+                       self).get_parser(prog_name)
+        parser.add_argument(
+            'peer',
+            help='Name or ID or UUID of system peer to list \
+            associated subcloud peer groups.'
+        )
+        return parser
+
+    def _get_resources(self, parsed_args):
+        system_peer_ref = parsed_args.peer
+        dcmanager_client = self.app.client_manager.system_peer_manager
+        return dcmanager_client.system_peer_manager. \
+            system_peer_list_peer_groups(system_peer_ref)
 
 
 class ShowSystemPeer(base.DCManagerShowOne):

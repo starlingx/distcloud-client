@@ -1,3 +1,4 @@
+#
 # Copyright (c) 2023 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
@@ -49,6 +50,10 @@ class SystemPeer(base.Resource):
 
 class system_peer_manager(base.ResourceManager):
     resource_class = SystemPeer
+
+    def __init__(self, http_client, subcloud_peer_group_manager):
+        super(system_peer_manager, self).__init__(http_client)
+        self.subcloud_peer_group_manager = subcloud_peer_group_manager
 
     def _json_to_resource(self, json_object):
         return self.resource_class(
@@ -111,6 +116,18 @@ class system_peer_manager(base.ResourceManager):
         resource.append(self._json_to_resource(json_object))
         return resource
 
+    def _list_peer_groups_for_system_peer(self, url):
+        resp = self.http_client.get(url)
+        if resp.status_code != 200:
+            self._raise_api_exception(resp)
+        json_response_key = get_json(resp)
+        json_objects = json_response_key['subcloud_peer_groups']
+        resource = list()
+        for json_object in json_objects:
+            resource.append(
+                self.subcloud_peer_group_manager.json_to_resource(json_object))
+        return resource
+
     def add_system_peer(self, **kwargs):
         data = kwargs
         url = BASE_URL
@@ -132,3 +149,7 @@ class system_peer_manager(base.ResourceManager):
         data = kwargs
         url = BASE_URL + system_peer_ref
         return self.system_peer_update(url, data)
+
+    def system_peer_list_peer_groups(self, system_peer_ref):
+        url = BASE_URL + '%s/subcloud-peer-groups' % system_peer_ref
+        return self._list_peer_groups_for_system_peer(url)
