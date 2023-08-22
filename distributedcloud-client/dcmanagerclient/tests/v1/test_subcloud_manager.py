@@ -267,6 +267,71 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
                         in str(e))
 
     @mock.patch('getpass.getpass', return_value='testpassword')
+    @mock.patch('six.moves.input', return_value='redeploy')
+    def test_redeploy_subcloud(self, mock_input, getpass):
+        self.client.subcloud_manager.redeploy_subcloud. \
+            return_value = [base.SUBCLOUD_RESOURCE]
+
+        with tempfile.NamedTemporaryFile(mode='w') as bootstrap_file,\
+            tempfile.NamedTemporaryFile(mode='w') as config_file,\
+            tempfile.NamedTemporaryFile(mode='w') as install_file:
+
+            bootstrap_file_path = os.path.abspath(bootstrap_file.name)
+            config_file_path = os.path.abspath(config_file.name)
+            install_file_path = os.path.abspath(install_file.name)
+
+            actual_call = self.call(
+                subcloud_cmd.RedeploySubcloud, app_args=[
+                    base.NAME,
+                    '--bootstrap-values', bootstrap_file_path,
+                    '--install-values', install_file_path,
+                    '--deploy-config', config_file_path,
+                    '--release', base.SOFTWARE_VERSION,
+                ])
+        self.assertEqual(base.SUBCLOUD_FIELD_RESULT_LIST, actual_call[1])
+
+    @mock.patch('getpass.getpass', return_value='testpassword')
+    @mock.patch('six.moves.input', return_value='redeploy')
+    def test_redeploy_subcloud_no_parameters(self, mock_input, getpass):
+        self.client.subcloud_manager.redeploy_subcloud.\
+            return_value = [base.SUBCLOUD_RESOURCE]
+        actual_call = self.call(
+            subcloud_cmd.RedeploySubcloud,
+            app_args=[base.ID])
+        self.assertEqual(base.SUBCLOUD_FIELD_RESULT_LIST, actual_call[1])
+
+    @mock.patch('getpass.getpass', return_value='testpassword')
+    @mock.patch('six.moves.input', return_value='redeploy')
+    def test_redeploy_bootstrap_files_does_not_exists(
+        self, mock_input, getpass):
+        self.client.subcloud_manager.redeploy_subcloud.\
+            return_value = [base.SUBCLOUD_RESOURCE]
+        with tempfile.NamedTemporaryFile(mode='w') as bootstrap_file,\
+            tempfile.NamedTemporaryFile(mode='w') as config_file,\
+            tempfile.NamedTemporaryFile(mode='w') as install_file:
+
+            bootstrap_file_path = os.path.abspath(bootstrap_file.name)
+            config_file_path = os.path.abspath(config_file.name)
+            install_file_path = os.path.abspath(install_file.name)
+
+        app_args_install = [base.NAME,
+                            '--install-values', install_file_path]
+        app_args_bootstrap = [base.NAME,
+                              '--bootstrap-values', bootstrap_file_path]
+        app_args_config = [base.NAME, '--deploy-config', config_file_path]
+        args_dict = {'install-values': app_args_install,
+                     'bootstrap-values': app_args_bootstrap,
+                     'deploy-config': app_args_config}
+
+        for file in ['install-values', 'bootstrap-values',
+                     'deploy-config']:
+            e = self.assertRaises(DCManagerClientException,
+                                  self.call,
+                                  subcloud_cmd.RedeploySubcloud,
+                                  app_args=args_dict[file])
+            self.assertTrue(f'{file} does not exist' in str(e))
+
+    @mock.patch('getpass.getpass', return_value='testpassword')
     def test_restore_subcloud(self, getpass):
         with tempfile.NamedTemporaryFile() as f:
             file_path = os.path.abspath(f.name)
