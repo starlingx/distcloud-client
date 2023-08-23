@@ -536,6 +536,7 @@ class DCManagerShell(app.App):
             'subcloud redeploy': sm.RedeploySubcloud,
             'subcloud restore': sm.RestoreSubcloud,
             'subcloud prestage': sm.PrestageSubcloud,
+            'subcloud migrate': sm.MigrateSubcloud,
             'subcloud-backup create': sbm.CreateSubcloudBackup,
             'subcloud-backup delete': sbm.DeleteSubcloudBackup,
             'subcloud-backup restore': sbm.RestoreSubcloudBackup,

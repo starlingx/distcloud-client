@@ -51,6 +51,7 @@ EXTERNAL_OAM_GATEWAY_ADDRESS = "10.10.10.1"
 EXTERNAL_OAM_FLOATING_ADDRESS = "10.10.10.12"
 DEFAULT_SUBCLOUD_GROUP_ID = '1'
 DEPLOY_CONFIG_SYNC_STATUS = 'Deployment: configurations up-to-date'
+SUBCLOUD_REHOME_DATA = None
 BACKUP_STATUS = 'None'
 BACKUP_DATETIME = 'None'
 
@@ -77,6 +78,29 @@ SUBCLOUD_RESOURCE = api_base.Subcloud(
     backup_status=BACKUP_STATUS,
     backup_datetime=BACKUP_DATETIME)
 
+# Subcloud CLI resource object with peerid rehome data
+SUBCLOUD_RESOURCE_WITH_PEERID_REHOME_DATA = api_base.Subcloud(
+    mock,
+    subcloud_id=ID,
+    name=NAME,
+    description=DESCRIPTION,
+    location=LOCATION,
+    software_version=SOFTWARE_VERSION,
+    management_state=MANAGEMENT_STATE,
+    availability_status=AVAILABILITY_STATUS,
+    deploy_status=DEPLOY_STATUS,
+    management_subnet=MANAGEMENT_SUBNET,
+    management_start_ip=MANAGEMENT_START_IP,
+    management_end_ip=MANAGEMENT_END_IP,
+    management_gateway_ip=MANAGEMENT_GATEWAY_IP,
+    systemcontroller_gateway_ip=SYSTEMCONTROLLER_GATEWAY_IP,
+    group_id=DEFAULT_SUBCLOUD_GROUP_ID,
+    rehome_data=SUBCLOUD_REHOME_DATA,
+    created_at=TIME_NOW,
+    updated_at=TIME_NOW,
+    backup_status=BACKUP_STATUS,
+    backup_datetime=BACKUP_DATETIME)
+
 # Subcloud result values returned from various API calls (e.g. subcloud show)
 SUBCLOUD_FIELD_RESULT_LIST = (
     ID,
@@ -99,7 +123,31 @@ SUBCLOUD_FIELD_RESULT_LIST = (
     BACKUP_DATETIME
 )
 
+# Subcloud result values returned from various API calls (e.g. subcloud show)
+SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID_REHOME_DATA = (
+    ID,
+    NAME,
+    DESCRIPTION,
+    LOCATION,
+    SOFTWARE_VERSION,
+    MANAGEMENT_STATE,
+    AVAILABILITY_STATUS,
+    DEPLOY_STATUS,
+    MANAGEMENT_SUBNET,
+    MANAGEMENT_START_IP,
+    MANAGEMENT_END_IP,
+    MANAGEMENT_GATEWAY_IP,
+    SYSTEMCONTROLLER_GATEWAY_IP,
+    DEFAULT_SUBCLOUD_GROUP_ID,
+    SUBCLOUD_REHOME_DATA,
+    TIME_NOW,
+    TIME_NOW,
+    BACKUP_STATUS,
+    BACKUP_DATETIME
+)
 EMPTY_SUBCLOUD_FIELD_RESULT = (('<none>',) * len(SUBCLOUD_FIELD_RESULT_LIST),)
+EMPTY_SUBCLOUD_FIELD_RESULT_WITH_PEERID_REHOME_DATA = \
+    (('<none>',) * len(SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID_REHOME_DATA),)
 
 # Subcloud result values returned from subcloud list command
 SUBCLOUD_LIST_RESULT = (

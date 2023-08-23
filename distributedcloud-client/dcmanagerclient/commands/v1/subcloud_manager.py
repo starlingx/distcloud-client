@@ -71,6 +71,7 @@ def detail_format(subcloud=None):
         'management_gateway_ip',
         'systemcontroller_gateway_ip',
         'group_id',
+        'rehome_data',
         'created_at',
         'updated_at',
         'backup_status',
@@ -93,6 +94,7 @@ def detail_format(subcloud=None):
             subcloud.management_gateway_ip,
             subcloud.systemcontroller_gateway_ip,
             subcloud.group_id,
+            subcloud.rehome_data,
             subcloud.created_at,
             subcloud.updated_at,
             subcloud.backup_status,
@@ -194,6 +196,14 @@ class AddSubcloud(base.DCManagerShowOne):
                  'the subcloud with. If not specified, the current software '
                  'release of the system controller will be used.'
         )
+
+        parser.add_argument(
+            '--secondary',
+            required=False,
+            action='store_true',
+            help='A flag indicating if this subcloud is a placeholder '
+                 'for incoming subcloud rehoming.'
+        )
         return parser
 
     def _get_resources(self, parsed_args):
@@ -223,20 +233,27 @@ class AddSubcloud(base.DCManagerShowOne):
                 error_msg = "migrate with deploy-config is not allowed"
                 raise exceptions.DCManagerClientException(error_msg)
 
+            if parsed_args.secondary:
+                error_msg = "secondary with deploy-config is not allowed"
+                raise exceptions.DCManagerClientException(error_msg)
+
             if not os.path.isfile(parsed_args.deploy_config):
                 error_msg = "deploy-config does not exist: %s" % \
                             parsed_args.deploy_config
                 raise exceptions.DCManagerClientException(error_msg)
             files['deploy_config'] = parsed_args.deploy_config
 
-        # Prompt the user for the subcloud's password if it isn't provided
-        if parsed_args.sysadmin_password is not None:
-            data['sysadmin_password'] = base64.b64encode(
-                parsed_args.sysadmin_password.encode("utf-8"))
-        else:
-            password = utils.prompt_for_password()
-            data["sysadmin_password"] = base64.b64encode(
-                password.encode("utf-8"))
+        # To add a secondary subcloud,
+        # do not need sysadmin_password
+        if not parsed_args.secondary:
+            # Prompt the user for the subcloud's password if it isn't provided
+            if parsed_args.sysadmin_password is not None:
+                data['sysadmin_password'] = base64.b64encode(
+                    parsed_args.sysadmin_password.encode("utf-8"))
+            else:
+                password = utils.prompt_for_password()
+                data["sysadmin_password"] = base64.b64encode(
+                    password.encode("utf-8"))
 
         if parsed_args.install_values is not None:
             if parsed_args.bmc_password is not None:
@@ -256,6 +273,9 @@ class AddSubcloud(base.DCManagerShowOne):
         if parsed_args.release is not None:
             data['release'] = parsed_args.release
 
+        if parsed_args.secondary:
+            data['secondary'] = 'true'
+
         return dcmanager_client.subcloud_manager.add_subcloud(files=files,
                                                               data=data)
 
@@ -268,11 +288,26 @@ class ListSubcloud(base.DCManagerLister):
 
     def get_parser(self, prog_name):
         parser = super(ListSubcloud, self).get_parser(prog_name)
+        parser.add_argument(
+            '--all',
+            required=False,
+            action='store_true',
+            help='List all subclouds include "secondary" state subclouds'
+        )
         return parser
 
     def _get_resources(self, parsed_args):
         dcmanager_client = self.app.client_manager.subcloud_manager
-        return dcmanager_client.subcloud_manager.list_subclouds()
+        subclouds = dcmanager_client.subcloud_manager.list_subclouds()
+
+        # for '--all' parameter, show all subclouds.
+        # for no parameter, hidden all 'secondary/secondary-failed'
+        # state subclouds.
+        if parsed_args.all:
+            return subclouds
+        filtered_subclouds = [s for s in subclouds if s.deploy_status not in
+                              ('secondary', 'secondary-failed')]
+        return filtered_subclouds
 
 
 class ShowSubcloud(base.DCManagerShowOne):
@@ -503,6 +538,12 @@ class UpdateSubcloud(base.DCManagerShowOne):
                  'provided you will be prompted. This parameter is only'
                  ' valid if the --install-values are specified.'
         )
+        parser.add_argument(
+            '--bootstrap-values',
+            required=False,
+            help='YAML file containing subcloud configuration settings. '
+                 'Can be either a local file path or a URL.'
+        )
         return parser
 
     def _get_resources(self, parsed_args):
@@ -535,6 +576,7 @@ class UpdateSubcloud(base.DCManagerShowOne):
             data.get('management_end_ip'),
             data.get('bootstrap_address')
         ]
+
         # Semantic check if the required arguments for updating admin network
         if all(value is not None for value in subcloud_network_values):
             # Prompt the user for the subcloud's password if it isn't provided
@@ -545,8 +587,14 @@ class UpdateSubcloud(base.DCManagerShowOne):
                 password = utils.prompt_for_password()
                 data["sysadmin_password"] = base64.b64encode(
                     password.encode("utf-8"))
-        # Not all network values exist
-        elif any(value is not None for value in subcloud_network_values):
+        # For subcloud network reconfiguration
+        # If any management_* presents, need all
+        # management_subnet/management_gateway_ip/
+        # management_start_ip/management_end_ip/bootstrap_address
+        # presents.
+        elif any(value is not None and value != parsed_args.bootstrap_address
+                 for value in subcloud_network_values):
+            # Not all network values exist
             error_msg = (
                 "For subcloud network reconfiguration request all the "
                 "following parameters are necessary: --management-subnet, "
@@ -569,7 +617,15 @@ class UpdateSubcloud(base.DCManagerShowOne):
                 data["bmc_password"] = base64.b64encode(
                     password.encode("utf-8"))
 
-        if not data:
+        # Update the bootstrap values from yaml file
+        if parsed_args.bootstrap_values:
+            if not os.path.isfile(parsed_args.bootstrap_values):
+                error_msg = "bootstrap-values does not exist: %s" % \
+                            parsed_args.bootstrap_values
+                raise exceptions.DCManagerClientException(error_msg)
+            files['bootstrap_values'] = parsed_args.bootstrap_values
+
+        if not (data or files):
             error_msg = "Nothing to update"
             raise exceptions.DCManagerClientException(error_msg)
 
@@ -976,4 +1032,47 @@ class PrestageSubcloud(base.DCManagerShowOne):
         except Exception as e:
             print(e)
             error_msg = "Unable to prestage subcloud %s" % (subcloud_ref)
+            raise exceptions.DCManagerClientException(error_msg)
+
+
+class MigrateSubcloud(base.DCManagerShowOne):
+    """Migrate a secondary status subcloud."""
+    def _get_format_function(self):
+        return detail_format
+
+    def get_parser(self, prog_name):
+        parser = super(MigrateSubcloud, self).get_parser(prog_name)
+
+        parser.add_argument(
+            'subcloud',
+            help='Name or ID of the subcloud to migrate.'
+        )
+
+        parser.add_argument(
+            '--sysadmin-password',
+            required=False,
+            help='sysadmin password of the subcloud to be configured, '
+                 'if not provided you will be prompted.'
+        )
+        return parser
+
+    def _get_resources(self, parsed_args):
+        subcloud_ref = parsed_args.subcloud
+        dcmanager_client = self.app.client_manager.subcloud_manager
+        data = dict()
+        if parsed_args.sysadmin_password is not None:
+            data['sysadmin_password'] = base64.b64encode(
+                parsed_args.sysadmin_password.encode("utf-8")).decode("utf-8")
+        else:
+            password = utils.prompt_for_password()
+            data["sysadmin_password"] = base64.b64encode(
+                password.encode("utf-8")).decode("utf-8")
+
+        try:
+            return dcmanager_client.subcloud_manager.migrate_subcloud(
+                subcloud_ref=subcloud_ref, data=data)
+
+        except Exception as e:
+            print(e)
+            error_msg = "Unable to migrate subcloud %s" % (subcloud_ref)
             raise exceptions.DCManagerClientException(error_msg)
