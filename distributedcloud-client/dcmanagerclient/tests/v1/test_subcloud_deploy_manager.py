@@ -19,6 +19,7 @@ import tempfile
 from dcmanagerclient.api.v1 import subcloud_deploy_manager as sdm
 from dcmanagerclient.commands.v1 \
     import subcloud_deploy_manager as subcloud_deploy_cmd
+from dcmanagerclient.exceptions import DCManagerClientException
 from dcmanagerclient.tests import base
 
 
@@ -249,12 +250,13 @@ class TestCLISubcloudDeployManagerV1(base.BaseCommandTest):
                 tempfile.NamedTemporaryFile() as f3:
             file_path_2 = os.path.abspath(f2.name)
             file_path_3 = os.path.abspath(f3.name)
-            self.call(
-                subcloud_deploy_cmd.SubcloudDeployUpload,
-                app_args=[
-                    '--deploy-playbook', file_path_1,
-                    '--deploy-overrides', file_path_2,
-                    '--deploy-chart', file_path_3])
 
-        mock_print.assert_called_with('error: argument --deploy_playbook'
-                                      ' directory not_a_valid_path not valid')
+            e = self.assertRaises(DCManagerClientException,
+                                  self.call,
+                                  subcloud_deploy_cmd.SubcloudDeployUpload,
+                                  app_args=['--deploy-playbook', file_path_1,
+                                            '--deploy-overrides', file_path_2,
+                                            '--deploy-chart', file_path_3])
+
+        self.assertTrue('deploy_playbook file does not exist: not_a_valid_path'
+                        in str(e))

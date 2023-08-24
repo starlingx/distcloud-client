@@ -119,12 +119,9 @@ class SubcloudDeployUpload(base.DCManagerShowOne):
             if val is None:
                 continue
             elif not os.path.isfile(val):
-                error_msg = "error: argument --%s directory %s not valid" \
-                            % (key, val)
-                print(error_msg)
-                return
-            else:
-                files[key] = val
+                error_msg = f"{key} file does not exist: {val}"
+                raise exceptions.DCManagerClientException(error_msg)
+            files[key] = val
 
         if parsed_args.release is not None:
             data['release'] = parsed_args.release
