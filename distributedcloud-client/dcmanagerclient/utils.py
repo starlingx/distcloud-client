@@ -82,17 +82,17 @@ def get_contents_if_file(contents_or_file_name):
             "Error: Could not open file %s: %s" % (contents_or_file_name, e))
 
 
-def prompt_for_password(password_type='sysadmin'):
+def prompt_for_password(password_type='sysadmin', item_type='subcloud'):
     while True:
         try:
             password = getpass.getpass(
-                "Enter the " + password_type + " password for the subcloud: ")
+                f"Enter the {password_type} password for the {item_type}: ")
             if len(password) < 1:
                 print("Password cannot be empty")
                 continue
 
             confirm = getpass.getpass(
-                "Re-enter " + password_type + " password to confirm: ")
+                f"Re-enter {password_type} password to confirm: ")
             if password != confirm:
                 print("Passwords did not match")
                 continue

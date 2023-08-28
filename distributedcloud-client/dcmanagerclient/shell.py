@@ -46,6 +46,7 @@ from dcmanagerclient.commands.v1 import sw_prestage_manager as spr
 from dcmanagerclient.commands.v1 import sw_update_manager as sum
 from dcmanagerclient.commands.v1 import sw_update_options_manager as suom
 from dcmanagerclient.commands.v1 import sw_upgrade_manager as supm
+from dcmanagerclient.commands.v1 import system_peer_manager as sp
 
 LOG = logging.getLogger(__name__)
 
@@ -488,6 +489,7 @@ class DCManagerShell(app.App):
                  subcloud_backup_manager=self.client,
                  subcloud_group_manager=self.client,
                  subcloud_deploy_manager=self.client,
+                 system_peer_manager=self.client,
                  alarm_manager=self.client,
                  fw_update_manager=self.client,
                  sw_patch_manager=self.client,
@@ -557,6 +559,11 @@ class DCManagerShell(app.App):
             'subcloud deploy show': sdm.SubcloudDeployShow,
             'subcloud-deploy upload': sdm.DeprecatedSubcloudDeployUpload,
             'subcloud-deploy show': sdm.DeprecatedSubcloudDeployShow,
+            'system-peer add': sp.AddSystemPeer,
+            'system-peer list': sp.ListSystemPeer,
+            'system-peer show': sp.ShowSystemPeer,
+            'system-peer update': sp.UpdateSystemPeer,
+            'system-peer delete': sp.DeleteSystemPeer,
             'alarm summary': am.ListAlarmSummary,
             'fw-update-strategy create': fum.CreateFwUpdateStrategy,
             'fw-update-strategy delete': fum.DeleteFwUpdateStrategy,
