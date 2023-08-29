@@ -76,6 +76,7 @@ def detail_format(subcloud=None):
         'management_gateway_ip',
         'systemcontroller_gateway_ip',
         'group_id',
+        'peer_group_id',
         'rehome_data',
         'created_at',
         'updated_at',
@@ -99,6 +100,7 @@ def detail_format(subcloud=None):
             subcloud.management_gateway_ip,
             subcloud.systemcontroller_gateway_ip,
             subcloud.group_id,
+            subcloud.peer_group_id,
             subcloud.rehome_data,
             subcloud.created_at,
             subcloud.updated_at,
@@ -594,6 +596,11 @@ class UpdateSubcloud(base.DCManagerShowOne):
             help='YAML file containing subcloud configuration settings. '
                  'Can be either a local file path or a URL.'
         )
+        parser.add_argument(
+            '--peer-group',
+            required=False,
+            help='Name or ID of subcloud peer group (for migrate).'
+        )
         return parser
 
     def _get_resources(self, parsed_args):
@@ -620,6 +627,8 @@ class UpdateSubcloud(base.DCManagerShowOne):
             data['management_end_ip'] = parsed_args.management_end_ip
         if parsed_args.bootstrap_address:
             data['bootstrap_address'] = parsed_args.bootstrap_address
+        if parsed_args.peer_group:
+            data['peer_group'] = parsed_args.peer_group
 
         subcloud_network_values = [
             data.get('management_subnet'),

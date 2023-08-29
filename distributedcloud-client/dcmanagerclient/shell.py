@@ -41,6 +41,7 @@ from dcmanagerclient.commands.v1 import subcloud_backup_manager as sbm
 from dcmanagerclient.commands.v1 import subcloud_deploy_manager as sdm
 from dcmanagerclient.commands.v1 import subcloud_group_manager as gm
 from dcmanagerclient.commands.v1 import subcloud_manager as sm
+from dcmanagerclient.commands.v1 import subcloud_peer_group_manager as pm
 from dcmanagerclient.commands.v1 import sw_patch_manager as spm
 from dcmanagerclient.commands.v1 import sw_prestage_manager as spr
 from dcmanagerclient.commands.v1 import sw_update_manager as sum
@@ -499,7 +500,8 @@ class DCManagerShell(app.App):
                  kube_upgrade_manager=self.client,
                  kube_rootca_update_manager=self.client,
                  sw_prestage_manager=self.client,
-                 phased_subcloud_deploy_manager=self.client)
+                 phased_subcloud_deploy_manager=self.client,
+                 subcloud_peer_group_manager=self.client)
         )
         self.client_manager = ClientManager()
 
@@ -559,6 +561,15 @@ class DCManagerShell(app.App):
             'subcloud deploy show': sdm.SubcloudDeployShow,
             'subcloud-deploy upload': sdm.DeprecatedSubcloudDeployUpload,
             'subcloud-deploy show': sdm.DeprecatedSubcloudDeployShow,
+            'subcloud-peer-group add': pm.AddSubcloudPeerGroup,
+            'subcloud-peer-group list': pm.ListSubcloudPeerGroup,
+            'subcloud-peer-group list-subclouds':
+                pm.ListSubcloudPeerGroupSubclouds,
+            'subcloud-peer-group show': pm.ShowSubcloudPeerGroup,
+            'subcloud-peer-group update': pm.UpdateSubcloudPeerGroup,
+            'subcloud-peer-group delete': pm.DeleteSubcloudPeerGroup,
+            'subcloud-peer-group migrate': pm.MigrateSubcloudPeerGroup,
+            'subcloud-peer-group status': pm.StatusSubcloudPeerGroup,
             'system-peer add': sp.AddSystemPeer,
             'system-peer list': sp.ListSystemPeer,
             'system-peer show': sp.ShowSystemPeer,

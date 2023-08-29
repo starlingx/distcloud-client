@@ -255,7 +255,8 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
                     '--management-start-ip', 'sc network start ip',
                     '--management-end-ip', 'subcloud network end ip',
                     '--bootstrap-address', 'subcloud bootstrap address',
-                    '--bootstrap-values', bootstrap_file_path])
+                    '--bootstrap-values', bootstrap_file_path,
+                    '--peer-group', 'peer group'])
         self.assertEqual(
             base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID_REHOME_DATA,
             actual_call[1])

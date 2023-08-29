@@ -32,6 +32,7 @@ from dcmanagerclient.api.v1 import subcloud_backup_manager as sbm
 from dcmanagerclient.api.v1 import subcloud_deploy_manager as sdm
 from dcmanagerclient.api.v1 import subcloud_group_manager as gm
 from dcmanagerclient.api.v1 import subcloud_manager as sm
+from dcmanagerclient.api.v1 import subcloud_peer_group_manager as pm
 from dcmanagerclient.api.v1 import sw_patch_manager as spm
 from dcmanagerclient.api.v1 import sw_prestage_manager as spr
 from dcmanagerclient.api.v1 import sw_strategy_manager as sstm
@@ -100,6 +101,9 @@ class Client(object):
         self.subcloud_manager = sm.subcloud_manager(self.http_client)
         self.subcloud_group_manager = \
             gm.subcloud_group_manager(self.http_client, self.subcloud_manager)
+        self.subcloud_peer_group_manager = \
+            pm.subcloud_peer_group_manager(self.http_client,
+                                           self.subcloud_manager)
         self.subcloud_backup_manager = sbm.subcloud_backup_manager(
             self.http_client)
         self.subcloud_deploy_manager = sdm.subcloud_deploy_manager(

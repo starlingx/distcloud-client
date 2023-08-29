@@ -46,6 +46,7 @@ class Subcloud(Resource):
         'created-at': 'created_at',
         'updated-at': 'updated_at',
         'group_id': 'group_id',
+        'peer_group_id': 'peer_group_id',
         'rehome_data': 'rehome_data',
         'sync_status': 'sync_status',
         'endpoint_sync_status': 'endpoint_sync_status',
@@ -63,7 +64,7 @@ class Subcloud(Resource):
                  group_id, sync_status="unknown", endpoint_sync_status=None,
                  backup_status=None, backup_datetime=None,
                  error_description=None, prestage_software_version=None,
-                 rehome_data=None, region_name=None):
+                 peer_group_id=None, rehome_data=None, region_name=None):
         if endpoint_sync_status is None:
             endpoint_sync_status = {}
         self.manager = manager
@@ -86,6 +87,7 @@ class Subcloud(Resource):
         self.created_at = created_at
         self.updated_at = updated_at
         self.group_id = group_id
+        self.peer_group_id = peer_group_id
         self.rehome_data = rehome_data
         self.sync_status = sync_status
         self.endpoint_sync_status = endpoint_sync_status
