@@ -1,5 +1,5 @@
 # Copyright (c) 2017 Ericsson AB.
-# Copyright (c) 2020-2021 Wind River Systems, Inc.
+# Copyright (c) 2020-2023 Wind River Systems, Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -24,6 +24,8 @@ from dcmanagerclient import exceptions
 # also handles 'steps' and 'strategies'
 
 
+# A new field may change where the upload only column
+# will be added by the upgrade manager.
 def detail_format(sw_update_strategy=None):
     columns = (
         'strategy type',
