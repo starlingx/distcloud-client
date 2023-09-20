@@ -151,6 +151,7 @@ class DCManagerShell(app.App):
             description=__doc__.strip(),
             version=dcmanager_version,
             command_manager=commandmanager.CommandManager("dcmanager.cli"),
+            deferred_help=True,
         )
 
         # Override default help command
@@ -228,14 +229,23 @@ class DCManagerShell(app.App):
             help="Suppress output except warnings and errors.",
         )
 
-        parser.add_argument(
-            "-h",
-            "--help",
-            action=HelpAction,
-            nargs=0,
-            default=self,  # tricky
-            help="Show this help message and exit.",
-        )
+        if self.deferred_help:
+            parser.add_argument(
+                "-h",
+                "--help",
+                dest="deferred_help",
+                action="store_true",
+                help="Show help message and exit.",
+            )
+        else:
+            parser.add_argument(
+                "-h",
+                "--help",
+                action=HelpAction,
+                nargs=0,
+                default=self,  # tricky
+                help="Show help message and exit.",
+            )
 
         parser.add_argument(
             "--debug",
@@ -415,6 +425,11 @@ class DCManagerShell(app.App):
 
         return parser
 
+    def print_help_if_requested(self):
+        if self.deferred_help and self.options.deferred_help:
+            action = HelpAction(None, None, default=self)
+            action(self.parser, self.options, None, None)
+
     def initialize_app(self, argv):
         self._clear_shell_commands()
 
@@ -422,10 +437,13 @@ class DCManagerShell(app.App):
 
         self._set_shell_commands(self._get_commands(ver))
 
-        do_help = ["help", "-h", "bash-completion", "complete"]
+        no_auth_commands = {"help", "bash-completion", "complete"}
 
-        # bash-completion should not require authentication.
-        skip_auth = "".join(argv) in do_help
+        # Skip authentication if the first argument is a no-auth command or
+        # if deferred_help is True
+        skip_auth = (
+            argv[0] in no_auth_commands if argv else False
+        ) or self.options.deferred_help
 
         if skip_auth:
             self.options.auth_url = None
