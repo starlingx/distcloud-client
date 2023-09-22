@@ -229,13 +229,6 @@ class AddSubcloud(base.DCManagerShowOne):
                  'release of the system controller will be used.'
         )
 
-        parser.add_argument(
-            '--secondary',
-            required=False,
-            action='store_true',
-            help='A flag indicating if this subcloud is a placeholder '
-                 'for incoming subcloud rehoming.'
-        )
         return parser
 
     def _get_resources(self, parsed_args):
@@ -265,27 +258,20 @@ class AddSubcloud(base.DCManagerShowOne):
                 error_msg = "migrate with deploy-config is not allowed"
                 raise exceptions.DCManagerClientException(error_msg)
 
-            if parsed_args.secondary:
-                error_msg = "secondary with deploy-config is not allowed"
-                raise exceptions.DCManagerClientException(error_msg)
-
             if not os.path.isfile(parsed_args.deploy_config):
                 error_msg = "deploy-config does not exist: %s" % \
                             parsed_args.deploy_config
                 raise exceptions.DCManagerClientException(error_msg)
             files['deploy_config'] = parsed_args.deploy_config
 
-        # To add a secondary subcloud,
-        # do not need sysadmin_password
-        if not parsed_args.secondary:
-            # Prompt the user for the subcloud's password if it isn't provided
-            if parsed_args.sysadmin_password is not None:
-                data['sysadmin_password'] = base64.b64encode(
-                    parsed_args.sysadmin_password.encode("utf-8"))
-            else:
-                password = utils.prompt_for_password()
-                data["sysadmin_password"] = base64.b64encode(
-                    password.encode("utf-8"))
+        # Prompt the user for the subcloud's password if it isn't provided
+        if parsed_args.sysadmin_password is not None:
+            data['sysadmin_password'] = base64.b64encode(
+                parsed_args.sysadmin_password.encode("utf-8"))
+        else:
+            password = utils.prompt_for_password()
+            data["sysadmin_password"] = base64.b64encode(
+                password.encode("utf-8"))
 
         if parsed_args.install_values is not None:
             if parsed_args.bmc_password is not None:
@@ -304,9 +290,6 @@ class AddSubcloud(base.DCManagerShowOne):
 
         if parsed_args.release is not None:
             data['release'] = parsed_args.release
-
-        if parsed_args.secondary:
-            data['secondary'] = 'true'
 
         if parsed_args.name is not None:
             if parsed_args.migrate:

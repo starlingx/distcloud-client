@@ -391,32 +391,3 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
             actual_call_without_release[1])
         self.assertRaises(SystemExit, self.call,
                           subcloud_cmd.MigrateSubcloud, app_args=[])
-
-    def test_add_secondary_subcloud(self):
-        self.client.subcloud_manager.add_subcloud.\
-            return_value = [base.SUBCLOUD_RESOURCE]
-
-        with tempfile.NamedTemporaryFile(mode='w') as f_bootstrap:
-            bootstrap_file_path = os.path.abspath(f_bootstrap.name)
-            actual_call = self.call(
-                subcloud_cmd.AddSubcloud,
-                app_args=[
-                    '--bootstrap-address', base.BOOTSTRAP_ADDRESS,
-                    '--bootstrap-values', bootstrap_file_path,
-                    '--sysadmin-password', 'testpassword',
-                    '--secondary',
-                    ])
-            self.assertEqual(
-                base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID_REHOME_DATA,
-                actual_call[1])
-            with tempfile.NamedTemporaryFile() as f_config:
-                config_file_path = os.path.abspath(f_config.name)
-                self.assertRaises(
-                    DCManagerClientException, self.call,
-                    subcloud_cmd.AddSubcloud, app_args=[
-                        '--bootstrap-address', base.BOOTSTRAP_ADDRESS,
-                        '--bootstrap-values', bootstrap_file_path,
-                        '--sysadmin-password', 'testpassword',
-                        '--deploy-config', config_file_path,
-                        '--secondary'
-                        ])
