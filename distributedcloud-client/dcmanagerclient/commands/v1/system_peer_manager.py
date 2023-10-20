@@ -50,6 +50,7 @@ def detail_peer_format(system_peer=None):
         'heartbeat failure threshold',
         'heartbeat failure policy',
         'heartbeat maintenance timeout',
+        'heartbeat status',
         'created_at',
         'updated_at',
     )
@@ -67,6 +68,7 @@ def detail_peer_format(system_peer=None):
             system_peer.heartbeat_failure_threshold,
             system_peer.heartbeat_failure_policy,
             system_peer.heartbeat_maintenance_timeout,
+            system_peer.heartbeat_status,
             system_peer.created_at,
             system_peer.updated_at,
         )

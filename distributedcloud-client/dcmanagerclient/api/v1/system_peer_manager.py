@@ -27,6 +27,7 @@ class SystemPeer(base.Resource):
                  heartbeat_failure_threshold,
                  heartbeat_failure_policy,
                  heartbeat_maintenance_timeout,
+                 heartbeat_status,
                  created_at,
                  updated_at):
         self.manager = manager
@@ -41,6 +42,7 @@ class SystemPeer(base.Resource):
         self.heartbeat_failure_threshold = heartbeat_failure_threshold
         self.heartbeat_failure_policy = heartbeat_failure_policy
         self.heartbeat_maintenance_timeout = heartbeat_maintenance_timeout
+        self.heartbeat_status = heartbeat_status
         self.created_at = created_at
         self.updated_at = updated_at
 
@@ -65,6 +67,7 @@ class system_peer_manager(base.ResourceManager):
             heartbeat_failure_policy=json_object['heartbeat-failure-policy'],
             heartbeat_maintenance_timeout=json_object[
                 'heartbeat-maintenance-timeout'],
+            heartbeat_status=json_object['heartbeat-status'],
             created_at=json_object['created-at'],
             updated_at=json_object['updated-at'])
 

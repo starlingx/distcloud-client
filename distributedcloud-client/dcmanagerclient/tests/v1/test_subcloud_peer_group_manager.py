@@ -16,7 +16,7 @@ from dcmanagerclient.tests import base
 FAKE_MANAGER = None
 PG_ID = "1"
 PG_NAME = "test-pg-name"
-PG_GROUP_PRIORITY = "99"
+PG_GROUP_PRIORITY = "0"
 PG_GROUP_STATE = "disabled"
 PG_MAX_SUBCLOUD_REHOMING = "10"
 PG_SYSTEM_LEADER_ID = "d9dea83f-f271-470d-9cce-44b0162a800b"
@@ -92,7 +92,6 @@ class TestCLISubcloudPeerGroupManager(base.BaseCommandTest):
         actual_call2 = self.call(
             subcloud_peer_group_cmd.AddSubcloudPeerGroup, app_args=[
                 '--peer-group-name', PG_NAME,
-                '--group-priority', PG_GROUP_PRIORITY,
                 '--group-state', PG_GROUP_STATE,
                 '--max-subcloud-rehoming', PG_MAX_SUBCLOUD_REHOMING
             ])
@@ -117,7 +116,6 @@ class TestCLISubcloudPeerGroupManager(base.BaseCommandTest):
             app_args=[
                 base.ID,
                 '--peer-group-name', PG_NAME,
-                '--group-priority', PG_GROUP_PRIORITY,
                 '--group-state', PG_GROUP_STATE,
                 '--max-subcloud-rehoming', PG_MAX_SUBCLOUD_REHOMING])
         self.assertEqual(

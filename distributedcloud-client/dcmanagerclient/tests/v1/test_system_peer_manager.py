@@ -25,6 +25,7 @@ HEARTBEAT_INTERVAL = 10
 HEARTBEAT_FAILURE_THRESHOLD = 3
 HEARTBEAT_FAILURES_POLICY = 'alarm'
 HEARTBEAT_MAINTENANCE_TIMEOUT = 600
+HEARTBEAT_STATUS = 'alive'
 PEER_CONTROLLER_GATEWAY_IP = '128.128.128.1'
 TIME_NOW = timeutils.utcnow().isoformat()
 NEW_PEER_CONTROLLER_GATEWAY_IP = '128.1.1.1'
@@ -40,6 +41,7 @@ SYSTEM_PEER_DICT = {
     'HEARTBEAT_FAILURE_THRESHOLD': HEARTBEAT_FAILURE_THRESHOLD,
     'HEARTBEAT_FAILURE_POLICY': HEARTBEAT_FAILURES_POLICY,
     'HEARTBEAT_MAINTENANCE_TIMEOUT': HEARTBEAT_MAINTENANCE_TIMEOUT,
+    'HEARTBEAT_STATUS': HEARTBEAT_STATUS,
     'PEER_CONTROLLER_GATEWAY_IP': PEER_CONTROLLER_GATEWAY_IP,
     'CREATED_AT': TIME_NOW,
     'UPDATED_AT': TIME_NOW
@@ -60,6 +62,7 @@ SYSTEM_PEER = spm.SystemPeer(
     heartbeat_failure_policy=SYSTEM_PEER_DICT['HEARTBEAT_FAILURE_POLICY'],
     heartbeat_maintenance_timeout=SYSTEM_PEER_DICT[
         'HEARTBEAT_MAINTENANCE_TIMEOUT'],
+    heartbeat_status=SYSTEM_PEER_DICT['HEARTBEAT_STATUS'],
     peer_controller_gateway_address=SYSTEM_PEER_DICT[
         'PEER_CONTROLLER_GATEWAY_IP'],
     created_at=SYSTEM_PEER_DICT['CREATED_AT'],
@@ -114,6 +117,7 @@ class TestCLISystemPeerManagerV1(base.BaseCommandTest):
                           HEARTBEAT_FAILURE_THRESHOLD,
                           HEARTBEAT_FAILURES_POLICY,
                           HEARTBEAT_MAINTENANCE_TIMEOUT,
+                          HEARTBEAT_STATUS,
                           TIME_NOW,
                           TIME_NOW),
                          actual_call[1])
@@ -123,7 +127,7 @@ class TestCLISystemPeerManagerV1(base.BaseCommandTest):
             return_value = []
         actual_call = self.call(system_peer_cmd.ShowSystemPeer,
                                 app_args=[ID])
-        self.assertEqual((tuple('<none>' for _ in range(13)),),
+        self.assertEqual((tuple('<none>' for _ in range(14)),),
                          actual_call[1])
 
     def test_add_system_peer(self):
@@ -159,6 +163,7 @@ class TestCLISystemPeerManagerV1(base.BaseCommandTest):
                           HEARTBEAT_FAILURE_THRESHOLD,
                           HEARTBEAT_FAILURES_POLICY,
                           HEARTBEAT_MAINTENANCE_TIMEOUT,
+                          HEARTBEAT_STATUS,
                           TIME_NOW,
                           TIME_NOW),
                          actual_call[1])
@@ -185,6 +190,7 @@ class TestCLISystemPeerManagerV1(base.BaseCommandTest):
                           HEARTBEAT_FAILURE_THRESHOLD,
                           HEARTBEAT_FAILURES_POLICY,
                           HEARTBEAT_MAINTENANCE_TIMEOUT,
+                          HEARTBEAT_STATUS,
                           TIME_NOW,
                           TIME_NOW),
                          actual_call[1])

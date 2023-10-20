@@ -105,14 +105,6 @@ class AddSubcloudPeerGroup(base.DCManagerShowOne):
         )
 
         parser.add_argument(
-            '--group-priority',
-            required=False,
-            type=int,
-            default=0,
-            help='Assigned priority for the group.'
-        )
-
-        parser.add_argument(
             '--group-state',
             required=False,
             choices=['enabled', 'disabled'],
@@ -134,9 +126,6 @@ class AddSubcloudPeerGroup(base.DCManagerShowOne):
         kwargs = dict()
 
         kwargs['peer-group-name'] = parsed_args.peer_group_name
-
-        if parsed_args.group_priority is not None:
-            kwargs['group-priority'] = parsed_args.group_priority
 
         if parsed_args.group_state is not None:
             kwargs['group-state'] = parsed_args.group_state
@@ -257,13 +246,6 @@ class UpdateSubcloudPeerGroup(base.DCManagerShowOne):
         )
 
         parser.add_argument(
-            '--group-priority',
-            required=False,
-            type=int,
-            help='Assigned priority for the peer group.'
-        )
-
-        parser.add_argument(
             '--group-state',
             required=False,
             choices=['enabled', 'disabled'],
@@ -285,9 +267,6 @@ class UpdateSubcloudPeerGroup(base.DCManagerShowOne):
 
         if parsed_args.peer_group_name is not None:
             kwargs['peer-group-name'] = parsed_args.peer_group_name
-
-        if parsed_args.group_priority is not None:
-            kwargs['group-priority'] = parsed_args.group_priority
 
         if parsed_args.group_state is not None:
             kwargs['group-state'] = parsed_args.group_state
