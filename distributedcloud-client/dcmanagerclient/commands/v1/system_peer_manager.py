@@ -127,9 +127,9 @@ class AddSystemPeer(base.DCManagerShowOne):
         parser.add_argument(
             '--administrative-state',
             required=False,
+            choices=['enabled', 'disabled'],
             default='enabled',
-            help='Administrative control of peer state (enabled | disabled) \
-                  (default enabled).'
+            help='Administrative control of peer state (default enabled).'
         )
 
         parser.add_argument(
@@ -151,9 +151,9 @@ class AddSystemPeer(base.DCManagerShowOne):
         parser.add_argument(
             '--heartbeat-failure-policy',
             required=False,
+            choices=['alarm', 'rehome', 'delegate'],
             default='alarm',
-            help='Action to take with failure detection \
-                  (alarm | rehome | delegate) (default alarm).'
+            help='Action to take with failure detection (default alarm).'
         )
 
         parser.add_argument(
@@ -334,8 +334,8 @@ class UpdateSystemPeer(base.DCManagerShowOne):
         parser.add_argument(
             '--administrative-state',
             required=False,
-            help='Administrative control of peer state (enabled | disabled) \
-                  (default enabled).'
+            choices=['enabled', 'disabled'],
+            help='Administrative control of peer state (default enabled).'
         )
 
         parser.add_argument(
@@ -355,8 +355,8 @@ class UpdateSystemPeer(base.DCManagerShowOne):
         parser.add_argument(
             '--heartbeat-failure-policy',
             required=False,
-            help='Action to take with failure detection \
-                  (alarm | rehome | delegate) (default alarm).'
+            choices=['alarm', 'rehome', 'delegate'],
+            help='Action to take with failure detection (default alarm).'
         )
 
         parser.add_argument(
