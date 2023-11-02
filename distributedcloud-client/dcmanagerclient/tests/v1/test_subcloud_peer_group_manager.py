@@ -73,12 +73,12 @@ class TestCLISubcloudPeerGroupManager(base.BaseCommandTest):
     def test_list_subcloud_peer_group_subclouds(self):
         self.client.subcloud_peer_group_manager.\
             subcloud_peer_group_list_subclouds.return_value = \
-            [base.SUBCLOUD_RESOURCE_WITH_PEERID_REHOME_DATA]
+            [base.SUBCLOUD_RESOURCE_WITH_PEERID]
         actual_call = self.call(
             subcloud_peer_group_cmd.ListSubcloudPeerGroupSubclouds,
             app_args=[base.ID])
         self.assertEqual([
-            base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID_REHOME_DATA],
+            base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID],
             actual_call[1])
 
     def test_add_subcloud_peer_group(self):

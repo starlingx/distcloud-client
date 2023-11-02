@@ -45,7 +45,7 @@ class TestCLIPhasedSubcloudDeployManagerV1(base.BaseCommandTest):
                     '--release', base.SOFTWARE_VERSION,
                 ])
         self.assertEqual(
-            base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID_REHOME_DATA,
+            base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID,
             actual_call[1])
 
     def test_subcloud_deploy_bootstrap(self):
@@ -62,7 +62,7 @@ class TestCLIPhasedSubcloudDeployManagerV1(base.BaseCommandTest):
                     '--bootstrap-values', bootstrap_file_path,
                 ])
         self.assertEqual(
-            base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID_REHOME_DATA,
+            base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID,
             actual_call[1])
 
     def test_install_subcloud(self):
@@ -77,7 +77,7 @@ class TestCLIPhasedSubcloudDeployManagerV1(base.BaseCommandTest):
                     base.NAME, '--install-values', file_path,
                 ])
         self.assertEqual(
-            base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID_REHOME_DATA,
+            base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID,
             actual_call[1])
 
     def test_install_subcloud_with_release(self):
@@ -94,7 +94,7 @@ class TestCLIPhasedSubcloudDeployManagerV1(base.BaseCommandTest):
                     '--release', base.SOFTWARE_VERSION,
                 ])
         self.assertEqual(
-            base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID_REHOME_DATA,
+            base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID,
             actual_call[1])
 
     def test_install_subcloud_without_install_values(self):
@@ -105,7 +105,7 @@ class TestCLIPhasedSubcloudDeployManagerV1(base.BaseCommandTest):
             cmd.InstallPhasedSubcloudDeploy, app_args=[base.NAME])
 
         self.assertEqual(
-            base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID_REHOME_DATA,
+            base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID,
             actual_call[1])
 
     def test_install_file_does_not_exist(self):
@@ -133,7 +133,7 @@ class TestCLIPhasedSubcloudDeployManagerV1(base.BaseCommandTest):
                 cmd.ConfigPhasedSubcloudDeploy,
                 app_args=[base.NAME, '--deploy-config', file_path])
         self.assertEqual(
-            base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID_REHOME_DATA,
+            base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID,
             actual_call[1])
 
     def test_configure_file_does_not_exist(self):
@@ -157,7 +157,7 @@ class TestCLIPhasedSubcloudDeployManagerV1(base.BaseCommandTest):
             cmd.CompletePhasedSubcloudDeploy,
             app_args=[base.NAME])
         self.assertEqual(
-            base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID_REHOME_DATA,
+            base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID,
             actual_call[1])
 
     def test_abort_subcloud(self):
@@ -167,7 +167,7 @@ class TestCLIPhasedSubcloudDeployManagerV1(base.BaseCommandTest):
             cmd.AbortPhasedSubcloudDeploy,
             app_args=[base.NAME])
         self.assertEqual(
-            base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID_REHOME_DATA,
+            base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID,
             actual_call[1])
 
     def test_subcloud_deploy_resume_all_parameters(self):
@@ -192,7 +192,7 @@ class TestCLIPhasedSubcloudDeployManagerV1(base.BaseCommandTest):
                     '--release', base.SOFTWARE_VERSION,
                 ])
         self.assertEqual(
-            base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID_REHOME_DATA,
+            base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID,
             actual_call[1])
 
     def test_subcloud_deploy_resume_missing_files(self):
@@ -244,7 +244,7 @@ class TestCLIPhasedSubcloudDeployManagerV1(base.BaseCommandTest):
             cmd.PhasedSubcloudDeployResume,
             app_args=[base.NAME])
         self.assertEqual(
-            base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID_REHOME_DATA,
+            base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID,
             actual_call[1])
 
     def test_subcloud_deploy_resume_no_files_only_release(self):
@@ -257,5 +257,5 @@ class TestCLIPhasedSubcloudDeployManagerV1(base.BaseCommandTest):
                 '--release', base.SOFTWARE_VERSION,
             ])
         self.assertEqual(
-            base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID_REHOME_DATA,
+            base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID,
             actual_call[1])

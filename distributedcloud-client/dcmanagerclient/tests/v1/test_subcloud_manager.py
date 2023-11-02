@@ -54,7 +54,7 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
             return_value = [base.SUBCLOUD_RESOURCE]
         actual_call = self.call(subcloud_cmd.ShowSubcloud, app_args=[base.ID])
         self.assertEqual(
-            base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID_REHOME_DATA,
+            base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID,
             actual_call[1])
 
     def test_show_subcloud_with_additional_detail(self):
@@ -70,7 +70,7 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
         actual_call = self.call(subcloud_cmd.ShowSubcloud,
                                 app_args=[base.ID, '--detail'])
         self.assertEqual(
-            base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID_REHOME_DATA +
+            base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID +
             (base.EXTERNAL_OAM_FLOATING_ADDRESS,
              base.DEPLOY_CONFIG_SYNC_STATUS, base.REGION_NAME),
             actual_call[1])
@@ -104,10 +104,10 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
                     '--release', base.SOFTWARE_VERSION,
                 ])
         self.assertEqual(
-            base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID_REHOME_DATA,
+            base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID,
             actual_call1[1])
         self.assertEqual(
-            base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID_REHOME_DATA,
+            base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID,
             actual_call2[1])
 
     @mock.patch('getpass.getpass', return_value='testpassword')
@@ -125,7 +125,7 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
                     '--migrate',
                 ])
         self.assertEqual(
-            base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID_REHOME_DATA,
+            base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID,
             actual_call[1])
 
     @mock.patch('getpass.getpass', return_value='testpassword')
@@ -151,7 +151,7 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
     @mock.patch('getpass.getpass', return_value='testpassword')
     def test_add_migrate_subcloud_with_name_change(self, getpass):
         SUBCLOUD_RESOURCE = copy.\
-            copy(base.SUBCLOUD_RESOURCE_WITH_PEERID_REHOME_DATA)
+            copy(base.SUBCLOUD_RESOURCE_WITH_PEERID)
         SUBCLOUD_RESOURCE.name = base.NAME_SC2
         self.client.subcloud_manager.add_subcloud.\
             return_value = [SUBCLOUD_RESOURCE]
@@ -167,14 +167,14 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
                     '--name', base.NAME_SC2
                 ])
         SUBCLOUD_FIELD_RESULT = base.\
-            SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID_REHOME_DATA
+            SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID
         RESULT_LIST = list(SUBCLOUD_FIELD_RESULT)
         RESULT_LIST[1] = base.NAME_SC2
         self.assertEqual(tuple(RESULT_LIST), actual_call[1])
 
     def test_rename_subcloud(self):
         SUBCLOUD_RENAMED = copy.\
-            copy(base.SUBCLOUD_RESOURCE_WITH_PEERID_REHOME_DATA)
+            copy(base.SUBCLOUD_RESOURCE_WITH_PEERID)
         SUBCLOUD_RENAMED.name = base.NAME_SC2
         self.client.subcloud_manager.update_subcloud.\
             return_value = [SUBCLOUD_RENAMED]
@@ -184,7 +184,7 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
             subcloud_cmd.UpdateSubcloud,
             app_args=[base.ID, '--name', base.NAME_SC2])
         results_by_id = \
-            list(base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID_REHOME_DATA)
+            list(base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID)
         results_by_id[1] = base.NAME_SC2
 
         # Rename by name
@@ -193,7 +193,7 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
             app_args=[base.NAME, '--name', base.NAME_SC2])
 
         SUBCLOUD_FIELD_RESULT = base.\
-            SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID_REHOME_DATA
+            SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID
         results_by_name = list(SUBCLOUD_FIELD_RESULT)
         results_by_name[1] = base.NAME_SC2
 
@@ -218,7 +218,7 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
         actual_call = self.call(
             subcloud_cmd.UnmanageSubcloud, app_args=[base.ID])
         self.assertEqual(
-            base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID_REHOME_DATA,
+            base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID,
             actual_call[1])
 
     def test_unmanage_subcloud_without_subcloud_id(self):
@@ -231,7 +231,7 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
         actual_call = self.call(
             subcloud_cmd.ManageSubcloud, app_args=[base.ID])
         self.assertEqual(
-            base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID_REHOME_DATA,
+            base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID,
             actual_call[1])
 
     def test_manage_subcloud_without_subcloud_id(self):
@@ -258,7 +258,7 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
                     '--bootstrap-values', bootstrap_file_path,
                     '--peer-group', 'peer group'])
         self.assertEqual(
-            base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID_REHOME_DATA,
+            base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID,
             actual_call[1])
 
     @mock.patch('getpass.getpass', return_value='testpassword')
@@ -284,7 +284,7 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
                     '--release', base.SOFTWARE_VERSION,
                 ])
         self.assertEqual(
-            base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID_REHOME_DATA,
+            base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID,
             actual_call[1])
 
     @mock.patch('getpass.getpass', return_value='testpassword')
@@ -296,7 +296,7 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
             subcloud_cmd.RedeploySubcloud,
             app_args=[base.ID])
         self.assertEqual(
-            base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID_REHOME_DATA,
+            base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID,
             actual_call[1])
 
     @mock.patch('getpass.getpass', return_value='testpassword')
@@ -355,7 +355,7 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
                       '--sysadmin-password', 'testpassword',
                       '--force'])
         self.assertEqual(
-            base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID_REHOME_DATA,
+            base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID,
             actual_call_without_release[1])
 
     def test_prestage_without_subcloudID(self):
@@ -375,7 +375,7 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
                       '--force',
                       '--release', base.SOFTWARE_VERSION])
         self.assertEqual(
-            base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID_REHOME_DATA +
+            base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID +
             (base.SOFTWARE_VERSION,),
             actual_call_with_release[1])
 
@@ -387,7 +387,7 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
             app_args=[base.ID,
                       '--sysadmin-password', 'testpassword'])
         self.assertEqual(
-            base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID_REHOME_DATA,
+            base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID,
             actual_call_without_release[1])
         self.assertRaises(SystemExit, self.call,
                           subcloud_cmd.MigrateSubcloud, app_args=[])

@@ -85,7 +85,7 @@ class TestCLISubcloudGroupManagerV1(base.BaseCommandTest):
         self.client.subcloud_group_manager.subcloud_group_list_subclouds.\
             assert_called_once_with(ID)
         self.assertEqual([
-            base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID_REHOME_DATA],
+            base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID],
             actual_call[1])
 
     def test_delete_subcloud_group_by_id(self):

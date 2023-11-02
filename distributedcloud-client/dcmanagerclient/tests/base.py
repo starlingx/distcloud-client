@@ -87,7 +87,7 @@ SUBCLOUD_RESOURCE = api_base.Subcloud(
     backup_datetime=BACKUP_DATETIME)
 
 # Subcloud CLI resource object with peerid rehome data
-SUBCLOUD_RESOURCE_WITH_PEERID_REHOME_DATA = api_base.Subcloud(
+SUBCLOUD_RESOURCE_WITH_PEERID = api_base.Subcloud(
     mock,
     subcloud_id=ID,
     name=NAME,
@@ -104,7 +104,6 @@ SUBCLOUD_RESOURCE_WITH_PEERID_REHOME_DATA = api_base.Subcloud(
     systemcontroller_gateway_ip=SYSTEMCONTROLLER_GATEWAY_IP,
     group_id=DEFAULT_SUBCLOUD_GROUP_ID,
     peer_group_id=SUBCLOUD_PEERGROUP_ID,
-    rehome_data=SUBCLOUD_REHOME_DATA,
     created_at=TIME_NOW,
     updated_at=TIME_NOW,
     backup_status=BACKUP_STATUS,
@@ -133,7 +132,7 @@ SUBCLOUD_FIELD_RESULT_LIST = (
 )
 
 # Subcloud result values returned from various API calls (e.g. subcloud show)
-SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID_REHOME_DATA = (
+SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID = (
     ID,
     NAME,
     DESCRIPTION,
@@ -149,7 +148,6 @@ SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID_REHOME_DATA = (
     SYSTEMCONTROLLER_GATEWAY_IP,
     DEFAULT_SUBCLOUD_GROUP_ID,
     SUBCLOUD_PEERGROUP_ID,
-    SUBCLOUD_REHOME_DATA,
     TIME_NOW,
     TIME_NOW,
     BACKUP_STATUS,
@@ -158,7 +156,7 @@ SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID_REHOME_DATA = (
 
 EMPTY_SUBCLOUD_FIELD_RESULT = (('<none>',) * len(SUBCLOUD_FIELD_RESULT_LIST),)
 EMPTY_SUBCLOUD_FIELD_RESULT_WITH_PEERID_REHOME_DATA = \
-    (('<none>',) * len(SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID_REHOME_DATA),)
+    (('<none>',) * len(SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID),)
 
 # Subcloud result values returned from subcloud list command
 SUBCLOUD_LIST_RESULT = (
