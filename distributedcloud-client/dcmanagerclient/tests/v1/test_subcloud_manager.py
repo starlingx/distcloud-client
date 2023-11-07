@@ -221,6 +221,15 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
             base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID,
             actual_call[1])
 
+    def test_unmanage_subcloud_with_migrate(self):
+        self.client.subcloud_manager.update_subcloud.\
+            return_value = [base.SUBCLOUD_RESOURCE]
+        actual_call = self.call(
+            subcloud_cmd.UnmanageSubcloud, app_args=[base.ID, '--migrate'])
+        self.assertEqual(
+            base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID,
+            actual_call[1])
+
     def test_unmanage_subcloud_without_subcloud_id(self):
         self.assertRaises(SystemExit, self.call,
                           subcloud_cmd.UnmanageSubcloud, app_args=[])

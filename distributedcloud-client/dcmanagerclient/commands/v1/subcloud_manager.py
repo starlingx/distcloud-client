@@ -422,6 +422,14 @@ class UnmanageSubcloud(base.DCManagerShowOne):
             'subcloud',
             help='Name or ID of the subcloud to unmanage.'
         )
+
+        parser.add_argument(
+            '--migrate',
+            required=False,
+            action='store_true',
+            help='Mark the subcloud for an upcoming migration.'
+        )
+
         return parser
 
     def _get_resources(self, parsed_args):
@@ -429,6 +437,10 @@ class UnmanageSubcloud(base.DCManagerShowOne):
         dcmanager_client = self.app.client_manager.subcloud_manager
         kwargs = dict()
         kwargs['management-state'] = 'unmanaged'
+
+        if parsed_args.migrate:
+            kwargs['migrate'] = 'true'
+
         try:
             result = dcmanager_client.subcloud_manager.update_subcloud(
                 subcloud_ref, files=None, data=kwargs)
