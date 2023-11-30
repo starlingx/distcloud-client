@@ -561,6 +561,7 @@ class DCManagerShell(app.App):
             'subcloud deploy resume': psdm.PhasedSubcloudDeployResume,
             'subcloud deploy upload': sdm.SubcloudDeployUpload,
             'subcloud deploy show': sdm.SubcloudDeployShow,
+            'subcloud deploy delete': sdm.SubcloudDeployDelete,
             'subcloud-deploy upload': sdm.DeprecatedSubcloudDeployUpload,
             'subcloud-deploy show': sdm.DeprecatedSubcloudDeployShow,
             'subcloud-peer-group add': pm.AddSubcloudPeerGroup,

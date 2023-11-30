@@ -260,3 +260,21 @@ class TestCLISubcloudDeployManagerV1(base.BaseCommandTest):
 
         self.assertTrue('deploy_playbook file does not exist: not_a_valid_path'
                         in str(e))
+
+    def test_subcloud_deploy_delete_with_release(self):
+
+        release_version = base.SOFTWARE_VERSION
+        data = {'prestage_images': 'False', 'deployment_files': 'False'}
+        app_args = ['--release', release_version]
+
+        self.call(subcloud_deploy_cmd.SubcloudDeployDelete, app_args=app_args)
+
+        self.client.subcloud_deploy_manager.subcloud_deploy_delete.\
+            assert_called_once_with(release_version, data=data)
+
+    def test_subcloud_deploy_delete_without_release(self):
+
+        self.call(subcloud_deploy_cmd.SubcloudDeployDelete)
+        data = {'prestage_images': 'False', 'deployment_files': 'False'}
+        self.client.subcloud_deploy_manager.subcloud_deploy_delete.\
+            assert_called_once_with(None, data=data)

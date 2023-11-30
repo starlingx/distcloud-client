@@ -14,10 +14,9 @@
 #    limitations under the License.
 #
 
-from requests_toolbelt import MultipartEncoder
-
 from dcmanagerclient.api import base
 from dcmanagerclient.api.base import get_json
+from requests_toolbelt import MultipartEncoder
 
 
 class SubcloudDeploy(base.Resource):
@@ -74,6 +73,12 @@ class subcloud_deploy_manager(base.ResourceManager):
         resource = self._process_json_response(json_object)
         return resource
 
+    def _deploy_delete(self, url):
+        resp = self.http_client.delete(url)
+        if resp.status_code != 200:
+            self._raise_api_exception(resp)
+        return None
+
     def subcloud_deploy_show(self, release):
         url = '/subcloud-deploy/'
         if release:
@@ -85,3 +90,12 @@ class subcloud_deploy_manager(base.ResourceManager):
         data = kwargs.get('data')
         url = '/subcloud-deploy/'
         return self._deploy_upload(url, files, data)
+
+    def subcloud_deploy_delete(self, release, **kwargs):
+        url = '/subcloud-deploy/'
+        data = kwargs.get('data')
+        if release:
+            url += release + '/'
+        url += '?deployment_files=' + data['deployment_files']
+        url += '&prestage_images=' + data['prestage_images']
+        return self._deploy_delete(url)
