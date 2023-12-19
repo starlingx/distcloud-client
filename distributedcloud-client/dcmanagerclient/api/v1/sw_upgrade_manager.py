@@ -1,5 +1,5 @@
 # Copyright (c) 2017 Ericsson AB.
-# Copyright (c) 2020-2021 Wind River Systems, Inc.
+# Copyright (c) 2020-2023 Wind River Systems, Inc.
 # All Rights Reserved.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,4 +24,5 @@ class sw_upgrade_manager(sw_update_manager):
     def __init__(self, http_client):
         super(sw_upgrade_manager, self).__init__(
             http_client,
-            update_type=SW_UPDATE_TYPE_UPGRADE)
+            update_type=SW_UPDATE_TYPE_UPGRADE,
+            extra_args=['upload-only'])
