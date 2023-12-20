@@ -18,6 +18,7 @@ PEER_GROUP_ASSOCIATION_ID = "1"
 PEER_GROUP_ID = "2"
 SYSTEM_PEER_ID = "3"
 PG_GROUP_PRIORITY = "99"
+ASSOCIATION_TYPE = "primary"
 SYNC_STATUS = "synced"
 SYNC_MESSAGE = "None"
 PG_GROUP_PRIORITY_UPDATED = "1"
@@ -31,6 +32,7 @@ PEER_GROUP_ASSOCIATION = PeerAssociation(
     PEER_GROUP_ID,
     SYSTEM_PEER_ID,
     PG_GROUP_PRIORITY,
+    ASSOCIATION_TYPE,
     SYNC_STATUS,
     SYNC_MESSAGE,
     CREATED_AT,
@@ -40,8 +42,9 @@ PEER_GROUP_ASSOCIATION = PeerAssociation(
 PEER_GROUP_ASSOCIATION_TUPLE = (PEER_GROUP_ASSOCIATION_ID,
                                 PEER_GROUP_ID,
                                 SYSTEM_PEER_ID,
-                                PG_GROUP_PRIORITY,
-                                SYNC_STATUS)
+                                ASSOCIATION_TYPE,
+                                SYNC_STATUS,
+                                PG_GROUP_PRIORITY)
 
 PEER_GROUP_ASSOCIATION_DETAIL_TUPLE = \
     PEER_GROUP_ASSOCIATION_TUPLE + (SYNC_MESSAGE, CREATED_AT, UPDATED_AT)
@@ -49,8 +52,9 @@ PEER_GROUP_ASSOCIATION_DETAIL_TUPLE = \
 PEER_GROUP_ASSOCIATION_TUPLE_UPDATED = (PEER_GROUP_ASSOCIATION_ID,
                                         PEER_GROUP_ID,
                                         SYSTEM_PEER_ID,
-                                        PG_GROUP_PRIORITY_UPDATED,
+                                        ASSOCIATION_TYPE,
                                         SYNC_STATUS,
+                                        PG_GROUP_PRIORITY_UPDATED,
                                         SYNC_MESSAGE,
                                         CREATED_AT,
                                         UPDATED_AT)
@@ -102,8 +106,9 @@ class TestCLIPeerGroupAssociationV1(base.BaseCommandTest):
         self.assertEqual((PEER_GROUP_ASSOCIATION_ID,
                           PEER_GROUP_ID,
                           SYSTEM_PEER_ID,
-                          PG_GROUP_PRIORITY,
+                          ASSOCIATION_TYPE,
                           SYNC_STATUS,
+                          PG_GROUP_PRIORITY,
                           SYNC_MESSAGE,
                           CREATED_AT,
                           UPDATED_AT), actual_call[1])

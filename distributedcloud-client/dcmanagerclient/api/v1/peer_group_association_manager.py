@@ -23,6 +23,7 @@ class PeerGroupAssociation(base.Resource):
                  peer_group_id,
                  system_peer_id,
                  peer_group_priority,
+                 association_type,
                  sync_status,
                  sync_message,
                  created_at,
@@ -32,6 +33,7 @@ class PeerGroupAssociation(base.Resource):
         self.peer_group_id = peer_group_id
         self.system_peer_id = system_peer_id
         self.peer_group_priority = peer_group_priority
+        self.association_type = association_type
         self.sync_status = sync_status
         self.sync_message = sync_message
         self.created_at = created_at
@@ -50,6 +52,7 @@ class peer_group_association_manager(base.ResourceManager):
             peer_group_id=json_object['peer-group-id'],
             system_peer_id=json_object['system-peer-id'],
             peer_group_priority=json_object['peer-group-priority'],
+            association_type=json_object['association-type'],
             sync_status=json_object['sync-status'],
             sync_message=sync_message,
             created_at=json_object['created-at'],

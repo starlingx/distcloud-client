@@ -15,8 +15,9 @@ def association_format(peer_group_association=None):
         'id',
         'peer_group_id',
         'system_peer_id',
-        'peer_group_priority',
-        'sync_status'
+        'type',
+        'sync_status',
+        'peer_group_priority'
     )
 
     if peer_group_association:
@@ -24,8 +25,9 @@ def association_format(peer_group_association=None):
             peer_group_association.association_id,
             peer_group_association.peer_group_id,
             peer_group_association.system_peer_id,
-            peer_group_association.peer_group_priority,
-            peer_group_association.sync_status
+            peer_group_association.association_type,
+            peer_group_association.sync_status,
+            peer_group_association.peer_group_priority
         )
 
     else:
@@ -41,8 +43,9 @@ def detail_association_format(peer_group_association=None):
         'id',
         'peer_group_id',
         'system_peer_id',
-        'peer_group_priority',
+        'association_type',
         'sync_status',
+        'peer_group_priority',
         'sync_message',
         'created_at',
         'updated_at',
@@ -53,8 +56,9 @@ def detail_association_format(peer_group_association=None):
             peer_group_association.association_id,
             peer_group_association.peer_group_id,
             peer_group_association.system_peer_id,
-            peer_group_association.peer_group_priority,
+            peer_group_association.association_type,
             peer_group_association.sync_status,
+            peer_group_association.peer_group_priority,
             peer_group_association.sync_message,
             peer_group_association.created_at,
             peer_group_association.updated_at
@@ -88,9 +92,9 @@ class AddPeerGroupAssociation(base.DCManagerShowOne):
 
         parser.add_argument(
             '--peer-group-priority',
-            required=False,
+            required=True,
             type=int,
-            help='Priority of this peer group. Required when sync is enabled.'
+            help='Priority of this peer group.'
         )
         return parser
 
@@ -99,11 +103,9 @@ class AddPeerGroupAssociation(base.DCManagerShowOne):
             peer_group_association_manager
         kwargs = {
             'peer_group_id': parsed_args.peer_group_id,
-            'system_peer_id': parsed_args.system_peer_id
+            'system_peer_id': parsed_args.system_peer_id,
+            'peer_group_priority': parsed_args.peer_group_priority
         }
-        if parsed_args.peer_group_priority is not None:
-            kwargs['peer_group_priority'] = parsed_args.peer_group_priority
-
         return dcmanager_client.peer_group_association_manager.\
             add_peer_group_association(**kwargs)
 
