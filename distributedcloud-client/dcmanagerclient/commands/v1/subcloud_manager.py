@@ -39,7 +39,7 @@ def format(subcloud=None):
         'deploy status',
         'sync',
         'backup status',
-        'backup datetime'
+        'prestage status'
     )
 
     if subcloud:
@@ -51,7 +51,7 @@ def format(subcloud=None):
             subcloud.deploy_status,
             subcloud.sync_status,
             subcloud.backup_status,
-            subcloud.backup_datetime,
+            subcloud.prestage_status
         )
 
     else:
@@ -60,7 +60,7 @@ def format(subcloud=None):
     return columns, data
 
 
-def detail_format(subcloud=None):
+def basic_detail_format(subcloud=None):
     columns = (
         'id',
         'name',
@@ -80,7 +80,9 @@ def detail_format(subcloud=None):
         'created_at',
         'updated_at',
         'backup_status',
-        'backup_datetime'
+        'backup_datetime',
+        'prestage_status',
+        'prestage_versions'
     )
 
     if subcloud:
@@ -103,9 +105,21 @@ def detail_format(subcloud=None):
             subcloud.created_at,
             subcloud.updated_at,
             subcloud.backup_status,
-            subcloud.backup_datetime
+            subcloud.backup_datetime,
+            subcloud.prestage_status,
+            subcloud.prestage_versions
         )
 
+    else:
+        data = (tuple('<none>' for _ in range(len(columns))),)
+
+    return columns, data
+
+
+def detail_format(subcloud=None):
+    columns, data = basic_detail_format(subcloud)
+
+    if subcloud:
         for _listitem, sync_status in enumerate(subcloud.endpoint_sync_status):
             added_field = (sync_status['endpoint_type'] +
                            "_sync_status",)
@@ -117,10 +131,6 @@ def detail_format(subcloud=None):
             columns += ('oam_floating_ip',)
             data += (subcloud.oam_floating_ip,)
 
-        if subcloud.prestage_software_version:
-            columns += ('prestage_software_version',)
-            data += (subcloud.prestage_software_version,)
-
         if subcloud.deploy_config_sync_status != "unknown":
             columns += ('deploy_config_sync_status',)
             data += (subcloud.deploy_config_sync_status,)
@@ -128,6 +138,33 @@ def detail_format(subcloud=None):
         if subcloud.region_name is not None:
             columns += ('region_name',)
             data += (subcloud.region_name,)
+
+    return columns, data
+
+
+def detail_prestage_format(subcloud=None):
+    columns, data = detail_format(subcloud)
+
+    if subcloud and subcloud.prestage_software_version:
+        columns += ('prestage_software_version',)
+        data += (subcloud.prestage_software_version,)
+
+    return columns, data
+
+
+def detail_list_format(subcloud=None):
+    columns, data = basic_detail_format(subcloud)
+
+    # Find the index of 'deploy_status' in the tuple
+    deploy_status_index = columns.index('deploy_status')
+
+    # Insert "sync" field after 'deploy_status'
+    columns = columns[:deploy_status_index + 1] + ("sync",) + \
+        columns[deploy_status_index + 1:]
+
+    if subcloud:
+        data = data[:deploy_status_index + 1] + (subcloud.sync_status,) + \
+            data[deploy_status_index + 1:]
     else:
         data = (tuple('<none>' for _ in range(len(columns))),)
 
@@ -306,8 +343,18 @@ class AddSubcloud(base.DCManagerShowOne):
 class ListSubcloud(base.DCManagerLister):
     """List subclouds."""
 
+    def __init__(self, app, app_args):
+        super(ListSubcloud, self).__init__(app, app_args)
+        # Set a flag to indicate displaying a basic column list or
+        # a list with customized or all columns
+        self.show_basic_list = True
+
+    def _validate_parsed_args(self, parsed_args):
+        self.show_basic_list = \
+            False if parsed_args.columns or parsed_args.detail else True
+
     def _get_format_function(self):
-        return format
+        return format if self.show_basic_list else detail_list_format
 
     def get_parser(self, prog_name):
         parser = super(ListSubcloud, self).get_parser(prog_name)
@@ -316,6 +363,12 @@ class ListSubcloud(base.DCManagerLister):
             required=False,
             action='store_true',
             help='List all subclouds include "secondary" state subclouds'
+        )
+        parser.add_argument(
+            '-d', '--detail',
+            required=False,
+            action='store_true',
+            help="List all columns of the subclouds"
         )
         return parser
 
@@ -894,7 +947,7 @@ class PrestageSubcloud(base.DCManagerShowOne):
     """Prestage a subcloud."""
 
     def _get_format_function(self):
-        return detail_format
+        return detail_prestage_format
 
     def get_parser(self, prog_name):
         parser = super(PrestageSubcloud, self).get_parser(prog_name)

@@ -1,6 +1,6 @@
 # Copyright 2013 - Mirantis, Inc.
 # Copyright 2016 - Ericsson AB.
-# Copyright (c) 2017-2021 Wind River Systems, Inc.
+# Copyright (c) 2017-2024 Wind River Systems, Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -56,6 +56,9 @@ SUBCLOUD_PEERGROUP_ID = None
 SUBCLOUD_REHOME_DATA = None
 BACKUP_STATUS = 'None'
 BACKUP_DATETIME = 'None'
+PRESTAGE_STATUS = 'None'
+PRESTAGE_VERSIONS = None
+SYNC = None
 
 # Useful for subcloud name configuration
 NAME_SC2 = "subcloud2"
@@ -84,7 +87,9 @@ SUBCLOUD_RESOURCE = api_base.Subcloud(
     updated_at=TIME_NOW,
     group_id=DEFAULT_SUBCLOUD_GROUP_ID,
     backup_status=BACKUP_STATUS,
-    backup_datetime=BACKUP_DATETIME)
+    backup_datetime=BACKUP_DATETIME,
+    prestage_status=PRESTAGE_STATUS,
+    prestage_versions=PRESTAGE_VERSIONS)
 
 # Subcloud CLI resource object with peerid rehome data
 SUBCLOUD_RESOURCE_WITH_PEERID = api_base.Subcloud(
@@ -107,7 +112,35 @@ SUBCLOUD_RESOURCE_WITH_PEERID = api_base.Subcloud(
     created_at=TIME_NOW,
     updated_at=TIME_NOW,
     backup_status=BACKUP_STATUS,
-    backup_datetime=BACKUP_DATETIME)
+    backup_datetime=BACKUP_DATETIME,
+    prestage_status=PRESTAGE_STATUS,
+    prestage_versions=PRESTAGE_VERSIONS)
+
+# Subcloud CLI resource object with all list fields
+SUBCLOUD_RESOURCE_WITH_ALL_LIST_FIELDS = api_base.Subcloud(
+    mock,
+    subcloud_id=ID,
+    name=NAME,
+    description=DESCRIPTION,
+    location=LOCATION,
+    software_version=SOFTWARE_VERSION,
+    management_state=MANAGEMENT_STATE,
+    availability_status=AVAILABILITY_STATUS,
+    deploy_status=DEPLOY_STATUS,
+    sync_status=SYNC,
+    management_subnet=MANAGEMENT_SUBNET,
+    management_start_ip=MANAGEMENT_START_IP,
+    management_end_ip=MANAGEMENT_END_IP,
+    management_gateway_ip=MANAGEMENT_GATEWAY_IP,
+    systemcontroller_gateway_ip=SYSTEMCONTROLLER_GATEWAY_IP,
+    group_id=DEFAULT_SUBCLOUD_GROUP_ID,
+    peer_group_id=SUBCLOUD_PEERGROUP_ID,
+    created_at=TIME_NOW,
+    updated_at=TIME_NOW,
+    backup_status=BACKUP_STATUS,
+    backup_datetime=BACKUP_DATETIME,
+    prestage_status=PRESTAGE_STATUS,
+    prestage_versions=PRESTAGE_VERSIONS)
 
 # Subcloud result values returned from various API calls (e.g. subcloud show)
 SUBCLOUD_FIELD_RESULT_LIST = (
@@ -151,12 +184,25 @@ SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID = (
     TIME_NOW,
     TIME_NOW,
     BACKUP_STATUS,
-    BACKUP_DATETIME
+    BACKUP_DATETIME,
+    PRESTAGE_STATUS,
+    PRESTAGE_VERSIONS
 )
 
 EMPTY_SUBCLOUD_FIELD_RESULT = (('<none>',) * len(SUBCLOUD_FIELD_RESULT_LIST),)
 EMPTY_SUBCLOUD_FIELD_RESULT_WITH_PEERID_REHOME_DATA = \
     (('<none>',) * len(SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID),)
+
+# Create subcloud all fields based on SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID
+# and add an additional "sync" field
+DEPLOY_STATUS_IDX = SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID.index(DEPLOY_STATUS)
+SUBCLOUD_ALL_FIELDS_RESULT_LIST = \
+    SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID[:DEPLOY_STATUS_IDX + 1] + \
+    (SYNC,) + \
+    SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID[DEPLOY_STATUS_IDX + 1:]
+
+EMPTY_SUBCLOUD_ALL_FIELDS_RESULT = \
+    (('<none>',) * len(SUBCLOUD_ALL_FIELDS_RESULT_LIST),)
 
 # Subcloud result values returned from subcloud list command
 SUBCLOUD_LIST_RESULT = (
@@ -167,7 +213,7 @@ SUBCLOUD_LIST_RESULT = (
     DEPLOY_STATUS,
     SYNC_STATUS,
     BACKUP_STATUS,
-    BACKUP_DATETIME
+    PRESTAGE_STATUS
 )
 
 EMPTY_SUBCLOUD_LIST_RESULT = (('<none>',) * len(SUBCLOUD_LIST_RESULT),)
@@ -187,7 +233,9 @@ FAKE_BOOTSTRAP_VALUES = {
     'backup_status': BACKUP_STATUS,
     'backup_datetime': BACKUP_DATETIME,
     'backup_status': BACKUP_STATUS,
-    'backup_datetime': BACKUP_DATETIME
+    'backup_datetime': BACKUP_DATETIME,
+    'prestage_status': PRESTAGE_STATUS,
+    'prestage_versions': PRESTAGE_VERSIONS
 }
 
 FAKE_INSTALL_VALUES = {
@@ -268,12 +316,13 @@ class BaseCommandTest(testtools.TestCase):
         super(BaseCommandTest, self).setUp()
         self.app = mock.Mock()
         self.client = self.app.client_manager.subcloud_manager
+        self.parsed_args = None
 
     def call(self, command, app_args=None, prog_name=''):
         if app_args is None:
             app_args = []
         cmd = command(self.app, app_args)
 
-        parsed_args = cmd.get_parser(prog_name).parse_args(app_args)
+        self.parsed_args = cmd.get_parser(prog_name).parse_args(app_args)
 
-        return cmd.take_action(parsed_args)
+        return cmd.take_action(self.parsed_args)

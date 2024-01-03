@@ -40,6 +40,30 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
         self.assertEqual(base.EMPTY_SUBCLOUD_LIST_RESULT,
                          actual_call[1])
 
+    def test_list_subclouds_with_all_fields(self):
+        self.client.subcloud_manager.list_subclouds.return_value = \
+            [base.SUBCLOUD_RESOURCE_WITH_ALL_LIST_FIELDS]
+        actual_call = self.call(subcloud_cmd.ListSubcloud, app_args=['-d'])
+        self.assertEqual([base.SUBCLOUD_ALL_FIELDS_RESULT_LIST],
+                         actual_call[1])
+
+    def test_list_subclouds_with_all_empty_fields(self):
+        self.client.subcloud_manager.list_subclouds.return_value = []
+        actual_call = self.call(subcloud_cmd.ListSubcloud,
+                                app_args=['--detail'])
+        self.assertEqual(base.EMPTY_SUBCLOUD_ALL_FIELDS_RESULT,
+                         actual_call[1])
+
+    def test_list_subclouds_with_specified_columns(self):
+        self.client.subcloud_manager.list_subclouds.return_value = \
+            [base.SUBCLOUD_RESOURCE_WITH_ALL_LIST_FIELDS]
+        self.call(subcloud_cmd.ListSubcloud,
+                  app_args=['-c', 'name',
+                            '-c', 'prestage_status',
+                            '-c', 'prestage_versions'])
+        self.assertEqual(self.parsed_args.columns,
+                         ['name', 'prestage_status', 'prestage_versions'])
+
     def test_delete_subcloud_with_subcloud_id(self):
         self.call(subcloud_cmd.DeleteSubcloud, app_args=[base.ID])
         self.client.subcloud_manager.delete_subcloud.\

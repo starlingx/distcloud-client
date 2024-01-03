@@ -1,5 +1,5 @@
 # Copyright (c) 2016 Ericsson AB
-# Copyright (c) 2017-2023 Wind River Systems, Inc.
+# Copyright (c) 2017-2024 Wind River Systems, Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -53,6 +53,8 @@ class Subcloud(Resource):
         'backup-status': 'backup_status',
         'backup-datetime': 'backup_datetime',
         'prestage-software-version': 'prestage_software_version',
+        'prestage-status': 'prestage_status',
+        'prestage-versions': 'prestage_versions',
         'region-name': 'region_name'
         }
 
@@ -64,7 +66,8 @@ class Subcloud(Resource):
                  group_id, sync_status="unknown", endpoint_sync_status=None,
                  backup_status=None, backup_datetime=None,
                  error_description=None, prestage_software_version=None,
-                 peer_group_id=None, rehome_data=None, region_name=None):
+                 peer_group_id=None, rehome_data=None, region_name=None,
+                 prestage_status=None, prestage_versions=None):
         if endpoint_sync_status is None:
             endpoint_sync_status = {}
         self.manager = manager
@@ -95,6 +98,8 @@ class Subcloud(Resource):
         self.backup_datetime = backup_datetime
         self.prestage_software_version = prestage_software_version
         self.region_name = region_name
+        self.prestage_status = prestage_status
+        self.prestage_versions = prestage_versions
 
     @classmethod
     def from_payload(cls, manager, payload):

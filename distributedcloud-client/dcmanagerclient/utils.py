@@ -1,7 +1,7 @@
 # Copyright 2016 - Ericsson AB
 # Copyright 2015 - Huawei Technologies Co. Ltd
 # Copyright 2015 - StackStorm, Inc.
-# Copyright (c) 2017-2023 Wind River Systems, Inc.
+# Copyright (c) 2017-2024 Wind River Systems, Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -124,7 +124,9 @@ def subcloud_detail_format(subcloud=None):
         'created_at',
         'updated_at',
         'backup_status',
-        'backup_datetime'
+        'backup_datetime',
+        'prestage_status',
+        'prestage_versions'
     )
 
     if subcloud:
@@ -147,7 +149,9 @@ def subcloud_detail_format(subcloud=None):
             subcloud.created_at,
             subcloud.updated_at,
             subcloud.backup_status,
-            subcloud.backup_datetime
+            subcloud.backup_datetime,
+            subcloud.prestage_status,
+            subcloud.prestage_versions
         )
 
         for _listitem, sync_status in enumerate(subcloud.endpoint_sync_status):
