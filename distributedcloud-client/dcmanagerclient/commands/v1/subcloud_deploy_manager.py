@@ -17,6 +17,7 @@ import os
 
 from dcmanagerclient.commands.v1 import base
 from dcmanagerclient import exceptions
+from osc_lib.command import command
 
 
 def _format(subcloud_deploy=None):
@@ -171,3 +172,52 @@ class DeprecatedSubcloudDeployUpload(SubcloudDeployUpload):
         deprecation_msg = ('This command has been deprecated. Please use '
                            'subcloud deploy upload instead.')
         raise exceptions.DCManagerClientException(deprecation_msg)
+
+
+class SubcloudDeployDelete(command.Command):
+    """Delete the uploaded subcloud deployment files"""
+
+    def get_parser(self, prog_name):
+        parser = super(SubcloudDeployDelete, self).get_parser(prog_name)
+
+        parser.add_argument(
+            '--release',
+            required=False,
+            help='Release version that the user is trying to delete '
+                 'If not specified, the current software '
+                 'release of the system controller will be used.'
+        )
+
+        parser.add_argument(
+            '--prestage-images',
+            required=False,
+            action='store_true',
+            help='Delete prestage images list file only '
+        )
+
+        parser.add_argument(
+            '--deployment-files',
+            required=False,
+            action='store_true',
+            help='Delete deploy playbook, deploy overrides, '
+                 'deploy chart files '
+        )
+
+        return parser
+
+    def take_action(self, parsed_args):
+        dcmanager_client = self.app.client_manager.subcloud_deploy_manager
+        release = parsed_args.release
+        data = dict()
+        if parsed_args.prestage_images is not None:
+            data['prestage_images'] = str(parsed_args.prestage_images)
+        if parsed_args.deployment_files is not None:
+            data['deployment_files'] = str(parsed_args.deployment_files)
+
+        try:
+            dcmanager_client.subcloud_deploy_manager.\
+                subcloud_deploy_delete(release, data=data)
+        except Exception as e:
+            print(e)
+            error_msg = "Unable to delete subcloud deploy files"
+            raise exceptions.DCManagerClientException(error_msg)
