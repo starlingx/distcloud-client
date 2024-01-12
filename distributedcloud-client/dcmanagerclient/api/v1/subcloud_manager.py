@@ -1,5 +1,5 @@
 # Copyright (c) 2017 Ericsson AB.
-# Copyright (c) 2017-2023 Wind River Systems, Inc.
+# Copyright (c) 2017-2024 Wind River Systems, Inc.
 # All Rights Reserved.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
@@ -73,16 +73,6 @@ class subcloud_manager(base.ResourceManager):
         json_object = get_json(resp)
         resource = list()
         resource.append(self.json_to_resource(json_object))
-        return resource
-
-    def subcloud_migrate(self, url, data):
-        data = json.dumps(data)
-        resp = self.http_client.patch(url, data)
-        if resp.status_code != 200:
-            self._raise_api_exception(resp)
-        json_object = get_json(resp)
-        subcloud = self.resource_class.from_payload(self, json_object)
-        resource = [subcloud]
         return resource
 
     def _subcloud_prestage(self, url, data):
@@ -160,8 +150,3 @@ class subcloud_manager(base.ResourceManager):
         data = kwargs.get('data')
         url = '/subclouds/%s/redeploy' % subcloud_ref
         return self.subcloud_redeploy(url, files, data)
-
-    def migrate_subcloud(self, subcloud_ref, **kwargs):
-        data = kwargs.get('data')
-        url = '/subclouds/%s/migrate' % subcloud_ref
-        return self.subcloud_migrate(url, data)

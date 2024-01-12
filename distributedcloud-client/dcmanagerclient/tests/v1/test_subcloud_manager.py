@@ -1,5 +1,5 @@
 # Copyright (c) 2017 Ericsson AB.
-# Copyright (c) 2017-2023 Wind River Systems, Inc.
+# Copyright (c) 2017-2024 Wind River Systems, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -387,16 +387,3 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
             base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID +
             (base.SOFTWARE_VERSION,),
             actual_call_with_release[1])
-
-    def test_migrate_subcloud(self):
-        self.client.subcloud_manager.migrate_subcloud. \
-            return_value = [base.SUBCLOUD_RESOURCE]
-        actual_call_without_release = self.call(
-            subcloud_cmd.MigrateSubcloud,
-            app_args=[base.ID,
-                      '--sysadmin-password', 'testpassword'])
-        self.assertEqual(
-            base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID,
-            actual_call_without_release[1])
-        self.assertRaises(SystemExit, self.call,
-                          subcloud_cmd.MigrateSubcloud, app_args=[])

@@ -1,5 +1,5 @@
 # Copyright (c) 2017 Ericsson AB.
-# Copyright (c) 2017-2023 Wind River Systems, Inc.
+# Copyright (c) 2017-2024 Wind River Systems, Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -957,49 +957,4 @@ class PrestageSubcloud(base.DCManagerShowOne):
         except Exception as e:
             print(e)
             error_msg = "Unable to prestage subcloud %s" % (subcloud_ref)
-            raise exceptions.DCManagerClientException(error_msg)
-
-
-class MigrateSubcloud(base.DCManagerShowOne):
-    """Migrate a secondary status subcloud."""
-    def _get_format_function(self):
-        return detail_format
-
-    def get_parser(self, prog_name):
-        parser = super(MigrateSubcloud, self).get_parser(prog_name)
-
-        parser.add_argument(
-            'subcloud',
-            help='Name or ID of the subcloud to migrate.'
-        )
-
-        parser.add_argument(
-            '--sysadmin-password',
-            required=False,
-            help='sysadmin password of the subcloud to be configured, '
-                 'if not provided you will be prompted.'
-        )
-        return parser
-
-    def _get_resources(self, parsed_args):
-        subcloud_ref = parsed_args.subcloud
-        dcmanager_client = self.app.client_manager.subcloud_manager
-        data = dict()
-        if parsed_args.sysadmin_password is not None:
-            data['sysadmin_password'] = base64.b64encode(
-                parsed_args.sysadmin_password.encode("utf-8")).decode("utf-8")
-        else:
-            password = utils.prompt_for_password()
-            data["sysadmin_password"] = base64.b64encode(
-                password.encode("utf-8")).decode("utf-8")
-
-        try:
-            result = dcmanager_client.subcloud_manager.migrate_subcloud(
-                subcloud_ref=subcloud_ref, data=data)
-            update_fields_values(result)
-            return result
-
-        except Exception as e:
-            print(e)
-            error_msg = "Unable to migrate subcloud %s" % (subcloud_ref)
             raise exceptions.DCManagerClientException(error_msg)
