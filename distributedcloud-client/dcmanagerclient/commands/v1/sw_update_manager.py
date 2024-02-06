@@ -24,8 +24,6 @@ from dcmanagerclient import exceptions
 # also handles 'steps' and 'strategies'
 
 
-# A new field may change where the upload only column
-# will be added by the upgrade manager.
 def detail_format(sw_update_strategy=None):
     columns = (
         'strategy type',
