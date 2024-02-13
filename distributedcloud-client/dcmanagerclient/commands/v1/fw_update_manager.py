@@ -1,5 +1,5 @@
 # Copyright (c) 2017 Ericsson AB.
-# Copyright (c) 2020-2021 Wind River Systems, Inc.
+# Copyright (c) 2020-2021, 2024 Wind River Systems, Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -24,31 +24,31 @@ class FwUpdateManagerMixin(object):
         return dcmanager_client.fw_update_manager
 
 
-class CreateFwUpdateStrategy(FwUpdateManagerMixin,
-                             sw_update_manager.CreateSwUpdateStrategy):
+class CreateFwUpdateStrategy(
+    FwUpdateManagerMixin, sw_update_manager.CreateSwUpdateStrategy
+):
     """Create a firmware update strategy."""
-    pass
 
 
-class ShowFwUpdateStrategy(FwUpdateManagerMixin,
-                           sw_update_manager.ShowSwUpdateStrategy):
+class ShowFwUpdateStrategy(
+    FwUpdateManagerMixin, sw_update_manager.ShowSwUpdateStrategy
+):
     """Show the details of a firmware update strategy for a subcloud."""
-    pass
 
 
-class DeleteFwUpdateStrategy(FwUpdateManagerMixin,
-                             sw_update_manager.DeleteSwUpdateStrategy):
+class DeleteFwUpdateStrategy(
+    FwUpdateManagerMixin, sw_update_manager.DeleteSwUpdateStrategy
+):
     """Delete firmware update strategy from the database."""
-    pass
 
 
-class ApplyFwUpdateStrategy(FwUpdateManagerMixin,
-                            sw_update_manager.ApplySwUpdateStrategy):
+class ApplyFwUpdateStrategy(
+    FwUpdateManagerMixin, sw_update_manager.ApplySwUpdateStrategy
+):
     """Apply a firmware update strategy."""
-    pass
 
 
-class AbortFwUpdateStrategy(FwUpdateManagerMixin,
-                            sw_update_manager.AbortSwUpdateStrategy):
+class AbortFwUpdateStrategy(
+    FwUpdateManagerMixin, sw_update_manager.AbortSwUpdateStrategy
+):
     """Abort a firmware update strategy."""
-    pass

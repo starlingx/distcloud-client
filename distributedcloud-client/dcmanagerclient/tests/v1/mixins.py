@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2020-2023 Wind River Systems, Inc.
+# Copyright (c) 2020-2024 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -19,9 +19,8 @@ class UpdateStrategyMixin(object):
      - provide: self.apply_command
      - provide: self.abort_command
     """
-    def setUp(self):
-        super(UpdateStrategyMixin, self).setUp()
-        self.results_length = 7
+
+    results_length = 7
 
     def test_create_strategy(self):
         """Test that if no strategy exists, one can be created."""
@@ -37,7 +36,7 @@ class UpdateStrategyMixin(object):
 
         # invoke the backend method for the CLI.
         # Returns a tuple of field descriptions, and a second tuple of values
-        fields, results = self.call(self.create_command)
+        _, results = self.call(self.create_command)
 
         # results is a tuple of expected length
         self.assertEqual(len(results), self.results_length)
@@ -55,14 +54,16 @@ class UpdateStrategyMixin(object):
         # prepare mocked results
         manager_to_test = self.sw_update_manager
         expected_strategy_type = manager_to_test.update_type
-        expected_apply_type = 'parallel'
-        strategy = utils.make_strategy(strategy_type=expected_strategy_type,
-                                       subcloud_apply_type=expected_apply_type)
+        expected_apply_type = "parallel"
+        strategy = utils.make_strategy(
+            strategy_type=expected_strategy_type,
+            subcloud_apply_type=expected_apply_type,
+        )
         manager_to_test.update_sw_strategy_detail.return_value = strategy
 
         # invoke the backend method for the CLI.
         # Returns a tuple of field descriptions, and a second tuple of values
-        fields, results = self.call(self.show_command)
+        _, results = self.call(self.show_command)
         # results is a tuple of expected length
         self.assertEqual(len(results), self.results_length)
         # common result tuple values are
@@ -80,14 +81,16 @@ class UpdateStrategyMixin(object):
         # prepare mocked results
         manager_to_test = self.sw_update_manager
         expected_strategy_type = manager_to_test.update_type
-        expected_apply_type = 'parallel'
-        strategy = utils.make_strategy(strategy_type=expected_strategy_type,
-                                       subcloud_apply_type=expected_apply_type)
+        expected_apply_type = "parallel"
+        strategy = utils.make_strategy(
+            strategy_type=expected_strategy_type,
+            subcloud_apply_type=expected_apply_type,
+        )
         manager_to_test.apply_sw_update_strategy.return_value = strategy
 
         # invoke the backend method for the CLI.
         # Returns a tuple of field descriptions, and a second tuple of values
-        fields, results = self.call(self.apply_command)
+        _, results = self.call(self.apply_command)
         # results is a tuple of expected length
         self.assertEqual(len(results), self.results_length)
         # common result tuple values are
@@ -105,14 +108,16 @@ class UpdateStrategyMixin(object):
         # prepare mocked results
         manager_to_test = self.sw_update_manager
         expected_strategy_type = manager_to_test.update_type
-        expected_apply_type = 'parallel'
-        strategy = utils.make_strategy(strategy_type=expected_strategy_type,
-                                       subcloud_apply_type=expected_apply_type)
+        expected_apply_type = "parallel"
+        strategy = utils.make_strategy(
+            strategy_type=expected_strategy_type,
+            subcloud_apply_type=expected_apply_type,
+        )
         manager_to_test.abort_sw_update_strategy.return_value = strategy
 
         # invoke the backend method for the CLI.
         # Returns a tuple of field descriptions, and a second tuple of values
-        fields, results = self.call(self.abort_command)
+        _, results = self.call(self.abort_command)
         # results is a tuple of expected length
         self.assertEqual(len(results), self.results_length)
         # common result tuple values are
@@ -130,14 +135,16 @@ class UpdateStrategyMixin(object):
         # prepare mocked results
         manager_to_test = self.sw_update_manager
         expected_strategy_type = manager_to_test.update_type
-        expected_apply_type = 'parallel'
-        strategy = utils.make_strategy(strategy_type=expected_strategy_type,
-                                       subcloud_apply_type=expected_apply_type)
+        expected_apply_type = "parallel"
+        strategy = utils.make_strategy(
+            strategy_type=expected_strategy_type,
+            subcloud_apply_type=expected_apply_type,
+        )
         manager_to_test.delete_sw_update_strategy.return_value = strategy
 
         # invoke the backend method for the CLI.
         # Returns a tuple of field descriptions, and a second tuple of values
-        fields, results = self.call(self.delete_command)
+        _, results = self.call(self.delete_command)
         # results is a tuple of expected length
         self.assertEqual(len(results), self.results_length)
         # common result tuple values are

@@ -1,6 +1,6 @@
 # Copyright 2015 Huawei Technologies Co., Ltd.
 # Copyright 2016 Ericsson AB.
-# Copyright (c) 2017, 2019, 2021 Wind River Systems, Inc.
+# Copyright (c) 2017, 2019, 2021, 2024 Wind River Systems, Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ class BaseShellTests(testtools.TestCase):
             _shell = shell.DCManagerShell()
             _shell.run(argstr.split())
         except SystemExit:
-            exc_type, exc_value, exc_traceback = sys.exc_info()
+            _, exc_value, _ = sys.exc_info()
             self.assertEqual(0, exc_value.code)
         finally:
             stdout = sys.stdout.getvalue()

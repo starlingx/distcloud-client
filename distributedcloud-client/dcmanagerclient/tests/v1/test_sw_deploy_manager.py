@@ -36,8 +36,8 @@ class TestSwDeployStrategy(UpdateStrategyMixin, base.BaseCommandTest):
 
         # mock the result of the API call
         strategy = utils.make_strategy(
-            strategy_type=expected_strategy_type, extra_args={
-                "release_id": "stx-24.09.1"}
+            strategy_type=expected_strategy_type,
+            extra_args={"release_id": "stx-24.09.1"},
         )
 
         # mock that there is no pre-existing strategy
@@ -46,7 +46,8 @@ class TestSwDeployStrategy(UpdateStrategyMixin, base.BaseCommandTest):
         # invoke the backend method for the CLI.
         # Returns a tuple of field descriptions, and a second tuple of values
         fields, results = self.call(
-            self.create_command, ["--release-id", "stx-24.09.1"])
+            self.create_command, ["--release-id", "stx-24.09.1"]
+        )
 
         # results is a tuple of expected length
         self.assertEqual(len(results), self.results_length)
@@ -59,10 +60,10 @@ class TestSwDeployStrategy(UpdateStrategyMixin, base.BaseCommandTest):
         # - state
         # - created_at
         # - updated_at
-
+        failure_index = fields.index("stop on failure")
         self.assertEqual(results[0], expected_strategy_type)
-        self.assertEqual(fields[-4], "release_id")
-        self.assertEqual(results[-4], "stx-24.09.1")
+        self.assertEqual(fields[failure_index + 1], "release_id")
+        self.assertEqual(results[failure_index + 1], "stx-24.09.1")
 
     def test_create_strategy_without_release_id(self):
         """Test deploy strategy should not be created without --release-id"""

@@ -1,6 +1,5 @@
-
 #
-# Copyright (c) 2022 Wind River Systems, Inc.
+# Copyright (c) 2022, 2024 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -25,20 +24,26 @@ class subcloud_backup_manager(base.ResourceManager):
         fields = dict()
         if files:
             for k, v in files.items():
-                fields.update({k: (v, open(v, 'rb'),)})
+                fields.update(
+                    {
+                        k: (
+                            v,
+                            open(v, "rb"),
+                        )
+                    }
+                )
         fields.update(data)
         enc = MultipartEncoder(fields=fields)
-        headers = {'content-type': enc.content_type}
+        headers = {"content-type": enc.content_type}
         resp = self.http_client.post(url, enc, headers=headers)
 
         if resp.status_code != 200:
             self._raise_api_exception(resp)
         json_response_key = get_json(resp)
-        json_objects = json_response_key['subclouds']
+        json_objects = json_response_key["subclouds"]
         resource = []
         for json_object in json_objects:
-            resource.append(
-                self.json_to_resource(json_object))
+            resource.append(self.json_to_resource(json_object))
         return resource
 
     def subcloud_backup_delete(self, url, data):
@@ -46,7 +51,7 @@ class subcloud_backup_manager(base.ResourceManager):
         fields = dict()
         fields.update(data)
         enc = MultipartEncoder(fields=fields)
-        headers = {'content-type': enc.content_type}
+        headers = {"content-type": enc.content_type}
 
         resp = self.http_client.patch(url, enc, headers=headers)
         if resp.status_code not in {204, 207}:
@@ -60,10 +65,17 @@ class subcloud_backup_manager(base.ResourceManager):
         fields = dict()
         if files:
             for k, v in files.items():
-                fields.update({k: (v, open(v, 'rb'),)})
+                fields.update(
+                    {
+                        k: (
+                            v,
+                            open(v, "rb"),
+                        )
+                    }
+                )
         fields.update(data)
         enc = MultipartEncoder(fields=fields)
-        headers = {'content-type': enc.content_type}
+        headers = {"content-type": enc.content_type}
 
         resp = self.http_client.patch(url, enc, headers=headers)
 
@@ -71,25 +83,25 @@ class subcloud_backup_manager(base.ResourceManager):
             self._raise_api_exception(resp)
 
         json_response_key = get_json(resp)
-        json_objects = json_response_key['subclouds']
+        json_objects = json_response_key["subclouds"]
         resource = []
         for json_object in json_objects:
             resource.append(self.json_to_resource(json_object))
         return resource
 
     def backup_subcloud_create(self, **kwargs):
-        files = kwargs.get('files')
-        data = kwargs.get('data')
-        url = '/subcloud-backup/'
+        files = kwargs.get("files")
+        data = kwargs.get("data")
+        url = "/subcloud-backup/"
         return self.subcloud_backup_create(url, files, data)
 
     def backup_subcloud_delete(self, release_version, **kwargs):
-        data = kwargs.get('data')
-        url = '/subcloud-backup/delete/%s' % release_version
+        data = kwargs.get("data")
+        url = f"/subcloud-backup/delete/{release_version}"
         return self.subcloud_backup_delete(url, data)
 
     def backup_subcloud_restore(self, **kwargs):
-        files = kwargs.get('files')
-        data = kwargs.get('data')
-        url = '/subcloud-backup/restore'
+        files = kwargs.get("files")
+        data = kwargs.get("data")
+        url = "/subcloud-backup/restore"
         return self.subcloud_backup_restore(url, files, data)

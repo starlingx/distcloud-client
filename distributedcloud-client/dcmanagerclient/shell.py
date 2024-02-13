@@ -23,12 +23,12 @@ import logging
 import os
 import sys
 
-from cliff import app
-from cliff import commandmanager
+from cliff import app, commandmanager
 from cliff import help as cliff_help
 from osc_lib.command import command
 
 from dcmanagerclient import __version__ as dcmanager_version
+from dcmanagerclient import exceptions
 from dcmanagerclient.api import client
 from dcmanagerclient.commands.v1 import alarm_manager as am
 from dcmanagerclient.commands.v1 import fw_update_manager as fum
@@ -48,9 +48,6 @@ from dcmanagerclient.commands.v1 import sw_update_manager as swum
 from dcmanagerclient.commands.v1 import sw_update_options_manager as suom
 from dcmanagerclient.commands.v1 import sw_upgrade_manager as supm
 from dcmanagerclient.commands.v1 import system_peer_manager as sp
-from dcmanagerclient import exceptions
-
-LOG = logging.getLogger(__name__)
 
 
 def env(*args, **kwargs):
@@ -62,22 +59,24 @@ def env(*args, **kwargs):
         value = os.environ.get(arg)
         if value:
             return value
-    return kwargs.get('default', '')
+    return kwargs.get("default", "")
 
 
 class OpenStackHelpFormatter(argparse.HelpFormatter):
-    def __init__(self, prog, indent_increment=2, max_help_position=32,
-                 width=None):
+    def __init__(
+        self,
+        prog,
+        indent_increment=2,
+        max_help_position=32,
+        width=None,
+    ):
         super(OpenStackHelpFormatter, self).__init__(
-            prog,
-            indent_increment,
-            max_help_position,
-            width
+            prog, indent_increment, max_help_position, width
         )
 
     def start_section(self, heading):
         # Title-case the headings.
-        heading = '%s%s' % (heading[0].upper(), heading[1:])
+        heading = f"{heading[0].upper()}{heading[1:]}"
         super(OpenStackHelpFormatter, self).start_section(heading)
 
 
@@ -88,6 +87,7 @@ class HelpCommand(cliff_help.HelpCommand):
     arguments could use our custom HelpAction
 
     """
+
     def take_action(self, parsed_args):
         if parsed_args.cmd:
             super().take_action(parsed_args)
@@ -113,18 +113,17 @@ class HelpAction(argparse.Action):
         max_len = 0
         main_app = self.default
         parser.print_help(main_app.stdout)
-        main_app.stdout.write('\nCommands for API v1 :\n')
+        main_app.stdout.write("\nCommands for API v1 :\n")
 
         for name, ep in sorted(main_app.command_manager):
             factory = ep.load()
             cmd = factory(self, None)
-            one_liner = cmd.get_description().split('\n')[0]
+            one_liner = cmd.get_description().split("\n")[0]
             outputs.append((name, one_liner))
             max_len = max(len(name), max_len)
 
-        for (name, one_liner) in outputs:
-            main_app.stdout.write('  %s  %s\n' % (name.ljust(max_len),
-                                                  one_liner))
+        for name, one_liner in outputs:
+            main_app.stdout.write(f"  {name.ljust(max_len)}  {one_liner}\n")
 
         sys.exit(0)
 
@@ -136,13 +135,16 @@ class BashCompletionCommand(command.Command):
         commands = set()
         options = set()
 
-        for option, _action in self.app.parser._option_string_actions.items():
+        for (
+            option,
+            _action,
+        ) in self.app.parser._option_string_actions.items():
             options.add(option)
 
         for command_name, _cmd in self.app.command_manager:
             commands.add(command_name)
 
-        print(' '.join(commands | options))
+        print(" ".join(commands | options))
 
 
 class DCManagerShell(app.App):
@@ -150,11 +152,11 @@ class DCManagerShell(app.App):
         super(DCManagerShell, self).__init__(
             description=__doc__.strip(),
             version=dcmanager_version,
-            command_manager=commandmanager.CommandManager('dcmanager.cli'),
+            command_manager=commandmanager.CommandManager("dcmanager.cli"),
         )
 
         # Override default help command
-        self.command_manager.add_command('help', HelpCommand)
+        self.command_manager.add_command("help", HelpCommand)
 
         # Set v1 commands by default
         self._set_shell_commands(self._get_commands(version=1))
@@ -166,15 +168,14 @@ class DCManagerShell(app.App):
         log_lvl = logging.DEBUG if self.options.debug else logging.WARNING
         logging.basicConfig(
             format="%(levelname)s (%(module)s) %(message)s",
-            level=log_lvl
+            level=log_lvl,
         )
-        logging.getLogger('iso8601').setLevel(logging.WARNING)
+        logging.getLogger("iso8601").setLevel(logging.WARNING)
 
         if self.options.verbose_level <= 1:
-            logging.getLogger('requests').setLevel(logging.WARNING)
+            logging.getLogger("requests").setLevel(logging.WARNING)
 
-    def build_option_parser(self, description, version,
-                            argparse_kwargs=None):
+    def build_option_parser(self, description, version, argparse_kwargs=None):
         """Return an argparse option parser for this application.
 
         Subclasses may override this method to extend
@@ -194,41 +195,44 @@ class DCManagerShell(app.App):
             description=description,
             add_help=False,
             formatter_class=OpenStackHelpFormatter,
-            **argparse_kwargs
+            **argparse_kwargs,
         )
 
         parser.add_argument(
-            '--version',
-            action='version',
-            version='%(prog)s {0}'.format(version),
-            help='Show program\'s version number and exit.'
+            "--version",
+            action="version",
+            version=f"%(prog)s {version}",
+            help="Show program's version number and exit.",
         )
 
         parser.add_argument(
-            '-v', '--verbose',
-            action='count',
-            dest='verbose_level',
+            "-v",
+            "--verbose",
+            action="count",
+            dest="verbose_level",
             default=self.DEFAULT_VERBOSE_LEVEL,
-            help='Increase verbosity of output. Can be repeated.',
+            help="Increase verbosity of output. Can be repeated.",
         )
 
         parser.add_argument(
-            '--log-file',
-            action='store',
+            "--log-file",
+            action="store",
             default=None,
-            help='Specify a file to log output. Disabled by default.',
+            help="Specify a file to log output. Disabled by default.",
         )
 
         parser.add_argument(
-            '-q', '--quiet',
-            action='store_const',
-            dest='verbose_level',
+            "-q",
+            "--quiet",
+            action="store_const",
+            dest="verbose_level",
             const=0,
-            help='Suppress output except warnings and errors.',
+            help="Suppress output except warnings and errors.",
         )
 
         parser.add_argument(
-            '-h', '--help',
+            "-h",
+            "--help",
             action=HelpAction,
             nargs=0,
             default=self,  # tricky
@@ -236,183 +240,178 @@ class DCManagerShell(app.App):
         )
 
         parser.add_argument(
-            '--debug',
+            "--debug",
             default=False,
-            action='store_true',
-            help='Show tracebacks on errors.',
+            action="store_true",
+            help="Show tracebacks on errors.",
         )
 
         parser.add_argument(
-            '--dcmanager-url',
-            action='store',
-            dest='dcmanager_url',
-            default=env('DCMANAGER_URL'),
-            help='DC Manager API host (Env: DCMANAGER_URL)'
+            "--dcmanager-url",
+            action="store",
+            dest="dcmanager_url",
+            default=env("DCMANAGER_URL"),
+            help="DC Manager API host (Env: DCMANAGER_URL)",
         )
 
         parser.add_argument(
-            '--dcmanager-api-version',
-            action='store',
-            dest='dcmanager_version',
-            default=env('DCMANAGER_API_VERSION', default='v1.0'),
-            help='DC Manager API version (default = v1.0) (Env: '
-                 'DCMANAGER_API_VERSION)'
+            "--dcmanager-api-version",
+            action="store",
+            dest="dcmanager_version",
+            default=env("DCMANAGER_API_VERSION", default="v1.0"),
+            help="DC Manager API version (default = v1.0) (Env: "
+            "DCMANAGER_API_VERSION)",
         )
 
         parser.add_argument(
-            '--dcmanager-service-type',
-            action='store',
-            dest='service_type',
-            default=env('DCMANAGER_SERVICE_TYPE',
-                        default='dcmanager'),
-            help='DC Manager service-type (should be the same name as in '
-                 'keystone-endpoint) (default = dcmanager) (Env: '
-                 'DCMANAGER_SERVICE_TYPE)'
+            "--dcmanager-service-type",
+            action="store",
+            dest="service_type",
+            default=env("DCMANAGER_SERVICE_TYPE", default="dcmanager"),
+            help="DC Manager service-type (should be the same name as in "
+            "keystone-endpoint) (default = dcmanager) (Env: "
+            "DCMANAGER_SERVICE_TYPE)",
         )
 
         parser.add_argument(
-            '--os-endpoint-type',
-            action='store',
-            dest='endpoint_type',
-            default=env('OS_ENDPOINT_TYPE',
-                        default='internalURL'),
-            help='DC Manager endpoint-type (should be the same name as in '
-                 'keystone-endpoint) (default = OS_ENDPOINT_TYPE)'
+            "--os-endpoint-type",
+            action="store",
+            dest="endpoint_type",
+            default=env("OS_ENDPOINT_TYPE", default="internalURL"),
+            help="DC Manager endpoint-type (should be the same name as in "
+            "keystone-endpoint) (default = OS_ENDPOINT_TYPE)",
         )
 
         parser.add_argument(
-            '--os-username',
-            action='store',
-            dest='username',
-            default=env('OS_USERNAME', default='admin'),
-            help='Authentication username (Env: OS_USERNAME)'
+            "--os-username",
+            action="store",
+            dest="username",
+            default=env("OS_USERNAME", default="admin"),
+            help="Authentication username (Env: OS_USERNAME)",
         )
 
         parser.add_argument(
-            '--os-password',
-            action='store',
-            dest='password',
-            default=env('OS_PASSWORD'),
-            help='Authentication password (Env: OS_PASSWORD)'
+            "--os-password",
+            action="store",
+            dest="password",
+            default=env("OS_PASSWORD"),
+            help="Authentication password (Env: OS_PASSWORD)",
         )
 
         parser.add_argument(
-            '--os-tenant-id',
-            action='store',
-            dest='tenant_id',
-            default=env('OS_TENANT_ID', 'OS_PROJECT_ID'),
-            help='Authentication tenant identifier (Env: OS_TENANT_ID)'
+            "--os-tenant-id",
+            action="store",
+            dest="tenant_id",
+            default=env("OS_TENANT_ID", "OS_PROJECT_ID"),
+            help="Authentication tenant identifier (Env: OS_TENANT_ID)",
         )
 
         parser.add_argument(
-            '--os-project-id',
-            action='store',
-            dest='project_id',
-            default=env('OS_TENANT_ID', 'OS_PROJECT_ID'),
-            help='Authentication project identifier (Env: OS_TENANT_ID'
-                 ' or OS_PROJECT_ID), will use tenant_id if both tenant_id'
-                 ' and project_id are set'
+            "--os-project-id",
+            action="store",
+            dest="project_id",
+            default=env("OS_TENANT_ID", "OS_PROJECT_ID"),
+            help="Authentication project identifier (Env: OS_TENANT_ID"
+            " or OS_PROJECT_ID), will use tenant_id if both tenant_id"
+            " and project_id are set",
         )
 
         parser.add_argument(
-            '--os-tenant-name',
-            action='store',
-            dest='tenant_name',
-            default=env('OS_TENANT_NAME', 'OS_PROJECT_NAME'),
-            help='Authentication tenant name (Env: OS_TENANT_NAME)'
+            "--os-tenant-name",
+            action="store",
+            dest="tenant_name",
+            default=env("OS_TENANT_NAME", "OS_PROJECT_NAME"),
+            help="Authentication tenant name (Env: OS_TENANT_NAME)",
         )
 
         parser.add_argument(
-            '--os-project-name',
-            action='store',
-            dest='project_name',
-            default=env('OS_TENANT_NAME', 'OS_PROJECT_NAME'),
-            help='Authentication project name (Env: OS_TENANT_NAME'
-                 ' or OS_PROJECT_NAME), will use tenant_name if both'
-                 ' tenant_name and project_name are set'
+            "--os-project-name",
+            action="store",
+            dest="project_name",
+            default=env("OS_TENANT_NAME", "OS_PROJECT_NAME"),
+            help="Authentication project name (Env: OS_TENANT_NAME"
+            " or OS_PROJECT_NAME), will use tenant_name if both"
+            " tenant_name and project_name are set",
         )
 
         parser.add_argument(
-            '--os-auth-token',
-            action='store',
-            dest='token',
-            default=env('OS_AUTH_TOKEN'),
-            help='Authentication token (Env: OS_AUTH_TOKEN)'
+            "--os-auth-token",
+            action="store",
+            dest="token",
+            default=env("OS_AUTH_TOKEN"),
+            help="Authentication token (Env: OS_AUTH_TOKEN)",
         )
 
         parser.add_argument(
-            '--os-project-domain-name',
-            action='store',
-            dest='project_domain_name',
-            default=env('OS_PROJECT_DOMAIN_NAME'),
-            help='Authentication project domain name or ID'
-                 ' (Env: OS_PROJECT_DOMAIN_NAME)'
+            "--os-project-domain-name",
+            action="store",
+            dest="project_domain_name",
+            default=env("OS_PROJECT_DOMAIN_NAME"),
+            help="Authentication project domain name or ID"
+            " (Env: OS_PROJECT_DOMAIN_NAME)",
         )
 
         parser.add_argument(
-            '--os-project-domain-id',
-            action='store',
-            dest='project_domain_id',
-            default=env('OS_PROJECT_DOMAIN_ID'),
-            help='Authentication project domain ID'
-                 ' (Env: OS_PROJECT_DOMAIN_ID)'
+            "--os-project-domain-id",
+            action="store",
+            dest="project_domain_id",
+            default=env("OS_PROJECT_DOMAIN_ID"),
+            help="Authentication project domain ID" " (Env: OS_PROJECT_DOMAIN_ID)",
         )
 
         parser.add_argument(
-            '--os-user-domain-name',
-            action='store',
-            dest='user_domain_name',
-            default=env('OS_USER_DOMAIN_NAME'),
-            help='Authentication user domain name'
-                 ' (Env: OS_USER_DOMAIN_NAME)'
+            "--os-user-domain-name",
+            action="store",
+            dest="user_domain_name",
+            default=env("OS_USER_DOMAIN_NAME"),
+            help="Authentication user domain name" " (Env: OS_USER_DOMAIN_NAME)",
         )
 
         parser.add_argument(
-            '--os-user-domain-id',
-            action='store',
-            dest='user_domain_id',
-            default=env('OS_USER_DOMAIN_ID'),
-            help='Authentication user domain name'
-                 ' (Env: OS_USER_DOMAIN_ID)'
+            "--os-user-domain-id",
+            action="store",
+            dest="user_domain_id",
+            default=env("OS_USER_DOMAIN_ID"),
+            help="Authentication user domain name" " (Env: OS_USER_DOMAIN_ID)",
         )
 
         parser.add_argument(
-            '--os-auth-url',
-            action='store',
-            dest='auth_url',
-            default=env('OS_AUTH_URL'),
-            help='Authentication URL (Env: OS_AUTH_URL)'
+            "--os-auth-url",
+            action="store",
+            dest="auth_url",
+            default=env("OS_AUTH_URL"),
+            help="Authentication URL (Env: OS_AUTH_URL)",
         )
 
         parser.add_argument(
-            '--os-cacert',
-            action='store',
-            dest='cacert',
-            default=env('OS_CACERT'),
-            help='Authentication CA Certificate (Env: OS_CACERT)'
+            "--os-cacert",
+            action="store",
+            dest="cacert",
+            default=env("OS_CACERT"),
+            help="Authentication CA Certificate (Env: OS_CACERT)",
         )
 
         parser.add_argument(
-            '--insecure',
-            action='store_true',
-            dest='insecure',
-            default=env('DCMANAGERCLIENT_INSECURE', default=False),
-            help='Disables SSL/TLS certificate verification '
-                 '(Env: DCMANAGERCLIENT_INSECURE)'
+            "--insecure",
+            action="store_true",
+            dest="insecure",
+            default=env("DCMANAGERCLIENT_INSECURE", default=False),
+            help="Disables SSL/TLS certificate verification "
+            "(Env: DCMANAGERCLIENT_INSECURE)",
         )
 
         parser.add_argument(
-            '--profile',
-            dest='profile',
-            metavar='HMAC_KEY',
-            help='HMAC key to use for encrypting context data for performance '
-                 'profiling of operation. This key should be one of the '
-                 'values configured for the osprofiler middleware in '
-                 'dcmanager, it is specified in the profiler section of the '
-                 'dcmanager configuration '
-                 '(i.e. /etc/dcmanager/dcmanager.conf). '
-                 'Without the key, profiling will not be triggered even if '
-                 'osprofiler is enabled on the server side.'
+            "--profile",
+            dest="profile",
+            metavar="HMAC_KEY",
+            help="HMAC key to use for encrypting context data for performance "
+            "profiling of operation. This key should be one of the "
+            "values configured for the osprofiler middleware in "
+            "dcmanager, it is specified in the profiler section of the "
+            "dcmanager configuration "
+            "(i.e. /etc/dcmanager/dcmanager.conf). "
+            "Without the key, profiling will not be triggered even if "
+            "osprofiler is enabled on the server side.",
         )
 
         return parser
@@ -424,38 +423,43 @@ class DCManagerShell(app.App):
 
         self._set_shell_commands(self._get_commands(ver))
 
-        do_help = ['help', '-h', 'bash-completion', 'complete']
+        do_help = ["help", "-h", "bash-completion", "complete"]
 
         # bash-completion should not require authentication.
-        skip_auth = ''.join(argv) in do_help
+        skip_auth = "".join(argv) in do_help
 
         if skip_auth:
             self.options.auth_url = None
 
-        if self.options.auth_url and not self.options.token \
-                and not skip_auth:
+        if self.options.auth_url and not self.options.token and not skip_auth:
             if not self.options.tenant_name:
                 raise exceptions.CommandError(
-                    ("You must provide a tenant_name "
-                     "via --os-tenantname env[OS_TENANT_NAME]")
+                    (
+                        "You must provide a tenant_name "
+                        "via --os-tenantname env[OS_TENANT_NAME]"
+                    )
                 )
             if not self.options.username:
                 raise exceptions.CommandError(
-                    ("You must provide a username "
-                     "via --os-username env[OS_USERNAME]")
+                    (
+                        "You must provide a username "
+                        "via --os-username env[OS_USERNAME]"
+                    )
                 )
 
             if not self.options.password:
                 raise exceptions.CommandError(
-                    ("You must provide a password "
-                     "via --os-password env[OS_PASSWORD]")
+                    (
+                        "You must provide a password "
+                        "via --os-password env[OS_PASSWORD]"
+                    )
                 )
 
         kwargs = {
-            'user_domain_name': self.options.user_domain_name,
-            'user_domain_id': self.options.user_domain_id,
-            'project_domain_name': self.options.project_domain_name,
-            'project_domain_id': self.options.project_domain_id
+            "user_domain_name": self.options.user_domain_name,
+            "user_domain_id": self.options.user_domain_id,
+            "project_domain_name": self.options.project_domain_name,
+            "project_domain_id": self.options.project_domain_id,
         }
 
         self.client = client.client(
@@ -471,40 +475,43 @@ class DCManagerShell(app.App):
             cacert=self.options.cacert,
             insecure=self.options.insecure,
             profile=self.options.profile,
-            **kwargs
+            **kwargs,
         )
 
         if not self.options.auth_url and not skip_auth:
             raise exceptions.CommandError(
-                ("You must provide an auth url via either "
-                 "--os-auth-url or env[OS_AUTH_URL] or "
-                 "specify an auth_system which defines a"
-                 " default url with --os-auth-system or env[OS_AUTH_SYSTEM]")
+                (
+                    "You must provide an auth url via either "
+                    "--os-auth-url or env[OS_AUTH_URL] or "
+                    "specify an auth_system which defines a"
+                    " default url with --os-auth-system or env[OS_AUTH_SYSTEM]"
+                )
             )
 
         # Adding client_manager variable to make dcmanager client work with
         # unified OpenStack client.
         ClientManager = type(
-            'ClientManager',
+            "ClientManager",
             (object,),
-            dict(subcloud_manager=self.client,
-                 subcloud_backup_manager=self.client,
-                 subcloud_group_manager=self.client,
-                 subcloud_deploy_manager=self.client,
-                 system_peer_manager=self.client,
-                 alarm_manager=self.client,
-                 fw_update_manager=self.client,
-                 sw_patch_manager=self.client,
-                 strategy_step_manager=self.client,
-                 sw_update_options_manager=self.client,
-                 sw_upgrade_manager=self.client,
-                 sw_deploy_manager=self.client,
-                 kube_upgrade_manager=self.client,
-                 kube_rootca_update_manager=self.client,
-                 sw_prestage_manager=self.client,
-                 phased_subcloud_deploy_manager=self.client,
-                 subcloud_peer_group_manager=self.client,
-                 peer_group_association_manager=self.client)
+            dict(
+                subcloud_manager=self.client,
+                subcloud_backup_manager=self.client,
+                subcloud_group_manager=self.client,
+                subcloud_deploy_manager=self.client,
+                system_peer_manager=self.client,
+                alarm_manager=self.client,
+                fw_update_manager=self.client,
+                sw_patch_manager=self.client,
+                strategy_step_manager=self.client,
+                sw_update_options_manager=self.client,
+                sw_upgrade_manager=self.client,
+                kube_upgrade_manager=self.client,
+                kube_rootca_update_manager=self.client,
+                sw_prestage_manager=self.client,
+                phased_subcloud_deploy_manager=self.client,
+                subcloud_peer_group_manager=self.client,
+                peer_group_association_manager=self.client,
+            ),
         )
         self.client_manager = ClientManager()
 
@@ -513,7 +520,7 @@ class DCManagerShell(app.App):
             self.command_manager.add_command(k, v)
 
     def _clear_shell_commands(self):
-        exclude_cmds = ['help', 'complete']
+        exclude_cmds = ["help", "complete"]
 
         cmds = self.command_manager.commands.copy()
         for k, _v in cmds.items():
@@ -536,16 +543,13 @@ class DCManagerShell(app.App):
             "fw-update-strategy create": fum.CreateFwUpdateStrategy,
             "fw-update-strategy delete": fum.DeleteFwUpdateStrategy,
             "fw-update-strategy show": fum.ShowFwUpdateStrategy,
-            "kube-rootca-update-strategy abort":
-                krum.AbortKubeRootcaUpdateStrategy,
-            "kube-rootca-update-strategy apply":
-                krum.ApplyKubeRootcaUpdateStrategy,
+            "kube-rootca-update-strategy abort": krum.AbortKubeRootcaUpdateStrategy,
+            "kube-rootca-update-strategy apply": krum.ApplyKubeRootcaUpdateStrategy,
             "kube-rootca-update-strategy create":
                 krum.CreateKubeRootcaUpdateStrategy,
             "kube-rootca-update-strategy delete":
                 krum.DeleteKubeRootcaUpdateStrategy,
-            "kube-rootca-update-strategy show":
-                krum.ShowKubeRootcaUpdateStrategy,
+            "kube-rootca-update-strategy show": krum.ShowKubeRootcaUpdateStrategy,
             "kube-upgrade-strategy abort": kupm.AbortKubeUpgradeStrategy,
             "kube-upgrade-strategy apply": kupm.ApplyKubeUpgradeStrategy,
             "kube-upgrade-strategy create": kupm.CreateKubeUpgradeStrategy,
@@ -619,8 +623,7 @@ class DCManagerShell(app.App):
             "subcloud-peer-group add": pm.AddSubcloudPeerGroup,
             "subcloud-peer-group delete": pm.DeleteSubcloudPeerGroup,
             "subcloud-peer-group list": pm.ListSubcloudPeerGroup,
-            "subcloud-peer-group list-subclouds":
-                pm.ListSubcloudPeerGroupSubclouds,
+            "subcloud-peer-group list-subclouds": pm.ListSubcloudPeerGroupSubclouds,
             "subcloud-peer-group migrate": pm.MigrateSubcloudPeerGroup,
             "subcloud-peer-group show": pm.ShowSubcloudPeerGroup,
             "subcloud-peer-group status": pm.StatusSubcloudPeerGroup,
@@ -646,5 +649,5 @@ def main(argv=None):
     return DCManagerShell().run(argv)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main(sys.argv[1:]))

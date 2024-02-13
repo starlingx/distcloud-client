@@ -1,5 +1,5 @@
 # Copyright (c) 2017 Ericsson AB.
-# Copyright (c) 2020-2021 Wind River Systems, Inc.
+# Copyright (c) 2020-2021, 2024 Wind River Systems, Inc.
 # All Rights Reserved.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,17 +22,19 @@ from dcmanagerclient.api.base import get_json
 
 
 class SubcloudGroup(base.Resource):
-    resource_name = 'subcloud_group'
+    resource_name = "subcloud_group"
 
-    def __init__(self,
-                 manager,
-                 group_id,
-                 name,
-                 description,
-                 update_apply_type,
-                 max_parallel_subclouds,
-                 created_at,
-                 updated_at):
+    def __init__(
+        self,
+        manager,
+        group_id,
+        name,
+        description,
+        update_apply_type,
+        max_parallel_subclouds,
+        created_at,
+        updated_at,
+    ):
         self.manager = manager
         self.group_id = group_id
         self.name = name
@@ -53,13 +55,14 @@ class subcloud_group_manager(base.ResourceManager):
     def _json_to_resource(self, json_object):
         return self.resource_class(
             self,
-            group_id=json_object['id'],
-            name=json_object['name'],
-            description=json_object['description'],
-            update_apply_type=json_object['update_apply_type'],
-            max_parallel_subclouds=json_object['max_parallel_subclouds'],
-            created_at=json_object['created-at'],
-            updated_at=json_object['updated-at'])
+            group_id=json_object["id"],
+            name=json_object["name"],
+            description=json_object["description"],
+            update_apply_type=json_object["update_apply_type"],
+            max_parallel_subclouds=json_object["max_parallel_subclouds"],
+            created_at=json_object["created-at"],
+            updated_at=json_object["updated-at"],
+        )
 
     def subcloud_group_create(self, url, data):
         data = json.dumps(data)
@@ -86,7 +89,7 @@ class subcloud_group_manager(base.ResourceManager):
         if resp.status_code != 200:
             self._raise_api_exception(resp)
         json_response_key = get_json(resp)
-        json_objects = json_response_key['subcloud_groups']
+        json_objects = json_response_key["subcloud_groups"]
         resource = []
         for json_object in json_objects:
             resource.append(self._json_to_resource(json_object))
@@ -106,35 +109,34 @@ class subcloud_group_manager(base.ResourceManager):
         if resp.status_code != 200:
             self._raise_api_exception(resp)
         json_response_key = get_json(resp)
-        json_objects = json_response_key['subclouds']
+        json_objects = json_response_key["subclouds"]
         resource = []
         for json_object in json_objects:
-            resource.append(
-                self.subcloud_manager.json_to_resource(json_object))
+            resource.append(self.subcloud_manager.json_to_resource(json_object))
         return resource
 
     def add_subcloud_group(self, **kwargs):
         data = kwargs
-        url = '/subcloud-groups/'
+        url = "/subcloud-groups/"
         return self.subcloud_group_create(url, data)
 
     def list_subcloud_groups(self):
-        url = '/subcloud-groups/'
+        url = "/subcloud-groups/"
         return self.subcloud_group_list(url)
 
     def subcloud_group_list_subclouds(self, subcloud_group_ref):
-        url = '/subcloud-groups/%s/subclouds' % subcloud_group_ref
+        url = f"/subcloud-groups/{subcloud_group_ref}/subclouds"
         return self._list_subclouds_for_subcloud_group(url)
 
     def subcloud_group_detail(self, subcloud_group_ref):
-        url = '/subcloud-groups/%s' % subcloud_group_ref
+        url = f"/subcloud-groups/{subcloud_group_ref}"
         return self._subcloud_group_detail(url)
 
     def delete_subcloud_group(self, subcloud_group_ref):
-        url = '/subcloud-groups/%s' % subcloud_group_ref
+        url = f"/subcloud-groups/{subcloud_group_ref}"
         return self._delete(url)
 
     def update_subcloud_group(self, subcloud_group_ref, **kwargs):
         data = kwargs
-        url = '/subcloud-groups/%s' % subcloud_group_ref
+        url = f"/subcloud-groups/{subcloud_group_ref}"
         return self.subcloud_group_update(url, data)

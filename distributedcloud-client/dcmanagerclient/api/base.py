@@ -14,60 +14,82 @@
 #    limitations under the License.
 #
 
-from bs4 import BeautifulSoup
 import json
+
+from bs4 import BeautifulSoup
 
 from dcmanagerclient import exceptions
 
 
 class Resource(object):
     # This will be overridden by the actual resource
-    resource_name = 'Something'
+    resource_name = "Something"
 
 
 class Subcloud(Resource):
-    resource_name = 'subclouds'
+    resource_name = "subclouds"
 
     _PAYLOAD_NAME_MAP = {
-        'id': 'subcloud_id',
-        'name': 'name',
-        'description': 'description',
-        'location': 'location',
-        'software-version': 'software_version',
-        'management-state': 'management_state',
-        'availability-status': 'availability_status',
-        'deploy-status': 'deploy_status',
-        'error-description': 'error_description',
-        'management-subnet': 'management_subnet',
-        'management-start-ip': 'management_start_ip',
-        'management-end-ip': 'management_end_ip',
-        'management-gateway-ip': 'management_gateway_ip',
-        'systemcontroller-gateway-ip': 'systemcontroller_gateway_ip',
-        'created-at': 'created_at',
-        'updated-at': 'updated_at',
-        'group_id': 'group_id',
-        'peer_group_id': 'peer_group_id',
-        'rehome_data': 'rehome_data',
-        'sync_status': 'sync_status',
-        'endpoint_sync_status': 'endpoint_sync_status',
-        'backup-status': 'backup_status',
-        'backup-datetime': 'backup_datetime',
-        'prestage-software-version': 'prestage_software_version',
-        'prestage-status': 'prestage_status',
-        'prestage-versions': 'prestage_versions',
-        'region-name': 'region_name'
-        }
+        "id": "subcloud_id",
+        "name": "name",
+        "description": "description",
+        "location": "location",
+        "software-version": "software_version",
+        "management-state": "management_state",
+        "availability-status": "availability_status",
+        "deploy-status": "deploy_status",
+        "error-description": "error_description",
+        "management-subnet": "management_subnet",
+        "management-start-ip": "management_start_ip",
+        "management-end-ip": "management_end_ip",
+        "management-gateway-ip": "management_gateway_ip",
+        "systemcontroller-gateway-ip": "systemcontroller_gateway_ip",
+        "created-at": "created_at",
+        "updated-at": "updated_at",
+        "group_id": "group_id",
+        "peer_group_id": "peer_group_id",
+        "rehome_data": "rehome_data",
+        "sync_status": "sync_status",
+        "endpoint_sync_status": "endpoint_sync_status",
+        "backup-status": "backup_status",
+        "backup-datetime": "backup_datetime",
+        "prestage-software-version": "prestage_software_version",
+        "prestage-status": "prestage_status",
+        "prestage-versions": "prestage_versions",
+        "region-name": "region_name",
+    }
 
-    def __init__(self, manager, subcloud_id, name, description, location,
-                 software_version, management_state, availability_status,
-                 deploy_status, management_subnet, management_start_ip,
-                 management_end_ip, management_gateway_ip,
-                 systemcontroller_gateway_ip, created_at, updated_at,
-                 group_id, sync_status="unknown", endpoint_sync_status=None,
-                 backup_status=None, backup_datetime=None,
-                 error_description=None, prestage_software_version=None,
-                 peer_group_id=None, rehome_data=None, region_name=None,
-                 prestage_status=None, prestage_versions=None):
+    def __init__(
+        self,
+        manager,
+        subcloud_id,
+        name,
+        description,
+        location,
+        software_version,
+        management_state,
+        availability_status,
+        deploy_status,
+        management_subnet,
+        management_start_ip,
+        management_end_ip,
+        management_gateway_ip,
+        systemcontroller_gateway_ip,
+        created_at,
+        updated_at,
+        group_id,
+        sync_status="unknown",
+        endpoint_sync_status=None,
+        backup_status=None,
+        backup_datetime=None,
+        error_description=None,
+        prestage_software_version=None,
+        peer_group_id=None,
+        rehome_data=None,
+        region_name=None,
+        prestage_status=None,
+        prestage_versions=None,
+    ):
         if endpoint_sync_status is None:
             endpoint_sync_status = {}
         self.manager = manager
@@ -104,7 +126,7 @@ class Subcloud(Resource):
     @classmethod
     def from_payload(cls, manager, payload):
         """Returns a class instance based on a single payload."""
-        parameters = {'manager': manager}
+        parameters = {"manager": manager}
 
         # Converts payload parameter name to match the class attributes
         for payload_param, value in payload.items():
@@ -138,12 +160,12 @@ class ResourceManager(object):
             for resource_data in json_object:
                 resource.append(
                     self.resource_class(  # pylint: disable=not-callable
-                        self,
-                        resource_data,
-                        json_object[resource_data]))
+                        self, resource_data, json_object[resource_data]
+                    )
+                )
         return resource
 
-    def _list(self, url, response_key=None):
+    def _list(self, url, _response_key=None):
         resp = self.http_client.get(url)
         if resp.status_code != 200:
             self._raise_api_exception(resp)
@@ -173,14 +195,16 @@ class ResourceManager(object):
         json_objects = [json_response_key[item] for item in json_response_key]
         resource = []
         for json_object in json_objects:
-            data = json_object.get('usage')
+            data = json_object.get("usage")
             for values in data:
                 resource.append(
                     self.resource_class(  # pylint: disable=not-callable
                         self,
                         values,
-                        json_object['limits'][values],
-                        json_object['usage'][values]))
+                        json_object["limits"][values],
+                        json_object["usage"][values],
+                    )
+                )
         return resource
 
     def _delete(self, url):
@@ -190,25 +214,26 @@ class ResourceManager(object):
 
     def _raise_api_exception(self, resp):
         error_html = resp.content
-        soup = BeautifulSoup(error_html, 'html.parser')
+        soup = BeautifulSoup(error_html, "html.parser")
         # Get the raw html with get_text, strip out the blank lines on
         # front and back, then get rid of the first line of error code
         # so that we are left with just the meaningful error text.
         try:
-            line_list = soup.body.get_text().lstrip().rstrip().split('\n')[1:]
+            line_list = soup.body.get_text().lstrip().rstrip().split("\n")[1:]
             error_msg = line_list[0].lstrip().rstrip()
             for line in line_list[1:]:
-                error_msg += ' ' + line.lstrip().rstrip()
+                error_msg += " " + line.lstrip().rstrip()
         except Exception:
             error_msg = resp.content
 
-        raise exceptions.APIException(error_code=resp.status_code,
-                                      error_message=error_msg)
+        raise exceptions.APIException(
+            error_code=resp.status_code, error_message=error_msg
+        )
 
 
 def get_json(response):
     """Get JSON representation of response."""
-    json_field_or_function = getattr(response, 'json', None)
+    json_field_or_function = getattr(response, "json", None)
     if callable(json_field_or_function):
         return response.json()
     else:

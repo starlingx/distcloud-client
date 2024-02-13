@@ -1,7 +1,7 @@
 # Copyright 2013 - Mirantis, Inc.
 # Copyright 2016 - StackStorm, Inc.
 # Copyright 2016 - Ericsson AB.
-# Copyright (c) 2017-2021 Wind River Systems, Inc.
+# Copyright (c) 2017-2021, 2024 Wind River Systems, Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -17,91 +17,100 @@
 #
 
 import copy
+import logging
 import os
 
+import osprofiler.web
 import requests
 
-import logging
-
-import osprofiler.web
-
+CONTENT_TYPE = "content-type"
 LOG = logging.getLogger(__name__)
 
 
 def log_request(func):
     def decorator(self, *args, **kwargs):
         resp = func(self, *args, **kwargs)
-        LOG.debug("HTTP %s %s %d %s",
-                  resp.request.method, resp.url, resp.status_code, resp.text)
+        LOG.debug(
+            "HTTP %s %s %d %s",
+            resp.request.method,
+            resp.url,
+            resp.status_code,
+            resp.text,
+        )
         return resp
 
     return decorator
 
 
 class HTTPClient(object):
-    def __init__(self, base_url, token=None, project_id=None, user_id=None,
-                 cacert=None, insecure=False):
+    def __init__(
+        self,
+        base_url,
+        token=None,
+        project_id=None,
+        user_id=None,
+        cacert=None,
+        insecure=False,
+    ):
         self.base_url = base_url
         self.token = token
         self.project_id = project_id
         self.user_id = user_id
         self.ssl_options = {}
 
-        if self.base_url.startswith('https'):
+        if self.base_url.startswith("https"):
             if cacert and not os.path.exists(cacert):
-                raise ValueError('Unable to locate cacert file '
-                                 'at %s.' % cacert)
+                raise ValueError("Unable to locate cacert file at {cacert}.")
 
             if cacert and insecure:
-                LOG.warning('Client is set to not verify even though '
-                            'cacert is provided.')
+                LOG.warning(
+                    "Client is set to not verify even though cacert is provided."
+                )
 
             if insecure:
-                self.ssl_options['verify'] = False
+                self.ssl_options["verify"] = False
             else:
-                self.ssl_options['verify'] = True if not cacert else cacert
+                self.ssl_options["verify"] = True if not cacert else cacert
 
     @log_request
     def get(self, url, headers=None):
-        options = self._get_request_options('get', headers)
+        options = self._get_request_options("get", headers)
 
         return requests.get(self.base_url + url, **options)
 
     @log_request
     def post(self, url, body, headers=None):
-        options = self._get_request_options('post', headers)
+        options = self._get_request_options("post", headers)
 
         return requests.post(self.base_url + url, body, **options)
 
     @log_request
     def put(self, url, body, headers=None):
-        options = self._get_request_options('put', headers)
+        options = self._get_request_options("put", headers)
 
         return requests.put(self.base_url + url, body, **options)
 
     @log_request
     def patch(self, url, body, headers=None):
-        options = self._get_request_options('patch', headers)
+        options = self._get_request_options("patch", headers)
 
         return requests.patch(self.base_url + url, body, **options)
 
     @log_request
     def delete(self, url, headers=None):
-        options = self._get_request_options('delete', headers)
+        options = self._get_request_options("delete", headers)
 
         return requests.delete(self.base_url + url, **options)
 
     def _get_request_options(self, method, headers):
         headers = self._update_headers(headers)
 
-        CONTENT_TYPE = 'content-type'
-
-        if method in ['post', 'put', 'patch'] and CONTENT_TYPE not in headers:
-            content_type = headers.get(CONTENT_TYPE, 'application/json')
+        if method in ["post", "put", "patch"] and CONTENT_TYPE not in headers:
+            content_type = headers.get(CONTENT_TYPE, "application/json")
             headers[CONTENT_TYPE] = content_type
 
         options = copy.deepcopy(self.ssl_options)
-        options['headers'] = headers
+        options["headers"] = headers
 
         return options
 
@@ -109,17 +118,17 @@ class HTTPClient(object):
         if not headers:
             headers = {}
 
-        token = headers.get('x-auth-token', self.token)
+        token = headers.get("x-auth-token", self.token)
         if token:
-            headers['x-auth-token'] = token
+            headers["x-auth-token"] = token
 
-        project_id = headers.get('X-Project-Id', self.project_id)
+        project_id = headers.get("X-Project-Id", self.project_id)
         if project_id:
-            headers['X-Project-Id'] = project_id
+            headers["X-Project-Id"] = project_id
 
-        user_id = headers.get('X-User-Id', self.user_id)
+        user_id = headers.get("X-User-Id", self.user_id)
         if user_id:
-            headers['X-User-Id'] = user_id
+            headers["X-User-Id"] = user_id
 
         # Add headers for osprofiler.
         headers.update(osprofiler.web.get_trace_id_headers())

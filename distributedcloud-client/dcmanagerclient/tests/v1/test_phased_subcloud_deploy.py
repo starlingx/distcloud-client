@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2023 Wind River Systems, Inc.
+# Copyright (c) 2023-2024 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -28,9 +28,9 @@ class TestCLIPhasedSubcloudDeployManagerV1(base.BaseCommandTest):
         self.client.subcloud_deploy_create.return_value = [
             base.SUBCLOUD_RESOURCE]
 
-        with tempfile.NamedTemporaryFile(mode='w') as bootstrap_file,\
-            tempfile.NamedTemporaryFile(mode='w') as config_file,\
-            tempfile.NamedTemporaryFile(mode='w') as install_file:
+        with tempfile.NamedTemporaryFile(mode='w') as bootstrap_file, \
+                tempfile.NamedTemporaryFile(mode='w') as config_file, \
+                tempfile.NamedTemporaryFile(mode='w') as install_file:
 
             bootstrap_file_path = os.path.abspath(bootstrap_file.name)
             config_file_path = os.path.abspath(config_file.name)
@@ -174,9 +174,9 @@ class TestCLIPhasedSubcloudDeployManagerV1(base.BaseCommandTest):
         self.client.subcloud_deploy_resume.return_value = [
             base.SUBCLOUD_RESOURCE]
 
-        with tempfile.NamedTemporaryFile(mode='w') as bootstrap_file,\
-            tempfile.NamedTemporaryFile(mode='w') as config_file,\
-            tempfile.NamedTemporaryFile(mode='w') as install_file:
+        with tempfile.NamedTemporaryFile(mode='w') as bootstrap_file, \
+                tempfile.NamedTemporaryFile(mode='w') as config_file, \
+                tempfile.NamedTemporaryFile(mode='w') as install_file:
 
             bootstrap_file_path = os.path.abspath(bootstrap_file.name)
             config_file_path = os.path.abspath(config_file.name)
@@ -199,9 +199,9 @@ class TestCLIPhasedSubcloudDeployManagerV1(base.BaseCommandTest):
         self.client.subcloud_deploy_resume.return_value = [
             base.SUBCLOUD_RESOURCE]
 
-        with tempfile.NamedTemporaryFile(mode='w') as bootstrap_file,\
-            tempfile.NamedTemporaryFile(mode='w') as config_file,\
-            tempfile.NamedTemporaryFile(mode='w') as install_file:
+        with tempfile.NamedTemporaryFile(mode='w') as bootstrap_file, \
+                tempfile.NamedTemporaryFile(mode='w') as config_file, \
+                tempfile.NamedTemporaryFile(mode='w') as install_file:
 
             bootstrap_file_path = os.path.abspath(bootstrap_file.name)
             config_file_path = os.path.abspath(config_file.name)

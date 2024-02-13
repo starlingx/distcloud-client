@@ -1,5 +1,5 @@
 # Copyright (c) 2017 Ericsson AB.
-# Copyright (c) 2017-2023 Wind River Systems, Inc.
+# Copyright (c) 2017-2024 Wind River Systems, Inc.
 # All Rights Reserved.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,18 +22,20 @@ from dcmanagerclient.api.base import get_json
 
 
 class SwUpdateStrategy(base.Resource):
-    resource_name = 'sw_update_strategy'
+    resource_name = "sw_update_strategy"
 
-    def __init__(self,
-                 manager,
-                 strategy_type,
-                 subcloud_apply_type,
-                 max_parallel_subclouds,
-                 stop_on_failure,
-                 state,
-                 created_at,
-                 updated_at,
-                 extra_args=None):
+    def __init__(
+        self,
+        manager,
+        strategy_type,
+        subcloud_apply_type,
+        max_parallel_subclouds,
+        stop_on_failure,
+        state,
+        created_at,
+        updated_at,
+        extra_args=None,
+    ):
         self.manager = manager
         self.strategy_type = strategy_type
         self.subcloud_apply_type = subcloud_apply_type
@@ -48,30 +50,30 @@ class SwUpdateStrategy(base.Resource):
 class sw_update_manager(base.ResourceManager):
     """sw_update_manager
 
-       sw_update_manager is an abstract class that is used by subclasses to
-       manage API actions for specific update strategy types  such as software
-       patches and firmware updates.
+    sw_update_manager is an abstract class that is used by subclasses to
+    manage API actions for specific update strategy types  such as software
+    patches and firmware updates.
     """
 
-    def __init__(self, http_client,
-                 update_type,
-                 resource_class=SwUpdateStrategy,
-                 url='sw-update-strategy',
-                 extra_args=None):
+    def __init__(
+        self,
+        http_client,
+        update_type,
+        resource_class=SwUpdateStrategy,
+        url="sw-update-strategy",
+        extra_args=None,
+    ):
         super(sw_update_manager, self).__init__(http_client)
         self.resource_class = resource_class
         self.update_type = update_type
         # create_url is typically /<foo>/
-        self.create_url = '/{}/'.format(url)
+        self.create_url = f"/{url}/"
         # get_url is typically /<foo>
-        self.get_url = '/{url}?type={update_type}'.format(
-            url=url, update_type=self.update_type)
+        self.get_url = f"/{url}?type={update_type}"
         # delete_url is typically /<foo> (same as get)
-        self.delete_url = '/{url}?type={update_type}'.format(
-            url=url, update_type=self.update_type)
+        self.delete_url = f"/{url}?type={update_type}"
         # actions_url is typically /<foo>/actions
-        self.actions_url = '/{url}/actions?type={update_type}'.format(
-            url=url, update_type=self.update_type)
+        self.actions_url = f"/{url}/actions?type={update_type}"
 
         if extra_args is None:
             self.extra_args = []
@@ -81,7 +83,7 @@ class sw_update_manager(base.ResourceManager):
     def create_sw_update_strategy(self, **kwargs):
         data = kwargs
         if self.update_type is not None:
-            data.update({'type': self.update_type})
+            data.update({"type": self.update_type})
         return self._sw_update_create(self.create_url, data)
 
     def update_sw_strategy_detail(self):
@@ -91,11 +93,11 @@ class sw_update_manager(base.ResourceManager):
         return self._sw_update_delete(self.delete_url)
 
     def apply_sw_update_strategy(self):
-        data = {'action': 'apply'}
+        data = {"action": "apply"}
         return self._sw_update_action(self.actions_url, data)
 
     def abort_sw_update_strategy(self):
-        data = {'action': 'abort'}
+        data = {"action": "abort"}
         return self._sw_update_action(self.actions_url, data)
 
     def extract_extra_args(self, json_object):
@@ -115,14 +117,15 @@ class sw_update_manager(base.ResourceManager):
     def _build_from_json(self, json_object):
         return self.resource_class(
             self,
-            strategy_type=json_object['type'],
-            subcloud_apply_type=json_object['subcloud-apply-type'],
-            max_parallel_subclouds=json_object['max-parallel-subclouds'],
-            stop_on_failure=json_object['stop-on-failure'],
-            state=json_object['state'],
-            created_at=json_object['created-at'],
-            updated_at=json_object['updated-at'],
-            extra_args=self.extract_extra_args(json_object))
+            strategy_type=json_object["type"],
+            subcloud_apply_type=json_object["subcloud-apply-type"],
+            max_parallel_subclouds=json_object["max-parallel-subclouds"],
+            stop_on_failure=json_object["stop-on-failure"],
+            state=json_object["state"],
+            created_at=json_object["created-at"],
+            updated_at=json_object["updated-at"],
+            extra_args=self.extract_extra_args(json_object),
+        )
 
     def _sw_update_create(self, url, data):
         data = json.dumps(data)

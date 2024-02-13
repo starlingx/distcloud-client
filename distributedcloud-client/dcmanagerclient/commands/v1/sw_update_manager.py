@@ -1,5 +1,5 @@
 # Copyright (c) 2017 Ericsson AB.
-# Copyright (c) 2020-2023 Wind River Systems, Inc.
+# Copyright (c) 2020-2024 Wind River Systems, Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -14,8 +14,8 @@
 #    limitations under the License.
 #
 
-from dcmanagerclient.commands.v1 import base
 from dcmanagerclient import exceptions
+from dcmanagerclient.commands.v1 import base
 
 # These are the abstract base classes used for sw update managers such as
 # - sw-patch-manager
@@ -26,13 +26,13 @@ from dcmanagerclient import exceptions
 
 def detail_format(sw_update_strategy=None):
     columns = (
-        'strategy type',
-        'subcloud apply type',
-        'max parallel subclouds',
-        'stop on failure',
-        'state',
-        'created_at',
-        'updated_at',
+        "strategy type",
+        "subcloud apply type",
+        "max parallel subclouds",
+        "stop on failure",
+        "state",
+        "created_at",
+        "updated_at",
     )
 
     if sw_update_strategy:
@@ -46,19 +46,19 @@ def detail_format(sw_update_strategy=None):
             sw_update_strategy.updated_at,
         )
     else:
-        data = (tuple('<none>' for _ in range(len(columns))),)
+        data = (tuple("<none>" for _ in range(len(columns))),)
 
     return columns, data
 
 
 def strategy_step_format(strategy_step=None):
     columns = (
-        'cloud',
-        'stage',
-        'state',
-        'details',
-        'started_at',
-        'finished_at',
+        "cloud",
+        "stage",
+        "state",
+        "details",
+        "started_at",
+        "finished_at",
     )
 
     if strategy_step:
@@ -72,21 +72,21 @@ def strategy_step_format(strategy_step=None):
         )
 
     else:
-        data = (tuple('<none>' for _ in range(len(columns))),)
+        data = (tuple("<none>" for _ in range(len(columns))),)
 
     return columns, data
 
 
 def detail_strategy_step_format(strategy_step=None):
     columns = (
-        'cloud',
-        'stage',
-        'state',
-        'details',
-        'started_at',
-        'finished_at',
-        'created_at',
-        'updated_at',
+        "cloud",
+        "stage",
+        "state",
+        "details",
+        "started_at",
+        "finished_at",
+        "created_at",
+        "updated_at",
     )
 
     if strategy_step:
@@ -102,7 +102,7 @@ def detail_strategy_step_format(strategy_step=None):
         )
 
     else:
-        data = (tuple('<none>' for _ in range(len(columns))),)
+        data = (tuple("<none>" for _ in range(len(columns))),)
 
     return columns, data
 
@@ -119,49 +119,47 @@ class CreateSwUpdateStrategy(base.DCManagerShowOne):
 
     def add_force_argument(self, parser):
         parser.add_argument(
-            '--force',
+            "--force",
             required=False,
-            action='store_true',
-            help='Disregard subcloud availability status, intended for \
+            action="store_true",
+            help="Disregard subcloud availability status, intended for \
                   some upgrade recovery scenarios. Subcloud name must be \
-                  specified.'
+                  specified.",
         )
 
     def get_parser(self, prog_name):
         parser = super(CreateSwUpdateStrategy, self).get_parser(prog_name)
 
         parser.add_argument(
-            '--subcloud-apply-type',
+            "--subcloud-apply-type",
             required=False,
-            choices=['parallel', 'serial'],
-            help='Subcloud apply type (parallel or serial).'
+            choices=["parallel", "serial"],
+            help="Subcloud apply type (parallel or serial).",
         )
 
         parser.add_argument(
-            '--max-parallel-subclouds',
+            "--max-parallel-subclouds",
             required=False,
             type=int,
-            help='Maximum number of parallel subclouds.'
+            help="Maximum number of parallel subclouds.",
         )
 
         parser.add_argument(
-            '--stop-on-failure',
+            "--stop-on-failure",
             required=False,
-            action='store_true',
-            help='Do not update any additional subclouds after a failure.'
+            action="store_true",
+            help="Do not update any additional subclouds after a failure.",
         )
 
         parser.add_argument(
-            '--group',
-            required=False,
-            help='Name or ID of subcloud group to update.'
+            "--group", required=False, help="Name or ID of subcloud group to update."
         )
 
         parser.add_argument(
-            'cloud_name',
-            nargs='?',
+            "cloud_name",
+            nargs="?",
             default=None,
-            help='Name of a single cloud to update.'
+            help="Name of a single cloud to update.",
         )
 
         self.add_force_argument(parser)
@@ -172,45 +170,50 @@ class CreateSwUpdateStrategy(base.DCManagerShowOne):
     def validate_force_params(self, parsed_args):
         """Most orchestrations only support force for a single subcloud"""
         if parsed_args.force and not parsed_args.cloud_name:
-            error_msg = 'The --force option can only be applied to a single ' \
-                        'subcloud. Please specify the subcloud name.'
+            error_msg = (
+                "The --force option can only be applied to a single "
+                "subcloud. Please specify the subcloud name."
+            )
             raise exceptions.DCManagerClientException(error_msg)
 
     def validate_group_params(self, parsed_args):
         """When specifying a group, other inputs are considered invalid"""
         if parsed_args.group:
             if parsed_args.cloud_name:
-                error_msg = 'The cloud_name and group options are mutually ' \
-                            'exclusive.'
+                error_msg = (
+                    "The cloud_name and group options are mutually exclusive."
+                )
                 raise exceptions.DCManagerClientException(error_msg)
             if parsed_args.subcloud_apply_type:
-                error_msg = 'The --subcloud-apply-type is not ' \
-                            'supported when --group option is applied.'
+                error_msg = (
+                    "The --subcloud-apply-type is not "
+                    "supported when --group option is applied."
+                )
                 raise exceptions.DCManagerClientException(error_msg)
             if parsed_args.max_parallel_subclouds:
-                error_msg = 'The --max-parallel-subclouds options is not ' \
-                            'supported when --group option is applied.'
+                error_msg = (
+                    "The --max-parallel-subclouds options is not "
+                    "supported when --group option is applied."
+                )
                 raise exceptions.DCManagerClientException(error_msg)
 
     def process_custom_params(self, parsed_args, kwargs_dict):
         """Updates kwargs dictionary from parsed_args based on the subclass"""
-        pass
 
     def _get_resources(self, parsed_args):
         kwargs = dict()
         if parsed_args.subcloud_apply_type:
-            kwargs['subcloud-apply-type'] = parsed_args.subcloud_apply_type
+            kwargs["subcloud-apply-type"] = parsed_args.subcloud_apply_type
         if parsed_args.max_parallel_subclouds:
-            kwargs['max-parallel-subclouds'] = \
-                parsed_args.max_parallel_subclouds
+            kwargs["max-parallel-subclouds"] = parsed_args.max_parallel_subclouds
         if parsed_args.stop_on_failure:
-            kwargs['stop-on-failure'] = 'true'
+            kwargs["stop-on-failure"] = "true"
         if parsed_args.force:
-            kwargs['force'] = 'true'
+            kwargs["force"] = "true"
         if parsed_args.cloud_name is not None:
-            kwargs['cloud_name'] = parsed_args.cloud_name
+            kwargs["cloud_name"] = parsed_args.cloud_name
         if parsed_args.group is not None:
-            kwargs['subcloud_group'] = parsed_args.group
+            kwargs["subcloud_group"] = parsed_args.group
 
         self.validate_force_params(parsed_args)
         self.validate_group_params(parsed_args)
@@ -304,13 +307,9 @@ class ShowSwUpdateStrategyStep(base.DCManagerShowOne):
     def get_parser(self, prog_name):
         parser = super(ShowSwUpdateStrategyStep, self).get_parser(prog_name)
 
-        parser.add_argument(
-            'cloud_name',
-            help='Name of cloud to view the details.'
-        )
+        parser.add_argument("cloud_name", help="Name of cloud to view the details.")
         return parser
 
     def _get_resources(self, parsed_args):
         cloud_name = parsed_args.cloud_name
-        return self.get_strategy_step_manager().strategy_step_detail(
-            cloud_name)
+        return self.get_strategy_step_manager().strategy_step_detail(cloud_name)

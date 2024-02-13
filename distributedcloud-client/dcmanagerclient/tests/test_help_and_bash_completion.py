@@ -1,5 +1,5 @@
 # Copyright 2016 Ericsson AB.
-# Copyright (c) 2017-2021 Wind River Systems, Inc.
+# Copyright (c) 2017-2021, 2024 Wind River Systems, Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -23,18 +23,20 @@ from dcmanagerclient.tests import base_shell_test as base
 
 class TestCLIBashCompletionV1(base.BaseShellTests):
     def test_bash_completion(self):
-        bash_completion, stderr = self.shell('bash-completion')
-        self.assertIn('bash-completion', bash_completion)
+        bash_completion, stderr = self.shell("bash-completion")
+        self.assertIn("bash-completion", bash_completion)
         self.assertFalse(stderr)
 
 
 class TestCLIHelp(base.BaseShellTests):
     def test_help(self):
         required = [
-            '.*?^usage: ',
-            '.*?^\s+help\s+print detailed help for another command'
+            r".*?^usage: ",
+            r".*?^\s+help\s+print detailed help for another command",
         ]
-        kb_help, stderr = self.shell('help')
+        kb_help, stderr = self.shell("help")
         for r in required:
-            self.assertThat((kb_help + stderr),
-                            matchers.MatchesRegex(r, re.DOTALL | re.MULTILINE))
+            self.assertThat(
+                (kb_help + stderr),
+                matchers.MatchesRegex(r, re.DOTALL | re.MULTILINE),
+            )

@@ -32,10 +32,17 @@ class subcloud_manager(base.ResourceManager):
     def subcloud_create(self, url, body, data):
         fields = dict()
         for k, v in body.items():
-            fields.update({k: (v, open(v, 'rb'),)})
+            fields.update(
+                {
+                    k: (
+                        v,
+                        open(v, "rb"),
+                    )
+                }
+            )
         fields.update(data)
         enc = MultipartEncoder(fields=fields)
-        headers = {'content-type': enc.content_type}
+        headers = {"content-type": enc.content_type}
         resp = self.http_client.post(url, enc, headers=headers)
         if resp.status_code != 200:
             self._raise_api_exception(resp)
@@ -48,10 +55,17 @@ class subcloud_manager(base.ResourceManager):
         fields = dict()
         if body is not None:
             for k, v in body.items():
-                fields.update({k: (v, open(v, 'rb'),)})
+                fields.update(
+                    {
+                        k: (
+                            v,
+                            open(v, "rb"),
+                        )
+                    }
+                )
         fields.update(data)
         enc = MultipartEncoder(fields=fields)
-        headers = {'content-type': enc.content_type}
+        headers = {"content-type": enc.content_type}
         resp = self.http_client.patch(url, enc, headers=headers)
         if resp.status_code != 200:
             self._raise_api_exception(resp)
@@ -63,10 +77,17 @@ class subcloud_manager(base.ResourceManager):
     def subcloud_redeploy(self, url, body, data):
         fields = dict()
         for k, v in body.items():
-            fields.update({k: (v, open(v, 'rb'),)})
+            fields.update(
+                {
+                    k: (
+                        v,
+                        open(v, "rb"),
+                    )
+                }
+            )
         fields.update(data)
         enc = MultipartEncoder(fields=fields)
-        headers = {'content-type': enc.content_type}
+        headers = {"content-type": enc.content_type}
         resp = self.http_client.patch(url, enc, headers=headers)
         if resp.status_code != 200:
             self._raise_api_exception(resp)
@@ -83,9 +104,10 @@ class subcloud_manager(base.ResourceManager):
         json_object = get_json(resp)
         resource = list()
         resource.append(self.json_to_resource(json_object))
-        if json_object.get('prestage_software_version'):
-            resource[0].prestage_software_version = \
-                json_object['prestage_software_version']
+        if json_object.get("prestage_software_version"):
+            resource[0].prestage_software_version = json_object[
+                "prestage_software_version"
+            ]
         return resource
 
     def subcloud_list(self, url):
@@ -93,7 +115,7 @@ class subcloud_manager(base.ResourceManager):
         if resp.status_code != 200:
             self._raise_api_exception(resp)
         json_response_key = get_json(resp)
-        json_objects = json_response_key['subclouds']
+        json_objects = json_response_key["subclouds"]
         resource = self.resource_class.from_payloads(self, json_objects)
         return resource
 
@@ -105,46 +127,47 @@ class subcloud_manager(base.ResourceManager):
         subcloud = self.resource_class.from_payload(self, json_object)
         resource = [subcloud]
         if detail is not None:
-            resource[0].oam_floating_ip = json_object['oam_floating_ip']
-            resource[0].deploy_config_sync_status = \
-                json_object['deploy_config_sync_status']
+            resource[0].oam_floating_ip = json_object["oam_floating_ip"]
+            resource[0].deploy_config_sync_status = json_object[
+                "deploy_config_sync_status"
+            ]
         return resource
 
     def add_subcloud(self, **kwargs):
-        data = kwargs.get('data')
-        files = kwargs.get('files')
-        url = '/subclouds/'
+        data = kwargs.get("data")
+        files = kwargs.get("files")
+        url = "/subclouds/"
         return self.subcloud_create(url, files, data)
 
     def list_subclouds(self):
-        url = '/subclouds/'
+        url = "/subclouds/"
         return self.subcloud_list(url)
 
     def subcloud_additional_details(self, subcloud_ref):
-        url = '/subclouds/%s/detail' % subcloud_ref
+        url = f"/subclouds/{subcloud_ref}/detail"
         return self._subcloud_detail(url, True)
 
     def subcloud_detail(self, subcloud_ref):
-        url = '/subclouds/%s' % subcloud_ref
+        url = f"/subclouds/{subcloud_ref}"
         return self._subcloud_detail(url)
 
     def delete_subcloud(self, subcloud_ref):
-        url = '/subclouds/%s' % subcloud_ref
+        url = f"/subclouds/{subcloud_ref}"
         return self._delete(url)
 
     def prestage_subcloud(self, subcloud_ref, **kwargs):
-        data = kwargs.get('data')
-        url = '/subclouds/%s/prestage' % subcloud_ref
+        data = kwargs.get("data")
+        url = f"/subclouds/{subcloud_ref}/prestage"
         return self._subcloud_prestage(url, data)
 
     def update_subcloud(self, subcloud_ref, **kwargs):
-        files = kwargs.get('files')
-        data = kwargs.get('data')
-        url = '/subclouds/%s' % subcloud_ref
+        files = kwargs.get("files")
+        data = kwargs.get("data")
+        url = f"/subclouds/{subcloud_ref}"
         return self.subcloud_update(url, files, data)
 
     def redeploy_subcloud(self, subcloud_ref, **kwargs):
-        files = kwargs.get('files')
-        data = kwargs.get('data')
-        url = '/subclouds/%s/redeploy' % subcloud_ref
+        files = kwargs.get("files")
+        data = kwargs.get("data")
+        url = f"/subclouds/{subcloud_ref}/redeploy"
         return self.subcloud_redeploy(url, files, data)

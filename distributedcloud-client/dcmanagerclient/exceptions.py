@@ -1,5 +1,5 @@
 # Copyright 2016 Ericsson AB
-# Copyright (c) 2017-2021 Wind River Systems, Inc.
+# Copyright (c) 2017-2021, 2024 Wind River Systems, Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ class DCManagerClientException(Exception):
     To correctly use this class, inherit from it and define
     a 'message' and 'code' properties.
     """
+
     message = "An unknown exception occurred"
     code = "UNKNOWN_EXCEPTION"
 
@@ -30,7 +31,8 @@ class DCManagerClientException(Exception):
     def __init__(self, message=message):
         self.message = message
         super(DCManagerClientException, self).__init__(
-            '%s: %s' % (self.code, self.message))
+            f"{self.code}: {self.message}"
+        )
 
 
 class IllegalArgumentException(DCManagerClientException):

@@ -1,4 +1,4 @@
-# Copyright (c) 2023 Wind River Systems, Inc.
+# Copyright (c) 2023-2024 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -8,23 +8,25 @@ import json
 from dcmanagerclient.api import base
 from dcmanagerclient.api.base import get_json
 
-BASE_URL = '/subcloud-peer-groups/'
+BASE_URL = "/subcloud-peer-groups/"
 
 
 class SubcloudPeerGroup(base.Resource):
-    resource_name = 'subcloud_peer_group'
+    resource_name = "subcloud_peer_group"
 
-    def __init__(self,
-                 manager,
-                 peer_group_id,
-                 peer_group_name,
-                 group_priority,
-                 group_state,
-                 system_leader_id,
-                 system_leader_name,
-                 max_subcloud_rehoming,
-                 created_at,
-                 updated_at):
+    def __init__(
+        self,
+        manager,
+        peer_group_id,
+        peer_group_name,
+        group_priority,
+        group_state,
+        system_leader_id,
+        system_leader_name,
+        max_subcloud_rehoming,
+        created_at,
+        updated_at,
+    ):
         self.manager = manager
         self.id = peer_group_id
         self.peer_group_name = peer_group_name
@@ -48,15 +50,16 @@ class subcloud_peer_group_manager(base.ResourceManager):
     def json_to_resource(self, json_object):
         return self.resource_class(
             self,
-            peer_group_id=json_object['id'],
-            peer_group_name=json_object['peer_group_name'],
-            group_priority=json_object['group_priority'],
-            group_state=json_object['group_state'],
-            system_leader_id=json_object['system_leader_id'],
-            system_leader_name=json_object['system_leader_name'],
-            max_subcloud_rehoming=json_object['max_subcloud_rehoming'],
-            created_at=json_object['created-at'],
-            updated_at=json_object['updated-at'])
+            peer_group_id=json_object["id"],
+            peer_group_name=json_object["peer_group_name"],
+            group_priority=json_object["group_priority"],
+            group_state=json_object["group_state"],
+            system_leader_id=json_object["system_leader_id"],
+            system_leader_name=json_object["system_leader_name"],
+            max_subcloud_rehoming=json_object["max_subcloud_rehoming"],
+            created_at=json_object["created-at"],
+            updated_at=json_object["updated-at"],
+        )
 
     def _subcloud_peer_group_detail(self, url):
         resp = self.http_client.get(url)
@@ -91,7 +94,7 @@ class subcloud_peer_group_manager(base.ResourceManager):
         if resp.status_code != 200:
             self._raise_api_exception(resp)
         json_response_key = get_json(resp)
-        json_objects = json_response_key['subcloud_peer_groups']
+        json_objects = json_response_key["subcloud_peer_groups"]
         resource = list()
         for json_object in json_objects:
             resource.append(self.json_to_resource(json_object))
@@ -112,11 +115,10 @@ class subcloud_peer_group_manager(base.ResourceManager):
         if resp.status_code != 200:
             self._raise_api_exception(resp)
         json_response_key = get_json(resp)
-        json_objects = json_response_key['subclouds']
+        json_objects = json_response_key["subclouds"]
         resource = list()
         for json_object in json_objects:
-            resource.append(
-                self.subcloud_manager.json_to_resource(json_object))
+            resource.append(self.subcloud_manager.json_to_resource(json_object))
         return resource
 
     def subcloud_peer_group_migrate(self, url, data):
@@ -125,11 +127,10 @@ class subcloud_peer_group_manager(base.ResourceManager):
         if resp.status_code != 200:
             self._raise_api_exception(resp)
         json_response_key = get_json(resp)
-        json_objects = json_response_key['subclouds']
+        json_objects = json_response_key["subclouds"]
         resource = list()
         for json_object in json_objects:
-            resource.append(
-                self.subcloud_manager.json_to_resource(json_object))
+            resource.append(self.subcloud_manager.json_to_resource(json_object))
         return resource
 
     def add_subcloud_peer_group(self, **kwargs):
@@ -156,13 +157,13 @@ class subcloud_peer_group_manager(base.ResourceManager):
 
     def migrate_subcloud_peer_group(self, subcloud_peer_group_ref, **kwargs):
         data = kwargs
-        url = BASE_URL + '%s/migrate' % subcloud_peer_group_ref
+        url = BASE_URL + f"{subcloud_peer_group_ref}/migrate"
         return self.subcloud_peer_group_migrate(url, data)
 
     def subcloud_peer_group_list_subclouds(self, subcloud_peer_group_ref):
-        url = BASE_URL + '%s/subclouds' % subcloud_peer_group_ref
+        url = BASE_URL + f"{subcloud_peer_group_ref}/subclouds"
         return self._list_subclouds_for_subcloud_peer_group(url)
 
     def subcloud_peer_group_status(self, subcloud_peer_group_ref):
-        url = BASE_URL + '%s/status' % subcloud_peer_group_ref
+        url = BASE_URL + f"{subcloud_peer_group_ref}/status"
         return self._subcloud_peer_group_status(url)

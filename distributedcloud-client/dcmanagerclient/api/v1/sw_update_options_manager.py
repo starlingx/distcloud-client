@@ -1,5 +1,5 @@
 # Copyright (c) 2017 Ericsson AB.
-# Copyright (c) 2017, 2019, 2021 Wind River Systems, Inc.
+# Copyright (c) 2017, 2019, 2021, 2024 Wind River Systems, Inc.
 # All Rights Reserved.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,12 +24,20 @@ DEFAULT_REGION_NAME = "RegionOne"
 
 
 class SwUpdateOptions(base.Resource):
-    resource_name = 'sw_update_options'
+    resource_name = "sw_update_options"
 
-    def __init__(self, manager, cloud, storage_apply_type, worker_apply_type,
-                 max_parallel_workers, alarm_restriction_type,
-                 default_instance_action,
-                 created_at, updated_at):
+    def __init__(
+        self,
+        manager,
+        cloud,
+        storage_apply_type,
+        worker_apply_type,
+        max_parallel_workers,
+        alarm_restriction_type,
+        default_instance_action,
+        created_at,
+        updated_at,
+    ):
         self.manager = manager
         self.cloud = cloud
         self.storage_apply_type = storage_apply_type
@@ -47,27 +55,27 @@ class sw_update_options_manager(base.ResourceManager):
     def sw_update_options_update(self, subcloud_ref, **kwargs):
         data = kwargs
         if subcloud_ref:
-            url = '/sw-update-options/%s' % subcloud_ref
+            url = f"/sw-update-options/{subcloud_ref}"
         else:
-            url = '/sw-update-options/%s' % DEFAULT_REGION_NAME
+            url = f"/sw-update-options/{DEFAULT_REGION_NAME}"
         return self._sw_update_options_update(url, data)
 
     def sw_update_options_list(self):
-        url = '/sw-update-options'
+        url = "/sw-update-options"
         return self._sw_update_options_list(url)
 
     def sw_update_options_detail(self, subcloud_ref):
         if subcloud_ref:
-            url = '/sw-update-options/%s' % subcloud_ref
+            url = f"/sw-update-options/{subcloud_ref}"
         else:
-            url = '/sw-update-options/%s' % DEFAULT_REGION_NAME
+            url = f"/sw-update-options/{DEFAULT_REGION_NAME}"
         return self._sw_update_options_detail(url)
 
     def sw_update_options_delete(self, subcloud_ref):
         if subcloud_ref:
-            url = '/sw-update-options/%s' % subcloud_ref
+            url = f"/sw-update-options/{subcloud_ref}"
         else:
-            url = '/sw-update-options/%s' % DEFAULT_REGION_NAME
+            url = f"/sw-update-options/{DEFAULT_REGION_NAME}"
         return self._sw_update_options_delete(url)
 
     def _sw_update_options_detail(self, url):
@@ -79,14 +87,16 @@ class sw_update_options_manager(base.ResourceManager):
         resource.append(
             self.resource_class(
                 self,
-                cloud=json_object['name'],
-                storage_apply_type=json_object['storage-apply-type'],
-                worker_apply_type=json_object['worker-apply-type'],
-                max_parallel_workers=json_object['max-parallel-workers'],
-                alarm_restriction_type=json_object['alarm-restriction-type'],
-                default_instance_action=json_object['default-instance-action'],
-                created_at=json_object['created-at'],
-                updated_at=json_object['updated-at']))
+                cloud=json_object["name"],
+                storage_apply_type=json_object["storage-apply-type"],
+                worker_apply_type=json_object["worker-apply-type"],
+                max_parallel_workers=json_object["max-parallel-workers"],
+                alarm_restriction_type=json_object["alarm-restriction-type"],
+                default_instance_action=json_object["default-instance-action"],
+                created_at=json_object["created-at"],
+                updated_at=json_object["updated-at"],
+            )
+        )
         return resource
 
     def _sw_update_options_list(self, url):
@@ -94,22 +104,22 @@ class sw_update_options_manager(base.ResourceManager):
         if resp.status_code != 200:
             self._raise_api_exception(resp)
         json_response_key = get_json(resp)
-        json_objects = json_response_key['sw-update-options']
+        json_objects = json_response_key["sw-update-options"]
         resource = []
         for json_object in json_objects:
             resource.append(
                 self.resource_class(
                     self,
-                    cloud=json_object['name'],
-                    storage_apply_type=json_object['storage-apply-type'],
-                    worker_apply_type=json_object['worker-apply-type'],
-                    max_parallel_workers=json_object['max-parallel-workers'],
-                    alarm_restriction_type=json_object[
-                        'alarm-restriction-type'],
-                    default_instance_action=json_object[
-                        'default-instance-action'],
-                    created_at=json_object['created-at'],
-                    updated_at=json_object['updated-at']))
+                    cloud=json_object["name"],
+                    storage_apply_type=json_object["storage-apply-type"],
+                    worker_apply_type=json_object["worker-apply-type"],
+                    max_parallel_workers=json_object["max-parallel-workers"],
+                    alarm_restriction_type=json_object["alarm-restriction-type"],
+                    default_instance_action=json_object["default-instance-action"],
+                    created_at=json_object["created-at"],
+                    updated_at=json_object["updated-at"],
+                )
+            )
         return resource
 
     def _sw_update_options_delete(self, url):
@@ -127,12 +137,14 @@ class sw_update_options_manager(base.ResourceManager):
         resource.append(
             self.resource_class(
                 self,
-                cloud=json_object['name'],
-                storage_apply_type=json_object['storage-apply-type'],
-                worker_apply_type=json_object['worker-apply-type'],
-                max_parallel_workers=json_object['max-parallel-workers'],
-                alarm_restriction_type=json_object['alarm-restriction-type'],
-                default_instance_action=json_object['default-instance-action'],
-                created_at=json_object['created-at'],
-                updated_at=json_object['updated-at']))
+                cloud=json_object["name"],
+                storage_apply_type=json_object["storage-apply-type"],
+                worker_apply_type=json_object["worker-apply-type"],
+                max_parallel_workers=json_object["max-parallel-workers"],
+                alarm_restriction_type=json_object["alarm-restriction-type"],
+                default_instance_action=json_object["default-instance-action"],
+                created_at=json_object["created-at"],
+                updated_at=json_object["updated-at"],
+            )
+        )
         return resource

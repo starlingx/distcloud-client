@@ -1,5 +1,5 @@
 # Copyright (c) 2017 Ericsson AB.
-# Copyright (c) 2017-2021 Wind River Systems, Inc.
+# Copyright (c) 2017-2021, 2024 Wind River Systems, Inc.
 # All Rights Reserved.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,10 +19,20 @@ from dcmanagerclient.api.base import get_json
 
 
 class StrategyStep(base.Resource):
-    resource_name = 'strategy_step'
+    resource_name = "strategy_step"
 
-    def __init__(self, manager, cloud, stage, state, details,
-                 started_at, finished_at, created_at, updated_at):
+    def __init__(
+        self,
+        manager,
+        cloud,
+        stage,
+        state,
+        details,
+        started_at,
+        finished_at,
+        created_at,
+        updated_at,
+    ):
         self.manager = manager
         self.cloud = cloud
         self.stage = stage
@@ -39,27 +49,28 @@ class strategy_step_manager(base.ResourceManager):
     def __init__(self, http_client):
         super(strategy_step_manager, self).__init__(http_client)
         self.resource_class = StrategyStep
-        self.steps_url = '/sw-update-strategy/steps'
-        self.response_key = 'strategy-steps'
+        self.steps_url = "/sw-update-strategy/steps"
+        self.response_key = "strategy-steps"
 
     def list_strategy_steps(self):
         return self._strategy_step_list(self.steps_url)
 
     def strategy_step_detail(self, cloud_name):
-        url = '{}/{}'.format(self.steps_url, cloud_name)
+        url = f"{self.steps_url}/{cloud_name}"
         return self._strategy_step_detail(url)
 
     def build_from_json(self, json_object):
         return self.resource_class(
             self,
-            cloud=json_object['cloud'],
-            stage=json_object['stage'],
-            state=json_object['state'],
-            details=json_object['details'],
-            started_at=json_object['started-at'],
-            finished_at=json_object['finished-at'],
-            created_at=json_object['created-at'],
-            updated_at=json_object['updated-at'])
+            cloud=json_object["cloud"],
+            stage=json_object["stage"],
+            state=json_object["state"],
+            details=json_object["details"],
+            started_at=json_object["started-at"],
+            finished_at=json_object["finished-at"],
+            created_at=json_object["created-at"],
+            updated_at=json_object["updated-at"],
+        )
 
     def _strategy_step_list(self, url):
         resp = self.http_client.get(url)

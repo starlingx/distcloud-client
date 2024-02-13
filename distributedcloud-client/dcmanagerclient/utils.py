@@ -19,10 +19,9 @@
 import getpass
 import json
 import os
-import yaml
+from urllib import parse, request
 
-from six.moves.urllib import parse
-from six.moves.urllib import request
+import yaml
 
 from dcmanagerclient import exceptions
 
@@ -44,7 +43,7 @@ def do_action_on_many(action, resources, success_msg, error_msg):
 
 
 def load_content(content):
-    if content is None or content == '':
+    if content is None or content == "":
         return dict()
 
     try:
@@ -64,7 +63,7 @@ def get_contents_if_file(contents_or_file_name):
 
     """
     if os.path.isdir(contents_or_file_name):
-        error_msg = "Error: %s is a directory." % contents_or_file_name
+        error_msg = f"Error: {contents_or_file_name} is a directory."
         raise exceptions.DCManagerClientException(error_msg)
 
     try:
@@ -72,61 +71,61 @@ def get_contents_if_file(contents_or_file_name):
             definition_url = contents_or_file_name
         else:
             path = os.path.abspath(contents_or_file_name)
-            definition_url = parse.urljoin(
-                'file:',
-                request.pathname2url(path)
-            )
-        return request.urlopen(definition_url).read().decode('utf8')
+            definition_url = parse.urljoin("file:", request.pathname2url(path))
+        return request.urlopen(definition_url).read().decode("utf8")
     except Exception as e:
         raise exceptions.DCManagerClientException(
-            "Error: Could not open file %s: %s" % (contents_or_file_name, e))
+            f"Error: Could not open file {contents_or_file_name}: {e}"
+        )
 
 
-def prompt_for_password(password_type='sysadmin', item_type='subcloud'):
+def prompt_for_password(password_type="sysadmin", item_type="subcloud"):
     while True:
         try:
             password = getpass.getpass(
-                f"Enter the {password_type} password for the {item_type}: ")
+                f"Enter the {password_type} password for the {item_type}: "
+            )
             if len(password) < 1:
                 print("Password cannot be empty")
                 continue
 
             confirm = getpass.getpass(
-                f"Re-enter {password_type} password to confirm: ")
+                f"Re-enter {password_type} password to confirm: "
+            )
             if password != confirm:
                 print("Passwords did not match")
                 continue
             break
-        except KeyboardInterrupt:
+        except KeyboardInterrupt as e:
             raise exceptions.DCManagerClientException(
                 "\nPassword prompt interrupted."
-            )
+            ) from e
     return password
 
 
 def subcloud_detail_format(subcloud=None):
     columns = (
-        'id',
-        'name',
-        'description',
-        'location',
-        'software_version',
-        'management',
-        'availability',
-        'deploy_status',
-        'management_subnet',
-        'management_start_ip',
-        'management_end_ip',
-        'management_gateway_ip',
-        'systemcontroller_gateway_ip',
-        'group_id',
-        'peer_group_id',
-        'created_at',
-        'updated_at',
-        'backup_status',
-        'backup_datetime',
-        'prestage_status',
-        'prestage_versions'
+        "id",
+        "name",
+        "description",
+        "location",
+        "software_version",
+        "management",
+        "availability",
+        "deploy_status",
+        "management_subnet",
+        "management_start_ip",
+        "management_end_ip",
+        "management_gateway_ip",
+        "systemcontroller_gateway_ip",
+        "group_id",
+        "peer_group_id",
+        "created_at",
+        "updated_at",
+        "backup_status",
+        "backup_datetime",
+        "prestage_status",
+        "prestage_versions",
     )
 
     if subcloud:
@@ -151,20 +150,19 @@ def subcloud_detail_format(subcloud=None):
             subcloud.backup_status,
             subcloud.backup_datetime,
             subcloud.prestage_status,
-            subcloud.prestage_versions
+            subcloud.prestage_versions,
         )
 
-        for _listitem, sync_status in enumerate(subcloud.endpoint_sync_status):
-            added_field = (sync_status['endpoint_type'] +
-                           "_sync_status",)
-            added_value = (sync_status['sync_status'],)
+        for _, sync_status in enumerate(subcloud.endpoint_sync_status):
+            added_field = (sync_status["endpoint_type"] + "_sync_status",)
+            added_value = (sync_status["sync_status"],)
             columns += tuple(added_field)
             data += tuple(added_value)
 
         if subcloud.oam_floating_ip != "unavailable":
-            columns += ('oam_floating_ip',)
+            columns += ("oam_floating_ip",)
             data += (subcloud.oam_floating_ip,)
     else:
-        data = (('<none>',) * len(columns),)
+        data = (("<none>",) * len(columns),)
 
     return columns, data

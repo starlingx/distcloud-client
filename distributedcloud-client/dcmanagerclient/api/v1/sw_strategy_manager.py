@@ -1,5 +1,5 @@
 # Copyright (c) 2017 Ericsson AB.
-# Copyright (c) 2021-2023 Wind River Systems, Inc.
+# Copyright (c) 2021-2024 Wind River Systems, Inc.
 # All Rights Reserved.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,15 +18,13 @@ from dcmanagerclient.api.v1.sw_update_manager import sw_update_manager
 
 
 class sw_strategy_manager(sw_update_manager):
-    def __init__(self, http_client, url='sw-update-strategy'):
-        super(sw_strategy_manager, self).__init__(
-            http_client,
-            update_type=None)
+    def __init__(self, http_client, url="sw-update-strategy"):
+        super(sw_strategy_manager, self).__init__(http_client, update_type=None)
 
         # Removing strategy type from base class parameters
-        self.get_url = '/{url}'.format(url=url)
-        self.delete_url = '/{url}'.format(url=url)
-        self.actions_url = '/{url}/actions'.format(url=url)
+        self.get_url = f"/{url}"
+        self.delete_url = f"/{url}"
+        self.actions_url = f"/{url}/actions"
 
     def extract_extra_args(self, json_object):
         # Since this generic strategy manager can interact with any strategy

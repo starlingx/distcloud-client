@@ -15,11 +15,11 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 #
-import six
 
 import keystoneauth1.identity.generic as auth_plugin
-from keystoneauth1 import session as ks_session
 import osprofiler.profiler
+import six
+from keystoneauth1 import session as ks_session
 
 from dcmanagerclient.api import httpclient
 from dcmanagerclient.api.v1 import alarm_manager as am
@@ -48,40 +48,53 @@ _DEFAULT_DCMANAGER_URL = "http://localhost:8119/v1.0"
 class Client(object):
     """Class where the communication from KB to Keystone happens."""
 
-    def __init__(self, dcmanager_url=None, username=None, api_key=None,
-                 project_name=None, auth_url=None, project_id=None,
-                 endpoint_type='publicURL', service_type='dcmanager',
-                 auth_token=None, user_id=None, cacert=None, insecure=False,
-                 profile=None, auth_type='keystone', client_id=None,
-                 client_secret=None, session=None, **kwargs):
+    def __init__(
+        self,
+        dcmanager_url=None,
+        username=None,
+        api_key=None,
+        project_name=None,
+        auth_url=None,
+        project_id=None,
+        endpoint_type="publicURL",
+        service_type="dcmanager",
+        auth_token=None,
+        user_id=None,
+        cacert=None,
+        insecure=False,
+        profile=None,
+        auth_type="keystone",
+        _client_id=None,
+        _client_secret=None,
+        session=None,
+        **kwargs,
+    ):
         """DC Manager communicates with Keystone to fetch necessary values."""
         if dcmanager_url and not isinstance(dcmanager_url, six.string_types):
-            raise RuntimeError('DC Manager url should be a string.')
+            raise RuntimeError("DC Manager url should be a string.")
 
         if auth_url or session:
-            if auth_type == 'keystone':
-                (dcmanager_url, auth_token, project_id, user_id) = (
-                    authenticate(
-                        dcmanager_url,
-                        username,
-                        api_key,
-                        project_name,
-                        auth_url,
-                        project_id,
-                        endpoint_type,
-                        service_type,
-                        auth_token,
-                        user_id,
-                        session,
-                        cacert,
-                        insecure,
-                        **kwargs
-                    )
+            if auth_type == "keystone":
+                (dcmanager_url, auth_token, project_id, user_id) = authenticate(
+                    dcmanager_url,
+                    username,
+                    api_key,
+                    project_name,
+                    auth_url,
+                    project_id,
+                    endpoint_type,
+                    service_type,
+                    auth_token,
+                    user_id,
+                    session,
+                    cacert,
+                    insecure,
+                    **kwargs,
                 )
             else:
                 raise RuntimeError(
-                    'Invalid authentication type [value=%s, valid_values=%s]'
-                    % (auth_type, 'keystone')
+                    "Invalid authentication type "
+                    f"[value={auth_type}, valid_values=keystone]"
                 )
 
         if not dcmanager_url:
@@ -96,52 +109,66 @@ class Client(object):
             project_id,
             user_id,
             cacert=cacert,
-            insecure=insecure
+            insecure=insecure,
         )
 
         # Create all managers
         self.subcloud_manager = sm.subcloud_manager(self.http_client)
-        self.subcloud_group_manager = \
-            gm.subcloud_group_manager(self.http_client, self.subcloud_manager)
-        self.subcloud_peer_group_manager = \
-            pm.subcloud_peer_group_manager(self.http_client,
-                                           self.subcloud_manager)
-        self.peer_group_association_manager = \
-            pgam.peer_group_association_manager(self.http_client)
-        self.subcloud_backup_manager = sbm.subcloud_backup_manager(
-            self.http_client)
-        self.subcloud_deploy_manager = sdm.subcloud_deploy_manager(
-            self.http_client)
+        self.subcloud_group_manager = gm.subcloud_group_manager(
+            self.http_client, self.subcloud_manager
+        )
+        self.subcloud_peer_group_manager = pm.subcloud_peer_group_manager(
+            self.http_client, self.subcloud_manager
+        )
+        self.peer_group_association_manager = pgam.peer_group_association_manager(
+            self.http_client
+        )
+        self.subcloud_backup_manager = sbm.subcloud_backup_manager(self.http_client)
+        self.subcloud_deploy_manager = sdm.subcloud_deploy_manager(self.http_client)
         self.system_peer_manager = sp.system_peer_manager(
-            self.http_client, self.subcloud_peer_group_manager)
+            self.http_client, self.subcloud_peer_group_manager
+        )
         self.alarm_manager = am.alarm_manager(self.http_client)
         self.fw_update_manager = fum.fw_update_manager(self.http_client)
-        self.kube_rootca_update_manager = \
-            krum.kube_rootca_update_manager(self.http_client)
+        self.kube_rootca_update_manager = krum.kube_rootca_update_manager(
+            self.http_client
+        )
         self.kube_upgrade_manager = kupm.kube_upgrade_manager(self.http_client)
         self.sw_deploy_manager = swdm.SwDeployManager(self.http_client)
         self.sw_patch_manager = spm.sw_patch_manager(self.http_client)
         self.sw_prestage_manager = spr.sw_prestage_manager(self.http_client)
-        self.sw_update_options_manager = \
-            suom.sw_update_options_manager(self.http_client)
+        self.sw_update_options_manager = suom.sw_update_options_manager(
+            self.http_client
+        )
         self.sw_upgrade_manager = supm.sw_upgrade_manager(self.http_client)
-        self.strategy_step_manager = \
-            ssm.strategy_step_manager(self.http_client)
+        self.strategy_step_manager = ssm.strategy_step_manager(self.http_client)
         self.sw_strategy_manager = sstm.sw_strategy_manager(self.http_client)
-        self.phased_subcloud_deploy_manager = \
-            psdm.phased_subcloud_deploy_manager(self.http_client)
+        self.phased_subcloud_deploy_manager = psdm.phased_subcloud_deploy_manager(
+            self.http_client
+        )
 
 
-def authenticate(dcmanager_url=None, username=None,
-                 api_key=None, project_name=None, auth_url=None,
-                 project_id=None, endpoint_type='publicURL',
-                 service_type='dcmanager', auth_token=None, user_id=None,
-                 session=None, cacert=None, insecure=False, **kwargs):
+def authenticate(
+    dcmanager_url=None,
+    username=None,
+    api_key=None,
+    project_name=None,
+    auth_url=None,
+    project_id=None,
+    endpoint_type="publicURL",
+    service_type="dcmanager",
+    auth_token=None,
+    user_id=None,
+    session=None,
+    cacert=None,
+    insecure=False,
+    **kwargs,
+):
     """Get token, project_id, user_id and Endpoint."""
-    user_domain_name = kwargs.get('user_domain_name')
-    user_domain_id = kwargs.get('user_domain_id')
-    project_domain_name = kwargs.get('project_domain_name')
-    project_domain_id = kwargs.get('project_domain_id')
+    user_domain_name = kwargs.get("user_domain_name")
+    user_domain_id = kwargs.get("user_domain_id")
+    project_domain_name = kwargs.get("project_domain_name")
+    project_domain_id = kwargs.get("project_domain_id")
 
     if session is None:
         if auth_token:
@@ -153,7 +180,8 @@ def authenticate(dcmanager_url=None, username=None,
                 project_domain_name=project_domain_name,
                 project_domain_id=project_domain_id,
                 cacert=cacert,
-                insecure=insecure)
+                insecure=insecure,
+            )
 
         elif api_key and (username or user_id):
             auth = auth_plugin.Password(
@@ -166,11 +194,14 @@ def authenticate(dcmanager_url=None, username=None,
                 user_domain_name=user_domain_name,
                 user_domain_id=user_domain_id,
                 project_domain_name=project_domain_name,
-                project_domain_id=project_domain_id)
+                project_domain_id=project_domain_id,
+            )
 
         else:
-            raise RuntimeError('You must either provide a valid token or'
-                               'a password (api_key) and a user.')
+            raise RuntimeError(
+                "You must either provide a valid token or"
+                "a password (api_key) and a user."
+            )
         if auth:
             session = ks_session.Session(auth=auth)
 
@@ -180,7 +211,7 @@ def authenticate(dcmanager_url=None, username=None,
         user_id = session.get_user_id()
         if not dcmanager_url:
             dcmanager_url = session.get_endpoint(
-                service_type=service_type,
-                interface=endpoint_type)
+                service_type=service_type, interface=endpoint_type
+            )
 
     return dcmanager_url, token, project_id, user_id

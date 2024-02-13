@@ -1,5 +1,5 @@
 # Copyright (c) 2017 Ericsson AB.
-# Copyright (c) 2017-2023 Wind River Systems, Inc.
+# Copyright (c) 2017-2024 Wind River Systems, Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -28,8 +28,7 @@ class SwPatchManagerMixin(object):
         columns, data = original_fmt_func(sw_update_strategy)
 
         if sw_update_strategy.extra_args:
-            upload_only = sw_update_strategy.extra_args.get("upload-only",
-                                                            False)
+            upload_only = sw_update_strategy.extra_args.get("upload-only", False)
         else:
             upload_only = False
 
@@ -44,48 +43,49 @@ class SwPatchManagerMixin(object):
         return self.custom_format_function
 
 
-class CreatePatchUpdateStrategy(SwPatchManagerMixin,
-                                sw_update_manager.CreateSwUpdateStrategy):
+class CreatePatchUpdateStrategy(
+    SwPatchManagerMixin, sw_update_manager.CreateSwUpdateStrategy
+):
     """Create a patch update strategy."""
 
     def get_parser(self, prog_name):
         parser = super(CreatePatchUpdateStrategy, self).get_parser(prog_name)
 
         parser.add_argument(
-            '--upload-only',
+            "--upload-only",
             required=False,
-            action='store_true',
-            help='Stops strategy after uploading patches to subclouds'
+            action="store_true",
+            help="Stops strategy after uploading patches to subclouds",
         )
         return parser
 
     def process_custom_params(self, parsed_args, kwargs_dict):
         """Updates kwargs dictionary from parsed_args for patching"""
         if parsed_args.upload_only:
-            kwargs_dict['upload-only'] = 'true'
+            kwargs_dict["upload-only"] = "true"
         else:
-            kwargs_dict['upload-only'] = 'false'
+            kwargs_dict["upload-only"] = "false"
 
 
-class ShowPatchUpdateStrategy(SwPatchManagerMixin,
-                              sw_update_manager.ShowSwUpdateStrategy):
+class ShowPatchUpdateStrategy(
+    SwPatchManagerMixin, sw_update_manager.ShowSwUpdateStrategy
+):
     """Show the details of a patch update strategy for a subcloud."""
-    pass
 
 
-class DeletePatchUpdateStrategy(SwPatchManagerMixin,
-                                sw_update_manager.DeleteSwUpdateStrategy):
+class DeletePatchUpdateStrategy(
+    SwPatchManagerMixin, sw_update_manager.DeleteSwUpdateStrategy
+):
     """Delete patch update strategy from the database."""
-    pass
 
 
-class ApplyPatchUpdateStrategy(SwPatchManagerMixin,
-                               sw_update_manager.ApplySwUpdateStrategy):
+class ApplyPatchUpdateStrategy(
+    SwPatchManagerMixin, sw_update_manager.ApplySwUpdateStrategy
+):
     """Apply a patch update strategy."""
-    pass
 
 
-class AbortPatchUpdateStrategy(SwPatchManagerMixin,
-                               sw_update_manager.AbortSwUpdateStrategy):
+class AbortPatchUpdateStrategy(
+    SwPatchManagerMixin, sw_update_manager.AbortSwUpdateStrategy
+):
     """Abort a patch update strategy."""
-    pass

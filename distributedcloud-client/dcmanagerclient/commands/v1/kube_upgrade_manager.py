@@ -1,5 +1,5 @@
 # Copyright (c) 2017 Ericsson AB.
-# Copyright (c) 2020-2021 Wind River Systems, Inc.
+# Copyright (c) 2020-2021, 2024 Wind River Systems, Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -24,17 +24,17 @@ class KubeUpgradeManagerMixin(object):
         return dcmanager_client.kube_upgrade_manager
 
 
-class CreateKubeUpgradeStrategy(KubeUpgradeManagerMixin,
-                                sw_update_manager.CreateSwUpdateStrategy):
+class CreateKubeUpgradeStrategy(
+    KubeUpgradeManagerMixin, sw_update_manager.CreateSwUpdateStrategy
+):
     """Create a kubernetes upgrade strategy."""
 
     def get_parser(self, prog_name):
-        parser = super(CreateKubeUpgradeStrategy,
-                       self).get_parser(prog_name)
+        parser = super(CreateKubeUpgradeStrategy, self).get_parser(prog_name)
         parser.add_argument(
-            '--to-version',
+            "--to-version",
             required=False,
-            help='Specify a version other than the system controller version.'
+            help="Specify a version other than the system controller version.",
         )
         return parser
 
@@ -42,33 +42,32 @@ class CreateKubeUpgradeStrategy(KubeUpgradeManagerMixin,
         """Updates kwargs dictionary from parsed_args for kube upgrade"""
         # Note the "-" vs "_" when dealing with parsed_args
         if parsed_args.to_version:
-            kwargs_dict['to-version'] = parsed_args.to_version
+            kwargs_dict["to-version"] = parsed_args.to_version
 
     # override validate_force_params defined in CreateSwUpdateStrategy
     def validate_force_params(self, parsed_args):
         """Disable validating the force option.  Allows multiple subclouds."""
-        pass
 
 
-class ShowKubeUpgradeStrategy(KubeUpgradeManagerMixin,
-                              sw_update_manager.ShowSwUpdateStrategy):
+class ShowKubeUpgradeStrategy(
+    KubeUpgradeManagerMixin, sw_update_manager.ShowSwUpdateStrategy
+):
     """Show the details of a kubernetes upgrade strategy for a subcloud."""
-    pass
 
 
-class DeleteKubeUpgradeStrategy(KubeUpgradeManagerMixin,
-                                sw_update_manager.DeleteSwUpdateStrategy):
+class DeleteKubeUpgradeStrategy(
+    KubeUpgradeManagerMixin, sw_update_manager.DeleteSwUpdateStrategy
+):
     """Delete kubernetes upgrade strategy from the database."""
-    pass
 
 
-class ApplyKubeUpgradeStrategy(KubeUpgradeManagerMixin,
-                               sw_update_manager.ApplySwUpdateStrategy):
+class ApplyKubeUpgradeStrategy(
+    KubeUpgradeManagerMixin, sw_update_manager.ApplySwUpdateStrategy
+):
     """Apply a kubernetes upgrade strategy."""
-    pass
 
 
-class AbortKubeUpgradeStrategy(KubeUpgradeManagerMixin,
-                               sw_update_manager.AbortSwUpdateStrategy):
+class AbortKubeUpgradeStrategy(
+    KubeUpgradeManagerMixin, sw_update_manager.AbortSwUpdateStrategy
+):
     """Abort a kubernetes upgrade strategy."""
-    pass

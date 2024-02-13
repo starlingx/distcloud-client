@@ -1,5 +1,5 @@
 # Copyright (c) 2017 Ericsson AB.
-# Copyright (c) 2020-2021 Wind River Systems, Inc.
+# Copyright (c) 2020-2024 Wind River Systems, Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -24,21 +24,24 @@ class SwUpgradeManagerMixin(object):
         return dcmanager_client.sw_upgrade_manager
 
 
-class CreateSwUpgradeStrategy(SwUpgradeManagerMixin,
-                              sw_update_manager.CreateSwUpdateStrategy):
+class CreateSwUpgradeStrategy(
+    SwUpgradeManagerMixin, sw_update_manager.CreateSwUpdateStrategy
+):
     """Create a software upgrade strategy."""
+
     def add_force_argument(self, parser):
         parser.add_argument(
-            '--force',
+            "--force",
             required=False,
-            action='store_true',
-            help='Allow upgrade with the subcloud group \
-                  rather than a single subcloud name/ID'
+            action="store_true",
+            help=(
+                "Allow upgrade with the subcloud group "
+                "rather than a single subcloud name/ID"
+            ),
         )
 
     def get_parser(self, prog_name):
-        parser = super(CreateSwUpgradeStrategy,
-                       self).get_parser(prog_name)
+        parser = super(CreateSwUpgradeStrategy, self).get_parser(prog_name)
 
         return parser
 
@@ -47,25 +50,25 @@ class CreateSwUpgradeStrategy(SwUpgradeManagerMixin,
         pass
 
 
-class ShowSwUpgradeStrategy(SwUpgradeManagerMixin,
-                            sw_update_manager.ShowSwUpdateStrategy):
+class ShowSwUpgradeStrategy(
+    SwUpgradeManagerMixin, sw_update_manager.ShowSwUpdateStrategy
+):
     """Show the details of a software upgrade strategy for a subcloud."""
-    pass
 
 
-class DeleteSwUpgradeStrategy(SwUpgradeManagerMixin,
-                              sw_update_manager.DeleteSwUpdateStrategy):
+class DeleteSwUpgradeStrategy(
+    SwUpgradeManagerMixin, sw_update_manager.DeleteSwUpdateStrategy
+):
     """Delete software upgrade strategy from the database."""
-    pass
 
 
-class ApplySwUpgradeStrategy(SwUpgradeManagerMixin,
-                             sw_update_manager.ApplySwUpdateStrategy):
+class ApplySwUpgradeStrategy(
+    SwUpgradeManagerMixin, sw_update_manager.ApplySwUpdateStrategy
+):
     """Apply a software upgrade strategy."""
-    pass
 
 
-class AbortSwUpgradeStrategy(SwUpgradeManagerMixin,
-                             sw_update_manager.AbortSwUpdateStrategy):
+class AbortSwUpgradeStrategy(
+    SwUpgradeManagerMixin, sw_update_manager.AbortSwUpdateStrategy
+):
     """Abort a software upgrade strategy."""
-    pass

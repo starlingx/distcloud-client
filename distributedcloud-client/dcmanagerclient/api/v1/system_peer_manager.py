@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2023 Wind River Systems, Inc.
+# Copyright (c) 2023-2024 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -9,28 +9,30 @@ import json
 from dcmanagerclient.api import base
 from dcmanagerclient.api.base import get_json
 
-BASE_URL = '/system-peers/'
+BASE_URL = "/system-peers/"
 
 
 class SystemPeer(base.Resource):
-    resource_name = 'system_peer'
+    resource_name = "system_peer"
 
-    def __init__(self,
-                 manager,
-                 peer_id,
-                 peer_uuid,
-                 peer_name,
-                 manager_endpoint,
-                 manager_username,
-                 peer_controller_gateway_address,
-                 administrative_state,
-                 heartbeat_interval,
-                 heartbeat_failure_threshold,
-                 heartbeat_failure_policy,
-                 heartbeat_maintenance_timeout,
-                 availability_state,
-                 created_at,
-                 updated_at):
+    def __init__(
+        self,
+        manager,
+        peer_id,
+        peer_uuid,
+        peer_name,
+        manager_endpoint,
+        manager_username,
+        peer_controller_gateway_address,
+        administrative_state,
+        heartbeat_interval,
+        heartbeat_failure_threshold,
+        heartbeat_failure_policy,
+        heartbeat_maintenance_timeout,
+        availability_state,
+        created_at,
+        updated_at,
+    ):
         self.manager = manager
         self.peer_id = peer_id
         self.peer_uuid = peer_uuid
@@ -58,23 +60,25 @@ class system_peer_manager(base.ResourceManager):
     def _json_to_resource(self, json_object):
         return self.resource_class(
             self,
-            peer_id=json_object['id'],
-            peer_uuid=json_object['peer-uuid'],
-            peer_name=json_object['peer-name'],
-            manager_endpoint=json_object['manager-endpoint'],
-            manager_username=json_object['manager-username'],
+            peer_id=json_object["id"],
+            peer_uuid=json_object["peer-uuid"],
+            peer_name=json_object["peer-name"],
+            manager_endpoint=json_object["manager-endpoint"],
+            manager_username=json_object["manager-username"],
             peer_controller_gateway_address=json_object[
-                'peer-controller-gateway-address'],
-            administrative_state=json_object['administrative-state'],
-            heartbeat_interval=json_object['heartbeat-interval'],
-            heartbeat_failure_threshold=json_object[
-                'heartbeat-failure-threshold'],
-            heartbeat_failure_policy=json_object['heartbeat-failure-policy'],
+                "peer-controller-gateway-address"
+            ],
+            administrative_state=json_object["administrative-state"],
+            heartbeat_interval=json_object["heartbeat-interval"],
+            heartbeat_failure_threshold=json_object["heartbeat-failure-threshold"],
+            heartbeat_failure_policy=json_object["heartbeat-failure-policy"],
             heartbeat_maintenance_timeout=json_object[
-                'heartbeat-maintenance-timeout'],
-            availability_state=json_object['availability-state'],
-            created_at=json_object['created-at'],
-            updated_at=json_object['updated-at'])
+                "heartbeat-maintenance-timeout"
+            ],
+            availability_state=json_object["availability-state"],
+            created_at=json_object["created-at"],
+            updated_at=json_object["updated-at"],
+        )
 
     def system_peer_create(self, url, data):
         data = json.dumps(data)
@@ -101,7 +105,7 @@ class system_peer_manager(base.ResourceManager):
         if resp.status_code != 200:
             self._raise_api_exception(resp)
         json_response_key = get_json(resp)
-        json_objects = json_response_key['system_peers']
+        json_objects = json_response_key["system_peers"]
         resource = list()
         for json_object in json_objects:
             resource.append(self._json_to_resource(json_object))
@@ -121,11 +125,12 @@ class system_peer_manager(base.ResourceManager):
         if resp.status_code != 200:
             self._raise_api_exception(resp)
         json_response_key = get_json(resp)
-        json_objects = json_response_key['subcloud_peer_groups']
+        json_objects = json_response_key["subcloud_peer_groups"]
         resource = list()
         for json_object in json_objects:
             resource.append(
-                self.subcloud_peer_group_manager.json_to_resource(json_object))
+                self.subcloud_peer_group_manager.json_to_resource(json_object)
+            )
         return resource
 
     def add_system_peer(self, **kwargs):
@@ -151,5 +156,5 @@ class system_peer_manager(base.ResourceManager):
         return self.system_peer_update(url, data)
 
     def system_peer_list_peer_groups(self, system_peer_ref):
-        url = BASE_URL + '%s/subcloud-peer-groups' % system_peer_ref
+        url = f"{BASE_URL}{system_peer_ref}/subcloud-peer-groups"
         return self._list_peer_groups_for_system_peer(url)

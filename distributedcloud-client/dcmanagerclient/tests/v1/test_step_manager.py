@@ -1,5 +1,5 @@
 # Copyright (c) 2017 Ericsson AB.
-# Copyright (c) 2020-2021 Wind River Systems, Inc.
+# Copyright (c) 2020-2021, 2024 Wind River Systems, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
 #
 
 import mock
-
 from oslo_utils import timeutils
 
 from dcmanagerclient.api.v1.strategy_step_manager import StrategyStep
@@ -24,8 +23,8 @@ from dcmanagerclient.tests import base
 
 TEST_CLOUD_ID = 1
 TEST_STAGE = 1
-TEST_STATE = 'initializing'
-TEST_DETAILS = 'some details'
+TEST_STATE = "initializing"
+TEST_DETAILS = "some details"
 TIME_NOW = timeutils.utcnow().isoformat()
 TEST_STARTED_AT = TIME_NOW
 TEST_FINISHED_AT = TIME_NOW
@@ -35,23 +34,24 @@ TEST_UPDATED_AT = TIME_NOW
 
 class TestCLI(base.BaseCommandTest):
 
-    def setUp(self):
-        super(TestCLI, self).setUp()
-
     def test_list_strategy_steps(self):
-        sample_step = StrategyStep(mock,
-                                   TEST_CLOUD_ID,
-                                   TEST_STAGE,
-                                   TEST_STATE,
-                                   TEST_DETAILS,
-                                   TEST_STARTED_AT,
-                                   TEST_FINISHED_AT,
-                                   TEST_CREATED_AT,
-                                   TEST_UPDATED_AT)
+        sample_step = StrategyStep(
+            mock,
+            TEST_CLOUD_ID,
+            TEST_STAGE,
+            TEST_STATE,
+            TEST_DETAILS,
+            TEST_STARTED_AT,
+            TEST_FINISHED_AT,
+            TEST_CREATED_AT,
+            TEST_UPDATED_AT,
+        )
         results = []
         results.append(sample_step)
-        self.app.client_manager.strategy_step_manager.strategy_step_manager.\
-            list_strategy_steps.return_value = results
+        step_manager = (
+            self.app.client_manager.strategy_step_manager.strategy_step_manager
+        )
+        step_manager.list_strategy_steps.return_value = results
 
         actual_call = self.call(cli_cmd.ListSwUpdateStrategyStep)
         # ListStrategyStep returns a tuple, want the second field of the tuple

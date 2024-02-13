@@ -6,8 +6,6 @@
 
 from dcmanagerclient.commands.v1 import sw_update_manager
 
-RELEASE_FIELD = -3
-
 
 class SwDeployManagerMixin(object):
     """This Mixin provides the manager used for software deploy releases."""
@@ -23,11 +21,20 @@ class SwDeployManagerMixin(object):
         if sw_update_strategy and sw_update_strategy.extra_args:
             release_id = sw_update_strategy.extra_args.get("release_id")
 
-        # Insert the 'release_id' field before the 'state',
-        # 'created_at' and 'updated_at' fields
-        columns = columns[:RELEASE_FIELD] + (
-            "release_id",) + columns[RELEASE_FIELD:]
-        data = data[:RELEASE_FIELD] + (release_id,) + data[RELEASE_FIELD:]
+        # Find the index of 'stop on failure' in the tuple
+        failure_status_index = columns.index("stop on failure")
+
+        # Insert the 'release_id' field before the 'stop on failure',
+        columns = (
+            columns[:failure_status_index + 1]
+            + ("release_id",)
+            + columns[failure_status_index + 1:]
+        )
+        data = (
+            data[:failure_status_index + 1]
+            + (release_id,)
+            + data[failure_status_index + 1:]
+        )
         return columns, data
 
     def _get_format_function(self):
@@ -71,25 +78,21 @@ class ShowSwDeployStrategy(
     SwDeployManagerMixin, sw_update_manager.ShowSwUpdateStrategy
 ):
     """Show the details of a software deploy strategy for a subcloud."""
-    pass
 
 
 class DeleteSwDeployStrategy(
     SwDeployManagerMixin, sw_update_manager.DeleteSwUpdateStrategy
 ):
     """Delete software deploy strategy from the database."""
-    pass
 
 
 class ApplySwDeployStrategy(
     SwDeployManagerMixin, sw_update_manager.ApplySwUpdateStrategy
 ):
     """Apply a software deploy strategy."""
-    pass
 
 
 class AbortSwDeployStrategy(
     SwDeployManagerMixin, sw_update_manager.AbortSwUpdateStrategy
 ):
     """Abort a software deploy strategy."""
-    pass

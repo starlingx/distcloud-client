@@ -1,5 +1,5 @@
 # Copyright (c) 2017 Ericsson AB.
-# Copyright (c) 2017-2021 Wind River Systems, Inc.
+# Copyright (c) 2017-2021, 2024 Wind River Systems, Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 
 from osc_lib.command import command
 
-from dcmanagerclient.commands.v1 import base
 from dcmanagerclient import exceptions
+from dcmanagerclient.commands.v1 import base
 
 DEFAULT_REGION_NAME = "RegionOne"
 
@@ -25,14 +25,14 @@ DEFAULT_REGION_NAME = "RegionOne"
 def options_detail_format(sw_update_options=None):
 
     columns = (
-        'cloud',
-        'storage apply type',
-        'worker apply type',
-        'max parallel workers',
-        'alarm restriction type',
-        'default instance action',
-        'created_at',
-        'updated_at',
+        "cloud",
+        "storage apply type",
+        "worker apply type",
+        "max parallel workers",
+        "alarm restriction type",
+        "default instance action",
+        "created_at",
+        "updated_at",
     )
 
     if sw_update_options:
@@ -47,19 +47,19 @@ def options_detail_format(sw_update_options=None):
             sw_update_options.updated_at,
         )
     else:
-        data = (tuple('<none>' for _ in range(len(columns))),)
+        data = (tuple("<none>" for _ in range(len(columns))),)
 
     return columns, data
 
 
 def options_list_format(sw_update_option=None):
     columns = (
-        'cloud',
-        'storage apply type',
-        'worker apply type',
-        'max parallel workers',
-        'alarm restriction type',
-        'default instance action',
+        "cloud",
+        "storage apply type",
+        "worker apply type",
+        "max parallel workers",
+        "alarm restriction type",
+        "default instance action",
     )
 
     if sw_update_option:
@@ -73,7 +73,7 @@ def options_list_format(sw_update_option=None):
         )
 
     else:
-        data = (tuple('<none>' for _ in range(len(columns))),)
+        data = (tuple("<none>" for _ in range(len(columns))),)
 
     return columns, data
 
@@ -88,46 +88,46 @@ class UpdateSwUpdateOptions(base.DCManagerShowOne):
         parser = super(UpdateSwUpdateOptions, self).get_parser(prog_name)
 
         parser.add_argument(
-            '--storage-apply-type',
+            "--storage-apply-type",
             required=True,
-            choices=['parallel', 'serial'],
-            help='Storage node apply type (parallel or serial).'
+            choices=["parallel", "serial"],
+            help="Storage node apply type (parallel or serial).",
         )
 
         parser.add_argument(
-            '--worker-apply-type',
+            "--worker-apply-type",
             required=True,
-            choices=['parallel', 'serial'],
-            help='Compute node apply type (parallel or serial).'
+            choices=["parallel", "serial"],
+            help="Compute node apply type (parallel or serial).",
         )
 
         parser.add_argument(
-            '--max-parallel-workers',
+            "--max-parallel-workers",
             required=True,
             type=int,
-            help='Maximum number of parallel workers.'
+            help="Maximum number of parallel workers.",
         )
 
         parser.add_argument(
-            '--alarm-restriction-type',
+            "--alarm-restriction-type",
             required=True,
-            choices=['strict', 'relaxed'],
-            help='Whether to allow patching if subcloud alarms are present or '
-                 'not (strict, relaxed).'
+            choices=["strict", "relaxed"],
+            help="Whether to allow patching if subcloud alarms are present or "
+            "not (strict, relaxed).",
         )
 
         parser.add_argument(
-            '--default-instance-action',
+            "--default-instance-action",
             required=True,
-            choices=['stop-start', 'migrate'],
-            help='How instances should be handled.'
+            choices=["stop-start", "migrate"],
+            help="How instances should be handled.",
         )
 
         parser.add_argument(
-            'subcloud',
-            nargs='?',
+            "subcloud",
+            nargs="?",
             default=None,
-            help='Subcloud name or id, omit to set default options.'
+            help="Subcloud name or id, omit to set default options.",
         )
 
         return parser
@@ -136,19 +136,21 @@ class UpdateSwUpdateOptions(base.DCManagerShowOne):
         subcloud_ref = parsed_args.subcloud
         dcmanager_client = self.app.client_manager.sw_update_options_manager
         kwargs = dict()
-        kwargs['storage-apply-type'] = parsed_args.storage_apply_type
-        kwargs['worker-apply-type'] = parsed_args.worker_apply_type
-        kwargs['max-parallel-workers'] = parsed_args.max_parallel_workers
-        kwargs['alarm-restriction-type'] = parsed_args.alarm_restriction_type
-        kwargs['default-instance-action'] = parsed_args.default_instance_action
+        kwargs["storage-apply-type"] = parsed_args.storage_apply_type
+        kwargs["worker-apply-type"] = parsed_args.worker_apply_type
+        kwargs["max-parallel-workers"] = parsed_args.max_parallel_workers
+        kwargs["alarm-restriction-type"] = parsed_args.alarm_restriction_type
+        kwargs["default-instance-action"] = parsed_args.default_instance_action
 
         try:
-            return dcmanager_client.sw_update_options_manager.\
-                sw_update_options_update(subcloud_ref, **kwargs)
+            return (
+                dcmanager_client.sw_update_options_manager.sw_update_options_update(
+                    subcloud_ref, **kwargs
+                )
+            )
         except Exception as e:
             print(e)
-            error_msg = "Unable to update patch options for subcloud %s" % \
-                (subcloud_ref)
+            error_msg = f"Unable to update patch options for subcloud {subcloud_ref}"
             raise exceptions.DCManagerClientException(error_msg)
 
 
@@ -164,8 +166,7 @@ class ListSwUpdateOptions(base.DCManagerLister):
 
     def _get_resources(self, parsed_args):
         dcmanager_client = self.app.client_manager.sw_update_options_manager
-        return dcmanager_client.sw_update_options_manager.\
-            sw_update_options_list()
+        return dcmanager_client.sw_update_options_manager.sw_update_options_list()
 
 
 class ShowSwUpdateOptions(base.DCManagerShowOne):
@@ -178,10 +179,10 @@ class ShowSwUpdateOptions(base.DCManagerShowOne):
         parser = super(ShowSwUpdateOptions, self).get_parser(prog_name)
 
         parser.add_argument(
-            'subcloud',
-            nargs='?',
+            "subcloud",
+            nargs="?",
             default=None,
-            help='Subcloud name or id, omit to show default options.'
+            help="Subcloud name or id, omit to show default options.",
         )
 
         return parser
@@ -189,8 +190,9 @@ class ShowSwUpdateOptions(base.DCManagerShowOne):
     def _get_resources(self, parsed_args):
         subcloud_ref = parsed_args.subcloud
         dcmanager_client = self.app.client_manager.sw_update_options_manager
-        return dcmanager_client.sw_update_options_manager.\
-            sw_update_options_detail(subcloud_ref)
+        return dcmanager_client.sw_update_options_manager.sw_update_options_detail(
+            subcloud_ref
+        )
 
 
 class DeleteSwUpdateOptions(command.Command):
@@ -199,10 +201,7 @@ class DeleteSwUpdateOptions(command.Command):
     def get_parser(self, prog_name):
         parser = super(DeleteSwUpdateOptions, self).get_parser(prog_name)
 
-        parser.add_argument(
-            'subcloud',
-            help='Subcloud name or id'
-        )
+        parser.add_argument("subcloud", help="Subcloud name or id")
 
         return parser
 
@@ -210,8 +209,11 @@ class DeleteSwUpdateOptions(command.Command):
         subcloud_ref = parsed_args.subcloud
         dcmanager_client = self.app.client_manager.sw_update_options_manager
         try:
-            return dcmanager_client.sw_update_options_manager.\
-                sw_update_options_delete(subcloud_ref)
+            return (
+                dcmanager_client.sw_update_options_manager.sw_update_options_delete(
+                    subcloud_ref
+                )
+            )
         except Exception as e:
             print(e)
             error_msg = "Unable to delete patch options"

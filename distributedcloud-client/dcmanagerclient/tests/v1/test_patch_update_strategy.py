@@ -1,13 +1,13 @@
 #
-# Copyright (c) 2023 Wind River Systems, Inc.
+# Copyright (c) 2023-2024 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
 
 from dcmanagerclient.commands.v1 import sw_patch_manager as cli_cmd
 from dcmanagerclient.tests import base
-from dcmanagerclient.tests.v1.mixins import UpdateStrategyMixin
 from dcmanagerclient.tests.v1 import utils
+from dcmanagerclient.tests.v1.mixins import UpdateStrategyMixin
 
 
 class TestPatchUpdateStrategy(UpdateStrategyMixin, base.BaseCommandTest):

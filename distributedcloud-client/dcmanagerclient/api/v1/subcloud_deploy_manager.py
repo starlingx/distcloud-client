@@ -1,4 +1,4 @@
-# Copyright (c) 2020-2023 Wind River Systems, Inc.
+# Copyright (c) 2020-2024 Wind River Systems, Inc.
 # All Rights Reserved.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,9 +14,10 @@
 #    limitations under the License.
 #
 
+from requests_toolbelt import MultipartEncoder
+
 from dcmanagerclient.api import base
 from dcmanagerclient.api.base import get_json
-from requests_toolbelt import MultipartEncoder
 
 
 class SubcloudDeploy(base.Resource):
