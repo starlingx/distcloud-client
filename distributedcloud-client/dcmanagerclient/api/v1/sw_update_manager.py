@@ -47,8 +47,8 @@ class SwUpdateStrategy(base.Resource):
         self.extra_args = extra_args
 
 
-class sw_update_manager(base.ResourceManager):
-    """sw_update_manager
+class SwUpdateManager(base.ResourceManager):
+    """SwUpdateManager
 
     sw_update_manager is an abstract class that is used by subclasses to
     manage API actions for specific update strategy types  such as software

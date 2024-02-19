@@ -8,7 +8,8 @@ import base64
 
 from osc_lib.command import command
 
-from dcmanagerclient import exceptions, utils
+from dcmanagerclient import exceptions
+from dcmanagerclient import utils
 from dcmanagerclient.commands.v1 import base
 
 
@@ -191,7 +192,7 @@ class AddSystemPeer(base.DCManagerShowOne):
         return parser
 
     def _get_resources(self, parsed_args):
-        dcmanager_client = self.app.client_manager.system_peer_manager
+        system_peer_manager = self.app.client_manager.system_peer_manager
         kwargs = {}
 
         if parsed_args.peer_uuid is not None:
@@ -242,7 +243,7 @@ class AddSystemPeer(base.DCManagerShowOne):
             kwargs["heartbeat_maintenance_timeout"] = (
                 parsed_args.heartbeat_maintenance_timeout
             )
-        return dcmanager_client.system_peer_manager.add_system_peer(**kwargs)
+        return system_peer_manager.add_system_peer(**kwargs)
 
 
 class ListSystemPeer(base.DCManagerLister):
@@ -256,8 +257,8 @@ class ListSystemPeer(base.DCManagerLister):
         return parser
 
     def _get_resources(self, parsed_args):
-        dcmanager_client = self.app.client_manager.system_peer_manager
-        return dcmanager_client.system_peer_manager.list_system_peers()
+        system_peer_manager = self.app.client_manager.system_peer_manager
+        return system_peer_manager.list_system_peers()
 
 
 class ListSystemPeerSubcloudPeerGroups(base.DCManagerLister):
@@ -279,10 +280,8 @@ class ListSystemPeerSubcloudPeerGroups(base.DCManagerLister):
 
     def _get_resources(self, parsed_args):
         system_peer_ref = parsed_args.peer
-        dcmanager_client = self.app.client_manager.system_peer_manager
-        return dcmanager_client.system_peer_manager.system_peer_list_peer_groups(
-            system_peer_ref
-        )
+        system_peer_manager = self.app.client_manager.system_peer_manager
+        return system_peer_manager.system_peer_list_peer_groups(system_peer_ref)
 
 
 class ShowSystemPeer(base.DCManagerShowOne):
@@ -302,10 +301,8 @@ class ShowSystemPeer(base.DCManagerShowOne):
 
     def _get_resources(self, parsed_args):
         system_peer_ref = parsed_args.peer
-        dcmanager_client = self.app.client_manager.system_peer_manager
-        return dcmanager_client.system_peer_manager.system_peer_detail(
-            system_peer_ref
-        )
+        system_peer_manager = self.app.client_manager.system_peer_manager
+        return system_peer_manager.system_peer_detail(system_peer_ref)
 
 
 class DeleteSystemPeer(command.Command):
@@ -319,11 +316,11 @@ class DeleteSystemPeer(command.Command):
 
     def take_action(self, parsed_args):
         system_peer_ref = parsed_args.peer
-        dcmanager_client = self.app.client_manager.system_peer_manager
+        system_peer_manager = self.app.client_manager.system_peer_manager
         try:
-            dcmanager_client.system_peer_manager.delete_system_peer(system_peer_ref)
-        except Exception as e:
-            print(e)
+            system_peer_manager.delete_system_peer(system_peer_ref)
+        except Exception as exc:
+            print(exc)
             msg = f"Unable to delete system peer {system_peer_ref}"
             raise exceptions.DCManagerClientException(msg)
 
@@ -415,7 +412,7 @@ class UpdateSystemPeer(base.DCManagerShowOne):
 
     def _get_resources(self, parsed_args):
         system_peer_ref = parsed_args.peer
-        dcmanager_client = self.app.client_manager.system_peer_manager
+        system_peer_manager = self.app.client_manager.system_peer_manager
         kwargs = {}
         if parsed_args.peer_uuid:
             kwargs["peer_uuid"] = parsed_args.peer_uuid
@@ -460,10 +457,8 @@ class UpdateSystemPeer(base.DCManagerShowOne):
             raise exceptions.DCManagerClientException(error_msg)
 
         try:
-            return dcmanager_client.system_peer_manager.update_system_peer(
-                system_peer_ref, **kwargs
-            )
-        except Exception as e:
-            print(e)
+            return system_peer_manager.update_system_peer(system_peer_ref, **kwargs)
+        except Exception as exc:
+            print(exc)
             msg = f"Unable to update system peer {system_peer_ref}"
             raise exceptions.DCManagerClientException(msg)

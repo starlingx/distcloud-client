@@ -13,9 +13,7 @@ class TestSwUpgradeStrategy(UpdateStrategyMixin, base.BaseCommandTest):
 
     def setUp(self):
         super().setUp()
-        self.sw_update_manager = (
-            self.app.client_manager.sw_upgrade_manager.sw_upgrade_manager
-        )
+        self.sw_update_manager = self.app.client_manager.sw_upgrade_manager
         self.create_command = cli_cmd.CreateSwUpgradeStrategy
         self.show_command = cli_cmd.ShowSwUpgradeStrategy
         self.delete_command = cli_cmd.DeleteSwUpgradeStrategy

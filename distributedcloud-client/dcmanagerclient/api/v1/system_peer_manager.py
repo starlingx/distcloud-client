@@ -50,7 +50,7 @@ class SystemPeer(base.Resource):
         self.updated_at = updated_at
 
 
-class system_peer_manager(base.ResourceManager):
+class SystemPeerManager(base.ResourceManager):
     resource_class = SystemPeer
 
     def __init__(self, http_client, subcloud_peer_group_manager):

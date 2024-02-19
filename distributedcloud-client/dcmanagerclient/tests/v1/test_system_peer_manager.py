@@ -112,9 +112,7 @@ class TestCLISystemPeerManagerV1(base.BaseCommandTest):
         self.client = self.app.client_manager.system_peer_manager
 
     def test_list_system_peers(self):
-        self.client.system_peer_manager.list_system_peers.return_value = [
-            SYSTEM_PEER
-        ]
+        self.client.list_system_peers.return_value = [SYSTEM_PEER]
         actual_call = self.call(system_peer_cmd.ListSystemPeer)
         self.assertEqual(
             [
@@ -130,15 +128,13 @@ class TestCLISystemPeerManagerV1(base.BaseCommandTest):
         )
 
     def test_list_system_peers_empty(self):
-        self.client.system_peer_manager.list_system_peers.return_value = []
+        self.client.list_system_peers.return_value = []
         actual_call = self.call(system_peer_cmd.ListSystemPeer)
         self.assertEqual((tuple("<none>" for _ in range(5)),), actual_call[1])
 
     def test_delete_system_peer_by_id(self):
         self.call(system_peer_cmd.DeleteSystemPeer, app_args=[ID])
-        self.client.system_peer_manager.delete_system_peer.assert_called_once_with(
-            ID
-        )
+        self.client.delete_system_peer.assert_called_once_with(ID)
 
     def test_delete_system_peer_without_id(self):
         self.assertRaises(
@@ -146,9 +142,7 @@ class TestCLISystemPeerManagerV1(base.BaseCommandTest):
         )
 
     def test_show_system_peer_with_id(self):
-        self.client.system_peer_manager.system_peer_detail.return_value = [
-            SYSTEM_PEER
-        ]
+        self.client.system_peer_detail.return_value = [SYSTEM_PEER]
         actual_call = self.call(system_peer_cmd.ShowSystemPeer, app_args=[ID])
         self.assertEqual(
             (
@@ -171,21 +165,19 @@ class TestCLISystemPeerManagerV1(base.BaseCommandTest):
         )
 
     def test_show_system_peer_without_id(self):
-        self.client.system_peer_manager.system_peer_detail.return_value = []
+        self.client.system_peer_detail.return_value = []
         actual_call = self.call(system_peer_cmd.ShowSystemPeer, app_args=[ID])
         self.assertEqual((tuple("<none>" for _ in range(14)),), actual_call[1])
 
     def test_list_system_peer_subcloud_peer_groups(self):
-        self.client.system_peer_manager.system_peer_list_peer_groups.return_value = [
-            PEER_GROUP
-        ]
+        self.client.system_peer_list_peer_groups.return_value = [PEER_GROUP]
         actual_call = self.call(
             system_peer_cmd.ListSystemPeerSubcloudPeerGroups, app_args=[ID]
         )
         self.assertEqual([PG_TUPLE], actual_call[1])
 
     def test_add_system_peer(self):
-        self.client.system_peer_manager.add_system_peer.return_value = [SYSTEM_PEER]
+        self.client.add_system_peer.return_value = [SYSTEM_PEER]
 
         actual_call = self.call(
             system_peer_cmd.AddSystemPeer,
@@ -235,13 +227,11 @@ class TestCLISystemPeerManagerV1(base.BaseCommandTest):
         )
 
     def test_update_system_peer(self):
-        UPDATED_SYSTEM_PEER = copy.copy(SYSTEM_PEER)
-        UPDATED_SYSTEM_PEER.peer_controller_gateway_ip = (
+        updated_system_peer = copy.copy(SYSTEM_PEER)
+        updated_system_peer.peer_controller_gateway_ip = (
             NEW_PEER_CONTROLLER_GATEWAY_IP
         )
-        self.client.system_peer_manager.update_system_peer.return_value = [
-            UPDATED_SYSTEM_PEER
-        ]
+        self.client.update_system_peer.return_value = [updated_system_peer]
         actual_call = self.call(
             system_peer_cmd.UpdateSystemPeer,
             app_args=[

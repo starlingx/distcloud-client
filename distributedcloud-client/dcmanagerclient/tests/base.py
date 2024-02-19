@@ -318,7 +318,7 @@ class BaseCommandTest(testtools.TestCase):
     def setUp(self):
         super().setUp()
         self.app = mock.Mock()
-        self.client = self.app.client_manager.subcloud_manager
+        self.client = self.app.client_manager
         self.parsed_args = None
 
     def call(self, command, app_args=None, prog_name=""):

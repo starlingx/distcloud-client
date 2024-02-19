@@ -18,9 +18,7 @@ class TestSwDeployStrategy(UpdateStrategyMixin, base.BaseCommandTest):
         # Increase results_length due to the 'upload only' field
         self.results_length += 1
 
-        self.sw_update_manager = (
-            self.app.client_manager.sw_deploy_manager.sw_deploy_manager
-        )
+        self.sw_update_manager = self.app.client_manager.sw_deploy_manager
         self.create_command = cli_cmd.CreateSwDeployStrategy
         self.show_command = cli_cmd.ShowSwDeployStrategy
         self.delete_command = cli_cmd.DeleteSwDeployStrategy

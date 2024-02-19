@@ -61,33 +61,30 @@ class TestCLISubcloudGroupManagerV1(base.BaseCommandTest):
         self.client = self.app.client_manager.subcloud_group_manager
 
     def test_list_subcloud_groups(self):
-        self.client.subcloud_group_manager.list_subcloud_groups.return_value = [
-            SUBCLOUD_GROUP
-        ]
+        self.client.list_subcloud_groups.return_value = [SUBCLOUD_GROUP]
         actual_call = self.call(subcloud_group_cmd.ListSubcloudGroup)
         self.assertEqual([(ID, NAME, DESCRIPTION)], actual_call[1])
 
     def test_list_subcloud_groups_empty(self):
-        self.client.subcloud_group_manager.list_subcloud_groups.return_value = []
+        self.client.list_subcloud_groups.return_value = []
         actual_call = self.call(subcloud_group_cmd.ListSubcloudGroup)
         self.assertEqual((("<none>", "<none>", "<none>"),), actual_call[1])
 
     def test_list_subcloud_group_subclouds(self):
-        self.client.subcloud_group_manager.\
-            subcloud_group_list_subclouds.return_value = [base.SUBCLOUD_RESOURCE]
+        self.client.subcloud_group_list_subclouds.return_value = [
+            base.SUBCLOUD_RESOURCE
+        ]
         actual_call = self.call(
             subcloud_group_cmd.ListSubcloudGroupSubclouds, app_args=[ID]
         )
-        self.client.subcloud_group_manager.subcloud_group_list_subclouds.\
-            assert_called_once_with(ID)
+        self.client.subcloud_group_list_subclouds.assert_called_once_with(ID)
         self.assertEqual(
             [base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID], actual_call[1]
         )
 
     def test_delete_subcloud_group_by_id(self):
         self.call(subcloud_group_cmd.DeleteSubcloudGroup, app_args=[ID])
-        self.client.subcloud_group_manager.delete_subcloud_group.\
-            assert_called_once_with(ID)
+        self.client.delete_subcloud_group.assert_called_once_with(ID)
 
     def test_delete_subcloud_group_without_id(self):
         self.assertRaises(
@@ -98,9 +95,7 @@ class TestCLISubcloudGroupManagerV1(base.BaseCommandTest):
         )
 
     def test_show_subcloud_group_with_id(self):
-        self.client.subcloud_group_manager.subcloud_group_detail.return_value = [
-            SUBCLOUD_GROUP
-        ]
+        self.client.subcloud_group_detail.return_value = [SUBCLOUD_GROUP]
         actual_call = self.call(subcloud_group_cmd.ShowSubcloudGroup, app_args=[ID])
         self.assertEqual(
             (
@@ -116,7 +111,7 @@ class TestCLISubcloudGroupManagerV1(base.BaseCommandTest):
         )
 
     def test_show_subcloud_group_without_id(self):
-        self.client.subcloud_group_manager.subcloud_group_detail.return_value = []
+        self.client.subcloud_group_detail.return_value = []
         actual_call = self.call(subcloud_group_cmd.ShowSubcloudGroup, app_args=[ID])
         self.assertEqual(
             (
@@ -134,9 +129,7 @@ class TestCLISubcloudGroupManagerV1(base.BaseCommandTest):
         )
 
     def test_add_subcloud_group(self):
-        self.client.subcloud_group_manager.add_subcloud_group.return_value = [
-            SUBCLOUD_GROUP
-        ]
+        self.client.add_subcloud_group.return_value = [SUBCLOUD_GROUP]
 
         actual_call = self.call(
             subcloud_group_cmd.AddSubcloudGroup,
@@ -158,9 +151,7 @@ class TestCLISubcloudGroupManagerV1(base.BaseCommandTest):
     def test_update_subcloud_group(self):
         updated_subloud = copy.copy(SUBCLOUD_GROUP)
         updated_subloud.description = NEW_DESCRIPTION
-        self.client.subcloud_group_manager.update_subcloud_group.return_value = [
-            updated_subloud
-        ]
+        self.client.update_subcloud_group.return_value = [updated_subloud]
         actual_call = self.call(
             subcloud_group_cmd.UpdateSubcloudGroup,
             app_args=[SUBCLOUD_GROUP.group_id, "--description", NEW_DESCRIPTION],

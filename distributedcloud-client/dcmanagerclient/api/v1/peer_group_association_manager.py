@@ -42,7 +42,7 @@ class PeerGroupAssociation(base.Resource):
         self.updated_at = updated_at
 
 
-class peer_group_association_manager(base.ResourceManager):
+class PeerGroupAssociationManager(base.ResourceManager):
     resource_class = PeerGroupAssociation
 
     def _json_to_resource(self, json_object):

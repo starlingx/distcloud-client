@@ -95,14 +95,16 @@ class AddPeerGroupAssociation(base.DCManagerShowOne):
         return parser
 
     def _get_resources(self, parsed_args):
-        dcmanager_client = self.app.client_manager.peer_group_association_manager
+        peer_group_association_manager = (
+            self.app.client_manager.peer_group_association_manager
+        )
+
         kwargs = {
             "peer_group_id": parsed_args.peer_group_id,
             "system_peer_id": parsed_args.system_peer_id,
             "peer_group_priority": parsed_args.peer_group_priority,
         }
-        return dcmanager_client.peer_group_association_manager.\
-            add_peer_group_association(**kwargs)
+        return peer_group_association_manager.add_peer_group_association(**kwargs)
 
 
 class ListPeerGroupAssociation(base.DCManagerLister):
@@ -116,9 +118,10 @@ class ListPeerGroupAssociation(base.DCManagerLister):
         return parser
 
     def _get_resources(self, parsed_args):
-        dcmanager_client = self.app.client_manager.peer_group_association_manager
-        return dcmanager_client.peer_group_association_manager.\
-            list_peer_group_associations()
+        peer_group_association_manager = (
+            self.app.client_manager.peer_group_association_manager
+        )
+        return peer_group_association_manager.list_peer_group_associations()
 
 
 class ShowPeerGroupAssociation(base.DCManagerShowOne):
@@ -138,9 +141,12 @@ class ShowPeerGroupAssociation(base.DCManagerShowOne):
 
     def _get_resources(self, parsed_args):
         association_ref = parsed_args.id
-        dcmanager_client = self.app.client_manager.peer_group_association_manager
-        return dcmanager_client.peer_group_association_manager.\
-            peer_group_association_detail(association_ref)
+        peer_group_association_manager = (
+            self.app.client_manager.peer_group_association_manager
+        )
+        return peer_group_association_manager.peer_group_association_detail(
+            association_ref
+        )
 
 
 class SyncPeerGroupAssociation(base.DCManagerShowOne):
@@ -158,9 +164,12 @@ class SyncPeerGroupAssociation(base.DCManagerShowOne):
 
     def _get_resources(self, parsed_args):
         association_ref = parsed_args.id
-        dcmanager_client = self.app.client_manager.peer_group_association_manager
-        return dcmanager_client.peer_group_association_manager.\
-            sync_peer_group_association(association_ref)
+        peer_group_association_manager = (
+            self.app.client_manager.peer_group_association_manager
+        )
+        return peer_group_association_manager.sync_peer_group_association(
+            association_ref
+        )
 
 
 class DeletePeerGroupAssociation(command.Command):
@@ -173,12 +182,15 @@ class DeletePeerGroupAssociation(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        dcmanager_client = self.app.client_manager.peer_group_association_manager
+        peer_group_association_manager = (
+            self.app.client_manager.peer_group_association_manager
+        )
         try:
-            dcmanager_client.peer_group_association_manager.\
-                delete_peer_group_association(parsed_args.id)
-        except Exception as e:
-            print(e)
+            peer_group_association_manager.delete_peer_group_association(
+                parsed_args.id
+            )
+        except Exception as exc:
+            print(exc)
             msg = f"Unable to delete peer group association {parsed_args.id}"
             raise exceptions.DCManagerClientException(msg)
 
@@ -203,13 +215,16 @@ class UpdatePeerGroupAssociation(base.DCManagerShowOne):
         return parser
 
     def _get_resources(self, parsed_args):
-        dcmanager_client = self.app.client_manager.peer_group_association_manager
+        peer_group_association_manager = (
+            self.app.client_manager.peer_group_association_manager
+        )
 
         kwargs = {"peer_group_priority": parsed_args.peer_group_priority}
         try:
-            return dcmanager_client.peer_group_association_manager.\
-                update_peer_group_association(parsed_args.id, **kwargs)
-        except Exception as e:
-            print(e)
+            return peer_group_association_manager.update_peer_group_association(
+                parsed_args.id, **kwargs
+            )
+        except Exception as exc:
+            print(exc)
             msg = f"Unable to update peer group association {parsed_args.id}"
             raise exceptions.DCManagerClientException(msg)

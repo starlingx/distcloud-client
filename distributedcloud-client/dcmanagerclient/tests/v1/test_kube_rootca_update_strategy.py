@@ -13,8 +13,7 @@ class TestKubeRootcaUpdateStrategy(UpdateStrategyMixin, base.BaseCommandTest):
 
     def setUp(self):
         super().setUp()
-        self.sw_update_manager = self.app.client_manager.kube_rootca_update_manager.\
-            kube_rootca_update_manager
+        self.sw_update_manager = self.app.client_manager.kube_rootca_update_manager
         self.create_command = cli_cmd.CreateKubeRootcaUpdateStrategy
         self.show_command = cli_cmd.ShowKubeRootcaUpdateStrategy
         self.delete_command = cli_cmd.DeleteKubeRootcaUpdateStrategy

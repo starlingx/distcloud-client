@@ -44,7 +44,7 @@ class StrategyStep(base.Resource):
         self.updated_at = updated_at
 
 
-class strategy_step_manager(base.ResourceManager):
+class StrategyStepManager(base.ResourceManager):
 
     def __init__(self, http_client):
         super().__init__(http_client)

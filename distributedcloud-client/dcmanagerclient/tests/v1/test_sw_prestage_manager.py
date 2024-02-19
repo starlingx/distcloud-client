@@ -20,9 +20,7 @@ class TestSwPrestageStrategy(UpdateStrategyMixin, base.BaseCommandTest):
 
     def setUp(self):
         super().setUp()
-        self.sw_update_manager = (
-            self.app.client_manager.sw_prestage_manager.sw_prestage_manager
-        )
+        self.sw_update_manager = self.app.client_manager.sw_prestage_manager
 
         p = mock.patch.object(getpass, "getpass")
         self.mock_prompt = p.start()

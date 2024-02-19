@@ -20,8 +20,8 @@ class SwPatchManagerMixin:
     """This Mixin provides the update manager used for sw patch."""
 
     def get_sw_update_manager(self):
-        dcmanager_client = self.app.client_manager.sw_patch_manager
-        return dcmanager_client.sw_patch_manager
+        sw_patch_manager = self.app.client_manager.sw_patch_manager
+        return sw_patch_manager
 
     def custom_format_function(self, sw_update_strategy=None):
         original_fmt_func = super()._get_format_function()

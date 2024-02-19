@@ -9,7 +9,8 @@ import os
 
 from osc_lib.command import command
 
-from dcmanagerclient import exceptions, utils
+from dcmanagerclient import exceptions
+from dcmanagerclient import utils
 from dcmanagerclient.commands.v1 import base
 
 
@@ -131,7 +132,7 @@ class CreateSubcloudBackup(base.DCManagerShow):
         return parser
 
     def _get_resources(self, parsed_args):
-        dcmanager_client = self.app.client_manager.subcloud_backup_manager
+        subcloud_backup_manager = self.app.client_manager.subcloud_backup_manager
         data = {}
         files = {}
 
@@ -191,12 +192,12 @@ class CreateSubcloudBackup(base.DCManagerShow):
             files["backup_values"] = parsed_args.backup_values
 
         try:
-            return dcmanager_client.subcloud_backup_manager.backup_subcloud_create(
+            return subcloud_backup_manager.backup_subcloud_create(
                 data=data, files=files
             )
 
-        except Exception as e:
-            print(e)
+        except Exception as exc:
+            print(exc)
             error_msg = "Unable to create subcloud backup"
             raise exceptions.DCManagerClientException(error_msg)
 
@@ -245,7 +246,7 @@ class DeleteSubcloudBackup(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        dcmanager_client = self.app.client_manager.subcloud_backup_manager
+        subcloud_backup_manager = self.app.client_manager.subcloud_backup_manager
         release_version = parsed_args.release
         subcloud_ref = parsed_args.subcloud
         data = {}
@@ -285,12 +286,12 @@ class DeleteSubcloudBackup(command.Command):
             ).decode("utf-8")
 
         try:
-            return dcmanager_client.subcloud_backup_manager.backup_subcloud_delete(
+            return subcloud_backup_manager.backup_subcloud_delete(
                 subcloud_ref=subcloud_ref, release_version=release_version, data=data
             )
 
-        except Exception as e:
-            print(e)
+        except Exception as exc:
+            print(exc)
             error_msg = "Unable to delete backup"
             raise exceptions.DCManagerClientException(error_msg)
 
@@ -372,7 +373,7 @@ class RestoreSubcloudBackup(base.DCManagerShow):
 
     def _get_resources(self, parsed_args):
 
-        dcmanager_client = self.app.client_manager.subcloud_backup_manager
+        subcloud_backup_manager = self.app.client_manager.subcloud_backup_manager
         data = {}
         files = {}
 
@@ -444,11 +445,11 @@ class RestoreSubcloudBackup(base.DCManagerShow):
             files["restore_values"] = parsed_args.restore_values
 
         try:
-            return dcmanager_client.subcloud_backup_manager.backup_subcloud_restore(
+            return subcloud_backup_manager.backup_subcloud_restore(
                 data=data, files=files
             )
 
-        except Exception as e:
-            print(e)
+        except Exception as exc:
+            print(exc)
             error_msg = "Unable to restore subcloud backup"
             raise exceptions.DCManagerClientException(error_msg)

@@ -34,9 +34,9 @@ def do_action_on_many(action, resources, success_msg, error_msg):
         try:
             action(resource)
             print(success_msg % resource)
-        except Exception as e:
+        except Exception as exc:
             failure_flag = True
-            print(e)
+            print(exc)
 
     if failure_flag:
         raise exceptions.DCManagerClientException(error_msg)
@@ -73,9 +73,9 @@ def get_contents_if_file(contents_or_file_name):
             path = os.path.abspath(contents_or_file_name)
             definition_url = parse.urljoin("file:", request.pathname2url(path))
         return request.urlopen(definition_url).read().decode("utf8")
-    except Exception as e:
+    except Exception as exc:
         raise exceptions.DCManagerClientException(
-            f"Error: Could not open file {contents_or_file_name}: {e}"
+            f"Error: Could not open file {contents_or_file_name}: {exc}"
         )
 
 
@@ -96,10 +96,10 @@ def prompt_for_password(password_type="sysadmin", item_type="subcloud"):
                 print("Passwords did not match")
                 continue
             break
-        except KeyboardInterrupt as e:
+        except KeyboardInterrupt as exc:
             raise exceptions.DCManagerClientException(
                 "\nPassword prompt interrupted."
-            ) from e
+            ) from exc
     return password
 
 

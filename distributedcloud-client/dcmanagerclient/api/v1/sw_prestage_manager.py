@@ -13,12 +13,12 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 #
-from dcmanagerclient.api.v1.sw_update_manager import sw_update_manager
+from dcmanagerclient.api.v1.sw_update_manager import SwUpdateManager
 
 SW_UPDATE_TYPE_PRESTAGE = "prestage"
 
 
-class sw_prestage_manager(sw_update_manager):
+class SwPrestageManager(SwUpdateManager):
 
     def __init__(self, http_client):
         super().__init__(

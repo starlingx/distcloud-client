@@ -18,9 +18,7 @@ class TestPatchUpdateStrategy(UpdateStrategyMixin, base.BaseCommandTest):
         # Increase results_length due to the 'upload only' field
         self.results_length += 1
 
-        self.sw_update_manager = (
-            self.app.client_manager.sw_patch_manager.sw_patch_manager
-        )
+        self.sw_update_manager = self.app.client_manager.sw_patch_manager
         self.create_command = cli_cmd.CreatePatchUpdateStrategy
         self.show_command = cli_cmd.ShowPatchUpdateStrategy
         self.delete_command = cli_cmd.DeletePatchUpdateStrategy

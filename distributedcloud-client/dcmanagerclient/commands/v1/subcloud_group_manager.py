@@ -109,7 +109,7 @@ class AddSubcloudGroup(base.DCManagerShowOne):
         return parser
 
     def _get_resources(self, parsed_args):
-        dcmanager_client = self.app.client_manager.subcloud_group_manager
+        subcloud_group_manager = self.app.client_manager.subcloud_group_manager
         kwargs = {}
 
         if parsed_args.name is not None:
@@ -123,7 +123,7 @@ class AddSubcloudGroup(base.DCManagerShowOne):
 
         if parsed_args.max_parallel_subclouds is not None:
             kwargs["max_parallel_subclouds"] = parsed_args.max_parallel_subclouds
-        return dcmanager_client.subcloud_group_manager.add_subcloud_group(**kwargs)
+        return subcloud_group_manager.add_subcloud_group(**kwargs)
 
 
 class ListSubcloudGroup(base.DCManagerLister):
@@ -137,8 +137,8 @@ class ListSubcloudGroup(base.DCManagerLister):
         return parser
 
     def _get_resources(self, parsed_args):
-        dcmanager_client = self.app.client_manager.subcloud_group_manager
-        return dcmanager_client.subcloud_group_manager.list_subcloud_groups()
+        subcloud_group_manager = self.app.client_manager.subcloud_group_manager
+        return subcloud_group_manager.list_subcloud_groups()
 
 
 class ListSubcloudGroupSubclouds(base.DCManagerLister):
@@ -157,11 +157,9 @@ class ListSubcloudGroupSubclouds(base.DCManagerLister):
 
     def _get_resources(self, parsed_args):
         subcloud_group_ref = parsed_args.group
-        dcmanager_client = self.app.client_manager.subcloud_group_manager
-        result = (
-            dcmanager_client.subcloud_group_manager.subcloud_group_list_subclouds(
-                subcloud_group_ref
-            )
+        subcloud_group_manager = self.app.client_manager.subcloud_group_manager
+        result = subcloud_group_manager.subcloud_group_list_subclouds(
+            subcloud_group_ref
         )
         update_fields_values(result)
         return result
@@ -184,10 +182,8 @@ class ShowSubcloudGroup(base.DCManagerShowOne):
 
     def _get_resources(self, parsed_args):
         subcloud_group_ref = parsed_args.group
-        dcmanager_client = self.app.client_manager.subcloud_group_manager
-        return dcmanager_client.subcloud_group_manager.subcloud_group_detail(
-            subcloud_group_ref
-        )
+        subcloud_group_manager = self.app.client_manager.subcloud_group_manager
+        return subcloud_group_manager.subcloud_group_detail(subcloud_group_ref)
 
 
 class DeleteSubcloudGroup(command.Command):
@@ -203,13 +199,11 @@ class DeleteSubcloudGroup(command.Command):
 
     def take_action(self, parsed_args):
         subcloud_group_ref = parsed_args.group
-        dcmanager_client = self.app.client_manager.subcloud_group_manager
+        subcloud_group_manager = self.app.client_manager.subcloud_group_manager
         try:
-            dcmanager_client.subcloud_group_manager.delete_subcloud_group(
-                subcloud_group_ref
-            )
-        except Exception as e:
-            print(e)
+            subcloud_group_manager.delete_subcloud_group(subcloud_group_ref)
+        except Exception as exc:
+            print(exc)
             msg = f"Unable to delete subcloud group {subcloud_group_ref}"
             raise exceptions.DCManagerClientException(msg)
 
@@ -250,7 +244,7 @@ class UpdateSubcloudGroup(base.DCManagerShowOne):
 
     def _get_resources(self, parsed_args):
         subcloud_group_ref = parsed_args.group
-        dcmanager_client = self.app.client_manager.subcloud_group_manager
+        subcloud_group_manager = self.app.client_manager.subcloud_group_manager
         kwargs = {}
         if parsed_args.name:
             kwargs["name"] = parsed_args.name
@@ -265,10 +259,10 @@ class UpdateSubcloudGroup(base.DCManagerShowOne):
             raise exceptions.DCManagerClientException(error_msg)
 
         try:
-            return dcmanager_client.subcloud_group_manager.update_subcloud_group(
+            return subcloud_group_manager.update_subcloud_group(
                 subcloud_group_ref, **kwargs
             )
-        except Exception as e:
-            print(e)
+        except Exception as exc:
+            print(exc)
             msg = f"Unable to update subcloud group {subcloud_group_ref}"
             raise exceptions.DCManagerClientException(msg)

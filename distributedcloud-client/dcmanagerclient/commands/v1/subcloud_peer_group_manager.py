@@ -6,7 +6,8 @@ import base64
 
 from osc_lib.command import command
 
-from dcmanagerclient import exceptions, utils
+from dcmanagerclient import exceptions
+from dcmanagerclient import utils
 from dcmanagerclient.commands.v1 import base
 
 
@@ -65,7 +66,9 @@ class MigrateSubcloudPeerGroup(base.DCManagerLister):
 
     def _get_resources(self, parsed_args):
         subcloud_peer_group_ref = parsed_args.group
-        dcmanager_client = self.app.client_manager.subcloud_peer_group_manager
+        subcloud_peer_group_manager = (
+            self.app.client_manager.subcloud_peer_group_manager
+        )
         kwargs = {}
 
         if parsed_args.sysadmin_password is not None:
@@ -79,10 +82,11 @@ class MigrateSubcloudPeerGroup(base.DCManagerLister):
             ).decode("utf-8")
 
         try:
-            return dcmanager_client.subcloud_peer_group_manager.\
-                migrate_subcloud_peer_group(subcloud_peer_group_ref, **kwargs)
-        except Exception as e:
-            print(e)
+            return subcloud_peer_group_manager.migrate_subcloud_peer_group(
+                subcloud_peer_group_ref, **kwargs
+            )
+        except Exception as exc:
+            print(exc)
             msg = f"Unable to migrate subcloud peer group {subcloud_peer_group_ref}"
             raise exceptions.DCManagerClientException(msg)
 
@@ -120,7 +124,9 @@ class AddSubcloudPeerGroup(base.DCManagerShowOne):
         return parser
 
     def _get_resources(self, parsed_args):
-        dcmanager_client = self.app.client_manager.subcloud_peer_group_manager
+        subcloud_peer_group_manager = (
+            self.app.client_manager.subcloud_peer_group_manager
+        )
         kwargs = {}
 
         kwargs["peer-group-name"] = parsed_args.peer_group_name
@@ -131,9 +137,7 @@ class AddSubcloudPeerGroup(base.DCManagerShowOne):
         if parsed_args.max_subcloud_rehoming is not None:
             kwargs["max-subcloud-rehoming"] = parsed_args.max_subcloud_rehoming
 
-        return dcmanager_client.subcloud_peer_group_manager.add_subcloud_peer_group(
-            **kwargs
-        )
+        return subcloud_peer_group_manager.add_subcloud_peer_group(**kwargs)
 
 
 class DeleteSubcloudPeerGroup(command.Command):
@@ -149,13 +153,15 @@ class DeleteSubcloudPeerGroup(command.Command):
 
     def take_action(self, parsed_args):
         subcloud_peer_group_ref = parsed_args.group
-        dcmanager_client = self.app.client_manager.subcloud_peer_group_manager
+        subcloud_peer_group_manager = (
+            self.app.client_manager.subcloud_peer_group_manager
+        )
         try:
-            dcmanager_client.subcloud_peer_group_manager.delete_subcloud_peer_group(
+            subcloud_peer_group_manager.delete_subcloud_peer_group(
                 subcloud_peer_group_ref
             )
-        except Exception as e:
-            print(e)
+        except Exception as exc:
+            print(exc)
             msg = f"Unable to delete subcloud peer group {subcloud_peer_group_ref}"
             raise exceptions.DCManagerClientException(msg)
 
@@ -177,11 +183,11 @@ class ShowSubcloudPeerGroup(base.DCManagerShowOne):
 
     def _get_resources(self, parsed_args):
         subcloud_peer_group_ref = parsed_args.group
-        dcmanager_client = self.app.client_manager.subcloud_peer_group_manager
-        return (
-            dcmanager_client.subcloud_peer_group_manager.subcloud_peer_group_detail(
-                subcloud_peer_group_ref
-            )
+        subcloud_peer_group_manager = (
+            self.app.client_manager.subcloud_peer_group_manager
+        )
+        return subcloud_peer_group_manager.subcloud_peer_group_detail(
+            subcloud_peer_group_ref
         )
 
 
@@ -196,10 +202,10 @@ class ListSubcloudPeerGroup(base.DCManagerLister):
         return parser
 
     def _get_resources(self, parsed_args):
-        dcmanager_client = self.app.client_manager.subcloud_peer_group_manager
-        return (
-            dcmanager_client.subcloud_peer_group_manager.list_subcloud_peer_groups()
+        subcloud_peer_group_manager = (
+            self.app.client_manager.subcloud_peer_group_manager
         )
+        return subcloud_peer_group_manager.list_subcloud_peer_groups()
 
 
 class ListSubcloudPeerGroupSubclouds(base.DCManagerLister):
@@ -219,10 +225,12 @@ class ListSubcloudPeerGroupSubclouds(base.DCManagerLister):
 
     def _get_resources(self, parsed_args):
         subcloud_peer_group_ref = parsed_args.group
-        client_manager = self.app.client_manager
-        dcmanager_client = client_manager.subcloud_peer_group_manager
-        return dcmanager_client.subcloud_peer_group_manager.\
-            subcloud_peer_group_list_subclouds(subcloud_peer_group_ref)
+        subcloud_peer_group_manager = (
+            self.app.client_manager.subcloud_peer_group_manager
+        )
+        return subcloud_peer_group_manager.subcloud_peer_group_list_subclouds(
+            subcloud_peer_group_ref
+        )
 
 
 class UpdateSubcloudPeerGroup(base.DCManagerShowOne):
@@ -261,7 +269,9 @@ class UpdateSubcloudPeerGroup(base.DCManagerShowOne):
 
     def _get_resources(self, parsed_args):
         subcloud_peer_group_ref = parsed_args.group
-        dcmanager_client = self.app.client_manager.subcloud_peer_group_manager
+        subcloud_peer_group_manager = (
+            self.app.client_manager.subcloud_peer_group_manager
+        )
         kwargs = {}
 
         if parsed_args.peer_group_name is not None:
@@ -278,10 +288,11 @@ class UpdateSubcloudPeerGroup(base.DCManagerShowOne):
             raise exceptions.DCManagerClientException(error_msg)
 
         try:
-            return dcmanager_client.subcloud_peer_group_manager.\
-                update_subcloud_peer_group(subcloud_peer_group_ref, **kwargs)
-        except Exception as e:
-            print(e)
+            return subcloud_peer_group_manager.update_subcloud_peer_group(
+                subcloud_peer_group_ref, **kwargs
+            )
+        except Exception as exc:
+            print(exc)
             msg = f"Unable to update subcloud peer group {subcloud_peer_group_ref}"
             raise exceptions.DCManagerClientException(msg)
 
@@ -334,9 +345,9 @@ class StatusSubcloudPeerGroup(base.DCManagerShowOne):
 
     def _get_resources(self, parsed_args):
         subcloud_peer_group_ref = parsed_args.group
-        dcmanager_client = self.app.client_manager.subcloud_peer_group_manager
-        return (
-            dcmanager_client.subcloud_peer_group_manager.subcloud_peer_group_status(
-                subcloud_peer_group_ref
-            )
+        subcloud_peer_group_manager = (
+            self.app.client_manager.subcloud_peer_group_manager
+        )
+        return subcloud_peer_group_manager.subcloud_peer_group_status(
+            subcloud_peer_group_ref
         )

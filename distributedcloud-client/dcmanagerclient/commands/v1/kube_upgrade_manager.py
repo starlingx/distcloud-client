@@ -20,8 +20,8 @@ class KubeUpgradeManagerMixin:
     """This Mixin provides the update manager used for kubernetes upgrades."""
 
     def get_sw_update_manager(self):
-        dcmanager_client = self.app.client_manager.kube_upgrade_manager
-        return dcmanager_client.kube_upgrade_manager
+        kube_upgrade_manager = self.app.client_manager.kube_upgrade_manager
+        return kube_upgrade_manager
 
 
 class CreateKubeUpgradeStrategy(

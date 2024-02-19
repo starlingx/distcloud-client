@@ -28,9 +28,13 @@ from dcmanagerclient.tests import base
 
 class TestCLISubcloudManagerV1(base.BaseCommandTest):
 
+    def setUp(self):
+        super().setUp()
+        self.subcloud_resource = copy.copy(base.SUBCLOUD_RESOURCE)
+
     def test_list_subclouds(self):
         self.client.subcloud_manager.list_subclouds.return_value = [
-            base.SUBCLOUD_RESOURCE
+            self.subcloud_resource
         ]
         actual_call = self.call(subcloud_cmd.ListSubcloud)
         self.assertEqual([base.SUBCLOUD_LIST_RESULT], actual_call[1])
@@ -83,7 +87,7 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
 
     def test_show_subcloud_with_subcloud_id(self):
         self.client.subcloud_manager.subcloud_detail.return_value = [
-            base.SUBCLOUD_RESOURCE
+            self.subcloud_resource
         ]
         actual_call = self.call(subcloud_cmd.ShowSubcloud, app_args=[base.ID])
 
@@ -93,7 +97,7 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
         )
 
     def test_show_subcloud_with_additional_detail(self):
-        subcloud_with_additional_detail = copy.copy(base.SUBCLOUD_RESOURCE)
+        subcloud_with_additional_detail = self.subcloud_resource
         subcloud_with_additional_detail.oam_floating_ip = (
             base.EXTERNAL_OAM_FLOATING_ADDRESS
         )
@@ -127,7 +131,7 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
     @mock.patch("getpass.getpass", return_value="testpassword")
     def test_add_subcloud(self, _mock_getpass):
         self.client.subcloud_manager.add_subcloud.return_value = [
-            base.SUBCLOUD_RESOURCE
+            self.subcloud_resource
         ]
 
         with tempfile.NamedTemporaryFile(mode="w") as f:
@@ -165,7 +169,7 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
     @mock.patch("getpass.getpass", return_value="testpassword")
     def test_add_migrate_subcloud(self, _mock_getpass):
         self.client.subcloud_manager.add_subcloud.return_value = [
-            base.SUBCLOUD_RESOURCE
+            self.subcloud_resource
         ]
 
         with tempfile.NamedTemporaryFile(mode="w") as f:
@@ -186,7 +190,7 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
     @mock.patch("getpass.getpass", return_value="testpassword")
     def test_add_migrate_subcloud_with_deploy_config(self, _mock_getpass):
         self.client.subcloud_manager.add_subcloud.return_value = [
-            base.SUBCLOUD_RESOURCE
+            self.subcloud_resource
         ]
 
         with tempfile.NamedTemporaryFile(mode="w") as f_bootstrap:
@@ -264,10 +268,10 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
         self.assertEqual(tuple(results_by_name), actual_call2[1])
 
     def test_update_fields_values(self):
-        subcloud_with_region_detail = copy.copy(base.SUBCLOUD_RESOURCE)
+        subcloud_with_region_detail = copy.copy(self.subcloud_resource)
         subcloud_with_region_detail.region_name = base.REGION_NAME
 
-        subcloud_with_region_none = copy.copy(base.SUBCLOUD_RESOURCE)
+        subcloud_with_region_none = copy.copy(self.subcloud_resource)
         subcloud_with_region_none.region_name = None
 
         subcloud_cmd.update_fields_values([subcloud_with_region_detail])
@@ -279,14 +283,14 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
 
     def test_unmanage_subcloud(self):
         self.client.subcloud_manager.update_subcloud.return_value = [
-            base.SUBCLOUD_RESOURCE
+            self.subcloud_resource
         ]
         actual_call = self.call(subcloud_cmd.UnmanageSubcloud, app_args=[base.ID])
         self.assertEqual(base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID, actual_call[1])
 
     def test_unmanage_subcloud_with_migrate(self):
         self.client.subcloud_manager.update_subcloud.return_value = [
-            base.SUBCLOUD_RESOURCE
+            self.subcloud_resource
         ]
         actual_call = self.call(
             subcloud_cmd.UnmanageSubcloud, app_args=[base.ID, "--migrate"]
@@ -300,7 +304,7 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
 
     def test_manage_subcloud(self):
         self.client.subcloud_manager.update_subcloud.return_value = [
-            base.SUBCLOUD_RESOURCE
+            self.subcloud_resource
         ]
         actual_call = self.call(subcloud_cmd.ManageSubcloud, app_args=[base.ID])
         self.assertEqual(base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID, actual_call[1])
@@ -312,7 +316,7 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
 
     def test_update_subcloud(self):
         self.client.subcloud_manager.update_subcloud.return_value = [
-            base.SUBCLOUD_RESOURCE
+            self.subcloud_resource
         ]
         with tempfile.NamedTemporaryFile(mode="w") as f_bootstrap:
             bootstrap_file_path = os.path.abspath(f_bootstrap.name)
@@ -348,7 +352,7 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
     @mock.patch("six.moves.input", return_value="redeploy")
     def test_redeploy_subcloud(self, _mock_input, _mock_getpass):
         self.client.subcloud_manager.redeploy_subcloud.return_value = [
-            base.SUBCLOUD_RESOURCE
+            self.subcloud_resource
         ]
 
         with tempfile.NamedTemporaryFile(
@@ -383,7 +387,7 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
     @mock.patch("six.moves.input", return_value="redeploy")
     def test_redeploy_subcloud_no_parameters(self, _mock_input, _mock_getpass):
         self.client.subcloud_manager.redeploy_subcloud.return_value = [
-            base.SUBCLOUD_RESOURCE
+            self.subcloud_resource
         ]
         actual_call = self.call(subcloud_cmd.RedeploySubcloud, app_args=[base.ID])
         self.assertEqual(base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID, actual_call[1])
@@ -394,7 +398,7 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
         self, _mock_input, _mock_getpass
     ):
         self.client.subcloud_manager.redeploy_subcloud.return_value = [
-            base.SUBCLOUD_RESOURCE
+            self.subcloud_resource
         ]
         with tempfile.NamedTemporaryFile(
             mode="w"
@@ -445,7 +449,7 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
 
     def test_prestage_with_subcloud_id(self):
         self.client.subcloud_manager.prestage_subcloud.return_value = [
-            base.SUBCLOUD_RESOURCE
+            self.subcloud_resource
         ]
         actual_call_without_release = self.call(
             subcloud_cmd.PrestageSubcloud,
@@ -462,7 +466,7 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
         )
 
     def test_prestage_with_release(self):
-        subcloud_with_additional_detail = copy.copy(base.SUBCLOUD_RESOURCE)
+        subcloud_with_additional_detail = self.subcloud_resource
         subcloud_with_additional_detail.prestage_software_version = (
             base.SOFTWARE_VERSION
         )

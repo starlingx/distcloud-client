@@ -30,9 +30,7 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
 
     def test_backup_create_subcloud(self):
 
-        self.client.subcloud_backup_manager.backup_subcloud_create.return_value = [
-            base.SUBCLOUD_RESOURCE
-        ]
+        self.client.backup_subcloud_create.return_value = [base.SUBCLOUD_RESOURCE]
 
         backup_path = os.path.normpath(os.path.join(os.getcwd(), "test.yaml"))
         with open(backup_path, mode="w", encoding="UTF-8") as f:
@@ -55,9 +53,7 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
 
     def test_backup_create_group(self):
 
-        self.client.subcloud_backup_manager.backup_subcloud_create.return_value = [
-            base.SUBCLOUD_RESOURCE
-        ]
+        self.client.backup_subcloud_create.return_value = [base.SUBCLOUD_RESOURCE]
 
         backup_path = os.path.normpath(os.path.join(os.getcwd(), "test.yaml"))
         with open(backup_path, mode="w", encoding="UTF-8") as f:
@@ -77,7 +73,7 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
         self.assertEqual([base.SUBCLOUD_FIELD_RESULT_LIST], actual_call[1])
 
     def test_backup_create_group_subcloud(self):
-        self.client.subcloud_backup_manager.backup_subcloud_create.return_value = []
+        self.client.backup_subcloud_create.return_value = []
 
         backup_path = os.path.normpath(os.path.join(os.getcwd(), "test.yaml"))
         with open(backup_path, mode="w", encoding="UTF-8") as f:
@@ -108,7 +104,7 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
         )
 
     def test_backup_create_no_group_no_subcloud(self):
-        self.client.subcloud_backup_manager.backup_subcloud_create.return_value = []
+        self.client.backup_subcloud_create.return_value = []
 
         backup_path = os.path.normpath(os.path.join(os.getcwd(), "test.yaml"))
         with open(backup_path, mode="w", encoding="UTF-8") as f:
@@ -133,7 +129,7 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
         )
 
     def test_backup_create_backup_value_not_a_file(self):
-        self.client.subcloud_backup_manager.backup_subcloud_create.return_value = []
+        self.client.backup_subcloud_create.return_value = []
 
         e = self.assertRaises(
             DCManagerClientException,
@@ -155,9 +151,7 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
     @mock.patch("getpass.getpass", return_value="testpassword")
     def test_backup_create_prompt_ask_for_password(self, _mock_getpass):
 
-        self.client.subcloud_backup_manager.backup_subcloud_create.return_value = [
-            base.SUBCLOUD_RESOURCE
-        ]
+        self.client.backup_subcloud_create.return_value = [base.SUBCLOUD_RESOURCE]
 
         backup_path = os.path.normpath(os.path.join(os.getcwd(), "test.yaml"))
         with open(backup_path, mode="w", encoding="UTF-8") as f:
@@ -203,7 +197,7 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
         )
 
     def test_backup_delete_no_group_no_subcloud(self):
-        self.client.subcloud_backup_manager.backup_subcloud_delete.return_value = []
+        self.client.backup_subcloud_delete.return_value = []
 
         e = self.assertRaises(
             DCManagerClientException,
@@ -223,7 +217,7 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
         )
 
     def test_backup_delete_group_subcloud(self):
-        self.client.subcloud_backup_manager.backup_subcloud_delete.return_value = []
+        self.client.backup_subcloud_delete.return_value = []
 
         e = self.assertRaises(
             DCManagerClientException,
@@ -274,8 +268,7 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
 
         self.call(subcloud_backup_cmd.DeleteSubcloudBackup, app_args=app_args)
 
-        subcloud_delete = self.client.subcloud_backup_manager.backup_subcloud_delete
-        subcloud_delete.assert_called_once_with(
+        self.client.backup_subcloud_delete.assert_called_once_with(
             data=payload, release_version=release_version, subcloud_ref=None
         )
 
@@ -304,8 +297,7 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
 
         self.call(subcloud_backup_cmd.DeleteSubcloudBackup, app_args=app_args)
 
-        subcloud_delete = self.client.subcloud_backup_manager.backup_subcloud_delete
-        subcloud_delete.assert_called_once_with(
+        self.client.backup_subcloud_delete.assert_called_once_with(
             data=payload, release_version=release_version, subcloud_ref=subcloud_name
         )
 
@@ -333,8 +325,7 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
 
         self.call(subcloud_backup_cmd.DeleteSubcloudBackup, app_args=app_args)
 
-        subcloud_delete = self.client.subcloud_backup_manager.backup_subcloud_delete
-        subcloud_delete.assert_called_once_with(
+        self.client.backup_subcloud_delete.assert_called_once_with(
             data=payload, release_version=release_version, subcloud_ref=None
         )
 
@@ -357,8 +348,7 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
 
         self.call(subcloud_backup_cmd.DeleteSubcloudBackup, app_args=app_args)
 
-        subcloud_delete = self.client.subcloud_backup_manager.backup_subcloud_delete
-        subcloud_delete.assert_called_once_with(
+        self.client.backup_subcloud_delete.assert_called_once_with(
             data=payload, release_version=release_version, subcloud_ref=None
         )
 
@@ -384,9 +374,7 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
 
     def test_backup_restore(self):
 
-        self.client.subcloud_backup_manager.backup_subcloud_restore.return_value = [
-            base.SUBCLOUD_RESOURCE
-        ]
+        self.client.backup_subcloud_restore.return_value = [base.SUBCLOUD_RESOURCE]
 
         backup_path = os.path.normpath(os.path.join(os.getcwd(), "test.yaml"))
         with open(backup_path, mode="w", encoding="UTF-8") as f:
@@ -410,9 +398,7 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
 
     def test_backup_restore_no_restore_values(self):
 
-        self.client.subcloud_backup_manager.backup_subcloud_restore.return_value = [
-            base.SUBCLOUD_RESOURCE
-        ]
+        self.client.backup_subcloud_restore.return_value = [base.SUBCLOUD_RESOURCE]
 
         actual_call = self.call(
             subcloud_backup_cmd.RestoreSubcloudBackup,
@@ -429,9 +415,7 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
 
     def test_backup_restore_with_group(self):
 
-        self.client.subcloud_backup_manager.backup_subcloud_restore.return_value = [
-            base.SUBCLOUD_RESOURCE
-        ]
+        self.client.backup_subcloud_restore.return_value = [base.SUBCLOUD_RESOURCE]
 
         backup_path = os.path.normpath(os.path.join(os.getcwd(), "test.yaml"))
         with open(backup_path, mode="w", encoding="UTF-8") as f:
@@ -452,7 +436,7 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
         self.assertEqual([base.SUBCLOUD_FIELD_RESULT_LIST], actual_call[1])
 
     def test_backup_restore_group_and_subcloud(self):
-        self.client.subcloud_backup_manager.backup_subcloud_restore.return_value = []
+        self.client.backup_subcloud_restore.return_value = []
 
         backup_path = os.path.normpath(os.path.join(os.getcwd(), "test.yaml"))
 
@@ -484,7 +468,7 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
         )
 
     def test_backup_restore_no_group_and_no_subcloud(self):
-        self.client.subcloud_backup_manager.backup_subcloud_restore.return_value = []
+        self.client.backup_subcloud_restore.return_value = []
 
         backup_path = os.path.normpath(os.path.join(os.getcwd(), "test.yaml"))
 
@@ -510,7 +494,7 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
         )
 
     def test_backup_restore_backup_value_not_a_file(self):
-        self.client.subcloud_backup_manager.backup_subcloud_restore.return_value = []
+        self.client.backup_subcloud_restore.return_value = []
 
         e = self.assertRaises(
             DCManagerClientException,
@@ -532,9 +516,7 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
     @mock.patch("getpass.getpass", return_value="testpassword")
     def test_backup_restore_prompt_ask_for_password(self, _mock_getpass):
 
-        self.client.subcloud_backup_manager.backup_subcloud_restore.return_value = [
-            base.SUBCLOUD_RESOURCE
-        ]
+        self.client.backup_subcloud_restore.return_value = [base.SUBCLOUD_RESOURCE]
 
         backup_path = os.path.normpath(os.path.join(os.getcwd(), "test.yaml"))
 
@@ -579,9 +561,7 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
         )
 
     def test_backup_restore_with_install_no_release(self):
-        self.client.subcloud_backup_manager.backup_subcloud_restore.return_value = [
-            base.SUBCLOUD_RESOURCE
-        ]
+        self.client.backup_subcloud_restore.return_value = [base.SUBCLOUD_RESOURCE]
 
         backup_path = os.path.normpath(os.path.join(os.getcwd(), "test.yaml"))
         with open(backup_path, mode="w", encoding="UTF-8") as f:
@@ -605,9 +585,7 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
         self.assertEqual(base.SUBCLOUD_FIELD_RESULT_LIST, actual_call[1])
 
     def test_backup_restore_with_install_with_release(self):
-        self.client.subcloud_backup_manager.backup_subcloud_restore.return_value = [
-            base.SUBCLOUD_RESOURCE
-        ]
+        self.client.backup_subcloud_restore.return_value = [base.SUBCLOUD_RESOURCE]
 
         backup_path = os.path.normpath(os.path.join(os.getcwd(), "test.yaml"))
         with open(backup_path, mode="w", encoding="UTF-8") as f:
@@ -633,9 +611,7 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
         self.assertEqual(base.SUBCLOUD_FIELD_RESULT_LIST, actual_call[1])
 
     def test_backup_restore_no_install_with_release(self):
-        self.client.subcloud_backup_manager.backup_subcloud_restore.return_value = [
-            base.SUBCLOUD_RESOURCE
-        ]
+        self.client.backup_subcloud_restore.return_value = [base.SUBCLOUD_RESOURCE]
 
         backup_path = os.path.normpath(os.path.join(os.getcwd(), "test.yaml"))
         with open(backup_path, mode="w", encoding="UTF-8") as f:

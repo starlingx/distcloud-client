@@ -113,8 +113,8 @@ class HelpAction(argparse.Action):
         parser.print_help(main_app.stdout)
         main_app.stdout.write("\nCommands for API v1 :\n")
 
-        for name, ep in sorted(main_app.command_manager):
-            factory = ep.load()
+        for name, app_cmd in sorted(main_app.command_manager):
+            factory = app_cmd.load()
             cmd = factory(self, None)
             one_liner = cmd.get_description().split("\n")[0]
             outputs.append((name, one_liner))
@@ -135,17 +135,18 @@ class BashCompletionCommand(command.Command):
 
         for (
             option,
-            _action,
+            _,
         ) in self.app.parser._option_string_actions.items():
             options.add(option)
 
-        for command_name, _cmd in self.app.command_manager:
+        for command_name, _ in self.app.command_manager:
             commands.add(command_name)
 
         print(" ".join(commands | options))
 
 
 class DCManagerShell(app.App):
+
     def __init__(self):
         super().__init__(
             description=__doc__.strip(),
@@ -487,53 +488,60 @@ class DCManagerShell(app.App):
                 )
             )
 
+        phased_subcloud_deploy_manager = self.client.phased_subcloud_deploy_manager
+        peer_group_association_manager = self.client.peer_group_association_manager
+        client_keys = {
+            "alarm_manager": self.client.alarm_manager,
+            "fw_update_manager": self.client.fw_update_manager,
+            "kube_rootca_update_manager": self.client.kube_rootca_update_manager,
+            "kube_upgrade_manager": self.client.kube_upgrade_manager,
+            "peer_group_association_manager": peer_group_association_manager,
+            "phased_subcloud_deploy_manager": phased_subcloud_deploy_manager,
+            "strategy_step_manager": self.client.strategy_step_manager,
+            "subcloud_backup_manager": self.client.subcloud_backup_manager,
+            "subcloud_deploy_manager": self.client.subcloud_deploy_manager,
+            "subcloud_group_manager": self.client.subcloud_group_manager,
+            "subcloud_peer_group_manager": self.client.subcloud_peer_group_manager,
+            "subcloud_manager": self.client.subcloud_manager,
+            "sw_deploy_manager": self.client.sw_deploy_manager,
+            "sw_patch_manager": self.client.sw_patch_manager,
+            "sw_prestage_manager": self.client.sw_prestage_manager,
+            "sw_update_options_manager": self.client.sw_update_options_manager,
+            "sw_upgrade_manager": self.client.sw_upgrade_manager,
+            "system_peer_manager": self.client.system_peer_manager,
+        }
+
         # Adding client_manager variable to make dcmanager client work with
         # unified OpenStack client.
         ClientManager = type(
             "ClientManager",
             (object,),
-            {
-                "subcloud_manager": self.client,
-                "subcloud_backup_manager": self.client,
-                "subcloud_group_manager": self.client,
-                "subcloud_deploy_manager": self.client,
-                "system_peer_manager": self.client,
-                "alarm_manager": self.client,
-                "fw_update_manager": self.client,
-                "sw_patch_manager": self.client,
-                "strategy_step_manager": self.client,
-                "sw_update_options_manager": self.client,
-                "sw_upgrade_manager": self.client,
-                "kube_upgrade_manager": self.client,
-                "kube_rootca_update_manager": self.client,
-                "sw_prestage_manager": self.client,
-                "phased_subcloud_deploy_manager": self.client,
-                "subcloud_peer_group_manager": self.client,
-                "peer_group_association_manager": self.client,
-            },
+            client_keys,
         )
         self.client_manager = ClientManager()
 
     def _set_shell_commands(self, cmds_dict):
-        for k, v in cmds_dict.items():
-            self.command_manager.add_command(k, v)
+        for cmd, cmd_class in cmds_dict.items():
+            self.command_manager.add_command(cmd, cmd_class)
 
     def _clear_shell_commands(self):
         exclude_cmds = ["help", "complete"]
 
         cmds = self.command_manager.commands.copy()
-        for k, _v in cmds.items():
+        for k, _ in cmds.items():
             if k not in exclude_cmds:
                 self.command_manager.commands.pop(k)
 
     def _get_commands(self, version):
         if version == 1:
             return self._get_commands_v1()
-
         return {}
 
     @staticmethod
     def _get_commands_v1():
+        list_system_peer_groups = sp.ListSystemPeerSubcloudPeerGroups
+        create_kube_root_update = krum.CreateKubeRootcaUpdateStrategy
+        delete_kube_root_update = krum.DeleteKubeRootcaUpdateStrategy
         return {
             "alarm summary": am.ListAlarmSummary,
             "bash-completion": BashCompletionCommand,
@@ -544,10 +552,8 @@ class DCManagerShell(app.App):
             "fw-update-strategy show": fum.ShowFwUpdateStrategy,
             "kube-rootca-update-strategy abort": krum.AbortKubeRootcaUpdateStrategy,
             "kube-rootca-update-strategy apply": krum.ApplyKubeRootcaUpdateStrategy,
-            "kube-rootca-update-strategy create":
-                krum.CreateKubeRootcaUpdateStrategy,
-            "kube-rootca-update-strategy delete":
-                krum.DeleteKubeRootcaUpdateStrategy,
+            "kube-rootca-update-strategy create": create_kube_root_update,
+            "kube-rootca-update-strategy delete": delete_kube_root_update,
             "kube-rootca-update-strategy show": krum.ShowKubeRootcaUpdateStrategy,
             "kube-upgrade-strategy abort": kupm.AbortKubeUpgradeStrategy,
             "kube-upgrade-strategy apply": kupm.ApplyKubeUpgradeStrategy,
@@ -630,8 +636,7 @@ class DCManagerShell(app.App):
             "system-peer add": sp.AddSystemPeer,
             "system-peer delete": sp.DeleteSystemPeer,
             "system-peer list": sp.ListSystemPeer,
-            "system-peer list-subcloud-peer-groups":
-                sp.ListSystemPeerSubcloudPeerGroups,
+            "system-peer list-subcloud-peer-groups": list_system_peer_groups,
             "system-peer show": sp.ShowSystemPeer,
             "system-peer update": sp.UpdateSystemPeer,
             "upgrade-strategy abort": supm.AbortSwUpgradeStrategy,
