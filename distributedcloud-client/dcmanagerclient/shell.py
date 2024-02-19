@@ -70,14 +70,12 @@ class OpenStackHelpFormatter(argparse.HelpFormatter):
         max_help_position=32,
         width=None,
     ):
-        super(OpenStackHelpFormatter, self).__init__(
-            prog, indent_increment, max_help_position, width
-        )
+        super().__init__(prog, indent_increment, max_help_position, width)
 
     def start_section(self, heading):
         # Title-case the headings.
         heading = f"{heading[0].upper()}{heading[1:]}"
-        super(OpenStackHelpFormatter, self).start_section(heading)
+        super().start_section(heading)
 
 
 class HelpCommand(cliff_help.HelpCommand):
@@ -149,7 +147,7 @@ class BashCompletionCommand(command.Command):
 
 class DCManagerShell(app.App):
     def __init__(self):
-        super(DCManagerShell, self).__init__(
+        super().__init__(
             description=__doc__.strip(),
             version=dcmanager_version,
             command_manager=commandmanager.CommandManager("dcmanager.cli"),
@@ -404,14 +402,15 @@ class DCManagerShell(app.App):
             "--profile",
             dest="profile",
             metavar="HMAC_KEY",
-            help="HMAC key to use for encrypting context data for performance "
-            "profiling of operation. This key should be one of the "
-            "values configured for the osprofiler middleware in "
-            "dcmanager, it is specified in the profiler section of the "
-            "dcmanager configuration "
-            "(i.e. /etc/dcmanager/dcmanager.conf). "
-            "Without the key, profiling will not be triggered even if "
-            "osprofiler is enabled on the server side.",
+            help=(
+                "HMAC key to use for encrypting context data for performance "
+                "profiling of operation. This key should be one of the "
+                "values configured for the osprofiler middleware in "
+                "dcmanager, it is specified in the profiler section of the "
+                "dcmanager configuration (i.e. /etc/dcmanager/dcmanager.conf). "
+                "Without the key, profiling will not be triggered even if "
+                "osprofiler is enabled on the server side."
+            ),
         )
 
         return parser
@@ -493,25 +492,25 @@ class DCManagerShell(app.App):
         ClientManager = type(
             "ClientManager",
             (object,),
-            dict(
-                subcloud_manager=self.client,
-                subcloud_backup_manager=self.client,
-                subcloud_group_manager=self.client,
-                subcloud_deploy_manager=self.client,
-                system_peer_manager=self.client,
-                alarm_manager=self.client,
-                fw_update_manager=self.client,
-                sw_patch_manager=self.client,
-                strategy_step_manager=self.client,
-                sw_update_options_manager=self.client,
-                sw_upgrade_manager=self.client,
-                kube_upgrade_manager=self.client,
-                kube_rootca_update_manager=self.client,
-                sw_prestage_manager=self.client,
-                phased_subcloud_deploy_manager=self.client,
-                subcloud_peer_group_manager=self.client,
-                peer_group_association_manager=self.client,
-            ),
+            {
+                "subcloud_manager": self.client,
+                "subcloud_backup_manager": self.client,
+                "subcloud_group_manager": self.client,
+                "subcloud_deploy_manager": self.client,
+                "system_peer_manager": self.client,
+                "alarm_manager": self.client,
+                "fw_update_manager": self.client,
+                "sw_patch_manager": self.client,
+                "strategy_step_manager": self.client,
+                "sw_update_options_manager": self.client,
+                "sw_upgrade_manager": self.client,
+                "kube_upgrade_manager": self.client,
+                "kube_rootca_update_manager": self.client,
+                "sw_prestage_manager": self.client,
+                "phased_subcloud_deploy_manager": self.client,
+                "subcloud_peer_group_manager": self.client,
+                "peer_group_association_manager": self.client,
+            },
         )
         self.client_manager = ClientManager()
 

@@ -76,7 +76,7 @@ class AddPeerGroupAssociation(base.DCManagerShowOne):
         return detail_association_format
 
     def get_parser(self, prog_name):
-        parser = super(AddPeerGroupAssociation, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
 
         parser.add_argument(
             "--peer-group-id", required=True, help="Subcloud peer group ID."
@@ -112,7 +112,7 @@ class ListPeerGroupAssociation(base.DCManagerLister):
         return association_format
 
     def get_parser(self, prog_name):
-        parser = super(ListPeerGroupAssociation, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         return parser
 
     def _get_resources(self, parsed_args):
@@ -128,7 +128,7 @@ class ShowPeerGroupAssociation(base.DCManagerShowOne):
         return detail_association_format
 
     def get_parser(self, prog_name):
-        parser = super(ShowPeerGroupAssociation, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
 
         parser.add_argument(
             "id", help="ID of the peer group association to view the details."
@@ -150,7 +150,7 @@ class SyncPeerGroupAssociation(base.DCManagerShowOne):
         return detail_association_format
 
     def get_parser(self, prog_name):
-        parser = super(SyncPeerGroupAssociation, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
 
         parser.add_argument("id", help="ID of the peer group association to sync.")
 
@@ -167,7 +167,7 @@ class DeletePeerGroupAssociation(command.Command):
     """Delete peer group association from the database."""
 
     def get_parser(self, prog_name):
-        parser = super(DeletePeerGroupAssociation, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
 
         parser.add_argument("id", help="ID of the peer group association to delete.")
         return parser
@@ -190,7 +190,7 @@ class UpdatePeerGroupAssociation(base.DCManagerShowOne):
         return detail_association_format
 
     def get_parser(self, prog_name):
-        parser = super(UpdatePeerGroupAssociation, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
 
         parser.add_argument("id", help="ID of the peer group association to update.")
 

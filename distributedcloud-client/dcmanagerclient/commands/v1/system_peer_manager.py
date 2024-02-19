@@ -114,7 +114,7 @@ class AddSystemPeer(base.DCManagerShowOne):
         return detail_peer_format
 
     def get_parser(self, prog_name):
-        parser = super(AddSystemPeer, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
 
         parser.add_argument(
             "--peer-uuid", required=True, help="UUID of the new system peer."
@@ -192,7 +192,7 @@ class AddSystemPeer(base.DCManagerShowOne):
 
     def _get_resources(self, parsed_args):
         dcmanager_client = self.app.client_manager.system_peer_manager
-        kwargs = dict()
+        kwargs = {}
 
         if parsed_args.peer_uuid is not None:
             kwargs["peer_uuid"] = parsed_args.peer_uuid
@@ -252,7 +252,7 @@ class ListSystemPeer(base.DCManagerLister):
         return peer_format
 
     def get_parser(self, prog_name):
-        parser = super(ListSystemPeer, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         return parser
 
     def _get_resources(self, parsed_args):
@@ -267,11 +267,13 @@ class ListSystemPeerSubcloudPeerGroups(base.DCManagerLister):
         return group_format
 
     def get_parser(self, prog_name):
-        parser = super(ListSystemPeerSubcloudPeerGroups, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "peer",
-            help="Name or ID or UUID of system peer to list \
-            associated subcloud peer groups.",
+            help=(
+                "Name or ID or UUID of system peer to list "
+                "associated subcloud peer groups."
+            ),
         )
         return parser
 
@@ -290,7 +292,7 @@ class ShowSystemPeer(base.DCManagerShowOne):
         return detail_peer_format
 
     def get_parser(self, prog_name):
-        parser = super(ShowSystemPeer, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
 
         parser.add_argument(
             "peer", help="UUID or ID of system peer to view the details."
@@ -310,7 +312,7 @@ class DeleteSystemPeer(command.Command):
     """Delete system peer details from the database."""
 
     def get_parser(self, prog_name):
-        parser = super(DeleteSystemPeer, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
 
         parser.add_argument("peer", help="UUID or ID of the system peer to delete.")
         return parser
@@ -333,7 +335,7 @@ class UpdateSystemPeer(base.DCManagerShowOne):
         return detail_peer_format
 
     def get_parser(self, prog_name):
-        parser = super(UpdateSystemPeer, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
 
         parser.add_argument("peer", help="UUID or ID of the system peer to update.")
 
@@ -381,15 +383,16 @@ class UpdateSystemPeer(base.DCManagerShowOne):
         parser.add_argument(
             "--heartbeat-interval",
             required=False,
-            help="Interval between heartbeat messages (in seconds) (default \
-                  60).",
+            help=("Interval between heartbeat messages (in seconds) (default 60)."),
         )
 
         parser.add_argument(
             "--heartbeat-failure-threshold",
             required=False,
-            help="Consecutive heartbeat failures before failure declared \
-                  (default 3).",
+            help=(
+                "Consecutive heartbeat failures before failure declared "
+                "(default 3)."
+            ),
         )
 
         parser.add_argument(
@@ -402,8 +405,10 @@ class UpdateSystemPeer(base.DCManagerShowOne):
         parser.add_argument(
             "--heartbeat-maintenance-timeout",
             required=False,
-            help="Overall failure timeout during maintenance state (in \
-                  seconds) (default 600).",
+            help=(
+                "Overall failure timeout during maintenance state (in seconds) "
+                "(default 600)."
+            ),
         )
 
         return parser
@@ -411,7 +416,7 @@ class UpdateSystemPeer(base.DCManagerShowOne):
     def _get_resources(self, parsed_args):
         system_peer_ref = parsed_args.peer
         dcmanager_client = self.app.client_manager.system_peer_manager
-        kwargs = dict()
+        kwargs = {}
         if parsed_args.peer_uuid:
             kwargs["peer_uuid"] = parsed_args.peer_uuid
         if parsed_args.peer_name:

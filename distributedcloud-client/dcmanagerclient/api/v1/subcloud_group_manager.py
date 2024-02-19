@@ -49,7 +49,7 @@ class subcloud_group_manager(base.ResourceManager):
     resource_class = SubcloudGroup
 
     def __init__(self, http_client, subcloud_manager):
-        super(subcloud_group_manager, self).__init__(http_client)
+        super().__init__(http_client)
         self.subcloud_manager = subcloud_manager
 
     def _json_to_resource(self, json_object):
@@ -70,7 +70,7 @@ class subcloud_group_manager(base.ResourceManager):
         if resp.status_code != 200:
             self._raise_api_exception(resp)
         json_object = get_json(resp)
-        resource = list()
+        resource = []
         resource.append(self._json_to_resource(json_object))
         return resource
 
@@ -80,7 +80,7 @@ class subcloud_group_manager(base.ResourceManager):
         if resp.status_code != 200:
             self._raise_api_exception(resp)
         json_object = get_json(resp)
-        resource = list()
+        resource = []
         resource.append(self._json_to_resource(json_object))
         return resource
 
@@ -100,7 +100,7 @@ class subcloud_group_manager(base.ResourceManager):
         if resp.status_code != 200:
             self._raise_api_exception(resp)
         json_object = get_json(resp)
-        resource = list()
+        resource = []
         resource.append(self._json_to_resource(json_object))
         return resource
 

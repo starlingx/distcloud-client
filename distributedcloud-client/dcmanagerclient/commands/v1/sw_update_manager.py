@@ -128,7 +128,7 @@ class CreateSwUpdateStrategy(base.DCManagerShowOne):
         )
 
     def get_parser(self, prog_name):
-        parser = super(CreateSwUpdateStrategy, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
 
         parser.add_argument(
             "--subcloud-apply-type",
@@ -201,7 +201,7 @@ class CreateSwUpdateStrategy(base.DCManagerShowOne):
         """Updates kwargs dictionary from parsed_args based on the subclass"""
 
     def _get_resources(self, parsed_args):
-        kwargs = dict()
+        kwargs = {}
         if parsed_args.subcloud_apply_type:
             kwargs["subcloud-apply-type"] = parsed_args.subcloud_apply_type
         if parsed_args.max_parallel_subclouds:
@@ -305,7 +305,7 @@ class ShowSwUpdateStrategyStep(base.DCManagerShowOne):
         return detail_strategy_step_format
 
     def get_parser(self, prog_name):
-        parser = super(ShowSwUpdateStrategyStep, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
 
         parser.add_argument("cloud_name", help="Name of cloud to view the details.")
         return parser

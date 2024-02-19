@@ -1,5 +1,5 @@
 # Copyright (c) 2016 Ericsson AB
-# Copyright (c) 2017, 2019, 2021-2022 Wind River Systems, Inc.
+# Copyright (c) 2017, 2019, 2021-2022, 2024 Wind River Systems, Inc.
 # All Rights Reserved
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -18,8 +18,8 @@
 
 import abc
 
-from osc_lib.command import command
 import six
+from osc_lib.command import command
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -49,8 +49,7 @@ class DCManagerLister(command.Lister):
 
         if data:
             return f()[0], data
-        else:
-            return f()
+        return f()
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -81,8 +80,7 @@ class DCManagerShowOne(command.ShowOne):
 
         if data:
             return (columns[0], data[0])
-        else:
-            return f()
+        return f()
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -98,15 +96,13 @@ class DCManagerShow(DCManagerLister, DCManagerShowOne):
 
         if self.should_list(parsed_args):
             return DCManagerLister.take_action(self, parsed_args)
-        else:
-            return DCManagerShowOne.take_action(self, parsed_args)
+        return DCManagerShowOne.take_action(self, parsed_args)
 
     def produce_output(self, parsed_args, column_names, data):
         """Overrides method from cliff.Lister/cliff.ShowOne."""
 
         if self.should_list(parsed_args):
-            return DCManagerLister.produce_output(self, parsed_args,
-                                                  column_names, data)
-        else:
-            return DCManagerShowOne.produce_output(self, parsed_args,
-                                                   column_names, data)
+            return DCManagerLister.produce_output(
+                self, parsed_args, column_names, data
+            )
+        return DCManagerShowOne.produce_output(self, parsed_args, column_names, data)

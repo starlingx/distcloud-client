@@ -195,7 +195,7 @@ class AddSubcloud(base.DCManagerShowOne):
         return detail_format
 
     def get_parser(self, prog_name):
-        parser = super(AddSubcloud, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
 
         parser.add_argument("--name", required=False, help="Subcloud name")
 
@@ -264,8 +264,8 @@ class AddSubcloud(base.DCManagerShowOne):
 
     def _get_resources(self, parsed_args):
         dcmanager_client = self.app.client_manager.subcloud_manager
-        files = dict()
-        data = dict()
+        files = {}
+        data = {}
         data["bootstrap-address"] = parsed_args.bootstrap_address
 
         # Get the install values yaml file
@@ -345,21 +345,19 @@ class ListSubcloud(base.DCManagerLister):
     """List subclouds."""
 
     def __init__(self, app, app_args):
-        super(ListSubcloud, self).__init__(app, app_args)
+        super().__init__(app, app_args)
         # Set a flag to indicate displaying a basic column list or
         # a list with customized or all columns
         self.show_basic_list = True
 
     def _validate_parsed_args(self, parsed_args):
-        self.show_basic_list = (
-            False if parsed_args.columns or parsed_args.detail else True
-        )
+        self.show_basic_list = not (parsed_args.columns or parsed_args.detail)
 
     def _get_format_function(self):
         return basic_format if self.show_basic_list else detail_list_format
 
     def get_parser(self, prog_name):
-        parser = super(ListSubcloud, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "--all",
             required=False,
@@ -399,7 +397,7 @@ class ShowSubcloud(base.DCManagerShowOne):
         return detail_show_format
 
     def get_parser(self, prog_name):
-        parser = super(ShowSubcloud, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
 
         parser.add_argument(
             "subcloud", help="Name or ID of subcloud to view the details."
@@ -421,15 +419,14 @@ class ShowSubcloud(base.DCManagerShowOne):
             return dcmanager_client.subcloud_manager.subcloud_additional_details(
                 subcloud_ref
             )
-        else:
-            return dcmanager_client.subcloud_manager.subcloud_detail(subcloud_ref)
+        return dcmanager_client.subcloud_manager.subcloud_detail(subcloud_ref)
 
 
 class ShowSubcloudError(command.Command):
     """Show the error of the last failed operation."""
 
     def get_parser(self, prog_name):
-        parser = super(ShowSubcloudError, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
 
         parser.add_argument(
             "subcloud", help="Name or ID of subcloud to view the errors details."
@@ -448,7 +445,7 @@ class DeleteSubcloud(command.Command):
     """Delete subcloud details from the database."""
 
     def get_parser(self, prog_name):
-        parser = super(DeleteSubcloud, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
 
         parser.add_argument("subcloud", help="Name or ID of the subcloud to delete.")
         return parser
@@ -471,7 +468,7 @@ class UnmanageSubcloud(base.DCManagerShowOne):
         return detail_format
 
     def get_parser(self, prog_name):
-        parser = super(UnmanageSubcloud, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
 
         parser.add_argument(
             "subcloud", help="Name or ID of the subcloud to unmanage."
@@ -489,7 +486,7 @@ class UnmanageSubcloud(base.DCManagerShowOne):
     def _get_resources(self, parsed_args):
         subcloud_ref = parsed_args.subcloud
         dcmanager_client = self.app.client_manager.subcloud_manager
-        kwargs = dict()
+        kwargs = {}
         kwargs["management-state"] = "unmanaged"
 
         if parsed_args.migrate:
@@ -514,7 +511,7 @@ class ManageSubcloud(base.DCManagerShowOne):
         return detail_format
 
     def get_parser(self, prog_name):
-        parser = super(ManageSubcloud, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
 
         parser.add_argument("subcloud", help="Name or ID of the subcloud to manage.")
 
@@ -530,7 +527,7 @@ class ManageSubcloud(base.DCManagerShowOne):
     def _get_resources(self, parsed_args):
         subcloud_ref = parsed_args.subcloud
         dcmanager_client = self.app.client_manager.subcloud_manager
-        kwargs = dict()
+        kwargs = {}
         kwargs["management-state"] = "managed"
         if parsed_args.force:
             kwargs["force"] = "true"
@@ -554,7 +551,7 @@ class UpdateSubcloud(base.DCManagerShowOne):
         return detail_format
 
     def get_parser(self, prog_name):
-        parser = super(UpdateSubcloud, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
 
         parser.add_argument("subcloud", help="Name or ID of the subcloud to update.")
 
@@ -635,8 +632,8 @@ class UpdateSubcloud(base.DCManagerShowOne):
     def _get_resources(self, parsed_args):
         subcloud_ref = parsed_args.subcloud
         dcmanager_client = self.app.client_manager.subcloud_manager
-        files = dict()
-        data = dict()
+        files = {}
+        data = {}
 
         if parsed_args.name:
             data["name"] = parsed_args.name
@@ -773,7 +770,7 @@ class RedeploySubcloud(base.DCManagerShowOne):
         return detail_format
 
     def get_parser(self, prog_name):
-        parser = super(RedeploySubcloud, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
 
         parser.add_argument(
             "subcloud", help="Name or ID of the subcloud to redeploy."
@@ -827,8 +824,8 @@ class RedeploySubcloud(base.DCManagerShowOne):
     def _get_resources(self, parsed_args):
         subcloud_ref = parsed_args.subcloud
         dcmanager_client = self.app.client_manager.subcloud_manager
-        files = dict()
-        data = dict()
+        files = {}
+        data = {}
 
         # Get the install values yaml file
         if parsed_args.install_values is not None:
@@ -908,7 +905,7 @@ class RestoreSubcloud(base.DCManagerShowOne):
         return detail_format
 
     def get_parser(self, prog_name):
-        parser = super(RestoreSubcloud, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
 
         parser.add_argument(
             "--restore-values",
@@ -951,7 +948,7 @@ class PrestageSubcloud(base.DCManagerShowOne):
         return detail_prestage_format
 
     def get_parser(self, prog_name):
-        parser = super(PrestageSubcloud, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
 
         parser.add_argument(
             "--sysadmin-password",
@@ -984,7 +981,7 @@ class PrestageSubcloud(base.DCManagerShowOne):
     def _get_resources(self, parsed_args):
         subcloud_ref = parsed_args.subcloud
         dcmanager_client = self.app.client_manager.subcloud_manager
-        data = dict()
+        data = {}
 
         if parsed_args.force:
             data["force"] = "true"

@@ -30,16 +30,10 @@ class subcloud_manager(base.ResourceManager):
         return self.resource_class.from_payload(self, json_object)
 
     def subcloud_create(self, url, body, data):
-        fields = dict()
+        fields = {}
         for k, v in body.items():
-            fields.update(
-                {
-                    k: (
-                        v,
-                        open(v, "rb"),
-                    )
-                }
-            )
+            with open(v, "rb") as file:
+                fields.update({k: (v, file)})
         fields.update(data)
         enc = MultipartEncoder(fields=fields)
         headers = {"content-type": enc.content_type}
@@ -47,22 +41,16 @@ class subcloud_manager(base.ResourceManager):
         if resp.status_code != 200:
             self._raise_api_exception(resp)
         json_object = get_json(resp)
-        resource = list()
+        resource = []
         resource.append(self.json_to_resource(json_object))
         return resource
 
     def subcloud_update(self, url, body, data):
-        fields = dict()
-        if body is not None:
+        fields = {}
+        if body:
             for k, v in body.items():
-                fields.update(
-                    {
-                        k: (
-                            v,
-                            open(v, "rb"),
-                        )
-                    }
-                )
+                with open(v, "rb") as file:
+                    fields.update({k: (v, file)})
         fields.update(data)
         enc = MultipartEncoder(fields=fields)
         headers = {"content-type": enc.content_type}
@@ -70,21 +58,15 @@ class subcloud_manager(base.ResourceManager):
         if resp.status_code != 200:
             self._raise_api_exception(resp)
         json_object = get_json(resp)
-        resource = list()
+        resource = []
         resource.append(self.json_to_resource(json_object))
         return resource
 
     def subcloud_redeploy(self, url, body, data):
-        fields = dict()
+        fields = {}
         for k, v in body.items():
-            fields.update(
-                {
-                    k: (
-                        v,
-                        open(v, "rb"),
-                    )
-                }
-            )
+            with open(v, "rb") as file:
+                fields.update({k: (v, file)})
         fields.update(data)
         enc = MultipartEncoder(fields=fields)
         headers = {"content-type": enc.content_type}
@@ -92,7 +74,7 @@ class subcloud_manager(base.ResourceManager):
         if resp.status_code != 200:
             self._raise_api_exception(resp)
         json_object = get_json(resp)
-        resource = list()
+        resource = []
         resource.append(self.json_to_resource(json_object))
         return resource
 
@@ -102,7 +84,7 @@ class subcloud_manager(base.ResourceManager):
         if resp.status_code != 200:
             self._raise_api_exception(resp)
         json_object = get_json(resp)
-        resource = list()
+        resource = []
         resource.append(self.json_to_resource(json_object))
         if json_object.get("prestage_software_version"):
             resource[0].prestage_software_version = json_object[

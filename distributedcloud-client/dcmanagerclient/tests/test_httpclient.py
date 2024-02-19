@@ -19,10 +19,10 @@ import copy
 import uuid
 
 import mock
-from osprofiler import _utils as osprofiler_utils
 import osprofiler.profiler
 import requests
 import testtools
+from osprofiler import _utils as osprofiler_utils
 
 from dcmanagerclient.api import httpclient
 
@@ -48,12 +48,12 @@ EXPECTED_REQ_OPTIONS = {"headers": EXPECTED_AUTH_HEADERS}
 EXPECTED_BODY = {"k1": "abc", "k2": 123, "k3": True}
 
 
-class FakeRequest(object):
+class FakeRequest:
     def __init__(self, method):
         self.method = method
 
 
-class FakeResponse(object):
+class FakeResponse:
     def __init__(self, method, url, status_code):
         self.request = FakeRequest(method)
         self.url = url
@@ -63,7 +63,7 @@ class FakeResponse(object):
 
 class HTTPClientTest(testtools.TestCase):
     def setUp(self):
-        super(HTTPClientTest, self).setUp()
+        super().setUp()
         osprofiler.profiler.init(None)
         self.client = httpclient.HTTPClient(
             API_BASE_URL, AUTH_TOKEN, PROJECT_ID, USER_ID

@@ -17,19 +17,19 @@ import os
 
 from osc_lib.command import command
 
-from dcmanagerclient.commands.v1 import base
 from dcmanagerclient import exceptions
+from dcmanagerclient.commands.v1 import base
 
 
 def _format(subcloud_deploy=None):
     columns = (
-        'deploy_playbook',
-        'deploy_overrides',
-        'deploy_chart',
-        'prestage_images',
-        'software_version'
+        "deploy_playbook",
+        "deploy_overrides",
+        "deploy_chart",
+        "prestage_images",
+        "software_version",
     )
-    temp = list()
+    temp = []
     try:
         temp.append(subcloud_deploy.deploy_playbook)
     except Exception:
@@ -63,74 +63,77 @@ class SubcloudDeployUpload(base.DCManagerShowOne):
         return _format
 
     def get_parser(self, prog_name):
-        parser = super(SubcloudDeployUpload, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
 
         parser.add_argument(
-            '--deploy-playbook',
+            "--deploy-playbook",
             required=False,
-            help='An ansible playbook to be run after the subcloud '
-                 'has been successfully bootstrapped. It will be run with the '
-                 'subcloud as the target and authentication is '
-                 'handled automatically. '
-                 'Must be a local file path'
+            help="An ansible playbook to be run after the subcloud "
+            "has been successfully bootstrapped. It will be run with the "
+            "subcloud as the target and authentication is "
+            "handled automatically. "
+            "Must be a local file path",
         )
 
         parser.add_argument(
-            '--deploy-overrides',
+            "--deploy-overrides",
             required=False,
-            help='YAML file containing subcloud variables to be passed to the '
-                 'deploy playbook.'
-                 'Must be a local file path'
+            help="YAML file containing subcloud variables to be passed to the "
+            "deploy playbook."
+            "Must be a local file path",
         )
 
         parser.add_argument(
-            '--deploy-chart',
+            "--deploy-chart",
             required=False,
-            help='Deployment Manager helm chart to be passed to the '
-                 'deploy playbook.'
-                 'Must be a local file path'
+            help="Deployment Manager helm chart to be passed to the "
+            "deploy playbook."
+            "Must be a local file path",
         )
 
         parser.add_argument(
-            '--prestage-images',
+            "--prestage-images",
             required=False,
-            help='Container image list to be passed to '
-                 'prestage_images playbook. '
-                 'Must be a local file path'
+            help="Container image list to be passed to "
+            "prestage_images playbook. "
+            "Must be a local file path",
         )
 
         parser.add_argument(
-            '--release',
+            "--release",
             required=False,
-            help='software release used to install, bootstrap and/or deploy '
-                 'the subcloud with. If not specified, the current software '
-                 'release of the system controller will be used.'
+            help="software release used to install, bootstrap and/or deploy "
+            "the subcloud with. If not specified, the current software "
+            "release of the system controller will be used.",
         )
         return parser
 
     def _get_resources(self, parsed_args):
         dcmanager_client = self.app.client_manager.subcloud_deploy_manager
 
-        data = dict()
-        files = dict()
-        variable_dict = {'deploy_playbook': parsed_args.deploy_playbook,
-                         'deploy_overrides': parsed_args.deploy_overrides,
-                         'deploy_chart': parsed_args.deploy_chart,
-                         'prestage_images': parsed_args.prestage_images}
+        data = {}
+        files = {}
+        variable_dict = {
+            "deploy_playbook": parsed_args.deploy_playbook,
+            "deploy_overrides": parsed_args.deploy_overrides,
+            "deploy_chart": parsed_args.deploy_chart,
+            "prestage_images": parsed_args.prestage_images,
+        }
         for key, val in variable_dict.items():
             if val is None:
                 continue
-            elif not os.path.isfile(val):
+            if not os.path.isfile(val):
                 error_msg = f"{key} file does not exist: {val}"
                 raise exceptions.DCManagerClientException(error_msg)
             files[key] = val
 
         if parsed_args.release is not None:
-            data['release'] = parsed_args.release
+            data["release"] = parsed_args.release
 
         try:
-            return dcmanager_client.subcloud_deploy_manager.\
-                subcloud_deploy_upload(files=files, data=data)
+            return dcmanager_client.subcloud_deploy_manager.subcloud_deploy_upload(
+                files=files, data=data
+            )
         except Exception as e:
             print(e)
             error_msg = "Unable to upload subcloud deploy files"
@@ -144,34 +147,39 @@ class SubcloudDeployShow(base.DCManagerShowOne):
         return _format
 
     def get_parser(self, prog_name):
-        parser = super(SubcloudDeployShow, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
 
         parser.add_argument(
-            '--release',
+            "--release",
             required=False,
-            help='software release used to install, bootstrap and/or deploy '
-                 'the subcloud with. If not specified, the current software '
-                 'release of the system controller will be used.'
+            help="software release used to install, bootstrap and/or deploy "
+            "the subcloud with. If not specified, the current software "
+            "release of the system controller will be used.",
         )
         return parser
 
     def _get_resources(self, parsed_args):
         dcmanager_client = self.app.client_manager.subcloud_deploy_manager
         return dcmanager_client.subcloud_deploy_manager.subcloud_deploy_show(
-            parsed_args.release)
+            parsed_args.release
+        )
 
 
 class DeprecatedSubcloudDeployShow(SubcloudDeployShow):
     def _get_resources(self, parsed_args):
-        deprecation_msg = ('This command has been deprecated. Please use '
-                           'subcloud deploy show instead.')
+        deprecation_msg = (
+            "This command has been deprecated. Please use "
+            "subcloud deploy show instead."
+        )
         raise exceptions.DCManagerClientException(deprecation_msg)
 
 
 class DeprecatedSubcloudDeployUpload(SubcloudDeployUpload):
     def _get_resources(self, parsed_args):
-        deprecation_msg = ('This command has been deprecated. Please use '
-                           'subcloud deploy upload instead.')
+        deprecation_msg = (
+            "This command has been deprecated. Please use "
+            "subcloud deploy upload instead."
+        )
         raise exceptions.DCManagerClientException(deprecation_msg)
 
 
@@ -179,29 +187,28 @@ class SubcloudDeployDelete(command.Command):
     """Delete the uploaded subcloud deployment files"""
 
     def get_parser(self, prog_name):
-        parser = super(SubcloudDeployDelete, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
 
         parser.add_argument(
-            '--release',
+            "--release",
             required=False,
-            help='Release version that the user is trying to delete '
-                 'If not specified, the current software '
-                 'release of the system controller will be used.'
+            help="Release version that the user is trying to delete "
+            "If not specified, the current software "
+            "release of the system controller will be used.",
         )
 
         parser.add_argument(
-            '--prestage-images',
+            "--prestage-images",
             required=False,
-            action='store_true',
-            help='Delete prestage images list file only '
+            action="store_true",
+            help="Delete prestage images list file only ",
         )
 
         parser.add_argument(
-            '--deployment-files',
+            "--deployment-files",
             required=False,
-            action='store_true',
-            help='Delete deploy playbook, deploy overrides, '
-                 'deploy chart files '
+            action="store_true",
+            help="Delete deploy playbook, deploy overrides, deploy chart files ",
         )
 
         return parser
@@ -209,15 +216,16 @@ class SubcloudDeployDelete(command.Command):
     def take_action(self, parsed_args):
         dcmanager_client = self.app.client_manager.subcloud_deploy_manager
         release = parsed_args.release
-        data = dict()
+        data = {}
         if parsed_args.prestage_images is not None:
-            data['prestage_images'] = str(parsed_args.prestage_images)
+            data["prestage_images"] = str(parsed_args.prestage_images)
         if parsed_args.deployment_files is not None:
-            data['deployment_files'] = str(parsed_args.deployment_files)
+            data["deployment_files"] = str(parsed_args.deployment_files)
 
         try:
-            dcmanager_client.subcloud_deploy_manager.\
-                subcloud_deploy_delete(release, data=data)
+            dcmanager_client.subcloud_deploy_manager.subcloud_deploy_delete(
+                release, data=data
+            )
         except Exception as e:
             print(e)
             error_msg = "Unable to delete subcloud deploy files"

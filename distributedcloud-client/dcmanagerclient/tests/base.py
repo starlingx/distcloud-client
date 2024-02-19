@@ -260,7 +260,7 @@ FAKE_INSTALL_VALUES = {
 }
 
 
-class FakeResponse(object):
+class FakeResponse:
     """Fake response for testing DC Manager Client."""
 
     def __init__(self, status_code, content=None):
@@ -316,7 +316,7 @@ class BaseClientTest(testtools.TestCase):
 
 class BaseCommandTest(testtools.TestCase):
     def setUp(self):
-        super(BaseCommandTest, self).setUp()
+        super().setUp()
         self.app = mock.Mock()
         self.client = self.app.client_manager.subcloud_manager
         self.parsed_args = None

@@ -16,7 +16,7 @@
 from dcmanagerclient.commands.v1 import sw_update_manager
 
 
-class SwPatchManagerMixin(object):
+class SwPatchManagerMixin:
     """This Mixin provides the update manager used for sw patch."""
 
     def get_sw_update_manager(self):
@@ -49,7 +49,7 @@ class CreatePatchUpdateStrategy(
     """Create a patch update strategy."""
 
     def get_parser(self, prog_name):
-        parser = super(CreatePatchUpdateStrategy, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
 
         parser.add_argument(
             "--upload-only",

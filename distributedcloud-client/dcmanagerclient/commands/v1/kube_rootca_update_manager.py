@@ -8,7 +8,7 @@ import os
 from dcmanagerclient.commands.v1 import sw_update_manager
 
 
-class KubeRootcaUpdateManagerMixin(object):
+class KubeRootcaUpdateManagerMixin:
     """This Mixin provides the update manager used for kube rootca updates."""
 
     def get_sw_update_manager(self):
@@ -25,7 +25,7 @@ class CreateKubeRootcaUpdateStrategy(
     """
 
     def get_parser(self, prog_name):
-        parser = super(CreateKubeRootcaUpdateStrategy, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "--subject",
             required=False,

@@ -18,7 +18,7 @@ class AbortPhasedSubcloudDeploy(base.DCManagerShowOne):
         return utils.subcloud_detail_format
 
     def get_parser(self, prog_name):
-        parser = super(AbortPhasedSubcloudDeploy, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
 
         parser.add_argument(
             "subcloud",
@@ -108,8 +108,8 @@ class PhasedSubcloudDeployResume(base.DCManagerShowOne):
         subcloud_ref = parsed_args.subcloud
         dcmanager_client = self.app.client_manager.phased_subcloud_deploy_manager.\
             phased_subcloud_deploy_manager
-        files = dict()
-        data = dict()
+        files = {}
+        data = {}
 
         if parsed_args.bootstrap_address:
             data["bootstrap-address"] = parsed_args.bootstrap_address
@@ -228,8 +228,8 @@ class CreatePhasedSubcloudDeploy(base.DCManagerShowOne):
     def _get_resources(self, parsed_args):
         dcmanager_client = self.app.client_manager.phased_subcloud_deploy_manager.\
             phased_subcloud_deploy_manager
-        files = dict()
-        data = dict()
+        files = {}
+        data = {}
 
         data["bootstrap-address"] = parsed_args.bootstrap_address
 
@@ -283,7 +283,7 @@ class InstallPhasedSubcloudDeploy(base.DCManagerShowOne):
         return utils.subcloud_detail_format
 
     def get_parser(self, prog_name):
-        parser = super(InstallPhasedSubcloudDeploy, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
 
         parser.add_argument(
             "subcloud", help="Name or ID of the subcloud to install."
@@ -324,8 +324,8 @@ class InstallPhasedSubcloudDeploy(base.DCManagerShowOne):
         subcloud_ref = parsed_args.subcloud
         dcmanager_client = self.app.client_manager.phased_subcloud_deploy_manager.\
             phased_subcloud_deploy_manager
-        files = dict()
-        data = dict()
+        files = {}
+        data = {}
 
         # Prompt the user for the subcloud's password if it isn't provided
         if parsed_args.sysadmin_password is not None:
@@ -402,8 +402,8 @@ class BootstrapPhasedSubcloudDeploy(base.DCManagerShowOne):
     def _get_resources(self, parsed_args):
         dcmanager_client = self.app.client_manager.phased_subcloud_deploy_manager.\
             phased_subcloud_deploy_manager
-        files = dict()
-        data = dict()
+        files = {}
+        data = {}
 
         if parsed_args.bootstrap_address:
             data["bootstrap-address"] = parsed_args.bootstrap_address
@@ -441,7 +441,7 @@ class ConfigPhasedSubcloudDeploy(base.DCManagerShowOne):
         return utils.subcloud_detail_format
 
     def get_parser(self, prog_name):
-        parser = super(ConfigPhasedSubcloudDeploy, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
 
         parser.add_argument("subcloud", help="Name or ID of the subcloud to update.")
 
@@ -465,8 +465,8 @@ class ConfigPhasedSubcloudDeploy(base.DCManagerShowOne):
         subcloud_ref = parsed_args.subcloud
         dcmanager_client = self.app.client_manager.phased_subcloud_deploy_manager.\
             phased_subcloud_deploy_manager
-        files = dict()
-        data = dict()
+        files = {}
+        data = {}
 
         # Get the deploy config yaml file
         if parsed_args.deploy_config is not None:

@@ -1,5 +1,5 @@
 # Copyright (c) 2017 Ericsson AB.
-# Copyright (c) 2020-2021 Wind River Systems, Inc.
+# Copyright (c) 2020-2021, 2024 Wind River Systems, Inc.
 # All Rights Reserved.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,12 +16,10 @@
 #
 from dcmanagerclient.api.v1.sw_update_manager import sw_update_manager
 
-SW_UPDATE_TYPE_FIRMWARE = 'firmware'
+SW_UPDATE_TYPE_FIRMWARE = "firmware"
 
 
 class fw_update_manager(sw_update_manager):
 
     def __init__(self, http_client):
-        super(fw_update_manager, self).__init__(
-            http_client,
-            update_type=SW_UPDATE_TYPE_FIRMWARE)
+        super().__init__(http_client, update_type=SW_UPDATE_TYPE_FIRMWARE)

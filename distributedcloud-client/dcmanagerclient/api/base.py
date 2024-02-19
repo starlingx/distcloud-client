@@ -21,7 +21,7 @@ from bs4 import BeautifulSoup
 from dcmanagerclient import exceptions
 
 
-class Resource(object):
+class Resource:
     # This will be overridden by the actual resource
     resource_name = "Something"
 
@@ -140,14 +140,14 @@ class Subcloud(Resource):
     @classmethod
     def from_payloads(cls, manager, payloads):
         """Returns a list of class instances from a payload list."""
-        subclouds = list()
+        subclouds = []
         for payload in payloads:
             subcloud = cls.from_payload(manager, payload)
             subclouds.append(subcloud)
         return subclouds
 
 
-class ResourceManager(object):
+class ResourceManager:
     resource_class = None
 
     def __init__(self, http_client):
@@ -236,5 +236,4 @@ def get_json(response):
     json_field_or_function = getattr(response, "json", None)
     if callable(json_field_or_function):
         return response.json()
-    else:
-        return json.loads(response.content)
+    return json.loads(response.content)

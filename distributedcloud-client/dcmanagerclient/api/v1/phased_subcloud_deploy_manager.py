@@ -25,16 +25,10 @@ class phased_subcloud_deploy_manager(base.ResourceManager):
         return getattr(self.http_client, method)(url, body, headers)
 
     def _deploy_operation(self, url, body, data, method="post"):
-        fields = dict()
+        fields = {}
         for k, v in body.items():
-            fields.update(
-                {
-                    k: (
-                        v,
-                        open(v, "rb"),
-                    )
-                }
-            )
+            with open(v, "rb") as file:
+                fields.update({k: (v, file)})
         fields.update(data)
         enc = MultipartEncoder(fields=fields)
         headers = {"content-type": enc.content_type}

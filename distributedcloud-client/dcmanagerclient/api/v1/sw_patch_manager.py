@@ -1,5 +1,5 @@
 # Copyright (c) 2017 Ericsson AB.
-# Copyright (c) 2017-2023 Wind River Systems, Inc.
+# Copyright (c) 2017-2024 Wind River Systems, Inc.
 # All Rights Reserved.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,12 +16,11 @@
 #
 from dcmanagerclient.api.v1.sw_update_manager import sw_update_manager
 
-SW_UPDATE_TYPE_PATCH = 'patch'
+SW_UPDATE_TYPE_PATCH = "patch"
 
 
 class sw_patch_manager(sw_update_manager):
     def __init__(self, http_client):
-        super(sw_patch_manager, self).__init__(
-            http_client,
-            update_type=SW_UPDATE_TYPE_PATCH,
-            extra_args=['upload-only'])
+        super().__init__(
+            http_client, update_type=SW_UPDATE_TYPE_PATCH, extra_args=["upload-only"]
+        )

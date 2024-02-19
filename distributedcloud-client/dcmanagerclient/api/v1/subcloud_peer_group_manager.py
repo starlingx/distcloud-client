@@ -44,7 +44,7 @@ class subcloud_peer_group_manager(base.ResourceManager):
     resource_class = SubcloudPeerGroup
 
     def __init__(self, http_client, subcloud_manager):
-        super(subcloud_peer_group_manager, self).__init__(http_client)
+        super().__init__(http_client)
         self.subcloud_manager = subcloud_manager
 
     def json_to_resource(self, json_object):
@@ -66,7 +66,7 @@ class subcloud_peer_group_manager(base.ResourceManager):
         if resp.status_code != 200:
             self._raise_api_exception(resp)
         json_object = get_json(resp)
-        resource = list()
+        resource = []
         resource.append(self.json_to_resource(json_object))
         return resource
 
@@ -75,7 +75,7 @@ class subcloud_peer_group_manager(base.ResourceManager):
         if resp.status_code != 200:
             self._raise_api_exception(resp)
         json_object = get_json(resp)
-        resource = list()
+        resource = []
         resource.append(json_object)
         return resource
 
@@ -85,7 +85,7 @@ class subcloud_peer_group_manager(base.ResourceManager):
         if resp.status_code != 200:
             self._raise_api_exception(resp)
         json_object = get_json(resp)
-        resource = list()
+        resource = []
         resource.append(self.json_to_resource(json_object))
         return resource
 
@@ -95,7 +95,7 @@ class subcloud_peer_group_manager(base.ResourceManager):
             self._raise_api_exception(resp)
         json_response_key = get_json(resp)
         json_objects = json_response_key["subcloud_peer_groups"]
-        resource = list()
+        resource = []
         for json_object in json_objects:
             resource.append(self.json_to_resource(json_object))
         return resource
@@ -106,7 +106,7 @@ class subcloud_peer_group_manager(base.ResourceManager):
         if resp.status_code != 200:
             self._raise_api_exception(resp)
         json_object = get_json(resp)
-        resource = list()
+        resource = []
         resource.append(self.json_to_resource(json_object))
         return resource
 
@@ -116,7 +116,7 @@ class subcloud_peer_group_manager(base.ResourceManager):
             self._raise_api_exception(resp)
         json_response_key = get_json(resp)
         json_objects = json_response_key["subclouds"]
-        resource = list()
+        resource = []
         for json_object in json_objects:
             resource.append(self.subcloud_manager.json_to_resource(json_object))
         return resource
@@ -128,7 +128,7 @@ class subcloud_peer_group_manager(base.ResourceManager):
             self._raise_api_exception(resp)
         json_response_key = get_json(resp)
         json_objects = json_response_key["subclouds"]
-        resource = list()
+        resource = []
         for json_object in json_objects:
             resource.append(self.subcloud_manager.json_to_resource(json_object))
         return resource

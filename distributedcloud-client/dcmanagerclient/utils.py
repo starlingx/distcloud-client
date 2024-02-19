@@ -44,7 +44,7 @@ def do_action_on_many(action, resources, success_msg, error_msg):
 
 def load_content(content):
     if content is None or content == "":
-        return dict()
+        return {}
 
     try:
         data = yaml.safe_load(content)

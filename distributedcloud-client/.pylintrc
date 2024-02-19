@@ -29,14 +29,22 @@ load-plugins=
 # https://pylint.readthedocs.io/en/latest/user_guide/output.html#source-code-analysis-section
 # R detect Refactor for a "good practice" metric violation
 # W detect Warning for stylistic problems, or minor programming issues
-disable=R,
-        broad-except,
+disable=broad-except,
         invalid-name,
         missing-class-docstring,
         missing-function-docstring,
         missing-module-docstring,
         protected-access,
+        too-few-public-methods,
+        too-many-ancestors,
+        too-many-arguments,
+        too-many-branches,
+        too-many-instance-attributes,
         too-many-lines,
+        too-many-locals,
+        too-many-public-methods,
+        too-many-statements,
+        duplicate-code,
 
 [REPORTS]
 # Set the output format. Available formats are text, parseable, colorized, msvs

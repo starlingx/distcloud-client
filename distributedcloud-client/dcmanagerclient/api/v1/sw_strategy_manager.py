@@ -19,7 +19,7 @@ from dcmanagerclient.api.v1.sw_update_manager import sw_update_manager
 
 class sw_strategy_manager(sw_update_manager):
     def __init__(self, http_client, url="sw-update-strategy"):
-        super(sw_strategy_manager, self).__init__(http_client, update_type=None)
+        super().__init__(http_client, update_type=None)
 
         # Removing strategy type from base class parameters
         self.get_url = f"/{url}"

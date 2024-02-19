@@ -30,9 +30,7 @@ class DCManagerClientException(Exception):
 
     def __init__(self, message=message):
         self.message = message
-        super(DCManagerClientException, self).__init__(
-            f"{self.code}: {self.message}"
-        )
+        super().__init__(f"{self.code}: {self.message}")
 
 
 class IllegalArgumentException(DCManagerClientException):
@@ -40,7 +38,7 @@ class IllegalArgumentException(DCManagerClientException):
     code = "ILLEGAL_ARGUMENT_EXCEPTION"
 
     def __init__(self, message=None):
-        super(IllegalArgumentException, self).__init__(message)
+        super().__init__(message)
         if message:
             self.message = message
 
@@ -50,13 +48,13 @@ class CommandError(DCManagerClientException):
     code = "COMMAND_ERROR_EXCEPTION"
 
     def __init__(self, message=None):
-        super(CommandError, self).__init__(message)
+        super().__init__(message)
         if message:
             self.message = message
 
 
 class APIException(Exception):
     def __init__(self, error_code=None, error_message=None):
-        super(APIException, self).__init__(error_message)
+        super().__init__(error_message)
         self.error_code = error_code
         self.error_message = error_message

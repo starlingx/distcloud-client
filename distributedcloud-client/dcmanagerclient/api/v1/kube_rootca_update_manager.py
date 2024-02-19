@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2021 Wind River Systems, Inc.
+# Copyright (c) 2021, 2024 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -11,7 +11,5 @@ SW_UPDATE_TYPE_KUBE_ROOTCA_UPDATE = "kube-rootca-update"
 class kube_rootca_update_manager(sw_update_manager):
 
     def __init__(self, http_client):
-        super(kube_rootca_update_manager, self).__init__(
-            http_client,
-            update_type=SW_UPDATE_TYPE_KUBE_ROOTCA_UPDATE)
-        self.extra_args = ['subject', 'expiry-date', 'cert-file']
+        super().__init__(http_client, update_type=SW_UPDATE_TYPE_KUBE_ROOTCA_UPDATE)
+        self.extra_args = ["subject", "expiry-date", "cert-file"]

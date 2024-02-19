@@ -83,7 +83,7 @@ class sw_update_options_manager(base.ResourceManager):
         if resp.status_code != 200:
             self._raise_api_exception(resp)
         json_object = get_json(resp)
-        resource = list()
+        resource = []
         resource.append(
             self.resource_class(
                 self,
@@ -133,7 +133,7 @@ class sw_update_options_manager(base.ResourceManager):
         if resp.status_code != 200:
             self._raise_api_exception(resp)
         json_object = get_json(resp)
-        resource = list()
+        resource = []
         resource.append(
             self.resource_class(
                 self,

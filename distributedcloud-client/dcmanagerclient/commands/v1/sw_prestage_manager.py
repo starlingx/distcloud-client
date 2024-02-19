@@ -19,7 +19,7 @@ from dcmanagerclient import utils
 from dcmanagerclient.commands.v1 import sw_update_manager
 
 
-class SwPrestageManagerMixin(object):
+class SwPrestageManagerMixin:
     """This Mixin provides the update manager used for sw prestage."""
 
     def get_sw_update_manager(self):
@@ -58,12 +58,11 @@ class CreateSwPrestageStrategy(
             "--force",
             required=False,
             action="store_true",
-            help="Skip checking the subcloud for \
-                  management affecting alarms. ",
+            help="Skip checking the subcloud for management affecting alarms.",
         )
 
     def get_parser(self, prog_name):
-        parser = super(CreateSwPrestageStrategy, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "--sysadmin-password",
             required=False,
@@ -72,9 +71,11 @@ class CreateSwPrestageStrategy(
         parser.add_argument(
             "--release",
             required=False,
-            help="software release used to prestage the subcloud with. "
-            "If not specified, the current software release of "
-            "the subcloud will be used.",
+            help=(
+                "software release used to prestage the subcloud with. "
+                "If not specified, the current software release of "
+                "the subcloud will be used."
+            ),
         )
 
         return parser

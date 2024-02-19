@@ -20,18 +20,11 @@ class subcloud_backup_manager(base.ResourceManager):
         return self.resource_class.from_payload(self, json_object)
 
     def subcloud_backup_create(self, url, files, data):
-
-        fields = dict()
+        fields = {}
         if files:
             for k, v in files.items():
-                fields.update(
-                    {
-                        k: (
-                            v,
-                            open(v, "rb"),
-                        )
-                    }
-                )
+                with open(v, "rb") as file:
+                    fields.update({k: (v, file)})
         fields.update(data)
         enc = MultipartEncoder(fields=fields)
         headers = {"content-type": enc.content_type}
@@ -47,8 +40,7 @@ class subcloud_backup_manager(base.ResourceManager):
         return resource
 
     def subcloud_backup_delete(self, url, data):
-
-        fields = dict()
+        fields = {}
         fields.update(data)
         enc = MultipartEncoder(fields=fields)
         headers = {"content-type": enc.content_type}
@@ -61,18 +53,11 @@ class subcloud_backup_manager(base.ResourceManager):
         return None
 
     def subcloud_backup_restore(self, url, files, data):
-
-        fields = dict()
+        fields = {}
         if files:
             for k, v in files.items():
-                fields.update(
-                    {
-                        k: (
-                            v,
-                            open(v, "rb"),
-                        )
-                    }
-                )
+                with open(v, "rb") as file:
+                    fields.update({k: (v, file)})
         fields.update(data)
         enc = MultipartEncoder(fields=fields)
         headers = {"content-type": enc.content_type}

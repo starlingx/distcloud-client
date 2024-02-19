@@ -22,6 +22,4 @@ SW_UPDATE_TYPE_UPGRADE = "upgrade"
 class sw_upgrade_manager(sw_update_manager):
 
     def __init__(self, http_client):
-        super(sw_upgrade_manager, self).__init__(
-            http_client, update_type=SW_UPDATE_TYPE_UPGRADE
-        )
+        super().__init__(http_client, update_type=SW_UPDATE_TYPE_UPGRADE)

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2020-2021 Wind River Systems, Inc.
+# Copyright (c) 2020-2021, 2024 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -12,9 +12,10 @@ from dcmanagerclient.tests.v1.mixins import UpdateStrategyMixin
 class TestFwUpdateStrategy(UpdateStrategyMixin, base.BaseCommandTest):
 
     def setUp(self):
-        super(TestFwUpdateStrategy, self).setUp()
-        self.sw_update_manager = \
+        super().setUp()
+        self.sw_update_manager = (
             self.app.client_manager.fw_update_manager.fw_update_manager
+        )
         self.create_command = cli_cmd.CreateFwUpdateStrategy
         self.show_command = cli_cmd.ShowFwUpdateStrategy
         self.delete_command = cli_cmd.DeleteFwUpdateStrategy

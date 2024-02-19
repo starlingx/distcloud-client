@@ -49,7 +49,7 @@ class MigrateSubcloudPeerGroup(base.DCManagerLister):
         return utils.subcloud_detail_format
 
     def get_parser(self, prog_name):
-        parser = super(MigrateSubcloudPeerGroup, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
 
         parser.add_argument(
             "group", help="Name or ID of the subcloud peer group to migrate."
@@ -66,7 +66,7 @@ class MigrateSubcloudPeerGroup(base.DCManagerLister):
     def _get_resources(self, parsed_args):
         subcloud_peer_group_ref = parsed_args.group
         dcmanager_client = self.app.client_manager.subcloud_peer_group_manager
-        kwargs = dict()
+        kwargs = {}
 
         if parsed_args.sysadmin_password is not None:
             kwargs["sysadmin_password"] = base64.b64encode(
@@ -94,7 +94,7 @@ class AddSubcloudPeerGroup(base.DCManagerShowOne):
         return group_format
 
     def get_parser(self, prog_name):
-        parser = super(AddSubcloudPeerGroup, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
 
         parser.add_argument(
             "--peer-group-name",
@@ -121,7 +121,7 @@ class AddSubcloudPeerGroup(base.DCManagerShowOne):
 
     def _get_resources(self, parsed_args):
         dcmanager_client = self.app.client_manager.subcloud_peer_group_manager
-        kwargs = dict()
+        kwargs = {}
 
         kwargs["peer-group-name"] = parsed_args.peer_group_name
 
@@ -140,7 +140,7 @@ class DeleteSubcloudPeerGroup(command.Command):
     """Delete subcloud peer group details from the database."""
 
     def get_parser(self, prog_name):
-        parser = super(DeleteSubcloudPeerGroup, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
 
         parser.add_argument(
             "group", help="Name or ID of the subcloud peer group to delete."
@@ -167,7 +167,7 @@ class ShowSubcloudPeerGroup(base.DCManagerShowOne):
         return group_format
 
     def get_parser(self, prog_name):
-        parser = super(ShowSubcloudPeerGroup, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
 
         parser.add_argument(
             "group", help="Name or ID of subcloud peer group to view the details."
@@ -192,7 +192,7 @@ class ListSubcloudPeerGroup(base.DCManagerLister):
         return group_format
 
     def get_parser(self, prog_name):
-        parser = super(ListSubcloudPeerGroup, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         return parser
 
     def _get_resources(self, parsed_args):
@@ -209,7 +209,7 @@ class ListSubcloudPeerGroupSubclouds(base.DCManagerLister):
         return utils.subcloud_detail_format
 
     def get_parser(self, prog_name):
-        parser = super(ListSubcloudPeerGroupSubclouds, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "group",
             help="Name or ID of subcloud peer group to list "
@@ -232,7 +232,7 @@ class UpdateSubcloudPeerGroup(base.DCManagerShowOne):
         return group_format
 
     def get_parser(self, prog_name):
-        parser = super(UpdateSubcloudPeerGroup, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
 
         parser.add_argument(
             "group", help="Name or ID of the subcloud peer group to update."
@@ -262,7 +262,7 @@ class UpdateSubcloudPeerGroup(base.DCManagerShowOne):
     def _get_resources(self, parsed_args):
         subcloud_peer_group_ref = parsed_args.group
         dcmanager_client = self.app.client_manager.subcloud_peer_group_manager
-        kwargs = dict()
+        kwargs = {}
 
         if parsed_args.peer_group_name is not None:
             kwargs["peer-group-name"] = parsed_args.peer_group_name
@@ -324,7 +324,7 @@ class StatusSubcloudPeerGroup(base.DCManagerShowOne):
         return detail_status_format
 
     def get_parser(self, prog_name):
-        parser = super(StatusSubcloudPeerGroup, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
 
         parser.add_argument(
             "group", help="Name or ID of subcloud peer group to view the status."

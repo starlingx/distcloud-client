@@ -16,7 +16,7 @@
 from dcmanagerclient.commands.v1 import sw_update_manager
 
 
-class FwUpdateManagerMixin(object):
+class FwUpdateManagerMixin:
     """This Mixin provides the update manager used for firmware updates."""
 
     def get_sw_update_manager(self):

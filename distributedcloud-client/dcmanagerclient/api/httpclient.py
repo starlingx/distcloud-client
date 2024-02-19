@@ -42,7 +42,7 @@ def log_request(func):
     return decorator
 
 
-class HTTPClient(object):
+class HTTPClient:
     def __init__(
         self,
         base_url,

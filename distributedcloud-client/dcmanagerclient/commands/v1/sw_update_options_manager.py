@@ -85,7 +85,7 @@ class UpdateSwUpdateOptions(base.DCManagerShowOne):
         return options_detail_format
 
     def get_parser(self, prog_name):
-        parser = super(UpdateSwUpdateOptions, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
 
         parser.add_argument(
             "--storage-apply-type",
@@ -135,7 +135,7 @@ class UpdateSwUpdateOptions(base.DCManagerShowOne):
     def _get_resources(self, parsed_args):
         subcloud_ref = parsed_args.subcloud
         dcmanager_client = self.app.client_manager.sw_update_options_manager
-        kwargs = dict()
+        kwargs = {}
         kwargs["storage-apply-type"] = parsed_args.storage_apply_type
         kwargs["worker-apply-type"] = parsed_args.worker_apply_type
         kwargs["max-parallel-workers"] = parsed_args.max_parallel_workers
@@ -161,7 +161,7 @@ class ListSwUpdateOptions(base.DCManagerLister):
         return options_list_format
 
     def get_parser(self, prog_name):
-        parser = super(ListSwUpdateOptions, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         return parser
 
     def _get_resources(self, parsed_args):
@@ -176,7 +176,7 @@ class ShowSwUpdateOptions(base.DCManagerShowOne):
         return options_detail_format
 
     def get_parser(self, prog_name):
-        parser = super(ShowSwUpdateOptions, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
 
         parser.add_argument(
             "subcloud",
@@ -199,7 +199,7 @@ class DeleteSwUpdateOptions(command.Command):
     """Delete per subcloud patch options."""
 
     def get_parser(self, prog_name):
-        parser = super(DeleteSwUpdateOptions, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
 
         parser.add_argument("subcloud", help="Subcloud name or id")
 

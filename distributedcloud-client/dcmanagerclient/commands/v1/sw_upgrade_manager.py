@@ -16,7 +16,7 @@
 from dcmanagerclient.commands.v1 import sw_update_manager
 
 
-class SwUpgradeManagerMixin(object):
+class SwUpgradeManagerMixin:
     """This Mixin provides the update manager used for software upgrades."""
 
     def get_sw_update_manager(self):
@@ -41,7 +41,7 @@ class CreateSwUpgradeStrategy(
         )
 
     def get_parser(self, prog_name):
-        parser = super(CreateSwUpgradeStrategy, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
 
         return parser
 

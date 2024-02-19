@@ -7,7 +7,7 @@
 from dcmanagerclient.commands.v1 import sw_update_manager
 
 
-class SwDeployManagerMixin(object):
+class SwDeployManagerMixin:
     """This Mixin provides the manager used for software deploy releases."""
 
     def get_sw_update_manager(self):
@@ -24,7 +24,7 @@ class SwDeployManagerMixin(object):
         # Find the index of 'stop on failure' in the tuple
         failure_status_index = columns.index("stop on failure")
 
-        # Insert the 'release_id' field before the 'stop on failure',
+        # Insert the 'release_id' field after the 'stop on failure',
         columns = (
             columns[:failure_status_index + 1]
             + ("release_id",)
@@ -55,7 +55,7 @@ class CreateSwDeployStrategy(
         )
 
     def get_parser(self, prog_name):
-        parser = super(CreateSwDeployStrategy, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
 
         parser.add_argument(
             "--release-id",

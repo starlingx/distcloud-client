@@ -63,7 +63,7 @@ class sw_update_manager(base.ResourceManager):
         url="sw-update-strategy",
         extra_args=None,
     ):
-        super(sw_update_manager, self).__init__(http_client)
+        super().__init__(http_client)
         self.resource_class = resource_class
         self.update_type = update_type
         # create_url is typically /<foo>/
@@ -111,8 +111,7 @@ class sw_update_manager(base.ResourceManager):
                     args_dict[x] = arg
         if args_dict:
             return args_dict
-        else:
-            return None
+        return None
 
     def _build_from_json(self, json_object):
         return self.resource_class(
@@ -133,7 +132,7 @@ class sw_update_manager(base.ResourceManager):
         if resp.status_code != 200:
             self._raise_api_exception(resp)
         json_object = get_json(resp)
-        resource = list()
+        resource = []
         resource.append(self._build_from_json(json_object))
         return resource
 
@@ -142,7 +141,7 @@ class sw_update_manager(base.ResourceManager):
         if resp.status_code != 200:
             self._raise_api_exception(resp)
         json_object = get_json(resp)
-        resource = list()
+        resource = []
         resource.append(self._build_from_json(json_object))
         return resource
 
@@ -151,7 +150,7 @@ class sw_update_manager(base.ResourceManager):
         if resp.status_code != 200:
             self._raise_api_exception(resp)
         json_object = get_json(resp)
-        resource = list()
+        resource = []
         resource.append(self._build_from_json(json_object))
         return resource
 
@@ -161,6 +160,6 @@ class sw_update_manager(base.ResourceManager):
         if resp.status_code != 200:
             self._raise_api_exception(resp)
         json_object = get_json(resp)
-        resource = list()
+        resource = []
         resource.append(self._build_from_json(json_object))
         return resource

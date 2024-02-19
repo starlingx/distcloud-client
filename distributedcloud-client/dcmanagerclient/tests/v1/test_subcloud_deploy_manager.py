@@ -18,8 +18,7 @@ import tempfile
 import mock
 
 from dcmanagerclient.api.v1 import subcloud_deploy_manager as sdm
-from dcmanagerclient.commands.v1 import subcloud_deploy_manager as \
-    subcloud_deploy_cmd
+from dcmanagerclient.commands.v1 import subcloud_deploy_manager
 from dcmanagerclient.exceptions import DCManagerClientException
 from dcmanagerclient.tests import base
 
@@ -79,7 +78,7 @@ SUBCLOUD_DEPLOY_NO_OVERRIDES_CHART = sdm.SubcloudDeploy(
 class TestCLISubcloudDeployManagerV1(base.BaseCommandTest):
 
     def setUp(self):
-        super(TestCLISubcloudDeployManagerV1, self).setUp()
+        super().setUp()
         # The client is the subcloud_deploy_manager
         self.client = self.app.client_manager.subcloud_deploy_manager
 
@@ -89,7 +88,7 @@ class TestCLISubcloudDeployManagerV1(base.BaseCommandTest):
         ]
 
         # Without "--release" parameter
-        actual_call1 = self.call(subcloud_deploy_cmd.SubcloudDeployShow)
+        actual_call1 = self.call(subcloud_deploy_manager.SubcloudDeployShow)
 
         self.assertEqual(
             (
@@ -104,7 +103,7 @@ class TestCLISubcloudDeployManagerV1(base.BaseCommandTest):
 
         # With "--release" parameter
         actual_call2 = self.call(
-            subcloud_deploy_cmd.SubcloudDeployShow,
+            subcloud_deploy_manager.SubcloudDeployShow,
             app_args=["--release", base.SOFTWARE_VERSION],
         )
 
@@ -133,7 +132,7 @@ class TestCLISubcloudDeployManagerV1(base.BaseCommandTest):
             file_path_3 = os.path.abspath(f3.name)
             file_path_4 = os.path.abspath(f4.name)
             actual_call = self.call(
-                subcloud_deploy_cmd.SubcloudDeployUpload,
+                subcloud_deploy_manager.SubcloudDeployUpload,
                 app_args=[
                     "--deploy-playbook",
                     file_path_1,
@@ -169,7 +168,7 @@ class TestCLISubcloudDeployManagerV1(base.BaseCommandTest):
             file_path_2 = os.path.abspath(f2.name)
             file_path_3 = os.path.abspath(f3.name)
             actual_call = self.call(
-                subcloud_deploy_cmd.SubcloudDeployUpload,
+                subcloud_deploy_manager.SubcloudDeployUpload,
                 app_args=[
                     "--deploy-playbook",
                     file_path_1,
@@ -199,7 +198,7 @@ class TestCLISubcloudDeployManagerV1(base.BaseCommandTest):
         with tempfile.NamedTemporaryFile() as f1:
             file_path_1 = os.path.abspath(f1.name)
             actual_call = self.call(
-                subcloud_deploy_cmd.SubcloudDeployUpload,
+                subcloud_deploy_manager.SubcloudDeployUpload,
                 app_args=["--prestage-images", file_path_1],
             )
         self.assertEqual(
@@ -219,7 +218,7 @@ class TestCLISubcloudDeployManagerV1(base.BaseCommandTest):
             file_path_2 = os.path.abspath(f2.name)
             file_path_3 = os.path.abspath(f3.name)
             actual_call = self.call(
-                subcloud_deploy_cmd.SubcloudDeployUpload,
+                subcloud_deploy_manager.SubcloudDeployUpload,
                 app_args=[
                     "--deploy-overrides",
                     file_path_1,
@@ -250,7 +249,7 @@ class TestCLISubcloudDeployManagerV1(base.BaseCommandTest):
             file_path_1 = os.path.abspath(f1.name)
             file_path_2 = os.path.abspath(f2.name)
             actual_call = self.call(
-                subcloud_deploy_cmd.SubcloudDeployUpload,
+                subcloud_deploy_manager.SubcloudDeployUpload,
                 app_args=[
                     "--deploy-chart",
                     file_path_1,
@@ -275,7 +274,7 @@ class TestCLISubcloudDeployManagerV1(base.BaseCommandTest):
             file_path_1 = os.path.abspath(f1.name)
             file_path_2 = os.path.abspath(f2.name)
             actual_call = self.call(
-                subcloud_deploy_cmd.SubcloudDeployUpload,
+                subcloud_deploy_manager.SubcloudDeployUpload,
                 app_args=[
                     "--deploy-playbook",
                     file_path_1,
@@ -311,7 +310,7 @@ class TestCLISubcloudDeployManagerV1(base.BaseCommandTest):
             e = self.assertRaises(
                 DCManagerClientException,
                 self.call,
-                subcloud_deploy_cmd.SubcloudDeployUpload,
+                subcloud_deploy_manager.SubcloudDeployUpload,
                 app_args=[
                     "--deploy-playbook",
                     file_path_1,
@@ -332,14 +331,14 @@ class TestCLISubcloudDeployManagerV1(base.BaseCommandTest):
         data = {"prestage_images": "False", "deployment_files": "False"}
         app_args = ["--release", release_version]
 
-        self.call(subcloud_deploy_cmd.SubcloudDeployDelete, app_args=app_args)
+        self.call(subcloud_deploy_manager.SubcloudDeployDelete, app_args=app_args)
 
         self.client.subcloud_deploy_manager.subcloud_deploy_delete.\
             assert_called_once_with(release_version, data=data)
 
     def test_subcloud_deploy_delete_without_release(self):
 
-        self.call(subcloud_deploy_cmd.SubcloudDeployDelete)
+        self.call(subcloud_deploy_manager.SubcloudDeployDelete)
         data = {"prestage_images": "False", "deployment_files": "False"}
         self.client.subcloud_deploy_manager.subcloud_deploy_delete.\
             assert_called_once_with(None, data=data)

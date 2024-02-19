@@ -78,7 +78,7 @@ class peer_group_association_manager(base.ResourceManager):
             self._raise_api_exception(resp)
         json_response_key = get_json(resp)
         json_objects = json_response_key["peer_group_associations"]
-        resource = list()
+        resource = []
         for json_object in json_objects:
             resource.append(self._json_to_resource(json_object))
         return resource

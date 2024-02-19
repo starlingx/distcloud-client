@@ -82,7 +82,7 @@ class CreateSubcloudBackup(base.DCManagerShow):
         return parsed_args.group
 
     def get_parser(self, prog_name):
-        parser = super(CreateSubcloudBackup, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
 
         parser.add_argument(
             "--local-only",
@@ -132,13 +132,11 @@ class CreateSubcloudBackup(base.DCManagerShow):
 
     def _get_resources(self, parsed_args):
         dcmanager_client = self.app.client_manager.subcloud_backup_manager
-        data = dict()
-        files = dict()
+        data = {}
+        files = {}
 
         if not parsed_args.subcloud and not parsed_args.group:
-            error_msg = (
-                "Please provide the subcloud or subcloud group name or id."
-            )
+            error_msg = "Please provide the subcloud or subcloud group name or id."
             raise exceptions.DCManagerClientException(error_msg)
 
         if parsed_args.subcloud and parsed_args.group:
@@ -210,7 +208,7 @@ class DeleteSubcloudBackup(command.Command):
         return detail_format
 
     def get_parser(self, prog_name):
-        parser = super(DeleteSubcloudBackup, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
 
         parser.add_argument(
             "release", help="Release version that the user is trying to delete."
@@ -250,14 +248,12 @@ class DeleteSubcloudBackup(command.Command):
         dcmanager_client = self.app.client_manager.subcloud_backup_manager
         release_version = parsed_args.release
         subcloud_ref = parsed_args.subcloud
-        data = dict()
+        data = {}
 
         data["release"] = parsed_args.release
 
         if not parsed_args.subcloud and not parsed_args.group:
-            error_msg = (
-                "Please provide the subcloud or subcloud group name or id."
-            )
+            error_msg = "Please provide the subcloud or subcloud group name or id."
             raise exceptions.DCManagerClientException(error_msg)
 
         if parsed_args.subcloud and parsed_args.group:
@@ -309,7 +305,7 @@ class RestoreSubcloudBackup(base.DCManagerShow):
         return parsed_args.group
 
     def get_parser(self, prog_name):
-        parser = super(RestoreSubcloudBackup, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
 
         parser.add_argument(
             "--with-install",
@@ -377,13 +373,11 @@ class RestoreSubcloudBackup(base.DCManagerShow):
     def _get_resources(self, parsed_args):
 
         dcmanager_client = self.app.client_manager.subcloud_backup_manager
-        data = dict()
-        files = dict()
+        data = {}
+        files = {}
 
         if not parsed_args.subcloud and not parsed_args.group:
-            error_msg = (
-                "Please provide the subcloud or subcloud group name or id."
-            )
+            error_msg = "Please provide the subcloud or subcloud group name or id."
             raise exceptions.DCManagerClientException(error_msg)
 
         if parsed_args.subcloud and parsed_args.group:

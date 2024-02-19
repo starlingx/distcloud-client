@@ -16,7 +16,7 @@
 from dcmanagerclient.commands.v1 import sw_update_manager
 
 
-class KubeUpgradeManagerMixin(object):
+class KubeUpgradeManagerMixin:
     """This Mixin provides the update manager used for kubernetes upgrades."""
 
     def get_sw_update_manager(self):
@@ -30,7 +30,7 @@ class CreateKubeUpgradeStrategy(
     """Create a kubernetes upgrade strategy."""
 
     def get_parser(self, prog_name):
-        parser = super(CreateKubeUpgradeStrategy, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "--to-version",
             required=False,

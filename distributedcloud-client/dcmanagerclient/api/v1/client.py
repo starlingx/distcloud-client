@@ -45,7 +45,7 @@ from dcmanagerclient.api.v1 import system_peer_manager as sp
 _DEFAULT_DCMANAGER_URL = "http://localhost:8119/v1.0"
 
 
-class Client(object):
+class Client:
     """Class where the communication from KB to Keystone happens."""
 
     def __init__(

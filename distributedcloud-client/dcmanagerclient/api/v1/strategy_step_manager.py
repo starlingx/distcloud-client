@@ -47,7 +47,7 @@ class StrategyStep(base.Resource):
 class strategy_step_manager(base.ResourceManager):
 
     def __init__(self, http_client):
-        super(strategy_step_manager, self).__init__(http_client)
+        super().__init__(http_client)
         self.resource_class = StrategyStep
         self.steps_url = "/sw-update-strategy/steps"
         self.response_key = "strategy-steps"
@@ -88,6 +88,6 @@ class strategy_step_manager(base.ResourceManager):
         if resp.status_code != 200:
             self._raise_api_exception(resp)
         json_object = get_json(resp)
-        resource = list()
+        resource = []
         resource.append(self.build_from_json(json_object))
         return resource

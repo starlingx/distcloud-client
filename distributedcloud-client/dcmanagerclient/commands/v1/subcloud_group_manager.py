@@ -80,7 +80,7 @@ class AddSubcloudGroup(base.DCManagerShowOne):
         return detail_group_format
 
     def get_parser(self, prog_name):
-        parser = super(AddSubcloudGroup, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
 
         parser.add_argument(
             "--name", required=True, help="Name for the new subcloud group."
@@ -110,7 +110,7 @@ class AddSubcloudGroup(base.DCManagerShowOne):
 
     def _get_resources(self, parsed_args):
         dcmanager_client = self.app.client_manager.subcloud_group_manager
-        kwargs = dict()
+        kwargs = {}
 
         if parsed_args.name is not None:
             kwargs["name"] = parsed_args.name
@@ -133,7 +133,7 @@ class ListSubcloudGroup(base.DCManagerLister):
         return group_format
 
     def get_parser(self, prog_name):
-        parser = super(ListSubcloudGroup, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         return parser
 
     def _get_resources(self, parsed_args):
@@ -148,7 +148,7 @@ class ListSubcloudGroupSubclouds(base.DCManagerLister):
         return detail_format
 
     def get_parser(self, prog_name):
-        parser = super(ListSubcloudGroupSubclouds, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "group",
             help="Name or ID of subcloud group to list associated subclouds.",
@@ -174,7 +174,7 @@ class ShowSubcloudGroup(base.DCManagerShowOne):
         return detail_group_format
 
     def get_parser(self, prog_name):
-        parser = super(ShowSubcloudGroup, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
 
         parser.add_argument(
             "group", help="Name or ID of subcloud group to view the details."
@@ -194,7 +194,7 @@ class DeleteSubcloudGroup(command.Command):
     """Delete subcloud group details from the database."""
 
     def get_parser(self, prog_name):
-        parser = super(DeleteSubcloudGroup, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
 
         parser.add_argument(
             "group", help="Name or ID of the subcloud group to delete."
@@ -221,7 +221,7 @@ class UpdateSubcloudGroup(base.DCManagerShowOne):
         return detail_group_format
 
     def get_parser(self, prog_name):
-        parser = super(UpdateSubcloudGroup, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
 
         parser.add_argument(
             "group", help="Name or ID of the subcloud group to update."
@@ -251,7 +251,7 @@ class UpdateSubcloudGroup(base.DCManagerShowOne):
     def _get_resources(self, parsed_args):
         subcloud_group_ref = parsed_args.group
         dcmanager_client = self.app.client_manager.subcloud_group_manager
-        kwargs = dict()
+        kwargs = {}
         if parsed_args.name:
             kwargs["name"] = parsed_args.name
         if parsed_args.description:

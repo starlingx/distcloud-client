@@ -6,7 +6,7 @@
 from dcmanagerclient.tests.v1 import utils
 
 
-class UpdateStrategyMixin(object):
+class UpdateStrategyMixin:
     """Mixin for testing the different types of dcmanager update strategies.
 
     Used by concrete testsuites of strategy types such as patch, upgrade, etc..
