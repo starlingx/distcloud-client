@@ -18,20 +18,18 @@
 Command-line interface to the DC Manager APIs
 """
 
+import argparse
 import logging
 import os
 import sys
 
-from dcmanagerclient import __version__ as dcmanager_version
-from dcmanagerclient.api import client
-from dcmanagerclient import exceptions
-
 from cliff import app
 from cliff import commandmanager
-from cliff import help
+from cliff import help as cliff_help
 from osc_lib.command import command
 
-import argparse
+from dcmanagerclient import __version__ as dcmanager_version
+from dcmanagerclient.api import client
 from dcmanagerclient.commands.v1 import alarm_manager as am
 from dcmanagerclient.commands.v1 import fw_update_manager as fum
 from dcmanagerclient.commands.v1 import kube_rootca_update_manager as krum
@@ -43,12 +41,14 @@ from dcmanagerclient.commands.v1 import subcloud_deploy_manager as sdm
 from dcmanagerclient.commands.v1 import subcloud_group_manager as gm
 from dcmanagerclient.commands.v1 import subcloud_manager as sm
 from dcmanagerclient.commands.v1 import subcloud_peer_group_manager as pm
+from dcmanagerclient.commands.v1 import sw_deploy_manager as swdm
 from dcmanagerclient.commands.v1 import sw_patch_manager as spm
 from dcmanagerclient.commands.v1 import sw_prestage_manager as spr
-from dcmanagerclient.commands.v1 import sw_update_manager as sum
+from dcmanagerclient.commands.v1 import sw_update_manager as swum
 from dcmanagerclient.commands.v1 import sw_update_options_manager as suom
 from dcmanagerclient.commands.v1 import sw_upgrade_manager as supm
 from dcmanagerclient.commands.v1 import system_peer_manager as sp
+from dcmanagerclient import exceptions
 
 LOG = logging.getLogger(__name__)
 
@@ -81,7 +81,7 @@ class OpenStackHelpFormatter(argparse.HelpFormatter):
         super(OpenStackHelpFormatter, self).start_section(heading)
 
 
-class HelpCommand(help.HelpCommand):
+class HelpCommand(cliff_help.HelpCommand):
     """print detailed help for another command
 
     Provide a custom action so the help command without
@@ -498,6 +498,7 @@ class DCManagerShell(app.App):
                  strategy_step_manager=self.client,
                  sw_update_options_manager=self.client,
                  sw_upgrade_manager=self.client,
+                 sw_deploy_manager=self.client,
                  kube_upgrade_manager=self.client,
                  kube_rootca_update_manager=self.client,
                  sw_prestage_manager=self.client,
@@ -528,109 +529,114 @@ class DCManagerShell(app.App):
     @staticmethod
     def _get_commands_v1():
         return {
-            'bash-completion': BashCompletionCommand,
-            'subcloud add': sm.AddSubcloud,
-            'subcloud delete': sm.DeleteSubcloud,
-            'subcloud list': sm.ListSubcloud,
-            'subcloud show': sm.ShowSubcloud,
-            'subcloud errors': sm.ShowSubcloudError,
-            'subcloud unmanage': sm.UnmanageSubcloud,
-            'subcloud manage': sm.ManageSubcloud,
-            'subcloud update': sm.UpdateSubcloud,
-            'subcloud reconfig': sm.ReconfigSubcloud,
-            'subcloud reinstall': sm.ReinstallSubcloud,
-            'subcloud redeploy': sm.RedeploySubcloud,
-            'subcloud restore': sm.RestoreSubcloud,
-            'subcloud prestage': sm.PrestageSubcloud,
-            'subcloud-backup create': sbm.CreateSubcloudBackup,
-            'subcloud-backup delete': sbm.DeleteSubcloudBackup,
-            'subcloud-backup restore': sbm.RestoreSubcloudBackup,
-            'subcloud-group add': gm.AddSubcloudGroup,
-            'subcloud-group delete': gm.DeleteSubcloudGroup,
-            'subcloud-group list': gm.ListSubcloudGroup,
-            'subcloud-group list-subclouds': gm.ListSubcloudGroupSubclouds,
-            'subcloud-group show': gm.ShowSubcloudGroup,
-            'subcloud-group update': gm.UpdateSubcloudGroup,
-            'subcloud deploy abort': psdm.AbortPhasedSubcloudDeploy,
-            'subcloud deploy create': psdm.CreatePhasedSubcloudDeploy,
-            'subcloud deploy bootstrap': psdm.BootstrapPhasedSubcloudDeploy,
-            'subcloud deploy config': psdm.ConfigPhasedSubcloudDeploy,
-            'subcloud deploy install': psdm.InstallPhasedSubcloudDeploy,
-            'subcloud deploy complete': psdm.CompletePhasedSubcloudDeploy,
-            'subcloud deploy resume': psdm.PhasedSubcloudDeployResume,
-            'subcloud deploy upload': sdm.SubcloudDeployUpload,
-            'subcloud deploy show': sdm.SubcloudDeployShow,
-            'subcloud deploy delete': sdm.SubcloudDeployDelete,
-            'subcloud-deploy upload': sdm.DeprecatedSubcloudDeployUpload,
-            'subcloud-deploy show': sdm.DeprecatedSubcloudDeployShow,
-            'subcloud-peer-group add': pm.AddSubcloudPeerGroup,
-            'subcloud-peer-group list': pm.ListSubcloudPeerGroup,
-            'subcloud-peer-group list-subclouds':
-                pm.ListSubcloudPeerGroupSubclouds,
-            'subcloud-peer-group show': pm.ShowSubcloudPeerGroup,
-            'subcloud-peer-group update': pm.UpdateSubcloudPeerGroup,
-            'subcloud-peer-group delete': pm.DeleteSubcloudPeerGroup,
-            'subcloud-peer-group migrate': pm.MigrateSubcloudPeerGroup,
-            'subcloud-peer-group status': pm.StatusSubcloudPeerGroup,
-            'system-peer add': sp.AddSystemPeer,
-            'system-peer list': sp.ListSystemPeer,
-            'system-peer show': sp.ShowSystemPeer,
-            'system-peer update': sp.UpdateSystemPeer,
-            'system-peer delete': sp.DeleteSystemPeer,
-            'system-peer list-subcloud-peer-groups':
-            sp.ListSystemPeerSubcloudPeerGroups,
-            'peer-group-association add': pgam.AddPeerGroupAssociation,
-            'peer-group-association list': pgam.ListPeerGroupAssociation,
-            'peer-group-association show': pgam.ShowPeerGroupAssociation,
-            'peer-group-association sync': pgam.SyncPeerGroupAssociation,
-            'peer-group-association update': pgam.UpdatePeerGroupAssociation,
-            'peer-group-association delete': pgam.DeletePeerGroupAssociation,
-            'alarm summary': am.ListAlarmSummary,
-            'fw-update-strategy create': fum.CreateFwUpdateStrategy,
-            'fw-update-strategy delete': fum.DeleteFwUpdateStrategy,
-            'fw-update-strategy apply': fum.ApplyFwUpdateStrategy,
-            'fw-update-strategy abort': fum.AbortFwUpdateStrategy,
-            'fw-update-strategy show': fum.ShowFwUpdateStrategy,
-            'kube-rootca-update-strategy create':
-                krum.CreateKubeRootcaUpdateStrategy,
-            'kube-rootca-update-strategy delete':
-                krum.DeleteKubeRootcaUpdateStrategy,
-            'kube-rootca-update-strategy apply':
-                krum.ApplyKubeRootcaUpdateStrategy,
-            'kube-rootca-update-strategy abort':
+            "alarm summary": am.ListAlarmSummary,
+            "bash-completion": BashCompletionCommand,
+            "fw-update-strategy abort": fum.AbortFwUpdateStrategy,
+            "fw-update-strategy apply": fum.ApplyFwUpdateStrategy,
+            "fw-update-strategy create": fum.CreateFwUpdateStrategy,
+            "fw-update-strategy delete": fum.DeleteFwUpdateStrategy,
+            "fw-update-strategy show": fum.ShowFwUpdateStrategy,
+            "kube-rootca-update-strategy abort":
                 krum.AbortKubeRootcaUpdateStrategy,
-            'kube-rootca-update-strategy show':
+            "kube-rootca-update-strategy apply":
+                krum.ApplyKubeRootcaUpdateStrategy,
+            "kube-rootca-update-strategy create":
+                krum.CreateKubeRootcaUpdateStrategy,
+            "kube-rootca-update-strategy delete":
+                krum.DeleteKubeRootcaUpdateStrategy,
+            "kube-rootca-update-strategy show":
                 krum.ShowKubeRootcaUpdateStrategy,
-            'kube-upgrade-strategy create': kupm.CreateKubeUpgradeStrategy,
-            'kube-upgrade-strategy delete': kupm.DeleteKubeUpgradeStrategy,
-            'kube-upgrade-strategy apply': kupm.ApplyKubeUpgradeStrategy,
-            'kube-upgrade-strategy abort': kupm.AbortKubeUpgradeStrategy,
-            'kube-upgrade-strategy show': kupm.ShowKubeUpgradeStrategy,
-            'patch-strategy create': spm.CreatePatchUpdateStrategy,
-            'patch-strategy delete': spm.DeletePatchUpdateStrategy,
-            'patch-strategy apply': spm.ApplyPatchUpdateStrategy,
-            'patch-strategy abort': spm.AbortPatchUpdateStrategy,
-            'patch-strategy show': spm.ShowPatchUpdateStrategy,
-            'prestage-strategy create': spr.CreateSwPrestageStrategy,
-            'prestage-strategy delete': spr.DeleteSwPrestageStrategy,
-            'prestage-strategy apply': spr.ApplySwPrestageStrategy,
-            'prestage-strategy abort': spr.AbortSwPrestageStrategy,
-            'prestage-strategy show': spr.ShowSwPrestageStrategy,
-            'strategy-step list': sum.ListSwUpdateStrategyStep,
-            'strategy-step show': sum.ShowSwUpdateStrategyStep,
-            'patch-strategy-config update': suom.UpdateSwUpdateOptions,
-            'patch-strategy-config list': suom.ListSwUpdateOptions,
-            'patch-strategy-config show': suom.ShowSwUpdateOptions,
-            'patch-strategy-config delete': suom.DeleteSwUpdateOptions,
-            'strategy-config update': suom.UpdateSwUpdateOptions,
-            'strategy-config list': suom.ListSwUpdateOptions,
-            'strategy-config show': suom.ShowSwUpdateOptions,
-            'strategy-config delete': suom.DeleteSwUpdateOptions,
-            'upgrade-strategy create': supm.CreateSwUpgradeStrategy,
-            'upgrade-strategy delete': supm.DeleteSwUpgradeStrategy,
-            'upgrade-strategy apply': supm.ApplySwUpgradeStrategy,
-            'upgrade-strategy abort': supm.AbortSwUpgradeStrategy,
-            'upgrade-strategy show': supm.ShowSwUpgradeStrategy,
+            "kube-upgrade-strategy abort": kupm.AbortKubeUpgradeStrategy,
+            "kube-upgrade-strategy apply": kupm.ApplyKubeUpgradeStrategy,
+            "kube-upgrade-strategy create": kupm.CreateKubeUpgradeStrategy,
+            "kube-upgrade-strategy delete": kupm.DeleteKubeUpgradeStrategy,
+            "kube-upgrade-strategy show": kupm.ShowKubeUpgradeStrategy,
+            "patch-strategy abort": spm.AbortPatchUpdateStrategy,
+            "patch-strategy apply": spm.ApplyPatchUpdateStrategy,
+            "patch-strategy create": spm.CreatePatchUpdateStrategy,
+            "patch-strategy delete": spm.DeletePatchUpdateStrategy,
+            "patch-strategy show": spm.ShowPatchUpdateStrategy,
+            "patch-strategy-config delete": suom.DeleteSwUpdateOptions,
+            "patch-strategy-config list": suom.ListSwUpdateOptions,
+            "patch-strategy-config show": suom.ShowSwUpdateOptions,
+            "patch-strategy-config update": suom.UpdateSwUpdateOptions,
+            "peer-group-association add": pgam.AddPeerGroupAssociation,
+            "peer-group-association delete": pgam.DeletePeerGroupAssociation,
+            "peer-group-association list": pgam.ListPeerGroupAssociation,
+            "peer-group-association show": pgam.ShowPeerGroupAssociation,
+            "peer-group-association sync": pgam.SyncPeerGroupAssociation,
+            "peer-group-association update": pgam.UpdatePeerGroupAssociation,
+            "prestage-strategy abort": spr.AbortSwPrestageStrategy,
+            "prestage-strategy apply": spr.ApplySwPrestageStrategy,
+            "prestage-strategy create": spr.CreateSwPrestageStrategy,
+            "prestage-strategy delete": spr.DeleteSwPrestageStrategy,
+            "prestage-strategy show": spr.ShowSwPrestageStrategy,
+            "software-deploy-strategy abort": swdm.AbortSwDeployStrategy,
+            "software-deploy-strategy apply": swdm.ApplySwDeployStrategy,
+            "software-deploy-strategy create": swdm.CreateSwDeployStrategy,
+            "software-deploy-strategy delete": swdm.DeleteSwDeployStrategy,
+            "software-deploy-strategy show": swdm.ShowSwDeployStrategy,
+            "strategy-step list": swum.ListSwUpdateStrategyStep,
+            "strategy-step show": swum.ShowSwUpdateStrategyStep,
+            "strategy-config delete": suom.DeleteSwUpdateOptions,
+            "strategy-config list": suom.ListSwUpdateOptions,
+            "strategy-config show": suom.ShowSwUpdateOptions,
+            "strategy-config update": suom.UpdateSwUpdateOptions,
+            "subcloud add": sm.AddSubcloud,
+            "subcloud delete": sm.DeleteSubcloud,
+            "subcloud deploy abort": psdm.AbortPhasedSubcloudDeploy,
+            "subcloud deploy bootstrap": psdm.BootstrapPhasedSubcloudDeploy,
+            "subcloud deploy complete": psdm.CompletePhasedSubcloudDeploy,
+            "subcloud deploy config": psdm.ConfigPhasedSubcloudDeploy,
+            "subcloud deploy create": psdm.CreatePhasedSubcloudDeploy,
+            "subcloud deploy delete": sdm.SubcloudDeployDelete,
+            "subcloud deploy install": psdm.InstallPhasedSubcloudDeploy,
+            "subcloud deploy resume": psdm.PhasedSubcloudDeployResume,
+            "subcloud deploy show": sdm.SubcloudDeployShow,
+            "subcloud deploy upload": sdm.SubcloudDeployUpload,
+            "subcloud errors": sm.ShowSubcloudError,
+            "subcloud list": sm.ListSubcloud,
+            "subcloud manage": sm.ManageSubcloud,
+            "subcloud reconfig": sm.ReconfigSubcloud,
+            "subcloud redeploy": sm.RedeploySubcloud,
+            "subcloud reinstall": sm.ReinstallSubcloud,
+            "subcloud restore": sm.RestoreSubcloud,
+            "subcloud show": sm.ShowSubcloud,
+            "subcloud prestage": sm.PrestageSubcloud,
+            "subcloud unmanage": sm.UnmanageSubcloud,
+            "subcloud update": sm.UpdateSubcloud,
+            "subcloud-backup create": sbm.CreateSubcloudBackup,
+            "subcloud-backup delete": sbm.DeleteSubcloudBackup,
+            "subcloud-backup restore": sbm.RestoreSubcloudBackup,
+            "subcloud-deploy show": sdm.DeprecatedSubcloudDeployShow,
+            "subcloud-deploy upload": sdm.DeprecatedSubcloudDeployUpload,
+            "subcloud-group add": gm.AddSubcloudGroup,
+            "subcloud-group delete": gm.DeleteSubcloudGroup,
+            "subcloud-group list": gm.ListSubcloudGroup,
+            "subcloud-group list-subclouds": gm.ListSubcloudGroupSubclouds,
+            "subcloud-group show": gm.ShowSubcloudGroup,
+            "subcloud-group update": gm.UpdateSubcloudGroup,
+            "subcloud-peer-group add": pm.AddSubcloudPeerGroup,
+            "subcloud-peer-group delete": pm.DeleteSubcloudPeerGroup,
+            "subcloud-peer-group list": pm.ListSubcloudPeerGroup,
+            "subcloud-peer-group list-subclouds":
+                pm.ListSubcloudPeerGroupSubclouds,
+            "subcloud-peer-group migrate": pm.MigrateSubcloudPeerGroup,
+            "subcloud-peer-group show": pm.ShowSubcloudPeerGroup,
+            "subcloud-peer-group status": pm.StatusSubcloudPeerGroup,
+            "subcloud-peer-group update": pm.UpdateSubcloudPeerGroup,
+            "system-peer add": sp.AddSystemPeer,
+            "system-peer delete": sp.DeleteSystemPeer,
+            "system-peer list": sp.ListSystemPeer,
+            "system-peer list-subcloud-peer-groups":
+                sp.ListSystemPeerSubcloudPeerGroups,
+            "system-peer show": sp.ShowSystemPeer,
+            "system-peer update": sp.UpdateSystemPeer,
+            "upgrade-strategy abort": supm.AbortSwUpgradeStrategy,
+            "upgrade-strategy apply": supm.ApplySwUpgradeStrategy,
+            "upgrade-strategy create": supm.CreateSwUpgradeStrategy,
+            "upgrade-strategy delete": supm.DeleteSwUpgradeStrategy,
+            "upgrade-strategy show": supm.ShowSwUpgradeStrategy,
         }
 
 
