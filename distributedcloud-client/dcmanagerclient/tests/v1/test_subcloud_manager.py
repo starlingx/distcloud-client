@@ -77,20 +77,22 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
         self.client.subcloud_manager.subcloud_detail.\
             return_value = [base.SUBCLOUD_RESOURCE]
         actual_call = self.call(subcloud_cmd.ShowSubcloud, app_args=[base.ID])
+
         self.assertEqual(
-            base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID,
-            actual_call[1])
+            base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID + (base.REGION_NAME,),
+            actual_call[1]
+        )
 
     def test_show_subcloud_with_additional_detail(self):
-        SUBCLOUD_WITH_ADDITIONAL_DETAIL = copy.copy(base.SUBCLOUD_RESOURCE)
-        SUBCLOUD_WITH_ADDITIONAL_DETAIL.oam_floating_ip = \
+        subcloud_with_additional_detail = copy.copy(base.SUBCLOUD_RESOURCE)
+        subcloud_with_additional_detail.oam_floating_ip = \
             base.EXTERNAL_OAM_FLOATING_ADDRESS
-        SUBCLOUD_WITH_ADDITIONAL_DETAIL.deploy_config_sync_status =  \
+        subcloud_with_additional_detail.deploy_config_sync_status =  \
             base.DEPLOY_CONFIG_SYNC_STATUS
-        SUBCLOUD_WITH_ADDITIONAL_DETAIL.region_name = \
+        subcloud_with_additional_detail.region_name = \
             base.REGION_NAME
         self.client.subcloud_manager.subcloud_additional_details.\
-            return_value = [SUBCLOUD_WITH_ADDITIONAL_DETAIL]
+            return_value = [subcloud_with_additional_detail]
         actual_call = self.call(subcloud_cmd.ShowSubcloud,
                                 app_args=[base.ID, '--detail'])
         self.assertEqual(

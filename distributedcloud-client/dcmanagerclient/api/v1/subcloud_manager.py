@@ -108,8 +108,6 @@ class subcloud_manager(base.ResourceManager):
             resource[0].oam_floating_ip = json_object['oam_floating_ip']
             resource[0].deploy_config_sync_status = \
                 json_object['deploy_config_sync_status']
-            resource[0].region_name = \
-                json_object['region_name']
         return resource
 
     def add_subcloud(self, **kwargs):

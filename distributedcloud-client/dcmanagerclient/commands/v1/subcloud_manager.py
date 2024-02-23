@@ -82,7 +82,7 @@ def basic_detail_format(subcloud=None):
         'backup_status',
         'backup_datetime',
         'prestage_status',
-        'prestage_versions'
+        'prestage_versions',
     )
 
     if subcloud:
@@ -107,9 +107,8 @@ def basic_detail_format(subcloud=None):
             subcloud.backup_status,
             subcloud.backup_datetime,
             subcloud.prestage_status,
-            subcloud.prestage_versions
+            subcloud.prestage_versions,
         )
-
     else:
         data = (tuple('<none>' for _ in range(len(columns))),)
 
@@ -118,7 +117,6 @@ def basic_detail_format(subcloud=None):
 
 def detail_format(subcloud=None):
     columns, data = basic_detail_format(subcloud)
-
     if subcloud:
         for _listitem, sync_status in enumerate(subcloud.endpoint_sync_status):
             added_field = (sync_status['endpoint_type'] +
@@ -135,10 +133,6 @@ def detail_format(subcloud=None):
             columns += ('deploy_config_sync_status',)
             data += (subcloud.deploy_config_sync_status,)
 
-        if subcloud.region_name is not None:
-            columns += ('region_name',)
-            data += (subcloud.region_name,)
-
     return columns, data
 
 
@@ -149,6 +143,14 @@ def detail_prestage_format(subcloud=None):
         columns += ('prestage_software_version',)
         data += (subcloud.prestage_software_version,)
 
+    return columns, data
+
+
+def detail_show_format(subcloud=None):
+    columns, data = detail_format(subcloud)
+    if subcloud:
+        columns += ('region_name',)
+        data += (subcloud.region_name,)
     return columns, data
 
 
@@ -390,7 +392,7 @@ class ShowSubcloud(base.DCManagerShowOne):
     """Show the details of a subcloud."""
 
     def _get_format_function(self):
-        return detail_format
+        return detail_show_format
 
     def get_parser(self, prog_name):
         parser = super(ShowSubcloud, self).get_parser(prog_name)

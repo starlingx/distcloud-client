@@ -89,7 +89,8 @@ SUBCLOUD_RESOURCE = api_base.Subcloud(
     backup_status=BACKUP_STATUS,
     backup_datetime=BACKUP_DATETIME,
     prestage_status=PRESTAGE_STATUS,
-    prestage_versions=PRESTAGE_VERSIONS)
+    prestage_versions=PRESTAGE_VERSIONS,
+    region_name=REGION_NAME)
 
 # Subcloud CLI resource object with peerid rehome data
 SUBCLOUD_RESOURCE_WITH_PEERID = api_base.Subcloud(
