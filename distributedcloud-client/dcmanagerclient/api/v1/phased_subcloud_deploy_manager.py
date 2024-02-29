@@ -28,7 +28,7 @@ class phased_subcloud_deploy_manager(base.ResourceManager):
         fields = {}
         for k, v in body.items():
             with open(v, "rb") as file:
-                fields.update({k: (v, file)})
+                fields.update({k: (v, file.read())})
         fields.update(data)
         enc = MultipartEncoder(fields=fields)
         headers = {"content-type": enc.content_type}

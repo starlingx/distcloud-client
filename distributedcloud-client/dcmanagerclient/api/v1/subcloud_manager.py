@@ -33,7 +33,7 @@ class subcloud_manager(base.ResourceManager):
         fields = {}
         for k, v in body.items():
             with open(v, "rb") as file:
-                fields.update({k: (v, file)})
+                fields.update({k: (v, file.read())})
         fields.update(data)
         enc = MultipartEncoder(fields=fields)
         headers = {"content-type": enc.content_type}
@@ -50,7 +50,7 @@ class subcloud_manager(base.ResourceManager):
         if body:
             for k, v in body.items():
                 with open(v, "rb") as file:
-                    fields.update({k: (v, file)})
+                    fields.update({k: (v, file.read())})
         fields.update(data)
         enc = MultipartEncoder(fields=fields)
         headers = {"content-type": enc.content_type}
@@ -66,7 +66,7 @@ class subcloud_manager(base.ResourceManager):
         fields = {}
         for k, v in body.items():
             with open(v, "rb") as file:
-                fields.update({k: (v, file)})
+                fields.update({k: (v, file.read())})
         fields.update(data)
         enc = MultipartEncoder(fields=fields)
         headers = {"content-type": enc.content_type}
