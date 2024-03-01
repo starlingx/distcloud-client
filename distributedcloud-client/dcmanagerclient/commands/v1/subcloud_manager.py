@@ -23,7 +23,10 @@ from osc_lib.command import command
 from dcmanagerclient import exceptions, utils
 from dcmanagerclient.commands.v1 import base
 
-SET_FIELD_VALUE_DICT = {"region_name": None}
+SET_FIELD_VALUE_DICT = {
+    "region_name": None,
+    "info_message": None
+}
 
 
 def basic_format(subcloud=None):
@@ -546,6 +549,17 @@ class ManageSubcloud(base.DCManagerShowOne):
 
 class UpdateSubcloud(base.DCManagerShowOne):
     """Update attributes of a subcloud."""
+    _info_message = None
+
+    def produce_output(self, parsed_args, column_names, data):
+        """Overrides method from cliff.Lister/cliff.ShowOne."""
+
+        # Print out a note or informational message above the formatted
+        # response.
+        if self._info_message:
+            self.app.stdout.write(self._info_message)
+
+        return super().produce_output(parsed_args, column_names, data)
 
     def _get_format_function(self):
         return detail_format
@@ -727,6 +741,7 @@ class UpdateSubcloud(base.DCManagerShowOne):
             result = dcmanager_client.subcloud_manager.update_subcloud(
                 subcloud_ref, files=files, data=data
             )
+            self._info_message = getattr(result[0], 'info_message')
             update_fields_values(result)
             return result
         except Exception as e:
