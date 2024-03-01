@@ -14,12 +14,12 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 #
-from dcmanagerclient.api.v1.sw_update_manager import sw_update_manager
+from dcmanagerclient.api.v1.sw_update_manager import SwUpdateManager
 
 SW_UPDATE_TYPE_PATCH = "patch"
 
 
-class sw_patch_manager(sw_update_manager):
+class SwPatchManager(SwUpdateManager):
     def __init__(self, http_client):
         super().__init__(
             http_client, update_type=SW_UPDATE_TYPE_PATCH, extra_args=["upload-only"]

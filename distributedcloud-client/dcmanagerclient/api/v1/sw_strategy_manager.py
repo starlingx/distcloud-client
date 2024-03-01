@@ -14,10 +14,10 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 #
-from dcmanagerclient.api.v1.sw_update_manager import sw_update_manager
+from dcmanagerclient.api.v1.sw_update_manager import SwUpdateManager
 
 
-class sw_strategy_manager(sw_update_manager):
+class SwStrategyManager(SwUpdateManager):
     def __init__(self, http_client, url="sw-update-strategy"):
         super().__init__(http_client, update_type=None)
 

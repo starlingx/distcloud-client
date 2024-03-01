@@ -45,7 +45,7 @@ class SubcloudGroup(base.Resource):
         self.updated_at = updated_at
 
 
-class subcloud_group_manager(base.ResourceManager):
+class SubcloudGroupManager(base.ResourceManager):
     resource_class = SubcloudGroup
 
     def __init__(self, http_client, subcloud_manager):

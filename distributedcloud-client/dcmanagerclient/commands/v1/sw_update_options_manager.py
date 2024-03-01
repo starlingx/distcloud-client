@@ -134,7 +134,7 @@ class UpdateSwUpdateOptions(base.DCManagerShowOne):
 
     def _get_resources(self, parsed_args):
         subcloud_ref = parsed_args.subcloud
-        dcmanager_client = self.app.client_manager.sw_update_options_manager
+        sw_update_options_manager = self.app.client_manager.sw_update_options_manager
         kwargs = {}
         kwargs["storage-apply-type"] = parsed_args.storage_apply_type
         kwargs["worker-apply-type"] = parsed_args.worker_apply_type
@@ -143,13 +143,11 @@ class UpdateSwUpdateOptions(base.DCManagerShowOne):
         kwargs["default-instance-action"] = parsed_args.default_instance_action
 
         try:
-            return (
-                dcmanager_client.sw_update_options_manager.sw_update_options_update(
-                    subcloud_ref, **kwargs
-                )
+            return sw_update_options_manager.sw_update_options_update(
+                subcloud_ref, **kwargs
             )
-        except Exception as e:
-            print(e)
+        except Exception as exc:
+            print(exc)
             error_msg = f"Unable to update patch options for subcloud {subcloud_ref}"
             raise exceptions.DCManagerClientException(error_msg)
 
@@ -165,8 +163,8 @@ class ListSwUpdateOptions(base.DCManagerLister):
         return parser
 
     def _get_resources(self, parsed_args):
-        dcmanager_client = self.app.client_manager.sw_update_options_manager
-        return dcmanager_client.sw_update_options_manager.sw_update_options_list()
+        sw_update_options_manager = self.app.client_manager.sw_update_options_manager
+        return sw_update_options_manager.sw_update_options_list()
 
 
 class ShowSwUpdateOptions(base.DCManagerShowOne):
@@ -189,10 +187,8 @@ class ShowSwUpdateOptions(base.DCManagerShowOne):
 
     def _get_resources(self, parsed_args):
         subcloud_ref = parsed_args.subcloud
-        dcmanager_client = self.app.client_manager.sw_update_options_manager
-        return dcmanager_client.sw_update_options_manager.sw_update_options_detail(
-            subcloud_ref
-        )
+        sw_update_options_manager = self.app.client_manager.sw_update_options_manager
+        return sw_update_options_manager.sw_update_options_detail(subcloud_ref)
 
 
 class DeleteSwUpdateOptions(command.Command):
@@ -207,14 +203,10 @@ class DeleteSwUpdateOptions(command.Command):
 
     def take_action(self, parsed_args):
         subcloud_ref = parsed_args.subcloud
-        dcmanager_client = self.app.client_manager.sw_update_options_manager
+        sw_update_options_manager = self.app.client_manager.sw_update_options_manager
         try:
-            return (
-                dcmanager_client.sw_update_options_manager.sw_update_options_delete(
-                    subcloud_ref
-                )
-            )
-        except Exception as e:
-            print(e)
+            return sw_update_options_manager.sw_update_options_delete(subcloud_ref)
+        except Exception as exc:
+            print(exc)
             error_msg = "Unable to delete patch options"
             raise exceptions.DCManagerClientException(error_msg)

@@ -11,8 +11,8 @@ class SwDeployManagerMixin:
     """This Mixin provides the manager used for software deploy releases."""
 
     def get_sw_update_manager(self):
-        dcmanager_client = self.app.client_manager.sw_deploy_manager
-        return dcmanager_client.sw_deploy_manager
+        sw_deploy_manager = self.app.client_manager.sw_deploy_manager
+        return sw_deploy_manager
 
     def custom_format_function(self, sw_update_strategy=None):
         original_fmt_func = super()._get_format_function()
@@ -26,14 +26,14 @@ class SwDeployManagerMixin:
 
         # Insert the 'release_id' field after the 'stop on failure',
         columns = (
-            columns[:failure_status_index + 1]
+            columns[: failure_status_index + 1]
             + ("release_id",)
-            + columns[failure_status_index + 1:]
+            + columns[failure_status_index + 1 :]
         )
         data = (
-            data[:failure_status_index + 1]
+            data[: failure_status_index + 1]
             + (release_id,)
-            + data[failure_status_index + 1:]
+            + data[failure_status_index + 1 :]
         )
         return columns, data
 

@@ -54,5 +54,5 @@ class ListAlarmSummary(base.DCManagerLister):
         return parser
 
     def _get_resources(self, parsed_args):
-        dcmanager_client = self.app.client_manager.alarm_manager
-        return dcmanager_client.alarm_manager.list_alarms()
+        alarm_manager = self.app.client_manager.alarm_manager
+        return alarm_manager.list_alarms()

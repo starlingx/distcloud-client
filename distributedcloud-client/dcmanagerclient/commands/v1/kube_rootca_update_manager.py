@@ -12,8 +12,7 @@ class KubeRootcaUpdateManagerMixin:
     """This Mixin provides the update manager used for kube rootca updates."""
 
     def get_sw_update_manager(self):
-        dcmanager_client = self.app.client_manager.kube_rootca_update_manager
-        return dcmanager_client.kube_rootca_update_manager
+        return self.app.client_manager.kube_rootca_update_manager
 
 
 class CreateKubeRootcaUpdateStrategy(

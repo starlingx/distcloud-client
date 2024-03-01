@@ -30,6 +30,7 @@ load-plugins=
 # R detect Refactor for a "good practice" metric violation
 # W detect Warning for stylistic problems, or minor programming issues
 disable=broad-except,
+        duplicate-code,
         invalid-name,
         missing-class-docstring,
         missing-function-docstring,
@@ -44,7 +45,6 @@ disable=broad-except,
         too-many-locals,
         too-many-public-methods,
         too-many-statements,
-        duplicate-code,
 
 [REPORTS]
 # Set the output format. Available formats are text, parseable, colorized, msvs

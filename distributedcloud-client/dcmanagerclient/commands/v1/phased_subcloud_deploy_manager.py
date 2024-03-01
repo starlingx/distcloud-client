@@ -29,13 +29,16 @@ class AbortPhasedSubcloudDeploy(base.DCManagerShowOne):
 
     def _get_resources(self, parsed_args):
         subcloud_ref = parsed_args.subcloud
-        dcmanager_client = self.app.client_manager.\
-            phased_subcloud_deploy_manager.phased_subcloud_deploy_manager
+        phased_subcloud_deploy_manager = (
+            self.app.client_manager.phased_subcloud_deploy_manager
+        )
 
         try:
-            return dcmanager_client.subcloud_deploy_abort(subcloud_ref=subcloud_ref)
-        except Exception as e:
-            print(e)
+            return phased_subcloud_deploy_manager.subcloud_deploy_abort(
+                subcloud_ref=subcloud_ref
+            )
+        except Exception as exc:
+            print(exc)
             error_msg = f"Unable to abort subcloud deploy {subcloud_ref}"
             raise exceptions.DCManagerClientException(error_msg)
 
@@ -106,8 +109,9 @@ class PhasedSubcloudDeployResume(base.DCManagerShowOne):
 
     def _get_resources(self, parsed_args):
         subcloud_ref = parsed_args.subcloud
-        dcmanager_client = self.app.client_manager.phased_subcloud_deploy_manager.\
-            phased_subcloud_deploy_manager
+        phased_subcloud_deploy_manager = (
+            self.app.client_manager.phased_subcloud_deploy_manager
+        )
         files = {}
         data = {}
 
@@ -163,7 +167,7 @@ class PhasedSubcloudDeployResume(base.DCManagerShowOne):
         if parsed_args.release:
             data["release"] = parsed_args.release
 
-        return dcmanager_client.subcloud_deploy_resume(
+        return phased_subcloud_deploy_manager.subcloud_deploy_resume(
             subcloud_ref=subcloud_ref, files=files, data=data
         )
 
@@ -226,8 +230,9 @@ class CreatePhasedSubcloudDeploy(base.DCManagerShowOne):
         return parser
 
     def _get_resources(self, parsed_args):
-        dcmanager_client = self.app.client_manager.phased_subcloud_deploy_manager.\
-            phased_subcloud_deploy_manager
+        phased_subcloud_deploy_manager = (
+            self.app.client_manager.phased_subcloud_deploy_manager
+        )
         files = {}
         data = {}
 
@@ -273,7 +278,9 @@ class CreatePhasedSubcloudDeploy(base.DCManagerShowOne):
         if parsed_args.release:
             data["release"] = parsed_args.release
 
-        return dcmanager_client.subcloud_deploy_create(files=files, data=data)
+        return phased_subcloud_deploy_manager.subcloud_deploy_create(
+            files=files, data=data
+        )
 
 
 class InstallPhasedSubcloudDeploy(base.DCManagerShowOne):
@@ -322,8 +329,9 @@ class InstallPhasedSubcloudDeploy(base.DCManagerShowOne):
 
     def _get_resources(self, parsed_args):
         subcloud_ref = parsed_args.subcloud
-        dcmanager_client = self.app.client_manager.phased_subcloud_deploy_manager.\
-            phased_subcloud_deploy_manager
+        phased_subcloud_deploy_manager = (
+            self.app.client_manager.phased_subcloud_deploy_manager
+        )
         files = {}
         data = {}
 
@@ -355,11 +363,11 @@ class InstallPhasedSubcloudDeploy(base.DCManagerShowOne):
             data["release"] = parsed_args.release
 
         try:
-            return dcmanager_client.subcloud_deploy_install(
+            return phased_subcloud_deploy_manager.subcloud_deploy_install(
                 subcloud_ref=subcloud_ref, files=files, data=data
             )
-        except Exception as e:
-            print(e)
+        except Exception as exc:
+            print(exc)
             error_msg = f"Unable to install subcloud {subcloud_ref}"
             raise exceptions.DCManagerClientException(error_msg)
 
@@ -400,8 +408,9 @@ class BootstrapPhasedSubcloudDeploy(base.DCManagerShowOne):
         return parser
 
     def _get_resources(self, parsed_args):
-        dcmanager_client = self.app.client_manager.phased_subcloud_deploy_manager.\
-            phased_subcloud_deploy_manager
+        phased_subcloud_deploy_manager = (
+            self.app.client_manager.phased_subcloud_deploy_manager
+        )
         files = {}
         data = {}
 
@@ -429,7 +438,7 @@ class BootstrapPhasedSubcloudDeploy(base.DCManagerShowOne):
 
         subcloud_ref = parsed_args.subcloud
 
-        return dcmanager_client.subcloud_deploy_bootstrap(
+        return phased_subcloud_deploy_manager.subcloud_deploy_bootstrap(
             subcloud_ref, files=files, data=data
         )
 
@@ -463,8 +472,9 @@ class ConfigPhasedSubcloudDeploy(base.DCManagerShowOne):
 
     def _get_resources(self, parsed_args):
         subcloud_ref = parsed_args.subcloud
-        dcmanager_client = self.app.client_manager.phased_subcloud_deploy_manager.\
-            phased_subcloud_deploy_manager
+        phased_subcloud_deploy_manager = (
+            self.app.client_manager.phased_subcloud_deploy_manager
+        )
         files = {}
         data = {}
 
@@ -487,11 +497,11 @@ class ConfigPhasedSubcloudDeploy(base.DCManagerShowOne):
             data["sysadmin_password"] = base64.b64encode(password.encode("utf-8"))
 
         try:
-            return dcmanager_client.subcloud_deploy_config(
+            return phased_subcloud_deploy_manager.subcloud_deploy_config(
                 subcloud_ref=subcloud_ref, files=files, data=data
             )
-        except Exception as e:
-            print(e)
+        except Exception as exc:
+            print(exc)
             error_msg = f"Unable to configure subcloud {subcloud_ref}"
             raise exceptions.DCManagerClientException(error_msg)
 
@@ -513,13 +523,16 @@ class CompletePhasedSubcloudDeploy(base.DCManagerShowOne):
 
     def _get_resources(self, parsed_args):
         subcloud_ref = parsed_args.subcloud
-        dcmanager_client = self.app.client_manager.phased_subcloud_deploy_manager.\
-            phased_subcloud_deploy_manager
+        phased_subcloud_deploy_manager = (
+            self.app.client_manager.phased_subcloud_deploy_manager
+        )
 
         try:
-            return dcmanager_client.subcloud_deploy_complete(subcloud_ref)
-        except Exception as e:
-            print(e)
+            return phased_subcloud_deploy_manager.subcloud_deploy_complete(
+                subcloud_ref
+            )
+        except Exception as exc:
+            print(exc)
             error_msg = (
                 f"Unable to complete the deployment of subcloud {subcloud_ref}"
             )

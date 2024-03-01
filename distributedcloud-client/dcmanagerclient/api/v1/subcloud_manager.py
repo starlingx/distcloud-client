@@ -23,7 +23,7 @@ from dcmanagerclient.api import base
 from dcmanagerclient.api.base import get_json
 
 
-class subcloud_manager(base.ResourceManager):
+class SubcloudManager(base.ResourceManager):
     resource_class = base.Subcloud
 
     def json_to_resource(self, json_object):

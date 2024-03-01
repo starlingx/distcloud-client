@@ -43,6 +43,7 @@ def log_request(func):
 
 
 class HTTPClient:
+
     def __init__(
         self,
         base_url,

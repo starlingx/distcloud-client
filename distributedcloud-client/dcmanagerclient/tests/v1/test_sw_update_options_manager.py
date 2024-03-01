@@ -54,9 +54,7 @@ class TestCLISWUpdateOptionsManagerV1(base.BaseCommandTest):
         self.client = self.app.client_manager.sw_update_options_manager
 
     def test_list_sw_update_options(self):
-        self.client.sw_update_options_manager.sw_update_options_list.return_value = [
-            SW_UPDATE_OPTION
-        ]
+        self.client.sw_update_options_list.return_value = [SW_UPDATE_OPTION]
         actual_call = self.call(sw_update_options_cmd.ListSwUpdateOptions)
         self.assertEqual(
             [
@@ -73,9 +71,7 @@ class TestCLISWUpdateOptionsManagerV1(base.BaseCommandTest):
         )
 
     def test_list_sw_update_options_empty(self):
-        self.client.sw_update_options_manager.sw_update_options_list.return_value = (
-            []
-        )
+        self.client.sw_update_options_list.return_value = []
         actual_call = self.call(sw_update_options_cmd.ListSwUpdateOptions)
         self.assertEqual(
             (("<none>", "<none>", "<none>", "<none>", "<none>", "<none>"),),
@@ -83,8 +79,7 @@ class TestCLISWUpdateOptionsManagerV1(base.BaseCommandTest):
         )
 
     def test_show_sw_update_options_default(self):
-        self.client.sw_update_options_manager.sw_update_options_detail.\
-            return_value = [SW_UPDATE_OPTION]
+        self.client.sw_update_options_detail.return_value = [SW_UPDATE_OPTION]
         actual_call = self.call(sw_update_options_cmd.ShowSwUpdateOptions)
         self.assertEqual(
             (
@@ -101,8 +96,7 @@ class TestCLISWUpdateOptionsManagerV1(base.BaseCommandTest):
         )
 
     def test_show_sw_update_options_by_ref(self):
-        self.client.sw_update_options_manager.sw_update_options_detail.\
-            return_value = [SW_UPDATE_OPTION]
+        self.client.sw_update_options_detail.return_value = [SW_UPDATE_OPTION]
         actual_call = self.call(
             sw_update_options_cmd.ShowSwUpdateOptions, app_args=[FAKE_CLOUD]
         )
@@ -121,8 +115,9 @@ class TestCLISWUpdateOptionsManagerV1(base.BaseCommandTest):
         )
 
     def test_update_sw_update_options(self):
-        self.client.sw_update_options_manager.sw_update_options_update.\
-            return_value = [UPDATED_SW_UPDATE_OPTION]
+        self.client.sw_update_options_update.return_value = [
+            UPDATED_SW_UPDATE_OPTION
+        ]
         actual_call = self.call(
             sw_update_options_cmd.UpdateSwUpdateOptions,
             app_args=[
@@ -149,8 +144,7 @@ class TestCLISWUpdateOptionsManagerV1(base.BaseCommandTest):
 
     def test_delete_sw_update_options_by_ref(self):
         self.call(sw_update_options_cmd.DeleteSwUpdateOptions, app_args=[FAKE_CLOUD])
-        self.client.sw_update_options_manager.sw_update_options_delete.\
-            assert_called_once_with(FAKE_CLOUD)
+        self.client.sw_update_options_delete.assert_called_once_with(FAKE_CLOUD)
 
     def test_delete_sw_update_options_without_ref(self):
         self.assertRaises(

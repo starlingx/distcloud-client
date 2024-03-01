@@ -20,8 +20,8 @@ class FwUpdateManagerMixin:
     """This Mixin provides the update manager used for firmware updates."""
 
     def get_sw_update_manager(self):
-        dcmanager_client = self.app.client_manager.fw_update_manager
-        return dcmanager_client.fw_update_manager
+        fw_update_manager = self.app.client_manager.fw_update_manager
+        return fw_update_manager
 
 
 class CreateFwUpdateStrategy(

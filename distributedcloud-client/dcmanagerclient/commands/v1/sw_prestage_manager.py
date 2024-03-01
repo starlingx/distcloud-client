@@ -23,8 +23,8 @@ class SwPrestageManagerMixin:
     """This Mixin provides the update manager used for sw prestage."""
 
     def get_sw_update_manager(self):
-        dcmanager_client = self.app.client_manager.sw_prestage_manager
-        return dcmanager_client.sw_prestage_manager
+        sw_prestage_manager = self.app.client_manager.sw_prestage_manager
+        return sw_prestage_manager
 
     def custom_format_function(self, sw_update_strategy=None):
         original_fmt_func = super()._get_format_function()

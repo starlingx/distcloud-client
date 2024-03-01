@@ -13,9 +13,7 @@ class TestFwUpdateStrategy(UpdateStrategyMixin, base.BaseCommandTest):
 
     def setUp(self):
         super().setUp()
-        self.sw_update_manager = (
-            self.app.client_manager.fw_update_manager.fw_update_manager
-        )
+        self.sw_update_manager = self.app.client_manager.fw_update_manager
         self.create_command = cli_cmd.CreateFwUpdateStrategy
         self.show_command = cli_cmd.ShowFwUpdateStrategy
         self.delete_command = cli_cmd.DeleteFwUpdateStrategy

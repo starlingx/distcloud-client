@@ -77,14 +77,14 @@ class TestCLIPeerGroupAssociationV1(base.BaseCommandTest):
         self.client = self.app.client_manager.peer_group_association_manager
 
     def test_list_peer_group_association(self):
-        self.client.peer_group_association_manager.list_peer_group_associations.\
-            return_value = [PEER_GROUP_ASSOCIATION]
+        self.client.list_peer_group_associations.return_value = [
+            PEER_GROUP_ASSOCIATION
+        ]
         actual_call = self.call(peer_group_association_cmd.ListPeerGroupAssociation)
         self.assertEqual([PEER_GROUP_ASSOCIATION_TUPLE], actual_call[1])
 
     def test_list_peer_group_association_empty(self):
-        self.client.peer_group_association_manager.list_peer_group_associations.\
-            return_value = ([])
+        self.client.list_peer_group_associations.return_value = []
         actual_call = self.call(peer_group_association_cmd.ListPeerGroupAssociation)
         self.assertEqual(
             (tuple("<none>" for _ in range(len(PEER_GROUP_ASSOCIATION_TUPLE))),),
@@ -92,8 +92,9 @@ class TestCLIPeerGroupAssociationV1(base.BaseCommandTest):
         )
 
     def test_add_peer_group_association(self):
-        self.client.peer_group_association_manager.add_peer_group_association.\
-            return_value = [PEER_GROUP_ASSOCIATION]
+        self.client.add_peer_group_association.return_value = [
+            PEER_GROUP_ASSOCIATION
+        ]
         actual_call = self.call(
             peer_group_association_cmd.AddPeerGroupAssociation,
             app_args=[
@@ -108,8 +109,9 @@ class TestCLIPeerGroupAssociationV1(base.BaseCommandTest):
         self.assertEqual(PEER_GROUP_ASSOCIATION_DETAIL_TUPLE, actual_call[1])
 
     def test_show_peer_group_association(self):
-        self.client.peer_group_association_manager.peer_group_association_detail.\
-            return_value = [PEER_GROUP_ASSOCIATION]
+        self.client.peer_group_association_detail.return_value = [
+            PEER_GROUP_ASSOCIATION
+        ]
         actual_call = self.call(
             peer_group_association_cmd.ShowPeerGroupAssociation,
             app_args=[PEER_GROUP_ASSOCIATION_ID],
@@ -130,8 +132,7 @@ class TestCLIPeerGroupAssociationV1(base.BaseCommandTest):
         )
 
     def test_show_peer_group_association_without_id(self):
-        self.client.peer_group_association_manager.peer_group_association_detail.\
-            return_value = ([])
+        self.client.peer_group_association_detail.return_value = []
         self.assertRaises(
             SystemExit,
             self.call,
@@ -144,8 +145,9 @@ class TestCLIPeerGroupAssociationV1(base.BaseCommandTest):
             peer_group_association_cmd.DeletePeerGroupAssociation,
             app_args=[PEER_GROUP_ASSOCIATION_ID],
         )
-        self.client.peer_group_association_manager.delete_peer_group_association.\
-            assert_called_once_with(PEER_GROUP_ASSOCIATION_ID)
+        self.client.delete_peer_group_association.assert_called_once_with(
+            PEER_GROUP_ASSOCIATION_ID
+        )
 
     def test_delete_peer_group_association_without_id(self):
         self.assertRaises(
@@ -160,8 +162,9 @@ class TestCLIPeerGroupAssociationV1(base.BaseCommandTest):
         updated_peed_group_association.peer_group_priority = (
             PG_GROUP_PRIORITY_UPDATED
         )
-        self.client.peer_group_association_manager.update_peer_group_association.\
-            return_value = [updated_peed_group_association]
+        self.client.update_peer_group_association.return_value = [
+            updated_peed_group_association
+        ]
         actual_call = self.call(
             peer_group_association_cmd.UpdatePeerGroupAssociation,
             app_args=[
@@ -173,8 +176,9 @@ class TestCLIPeerGroupAssociationV1(base.BaseCommandTest):
         self.assertEqual((PEER_GROUP_ASSOCIATION_TUPLE_UPDATED), actual_call[1])
 
     def test_update_peer_group_association_without_priority(self):
-        self.client.peer_group_association_manager.update_peer_group_association.\
-            return_value = [PEER_GROUP_ASSOCIATION]
+        self.client.update_peer_group_association.return_value = [
+            PEER_GROUP_ASSOCIATION
+        ]
         self.assertRaises(
             SystemExit,
             self.call,
@@ -183,8 +187,9 @@ class TestCLIPeerGroupAssociationV1(base.BaseCommandTest):
         )
 
     def test_sync_peer_group_association(self):
-        self.client.peer_group_association_manager.sync_peer_group_association.\
-            return_value = [PEER_GROUP_ASSOCIATION]
+        self.client.sync_peer_group_association.return_value = [
+            PEER_GROUP_ASSOCIATION
+        ]
         actual_call = self.call(
             peer_group_association_cmd.SyncPeerGroupAssociation,
             app_args=[PEER_GROUP_ASSOCIATION_ID],

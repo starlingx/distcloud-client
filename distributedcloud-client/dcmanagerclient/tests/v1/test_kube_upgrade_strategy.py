@@ -13,9 +13,7 @@ class TestKubeUpgradeStrategy(UpdateStrategyMixin, base.BaseCommandTest):
 
     def setUp(self):
         super().setUp()
-        self.sw_update_manager = (
-            self.app.client_manager.kube_upgrade_manager.kube_upgrade_manager
-        )
+        self.sw_update_manager = self.app.client_manager.kube_upgrade_manager
         self.create_command = cli_cmd.CreateKubeUpgradeStrategy
         self.show_command = cli_cmd.ShowKubeUpgradeStrategy
         self.delete_command = cli_cmd.DeleteKubeUpgradeStrategy

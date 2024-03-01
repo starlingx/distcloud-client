@@ -35,7 +35,7 @@ class TestCLIAlarmSummaryV1(base.BaseCommandTest):
         self.client = self.app.client_manager.alarm_manager
 
     def test_list_alarm_summary(self):
-        self.client.alarm_manager.list_alarms.return_value = [ALARM_SUMMARY]
+        self.client.list_alarms.return_value = [ALARM_SUMMARY]
         actual_call = self.call(alarm_cmd.ListAlarmSummary)
         self.assertEqual(
             [

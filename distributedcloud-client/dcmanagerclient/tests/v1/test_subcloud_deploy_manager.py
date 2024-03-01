@@ -83,9 +83,7 @@ class TestCLISubcloudDeployManagerV1(base.BaseCommandTest):
         self.client = self.app.client_manager.subcloud_deploy_manager
 
     def test_subcloud_deploy_show(self):
-        self.client.subcloud_deploy_manager.subcloud_deploy_show.return_value = [
-            SUBCLOUD_DEPLOY_ALL
-        ]
+        self.client.subcloud_deploy_show.return_value = [SUBCLOUD_DEPLOY_ALL]
 
         # Without "--release" parameter
         actual_call1 = self.call(subcloud_deploy_manager.SubcloudDeployShow)
@@ -119,14 +117,14 @@ class TestCLISubcloudDeployManagerV1(base.BaseCommandTest):
         )
 
     def test_subcloud_deploy_upload_all(self):
-        self.client.subcloud_deploy_manager.subcloud_deploy_upload.return_value = [
-            SUBCLOUD_DEPLOY_ALL
-        ]
+        self.client.subcloud_deploy_upload.return_value = [SUBCLOUD_DEPLOY_ALL]
 
-        with tempfile.NamedTemporaryFile() as f1, \
-                tempfile.NamedTemporaryFile() as f2, \
-                tempfile.NamedTemporaryFile() as f3, \
-                tempfile.NamedTemporaryFile() as f4:
+        f1 = tempfile.NamedTemporaryFile()
+        f2 = tempfile.NamedTemporaryFile()
+        f3 = tempfile.NamedTemporaryFile()
+        f4 = tempfile.NamedTemporaryFile()
+
+        with f1, f2, f3, f4:
             file_path_1 = os.path.abspath(f1.name)
             file_path_2 = os.path.abspath(f2.name)
             file_path_3 = os.path.abspath(f3.name)
@@ -157,13 +155,15 @@ class TestCLISubcloudDeployManagerV1(base.BaseCommandTest):
         )
 
     def test_subcloud_deploy_upload_no_prestage(self):
-        self.client.subcloud_deploy_manager.subcloud_deploy_upload.return_value = [
+        self.client.subcloud_deploy_upload.return_value = [
             SUBCLOUD_DEPLOY_NO_PRESTAGE
         ]
 
-        with tempfile.NamedTemporaryFile() as f1, \
-                tempfile.NamedTemporaryFile() as f2, \
-                tempfile.NamedTemporaryFile() as f3:
+        f1 = tempfile.NamedTemporaryFile()
+        f2 = tempfile.NamedTemporaryFile()
+        f3 = tempfile.NamedTemporaryFile()
+
+        with f1, f2, f3:
             file_path_1 = os.path.abspath(f1.name)
             file_path_2 = os.path.abspath(f2.name)
             file_path_3 = os.path.abspath(f3.name)
@@ -191,9 +191,7 @@ class TestCLISubcloudDeployManagerV1(base.BaseCommandTest):
         )
 
     def test_subcloud_deploy_upload_prestage(self):
-        self.client.subcloud_deploy_manager.subcloud_deploy_upload.return_value = [
-            SUBCLOUD_DEPLOY_PRESTAGE
-        ]
+        self.client.subcloud_deploy_upload.return_value = [SUBCLOUD_DEPLOY_PRESTAGE]
 
         with tempfile.NamedTemporaryFile() as f1:
             file_path_1 = os.path.abspath(f1.name)
@@ -207,13 +205,15 @@ class TestCLISubcloudDeployManagerV1(base.BaseCommandTest):
         )
 
     def test_subcloud_deploy_upload_no_playbook(self):
-        self.client.subcloud_deploy_manager.subcloud_deploy_upload.return_value = [
+        self.client.subcloud_deploy_upload.return_value = [
             SUBCLOUD_DEPLOY_NO_PLAYBOOK
         ]
 
-        with tempfile.NamedTemporaryFile() as f1, \
-                tempfile.NamedTemporaryFile() as f2, \
-                tempfile.NamedTemporaryFile() as f3:
+        f1 = tempfile.NamedTemporaryFile()
+        f2 = tempfile.NamedTemporaryFile()
+        f3 = tempfile.NamedTemporaryFile()
+
+        with f1, f2, f3:
             file_path_1 = os.path.abspath(f1.name)
             file_path_2 = os.path.abspath(f2.name)
             file_path_3 = os.path.abspath(f3.name)
@@ -240,12 +240,14 @@ class TestCLISubcloudDeployManagerV1(base.BaseCommandTest):
         )
 
     def test_subcloud_deploy_upload_no_playbook_overrides(self):
-        self.client.subcloud_deploy_manager.subcloud_deploy_upload.return_value = [
+        self.client.subcloud_deploy_upload.return_value = [
             SUBCLOUD_DEPLOY_NO_PLAYBOOK_OVERRIDES
         ]
 
-        with tempfile.NamedTemporaryFile() as f1, \
-                tempfile.NamedTemporaryFile() as f2:
+        f1 = tempfile.NamedTemporaryFile()
+        f2 = tempfile.NamedTemporaryFile()
+
+        with f1, f2:
             file_path_1 = os.path.abspath(f1.name)
             file_path_2 = os.path.abspath(f2.name)
             actual_call = self.call(
@@ -257,20 +259,26 @@ class TestCLISubcloudDeployManagerV1(base.BaseCommandTest):
                     file_path_2,
                 ],
             )
-        self.assertEqual((
-            None, None,
-            DEPLOY_CHART,
-            DEPLOY_PRESTAGE_IMAGES,
-            base.SOFTWARE_VERSION
-        ), actual_call[1],)
+        self.assertEqual(
+            (
+                None,
+                None,
+                DEPLOY_CHART,
+                DEPLOY_PRESTAGE_IMAGES,
+                base.SOFTWARE_VERSION,
+            ),
+            actual_call[1],
+        )
 
     def test_subcloud_deploy_upload_no_overrides_chart(self):
-        self.client.subcloud_deploy_manager.subcloud_deploy_upload.return_value = [
+        self.client.subcloud_deploy_upload.return_value = [
             SUBCLOUD_DEPLOY_NO_OVERRIDES_CHART
         ]
 
-        with tempfile.NamedTemporaryFile() as f1, \
-                tempfile.NamedTemporaryFile() as f2:
+        f1 = tempfile.NamedTemporaryFile()
+        f2 = tempfile.NamedTemporaryFile()
+
+        with f1, f2:
             file_path_1 = os.path.abspath(f1.name)
             file_path_2 = os.path.abspath(f2.name)
             actual_call = self.call(
@@ -297,13 +305,16 @@ class TestCLISubcloudDeployManagerV1(base.BaseCommandTest):
 
     @mock.patch("builtins.print")
     def test_subcloud_deploy_upload_invalid_path(self, mock_print):
-        self.client.subcloud_deploy_manager.subcloud_deploy_upload.return_value = [
+        self.client.subcloud_deploy_upload.return_value = [
             SUBCLOUD_DEPLOY_NO_PRESTAGE
         ]
         mock_print.return_value = mock.ANY
         file_path_1 = "not_a_valid_path"
-        with tempfile.NamedTemporaryFile() as f2, \
-                tempfile.NamedTemporaryFile() as f3:
+
+        f2 = tempfile.NamedTemporaryFile()
+        f3 = tempfile.NamedTemporaryFile()
+
+        with f2, f3:
             file_path_2 = os.path.abspath(f2.name)
             file_path_3 = os.path.abspath(f3.name)
 
@@ -333,12 +344,12 @@ class TestCLISubcloudDeployManagerV1(base.BaseCommandTest):
 
         self.call(subcloud_deploy_manager.SubcloudDeployDelete, app_args=app_args)
 
-        self.client.subcloud_deploy_manager.subcloud_deploy_delete.\
-            assert_called_once_with(release_version, data=data)
+        self.client.subcloud_deploy_delete.assert_called_once_with(
+            release_version, data=data
+        )
 
     def test_subcloud_deploy_delete_without_release(self):
 
         self.call(subcloud_deploy_manager.SubcloudDeployDelete)
         data = {"prestage_images": "False", "deployment_files": "False"}
-        self.client.subcloud_deploy_manager.subcloud_deploy_delete.\
-            assert_called_once_with(None, data=data)
+        self.client.subcloud_deploy_delete.assert_called_once_with(None, data=data)

@@ -49,7 +49,7 @@ class SwUpdateOptions(base.Resource):
         self.updated_at = updated_at
 
 
-class sw_update_options_manager(base.ResourceManager):
+class SwUpdateOptionsManager(base.ResourceManager):
     resource_class = SwUpdateOptions
 
     def sw_update_options_update(self, subcloud_ref, **kwargs):

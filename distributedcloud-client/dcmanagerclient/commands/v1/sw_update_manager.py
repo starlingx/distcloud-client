@@ -284,8 +284,8 @@ class ListSwUpdateStrategyStep(base.DCManagerLister):
     """List strategy steps."""
 
     def get_strategy_step_manager(self):
-        dcmanager_client = self.app.client_manager.strategy_step_manager
-        return dcmanager_client.strategy_step_manager
+        strategy_step_manager = self.app.client_manager.strategy_step_manager
+        return strategy_step_manager
 
     def _get_format_function(self):
         return strategy_step_format
@@ -298,8 +298,8 @@ class ShowSwUpdateStrategyStep(base.DCManagerShowOne):
     """Show the details of a strategy step."""
 
     def get_strategy_step_manager(self):
-        dcmanager_client = self.app.client_manager.strategy_step_manager
-        return dcmanager_client.strategy_step_manager
+        strategy_step_manager = self.app.client_manager.strategy_step_manager
+        return strategy_step_manager
 
     def _get_format_function(self):
         return detail_strategy_step_format

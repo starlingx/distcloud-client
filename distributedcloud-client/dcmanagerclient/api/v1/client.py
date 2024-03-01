@@ -22,25 +22,28 @@ import six
 from keystoneauth1 import session as ks_session
 
 from dcmanagerclient.api import httpclient
-from dcmanagerclient.api.v1 import alarm_manager as am
-from dcmanagerclient.api.v1 import fw_update_manager as fum
-from dcmanagerclient.api.v1 import kube_rootca_update_manager as krum
-from dcmanagerclient.api.v1 import kube_upgrade_manager as kupm
-from dcmanagerclient.api.v1 import peer_group_association_manager as pgam
-from dcmanagerclient.api.v1 import phased_subcloud_deploy_manager as psdm
-from dcmanagerclient.api.v1 import strategy_step_manager as ssm
-from dcmanagerclient.api.v1 import subcloud_backup_manager as sbm
-from dcmanagerclient.api.v1 import subcloud_deploy_manager as sdm
-from dcmanagerclient.api.v1 import subcloud_group_manager as gm
-from dcmanagerclient.api.v1 import subcloud_manager as sm
-from dcmanagerclient.api.v1 import subcloud_peer_group_manager as pm
-from dcmanagerclient.api.v1 import sw_deploy_manager as swdm
-from dcmanagerclient.api.v1 import sw_patch_manager as spm
-from dcmanagerclient.api.v1 import sw_prestage_manager as spr
-from dcmanagerclient.api.v1 import sw_strategy_manager as sstm
-from dcmanagerclient.api.v1 import sw_update_options_manager as suom
-from dcmanagerclient.api.v1 import sw_upgrade_manager as supm
-from dcmanagerclient.api.v1 import system_peer_manager as sp
+from dcmanagerclient.api.v1.alarm_manager import AlarmManager
+from dcmanagerclient.api.v1.fw_update_manager import FwUpdateManager
+from dcmanagerclient.api.v1.kube_rootca_update_manager import KubeRootcaUpdateManager
+from dcmanagerclient.api.v1.kube_upgrade_manager import KubeUpgradeManager
+from dcmanagerclient.api.v1.peer_group_association_manager import \
+    PeerGroupAssociationManager
+from dcmanagerclient.api.v1.phased_subcloud_deploy_manager import \
+    PhasedSubcloudDeployManager
+from dcmanagerclient.api.v1.strategy_step_manager import StrategyStepManager
+from dcmanagerclient.api.v1.subcloud_backup_manager import SubcloudBackupManager
+from dcmanagerclient.api.v1.subcloud_deploy_manager import SubcloudDeployManager
+from dcmanagerclient.api.v1.subcloud_group_manager import SubcloudGroupManager
+from dcmanagerclient.api.v1.subcloud_manager import SubcloudManager
+from dcmanagerclient.api.v1.subcloud_peer_group_manager import \
+    SubcloudPeerGroupManager
+from dcmanagerclient.api.v1.sw_deploy_manager import SwDeployManager
+from dcmanagerclient.api.v1.sw_patch_manager import SwPatchManager
+from dcmanagerclient.api.v1.sw_prestage_manager import SwPrestageManager
+from dcmanagerclient.api.v1.sw_strategy_manager import SwStrategyManager
+from dcmanagerclient.api.v1.sw_update_options_manager import SwUpdateOptionsManager
+from dcmanagerclient.api.v1.sw_upgrade_manager import SwUpgradeManager
+from dcmanagerclient.api.v1.system_peer_manager import SystemPeerManager
 
 _DEFAULT_DCMANAGER_URL = "http://localhost:8119/v1.0"
 
@@ -113,37 +116,33 @@ class Client:
         )
 
         # Create all managers
-        self.subcloud_manager = sm.subcloud_manager(self.http_client)
-        self.subcloud_group_manager = gm.subcloud_group_manager(
+        self.subcloud_manager = SubcloudManager(self.http_client)
+        self.subcloud_group_manager = SubcloudGroupManager(
             self.http_client, self.subcloud_manager
         )
-        self.subcloud_peer_group_manager = pm.subcloud_peer_group_manager(
+        self.subcloud_peer_group_manager = SubcloudPeerGroupManager(
             self.http_client, self.subcloud_manager
         )
-        self.peer_group_association_manager = pgam.peer_group_association_manager(
+        self.peer_group_association_manager = PeerGroupAssociationManager(
             self.http_client
         )
-        self.subcloud_backup_manager = sbm.subcloud_backup_manager(self.http_client)
-        self.subcloud_deploy_manager = sdm.subcloud_deploy_manager(self.http_client)
-        self.system_peer_manager = sp.system_peer_manager(
+        self.subcloud_backup_manager = SubcloudBackupManager(self.http_client)
+        self.subcloud_deploy_manager = SubcloudDeployManager(self.http_client)
+        self.system_peer_manager = SystemPeerManager(
             self.http_client, self.subcloud_peer_group_manager
         )
-        self.alarm_manager = am.alarm_manager(self.http_client)
-        self.fw_update_manager = fum.fw_update_manager(self.http_client)
-        self.kube_rootca_update_manager = krum.kube_rootca_update_manager(
-            self.http_client
-        )
-        self.kube_upgrade_manager = kupm.kube_upgrade_manager(self.http_client)
-        self.sw_deploy_manager = swdm.SwDeployManager(self.http_client)
-        self.sw_patch_manager = spm.sw_patch_manager(self.http_client)
-        self.sw_prestage_manager = spr.sw_prestage_manager(self.http_client)
-        self.sw_update_options_manager = suom.sw_update_options_manager(
-            self.http_client
-        )
-        self.sw_upgrade_manager = supm.sw_upgrade_manager(self.http_client)
-        self.strategy_step_manager = ssm.strategy_step_manager(self.http_client)
-        self.sw_strategy_manager = sstm.sw_strategy_manager(self.http_client)
-        self.phased_subcloud_deploy_manager = psdm.phased_subcloud_deploy_manager(
+        self.alarm_manager = AlarmManager(self.http_client)
+        self.fw_update_manager = FwUpdateManager(self.http_client)
+        self.kube_rootca_update_manager = KubeRootcaUpdateManager(self.http_client)
+        self.kube_upgrade_manager = KubeUpgradeManager(self.http_client)
+        self.sw_deploy_manager = SwDeployManager(self.http_client)
+        self.sw_patch_manager = SwPatchManager(self.http_client)
+        self.sw_prestage_manager = SwPrestageManager(self.http_client)
+        self.sw_update_options_manager = SwUpdateOptionsManager(self.http_client)
+        self.sw_upgrade_manager = SwUpgradeManager(self.http_client)
+        self.strategy_step_manager = StrategyStepManager(self.http_client)
+        self.sw_strategy_manager = SwStrategyManager(self.http_client)
+        self.phased_subcloud_deploy_manager = PhasedSubcloudDeployManager(
             self.http_client
         )
 

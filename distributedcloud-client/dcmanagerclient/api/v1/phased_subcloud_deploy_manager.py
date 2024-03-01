@@ -12,7 +12,7 @@ from dcmanagerclient.api.base import get_json
 BASE_URL = "/phased-subcloud-deploy/"
 
 
-class phased_subcloud_deploy_manager(base.ResourceManager):
+class PhasedSubcloudDeployManager(base.ResourceManager):
     resource_class = base.Subcloud
 
     def json_to_resource(self, json_object):

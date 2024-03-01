@@ -40,7 +40,7 @@ class SubcloudPeerGroup(base.Resource):
         self.updated_at = updated_at
 
 
-class subcloud_peer_group_manager(base.ResourceManager):
+class SubcloudPeerGroupManager(base.ResourceManager):
     resource_class = SubcloudPeerGroup
 
     def __init__(self, http_client, subcloud_manager):

@@ -38,7 +38,7 @@ class SubcloudDeploy(base.Resource):
         self.software_version = software_version
 
 
-class subcloud_deploy_manager(base.ResourceManager):
+class SubcloudDeployManager(base.ResourceManager):
     resource_class = SubcloudDeploy
 
     def _process_json_response(self, json_object):

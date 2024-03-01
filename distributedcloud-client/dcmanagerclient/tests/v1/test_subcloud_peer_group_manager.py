@@ -58,22 +58,21 @@ class TestCLISubcloudPeerGroupManager(base.BaseCommandTest):
         self.client = self.app.client_manager.subcloud_peer_group_manager
 
     def test_list_subcloud_peer_groups(self):
-        self.client.subcloud_peer_group_manager.\
-            list_subcloud_peer_groups.return_value = [SubcloudPeerGroup]
+        self.client.list_subcloud_peer_groups.return_value = [SubcloudPeerGroup]
         actual_call = self.call(subcloud_peer_group_cmd.ListSubcloudPeerGroup)
         self.assertEqual([PG_TUPLE_WITH_DATE], actual_call[1])
 
     def test_show_subcloud_peer_group(self):
-        self.client.subcloud_peer_group_manager.\
-            subcloud_peer_group_detail.return_value = [SubcloudPeerGroup]
+        self.client.subcloud_peer_group_detail.return_value = [SubcloudPeerGroup]
         actual_call = self.call(
             subcloud_peer_group_cmd.ShowSubcloudPeerGroup, app_args=[PG_ID]
         )
         self.assertEqual(PG_TUPLE_WITH_DATE, actual_call[1])
 
     def test_list_subcloud_peer_group_subclouds(self):
-        self.client.subcloud_peer_group_manager.subcloud_peer_group_list_subclouds.\
-            return_value = [base.SUBCLOUD_RESOURCE_WITH_PEERID]
+        self.client.subcloud_peer_group_list_subclouds.return_value = [
+            base.SUBCLOUD_RESOURCE_WITH_PEERID
+        ]
         actual_call = self.call(
             subcloud_peer_group_cmd.ListSubcloudPeerGroupSubclouds,
             app_args=[base.ID],
@@ -83,8 +82,7 @@ class TestCLISubcloudPeerGroupManager(base.BaseCommandTest):
         )
 
     def test_add_subcloud_peer_group(self):
-        self.client.subcloud_peer_group_manager.add_subcloud_peer_group.\
-            return_value = [SubcloudPeerGroup]
+        self.client.add_subcloud_peer_group.return_value = [SubcloudPeerGroup]
         actual_call1 = self.call(
             subcloud_peer_group_cmd.AddSubcloudPeerGroup,
             app_args=["--peer-group-name", PG_NAME],
@@ -106,12 +104,10 @@ class TestCLISubcloudPeerGroupManager(base.BaseCommandTest):
 
     def test_delete_subcloud_peer_group(self):
         self.call(subcloud_peer_group_cmd.DeleteSubcloudPeerGroup, app_args=[PG_ID])
-        self.client.subcloud_peer_group_manager.delete_subcloud_peer_group.\
-            assert_called_once_with(PG_ID)
+        self.client.delete_subcloud_peer_group.assert_called_once_with(PG_ID)
 
     def test_update_subcloud_peer_group(self):
-        self.client.subcloud_peer_group_manager.update_subcloud_peer_group.\
-            return_value = [SubcloudPeerGroup]
+        self.client.update_subcloud_peer_group.return_value = [SubcloudPeerGroup]
         actual_call = self.call(
             subcloud_peer_group_cmd.UpdateSubcloudPeerGroup,
             app_args=[

@@ -39,7 +39,7 @@ class TestCLISWUpdateManagerV1(base.BaseCommandTest):
     def test_show_sw_update_strategy_step(self):
         results = []
         results.append(STRATEGY_STEP)
-        self.client.strategy_step_manager.strategy_step_detail.return_value = results
+        self.client.strategy_step_detail.return_value = results
         actual_call = self.call(
             sw_update_cmd.ShowSwUpdateStrategyStep, app_args=[FAKE_CLOUD]
         )

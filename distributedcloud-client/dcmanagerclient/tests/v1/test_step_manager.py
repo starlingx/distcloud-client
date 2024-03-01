@@ -48,9 +48,7 @@ class TestCLI(base.BaseCommandTest):
         )
         results = []
         results.append(sample_step)
-        step_manager = (
-            self.app.client_manager.strategy_step_manager.strategy_step_manager
-        )
+        step_manager = self.app.client_manager.strategy_step_manager
         step_manager.list_strategy_steps.return_value = results
 
         actual_call = self.call(cli_cmd.ListSwUpdateStrategyStep)

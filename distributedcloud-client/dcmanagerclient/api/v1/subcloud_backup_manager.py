@@ -12,7 +12,7 @@ from dcmanagerclient.api import base
 from dcmanagerclient.api.base import get_json
 
 
-class subcloud_backup_manager(base.ResourceManager):
+class SubcloudBackupManager(base.ResourceManager):
 
     resource_class = base.Subcloud
 

@@ -20,8 +20,8 @@ class SwUpgradeManagerMixin:
     """This Mixin provides the update manager used for software upgrades."""
 
     def get_sw_update_manager(self):
-        dcmanager_client = self.app.client_manager.sw_upgrade_manager
-        return dcmanager_client.sw_upgrade_manager
+        sw_upgrade_manager = self.app.client_manager.sw_upgrade_manager
+        return sw_upgrade_manager
 
 
 class CreateSwUpgradeStrategy(

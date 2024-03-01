@@ -109,7 +109,7 @@ class SubcloudDeployUpload(base.DCManagerShowOne):
         return parser
 
     def _get_resources(self, parsed_args):
-        dcmanager_client = self.app.client_manager.subcloud_deploy_manager
+        subcloud_deploy_manager = self.app.client_manager.subcloud_deploy_manager
 
         data = {}
         files = {}
@@ -131,11 +131,11 @@ class SubcloudDeployUpload(base.DCManagerShowOne):
             data["release"] = parsed_args.release
 
         try:
-            return dcmanager_client.subcloud_deploy_manager.subcloud_deploy_upload(
+            return subcloud_deploy_manager.subcloud_deploy_upload(
                 files=files, data=data
             )
-        except Exception as e:
-            print(e)
+        except Exception as exc:
+            print(exc)
             error_msg = "Unable to upload subcloud deploy files"
             raise exceptions.DCManagerClientException(error_msg)
 
@@ -159,10 +159,8 @@ class SubcloudDeployShow(base.DCManagerShowOne):
         return parser
 
     def _get_resources(self, parsed_args):
-        dcmanager_client = self.app.client_manager.subcloud_deploy_manager
-        return dcmanager_client.subcloud_deploy_manager.subcloud_deploy_show(
-            parsed_args.release
-        )
+        subcloud_deploy_manager = self.app.client_manager.subcloud_deploy_manager
+        return subcloud_deploy_manager.subcloud_deploy_show(parsed_args.release)
 
 
 class DeprecatedSubcloudDeployShow(SubcloudDeployShow):
@@ -214,7 +212,7 @@ class SubcloudDeployDelete(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        dcmanager_client = self.app.client_manager.subcloud_deploy_manager
+        subcloud_deploy_manager = self.app.client_manager.subcloud_deploy_manager
         release = parsed_args.release
         data = {}
         if parsed_args.prestage_images is not None:
@@ -223,10 +221,8 @@ class SubcloudDeployDelete(command.Command):
             data["deployment_files"] = str(parsed_args.deployment_files)
 
         try:
-            dcmanager_client.subcloud_deploy_manager.subcloud_deploy_delete(
-                release, data=data
-            )
-        except Exception as e:
-            print(e)
+            subcloud_deploy_manager.subcloud_deploy_delete(release, data=data)
+        except Exception as exc:
+            print(exc)
             error_msg = "Unable to delete subcloud deploy files"
             raise exceptions.DCManagerClientException(error_msg)
