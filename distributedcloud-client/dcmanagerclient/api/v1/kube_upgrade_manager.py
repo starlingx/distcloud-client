@@ -20,7 +20,6 @@ SW_UPDATE_TYPE_KUBERNETES = "kubernetes"
 
 
 class KubeUpgradeManager(SwUpdateManager):
-
     def __init__(self, http_client):
         super().__init__(http_client, update_type=SW_UPDATE_TYPE_KUBERNETES)
         self.extra_args = ["to-version"]

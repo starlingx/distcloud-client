@@ -85,7 +85,6 @@ class DCManagerShowOne(command.ShowOne):
 
 @six.add_metaclass(abc.ABCMeta)
 class DCManagerShow(DCManagerLister, DCManagerShowOne):
-
     @abc.abstractmethod
     def should_list(self, parsed_args):
         """Uses Lister behaviour if True, ShowOne otherwise."""
@@ -102,7 +101,5 @@ class DCManagerShow(DCManagerLister, DCManagerShowOne):
         """Overrides method from cliff.Lister/cliff.ShowOne."""
 
         if self.should_list(parsed_args):
-            return DCManagerLister.produce_output(
-                self, parsed_args, column_names, data
-            )
+            return DCManagerLister.produce_output(self, parsed_args, column_names, data)
         return DCManagerShowOne.produce_output(self, parsed_args, column_names, data)

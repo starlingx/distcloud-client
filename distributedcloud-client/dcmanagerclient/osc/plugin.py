@@ -1,4 +1,4 @@
-# Copyright (c) 2017, 2019, 2021 Wind River Systems, Inc.
+# Copyright (c) 2017, 2019, 2021, 2024 Wind River Systems, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,31 +21,26 @@ from osc_lib import utils
 
 LOG = logging.getLogger(__name__)
 
-DEFAULT_DCMANAGER_API_VERSION = '1'
-API_VERSION_OPTION = 'os_dcmanager_api_version'
-API_NAME = 'dcmanager'
+DEFAULT_DCMANAGER_API_VERSION = "1"
+API_VERSION_OPTION = "os_dcmanager_api_version"
+API_NAME = "dcmanager"
 API_VERSIONS = {
-    '1': 'dcmanagerclient.api.v1.client.Client',
+    "1": "dcmanagerclient.api.v1.client.Client",
 }
 
 
 def make_client(instance):
     """Return a dcmanager client."""
     version = instance._api_version[API_NAME]
-    dcmanager_client = utils.get_client_class(
-        API_NAME,
-        version,
-        API_VERSIONS)
+    dcmanager_client = utils.get_client_class(API_NAME, version, API_VERSIONS)
 
-    LOG.debug('Instantiating dcmanager client: %s', dcmanager_client)
+    LOG.debug("Instantiating dcmanager client: %s", dcmanager_client)
 
     dcmanager_url = instance.get_endpoint_for_service_type(
-        'dcmanager',
-        interface='publicURL'
+        "dcmanager", interface="publicURL"
     )
 
-    client = dcmanager_client(dcmanager_url=dcmanager_url,
-                              session=instance.session)
+    client = dcmanager_client(dcmanager_url=dcmanager_url, session=instance.session)
 
     return client
 
@@ -53,13 +48,14 @@ def make_client(instance):
 def build_option_parser(parser):
     """Hook to add global options."""
     parser.add_argument(
-        '--os-dcmanager-api-version',
-        metavar='<dcmanager-api-version>',
+        "--os-dcmanager-api-version",
+        metavar="<dcmanager-api-version>",
         default=utils.env(
-            'OS_DCMANAGER_API_VERSION',
-            default=DEFAULT_DCMANAGER_API_VERSION),
-        help='DCMANAGER API version, default=' +
-             DEFAULT_DCMANAGER_API_VERSION +
-             ' (Env: OS_DCMANAGER_API_VERSION)')
+            "OS_DCMANAGER_API_VERSION", default=DEFAULT_DCMANAGER_API_VERSION
+        ),
+        help="DCMANAGER API version, default="
+        + DEFAULT_DCMANAGER_API_VERSION
+        + " (Env: OS_DCMANAGER_API_VERSION)",
+    )
 
     return parser

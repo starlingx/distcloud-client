@@ -82,9 +82,7 @@ class AddPeerGroupAssociation(base.DCManagerShowOne):
             "--peer-group-id", required=True, help="Subcloud peer group ID."
         )
 
-        parser.add_argument(
-            "--system-peer-id", required=True, help="System Peer ID."
-        )
+        parser.add_argument("--system-peer-id", required=True, help="System Peer ID.")
 
         parser.add_argument(
             "--peer-group-priority",
@@ -186,9 +184,7 @@ class DeletePeerGroupAssociation(command.Command):
             self.app.client_manager.peer_group_association_manager
         )
         try:
-            peer_group_association_manager.delete_peer_group_association(
-                parsed_args.id
-            )
+            peer_group_association_manager.delete_peer_group_association(parsed_args.id)
         except Exception as exc:
             print(exc)
             msg = f"Unable to delete peer group association {parsed_args.id}"

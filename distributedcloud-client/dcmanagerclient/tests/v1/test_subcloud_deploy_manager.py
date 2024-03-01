@@ -76,7 +76,6 @@ SUBCLOUD_DEPLOY_NO_OVERRIDES_CHART = sdm.SubcloudDeploy(
 
 
 class TestCLISubcloudDeployManagerV1(base.BaseCommandTest):
-
     def setUp(self):
         super().setUp()
         # The client is the subcloud_deploy_manager
@@ -155,9 +154,7 @@ class TestCLISubcloudDeployManagerV1(base.BaseCommandTest):
         )
 
     def test_subcloud_deploy_upload_no_prestage(self):
-        self.client.subcloud_deploy_upload.return_value = [
-            SUBCLOUD_DEPLOY_NO_PRESTAGE
-        ]
+        self.client.subcloud_deploy_upload.return_value = [SUBCLOUD_DEPLOY_NO_PRESTAGE]
 
         f1 = tempfile.NamedTemporaryFile()
         f2 = tempfile.NamedTemporaryFile()
@@ -205,9 +202,7 @@ class TestCLISubcloudDeployManagerV1(base.BaseCommandTest):
         )
 
     def test_subcloud_deploy_upload_no_playbook(self):
-        self.client.subcloud_deploy_upload.return_value = [
-            SUBCLOUD_DEPLOY_NO_PLAYBOOK
-        ]
+        self.client.subcloud_deploy_upload.return_value = [SUBCLOUD_DEPLOY_NO_PLAYBOOK]
 
         f1 = tempfile.NamedTemporaryFile()
         f2 = tempfile.NamedTemporaryFile()
@@ -305,9 +300,7 @@ class TestCLISubcloudDeployManagerV1(base.BaseCommandTest):
 
     @mock.patch("builtins.print")
     def test_subcloud_deploy_upload_invalid_path(self, mock_print):
-        self.client.subcloud_deploy_upload.return_value = [
-            SUBCLOUD_DEPLOY_NO_PRESTAGE
-        ]
+        self.client.subcloud_deploy_upload.return_value = [SUBCLOUD_DEPLOY_NO_PRESTAGE]
         mock_print.return_value = mock.ANY
         file_path_1 = "not_a_valid_path"
 
@@ -337,7 +330,6 @@ class TestCLISubcloudDeployManagerV1(base.BaseCommandTest):
         )
 
     def test_subcloud_deploy_delete_with_release(self):
-
         release_version = base.SOFTWARE_VERSION
         data = {"prestage_images": "False", "deployment_files": "False"}
         app_args = ["--release", release_version]
@@ -349,7 +341,6 @@ class TestCLISubcloudDeployManagerV1(base.BaseCommandTest):
         )
 
     def test_subcloud_deploy_delete_without_release(self):
-
         self.call(subcloud_deploy_manager.SubcloudDeployDelete)
         data = {"prestage_images": "False", "deployment_files": "False"}
         self.client.subcloud_deploy_delete.assert_called_once_with(None, data=data)

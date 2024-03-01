@@ -218,8 +218,7 @@ class ListSubcloudPeerGroupSubclouds(base.DCManagerLister):
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "group",
-            help="Name or ID of subcloud peer group to list "
-            "associated subclouds.",
+            help="Name or ID of subcloud peer group to list " "associated subclouds.",
         )
         return parser
 

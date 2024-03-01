@@ -17,7 +17,6 @@ from dcmanagerclient.tests import base
 
 @mock.patch("getpass.getpass", new=mock.Mock(return_value="testpassword"))
 class TestCLIPhasedSubcloudDeployManagerV1(base.BaseCommandTest):
-
     def setUp(self):
         super().setUp()
         # The client is the subcloud_deploy_manager
@@ -33,7 +32,6 @@ class TestCLIPhasedSubcloudDeployManagerV1(base.BaseCommandTest):
         ) as config_file, tempfile.NamedTemporaryFile(
             mode="w"
         ) as install_file:
-
             bootstrap_file_path = os.path.abspath(bootstrap_file.name)
             config_file_path = os.path.abspath(config_file.name)
             install_file_path = os.path.abspath(install_file.name)
@@ -110,9 +108,7 @@ class TestCLIPhasedSubcloudDeployManagerV1(base.BaseCommandTest):
     def test_install_subcloud_without_install_values(self):
         self.client.subcloud_deploy_install.return_value = [base.SUBCLOUD_RESOURCE]
 
-        actual_call = self.call(
-            cmd.InstallPhasedSubcloudDeploy, app_args=[base.NAME]
-        )
+        actual_call = self.call(cmd.InstallPhasedSubcloudDeploy, app_args=[base.NAME])
 
         self.assertEqual(base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID, actual_call[1])
 
@@ -156,9 +152,7 @@ class TestCLIPhasedSubcloudDeployManagerV1(base.BaseCommandTest):
 
     def test_complete_subcloud_deployment(self):
         self.client.subcloud_deploy_complete.return_value = [base.SUBCLOUD_RESOURCE]
-        actual_call = self.call(
-            cmd.CompletePhasedSubcloudDeploy, app_args=[base.NAME]
-        )
+        actual_call = self.call(cmd.CompletePhasedSubcloudDeploy, app_args=[base.NAME])
         self.assertEqual(base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID, actual_call[1])
 
     def test_abort_subcloud(self):
@@ -176,7 +170,6 @@ class TestCLIPhasedSubcloudDeployManagerV1(base.BaseCommandTest):
         ) as config_file, tempfile.NamedTemporaryFile(
             mode="w"
         ) as install_file:
-
             bootstrap_file_path = os.path.abspath(bootstrap_file.name)
             config_file_path = os.path.abspath(config_file.name)
             install_file_path = os.path.abspath(install_file.name)
@@ -209,7 +202,6 @@ class TestCLIPhasedSubcloudDeployManagerV1(base.BaseCommandTest):
         ) as config_file, tempfile.NamedTemporaryFile(
             mode="w"
         ) as install_file:
-
             bootstrap_file_path = os.path.abspath(bootstrap_file.name)
             config_file_path = os.path.abspath(config_file.name)
             install_file_path = os.path.abspath(install_file.name)
@@ -276,7 +268,7 @@ class TestCLIPhasedSubcloudDeployManagerV1(base.BaseCommandTest):
         self.client.subcloud_deploy_enroll.return_value = [base.SUBCLOUD_RESOURCE]
 
         with tempfile.NamedTemporaryFile(
-                mode="w"
+            mode="w"
         ) as bootstrap_file, tempfile.NamedTemporaryFile(
             mode="w"
         ) as config_file, tempfile.NamedTemporaryFile(
@@ -297,7 +289,7 @@ class TestCLIPhasedSubcloudDeployManagerV1(base.BaseCommandTest):
                     "--install-values",
                     install_file_path,
                     "--deploy-config",
-                    config_file_path
+                    config_file_path,
                 ],
             )
         self.assertEqual(base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID, actual_call[1])
@@ -307,9 +299,7 @@ class TestCLIPhasedSubcloudDeployManagerV1(base.BaseCommandTest):
 
         actual_call = self.call(
             cmd.EnrollPhasedSubcloudDeploy,
-            app_args=[
-                base.NAME
-            ],
+            app_args=[base.NAME],
         )
         self.assertEqual(base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID, actual_call[1])
 
@@ -318,10 +308,7 @@ class TestCLIPhasedSubcloudDeployManagerV1(base.BaseCommandTest):
 
         self.assertRaises(
             DCManagerClientException,
-            self.call, cmd.EnrollPhasedSubcloudDeploy,
-            app_args=[
-                base.ID,
-                "--bootstrap-values",
-                "missing_path"
-            ]
+            self.call,
+            cmd.EnrollPhasedSubcloudDeploy,
+            app_args=[base.ID, "--bootstrap-values", "missing_path"],
         )

@@ -192,9 +192,7 @@ class DeleteSubcloudGroup(command.Command):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument(
-            "group", help="Name or ID of the subcloud group to delete."
-        )
+        parser.add_argument("group", help="Name or ID of the subcloud group to delete.")
         return parser
 
     def take_action(self, parsed_args):
@@ -217,9 +215,7 @@ class UpdateSubcloudGroup(base.DCManagerShowOne):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument(
-            "group", help="Name or ID of the subcloud group to update."
-        )
+        parser.add_argument("group", help="Name or ID of the subcloud group to update.")
 
         parser.add_argument("--name", required=False, help="Name of subcloud group.")
 

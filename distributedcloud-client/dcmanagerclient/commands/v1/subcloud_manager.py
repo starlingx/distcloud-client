@@ -24,10 +24,7 @@ from dcmanagerclient import exceptions
 from dcmanagerclient import utils
 from dcmanagerclient.commands.v1 import base
 
-SET_FIELD_VALUE_DICT = {
-    "region_name": None,
-    "info_message": None
-}
+SET_FIELD_VALUE_DICT = {"region_name": None, "info_message": None}
 
 
 def basic_format(subcloud=None):
@@ -304,9 +301,7 @@ class AddSubcloud(base.DCManagerShowOne):
                 raise exceptions.DCManagerClientException(error_msg)
 
             if not os.path.isfile(parsed_args.deploy_config):
-                error_msg = (
-                    f"deploy-config does not exist: {parsed_args.deploy_config}"
-                )
+                error_msg = f"deploy-config does not exist: {parsed_args.deploy_config}"
                 raise exceptions.DCManagerClientException(error_msg)
             files["deploy_config"] = parsed_args.deploy_config
 
@@ -488,9 +483,7 @@ class UnmanageSubcloud(base.DCManagerShowOne):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument(
-            "subcloud", help="Name or ID of the subcloud to unmanage."
-        )
+        parser.add_argument("subcloud", help="Name or ID of the subcloud to unmanage.")
 
         parser.add_argument(
             "--migrate",
@@ -564,6 +557,7 @@ class ManageSubcloud(base.DCManagerShowOne):
 
 class UpdateSubcloud(base.DCManagerShowOne):
     """Update attributes of a subcloud."""
+
     _info_message = None
 
     def produce_output(self, parsed_args, column_names, data):
@@ -590,9 +584,7 @@ class UpdateSubcloud(base.DCManagerShowOne):
             "--description", required=False, help="Description of subcloud."
         )
 
-        parser.add_argument(
-            "--location", required=False, help="Location of subcloud."
-        )
+        parser.add_argument("--location", required=False, help="Location of subcloud.")
 
         parser.add_argument(
             "--group", required=False, help="Name or ID of subcloud group."
@@ -702,9 +694,7 @@ class UpdateSubcloud(base.DCManagerShowOne):
                 )
             else:
                 password = utils.prompt_for_password()
-                data["sysadmin_password"] = base64.b64encode(
-                    password.encode("utf-8")
-                )
+                data["sysadmin_password"] = base64.b64encode(password.encode("utf-8"))
         # For subcloud network reconfiguration
         # If any management_* presents, need all
         # management_subnet/management_gateway_ip/
@@ -756,7 +746,7 @@ class UpdateSubcloud(base.DCManagerShowOne):
             result = subcloud_manager.update_subcloud(
                 subcloud_ref, files=files, data=data
             )
-            self._info_message = getattr(result[0], 'info_message')
+            self._info_message = getattr(result[0], "info_message")
             update_fields_values(result)
             return result
         except Exception as exc:
@@ -768,17 +758,16 @@ class UpdateSubcloud(base.DCManagerShowOne):
 class ReconfigSubcloud(base.DCManagerShowOne):
     """Reconfigure a subcloud."""
 
-    DEPRECATION_MESSAGE = ("This command has been deprecated. Please use "
-                           "'subcloud deploy config' instead.")
+    DEPRECATION_MESSAGE = (
+        "This command has been deprecated. Please use 'subcloud deploy config' instead."
+    )
 
     def _get_format_function(self):
         return detail_format
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
-        parser.add_argument_group(
-            title="Notice", description=self.DEPRECATION_MESSAGE
-        )
+        parser.add_argument_group(title="Notice", description=self.DEPRECATION_MESSAGE)
         return parser
 
     def _get_resources(self, parsed_args):
@@ -788,17 +777,16 @@ class ReconfigSubcloud(base.DCManagerShowOne):
 class ReinstallSubcloud(base.DCManagerShowOne):
     """Reinstall a subcloud."""
 
-    DEPRECATION_MESSAGE = ("This command has been deprecated. Please use "
-                           "'subcloud redeploy' instead.")
+    DEPRECATION_MESSAGE = (
+        "This command has been deprecated. Please use 'subcloud redeploy' instead."
+    )
 
     def _get_format_function(self):
         return detail_format
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
-        parser.add_argument_group(
-            title="Notice", description=self.DEPRECATION_MESSAGE
-        )
+        parser.add_argument_group(title="Notice", description=self.DEPRECATION_MESSAGE)
         return parser
 
     def _get_resources(self, parsed_args):
@@ -814,9 +802,7 @@ class RedeploySubcloud(base.DCManagerShowOne):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument(
-            "subcloud", help="Name or ID of the subcloud to redeploy."
-        )
+        parser.add_argument("subcloud", help="Name or ID of the subcloud to redeploy.")
 
         parser.add_argument(
             "--install-values",
@@ -891,9 +877,7 @@ class RedeploySubcloud(base.DCManagerShowOne):
         # Get the deploy config yaml file
         if parsed_args.deploy_config is not None:
             if not os.path.isfile(parsed_args.deploy_config):
-                error_msg = (
-                    f"deploy-config does not exist: {parsed_args.deploy_config}"
-                )
+                error_msg = f"deploy-config does not exist: {parsed_args.deploy_config}"
                 raise exceptions.DCManagerClientException(error_msg)
             files["deploy_config"] = parsed_args.deploy_config
 
@@ -923,9 +907,7 @@ class RedeploySubcloud(base.DCManagerShowOne):
             "WARNING: This will redeploy the subcloud. "
             "All applications and data on the subcloud will be lost."
         )
-        confirm = (
-            six.moves.input('Please type "redeploy" to confirm: ').strip().lower()
-        )
+        confirm = six.moves.input('Please type "redeploy" to confirm: ').strip().lower()
         if confirm == "redeploy":
             try:
                 return subcloud_manager.redeploy_subcloud(
@@ -943,17 +925,17 @@ class RedeploySubcloud(base.DCManagerShowOne):
 class RestoreSubcloud(base.DCManagerShowOne):
     """Restore a subcloud."""
 
-    DEPRECATION_MESSAGE = ("This command has been deprecated. Please use "
-                           "subcloud-backup restore instead.")
+    DEPRECATION_MESSAGE = (
+        "This command has been deprecated. Please use "
+        "subcloud-backup restore instead."
+    )
 
     def _get_format_function(self):
         return detail_format
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
-        parser.add_argument_group(
-            title="Notice", description=self.DEPRECATION_MESSAGE
-        )
+        parser.add_argument_group(title="Notice", description=self.DEPRECATION_MESSAGE)
         return parser
 
     def _get_resources(self, parsed_args):
@@ -976,9 +958,7 @@ class PrestageSubcloud(base.DCManagerShowOne):
             "if not provided you will be prompted.",
         )
 
-        parser.add_argument(
-            "subcloud", help="Name or ID of the subcloud to prestage."
-        )
+        parser.add_argument("subcloud", help="Name or ID of the subcloud to prestage.")
 
         parser.add_argument(
             "--force",
@@ -1000,9 +980,7 @@ class PrestageSubcloud(base.DCManagerShowOne):
             "--for-install",
             required=False,
             action="store_true",
-            help=(
-                "Prestage for installation. This is the default prestaging option."
-            ),
+            help=("Prestage for installation. This is the default prestaging option."),
         )
         # Prestaging for deployment means prestaging for upgrade
         # With USM there is no install phase for upgrades. This operation

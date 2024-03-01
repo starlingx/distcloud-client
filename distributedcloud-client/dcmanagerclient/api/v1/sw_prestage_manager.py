@@ -19,7 +19,6 @@ SW_UPDATE_TYPE_PRESTAGE = "prestage"
 
 
 class SwPrestageManager(SwUpdateManager):
-
     def __init__(self, http_client):
         super().__init__(
             http_client,

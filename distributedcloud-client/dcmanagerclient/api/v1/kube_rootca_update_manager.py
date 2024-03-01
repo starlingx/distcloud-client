@@ -9,7 +9,6 @@ SW_UPDATE_TYPE_KUBE_ROOTCA_UPDATE = "kube-rootca-update"
 
 
 class KubeRootcaUpdateManager(SwUpdateManager):
-
     def __init__(self, http_client):
         super().__init__(http_client, update_type=SW_UPDATE_TYPE_KUBE_ROOTCA_UPDATE)
         self.extra_args = ["subject", "expiry-date", "cert-file"]

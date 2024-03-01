@@ -57,7 +57,7 @@ class Subcloud(Resource):
         "prestage-status": "prestage_status",
         "prestage-versions": "prestage_versions",
         "region-name": "region_name",
-        "info_message": "info_message"
+        "info_message": "info_message",
     }
 
     def __init__(
@@ -90,7 +90,7 @@ class Subcloud(Resource):
         region_name=None,
         prestage_status=None,
         prestage_versions=None,
-        info_message=None
+        info_message=None,
     ):
         if endpoint_sync_status is None:
             endpoint_sync_status = {}

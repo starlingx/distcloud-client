@@ -45,7 +45,6 @@ class StrategyStep(base.Resource):
 
 
 class StrategyStepManager(base.ResourceManager):
-
     def __init__(self, http_client):
         super().__init__(http_client)
         self.resource_class = StrategyStep

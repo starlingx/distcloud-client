@@ -140,9 +140,7 @@ class PhasedSubcloudDeployResume(base.DCManagerShowOne):
         # Get the deploy config yaml file
         if parsed_args.deploy_config:
             if not os.path.isfile(parsed_args.deploy_config):
-                error_msg = (
-                    f"deploy-config does not exist: {parsed_args.deploy_config}"
-                )
+                error_msg = f"deploy-config does not exist: {parsed_args.deploy_config}"
                 raise exceptions.DCManagerClientException(error_msg)
             files["deploy_config"] = parsed_args.deploy_config
 
@@ -243,9 +241,7 @@ class CreatePhasedSubcloudDeploy(base.DCManagerShowOne):
         # Get the deploy config yaml file
         if parsed_args.deploy_config:
             if not os.path.isfile(parsed_args.deploy_config):
-                error_msg = (
-                    f"deploy-config does not exist: {parsed_args.deploy_config}"
-                )
+                error_msg = f"deploy-config does not exist: {parsed_args.deploy_config}"
                 raise exceptions.DCManagerClientException(error_msg)
             files["deploy_config"] = parsed_args.deploy_config
 
@@ -286,9 +282,7 @@ class InstallPhasedSubcloudDeploy(base.DCManagerShowOne):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument(
-            "subcloud", help="Name or ID of the subcloud to install."
-        )
+        parser.add_argument("subcloud", help="Name or ID of the subcloud to install.")
 
         parser.add_argument(
             "--install-values",
@@ -369,9 +363,7 @@ class BootstrapPhasedSubcloudDeploy(base.DCManagerShowOne):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument(
-            "subcloud", help="Name or ID of the subcloud to bootstrap."
-        )
+        parser.add_argument("subcloud", help="Name or ID of the subcloud to bootstrap.")
 
         parser.add_argument(
             "--bootstrap-address",
@@ -504,14 +496,10 @@ class CompletePhasedSubcloudDeploy(base.DCManagerShowOne):
         )
 
         try:
-            return phased_subcloud_deploy_manager.subcloud_deploy_complete(
-                subcloud_ref
-            )
+            return phased_subcloud_deploy_manager.subcloud_deploy_complete(subcloud_ref)
         except Exception as exc:
             print(exc)
-            error_msg = (
-                f"Unable to complete the deployment of subcloud {subcloud_ref}"
-            )
+            error_msg = f"Unable to complete the deployment of subcloud {subcloud_ref}"
             raise exceptions.DCManagerClientException(error_msg)
 
 
@@ -524,22 +512,20 @@ class EnrollPhasedSubcloudDeploy(base.DCManagerShowOne):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument(
-            "subcloud", help="Name or ID of the subcloud to enroll."
-        )
+        parser.add_argument("subcloud", help="Name or ID of the subcloud to enroll.")
 
         parser.add_argument(
             "--install-values",
             required=False,
             help="YAML file containing parameters required for the "
-                 "enrollment of the subcloud.",
+            "enrollment of the subcloud.",
         )
 
         parser.add_argument(
             "--deploy-config",
             required=False,
             help="YAML file containing parameters required for the initial "
-                 "configuration and unlock of the subcloud.",
+            "configuration and unlock of the subcloud.",
         )
 
         parser.add_argument(
@@ -552,7 +538,7 @@ class EnrollPhasedSubcloudDeploy(base.DCManagerShowOne):
             "--bootstrap-values",
             required=False,
             help="YAML file containing the parameters required for the "
-                 "subcloud enrollment.",
+            "subcloud enrollment.",
         )
 
         parser.add_argument(

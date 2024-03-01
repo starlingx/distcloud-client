@@ -12,7 +12,6 @@ from dcmanagerclient.tests.v1.mixins import UpdateStrategyMixin
 
 
 class TestPatchUpdateStrategy(UpdateStrategyMixin, base.BaseCommandTest):
-
     def setUp(self):
         super().setUp()
 
@@ -35,9 +34,7 @@ class TestPatchUpdateStrategy(UpdateStrategyMixin, base.BaseCommandTest):
 
         # mock the result of the API call
         strategy = utils.make_strategy(
-            strategy_type=self.expected_strategy_type, extra_args={
-                "upload-only": True
-            }
+            strategy_type=self.expected_strategy_type, extra_args={"upload-only": True}
         )
 
         # mock that there is no pre-existing strategy

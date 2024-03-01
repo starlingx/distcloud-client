@@ -72,9 +72,7 @@ class SystemPeerManager(base.ResourceManager):
             heartbeat_interval=json_object["heartbeat-interval"],
             heartbeat_failure_threshold=json_object["heartbeat-failure-threshold"],
             heartbeat_failure_policy=json_object["heartbeat-failure-policy"],
-            heartbeat_maintenance_timeout=json_object[
-                "heartbeat-maintenance-timeout"
-            ],
+            heartbeat_maintenance_timeout=json_object["heartbeat-maintenance-timeout"],
             availability_state=json_object["availability-state"],
             created_at=json_object["created-at"],
             updated_at=json_object["updated-at"],

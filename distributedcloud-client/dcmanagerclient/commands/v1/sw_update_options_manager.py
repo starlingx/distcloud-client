@@ -23,7 +23,6 @@ DEFAULT_REGION_NAME = "RegionOne"
 
 
 def options_detail_format(sw_update_options=None):
-
     columns = (
         "cloud",
         "storage apply type",

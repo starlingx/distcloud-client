@@ -17,7 +17,6 @@ FAKE_RELEASE = "21.12"
 
 
 class TestSwPrestageStrategy(UpdateStrategyMixin, base.BaseCommandTest):
-
     def setUp(self):
         super().setUp()
         self.sw_update_manager = self.app.client_manager.sw_prestage_manager

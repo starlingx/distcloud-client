@@ -33,7 +33,6 @@ TEST_UPDATED_AT = TIME_NOW
 
 
 class TestCLI(base.BaseCommandTest):
-
     def test_list_strategy_steps(self):
         sample_step = StrategyStep(
             mock,

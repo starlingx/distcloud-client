@@ -105,7 +105,6 @@ PG_TUPLE = (
 
 
 class TestCLISystemPeerManagerV1(base.BaseCommandTest):
-
     def setUp(self):
         super().setUp()
         # The client is the system_peer_manager
@@ -228,9 +227,7 @@ class TestCLISystemPeerManagerV1(base.BaseCommandTest):
 
     def test_update_system_peer(self):
         updated_system_peer = copy.copy(SYSTEM_PEER)
-        updated_system_peer.peer_controller_gateway_ip = (
-            NEW_PEER_CONTROLLER_GATEWAY_IP
-        )
+        updated_system_peer.peer_controller_gateway_ip = NEW_PEER_CONTROLLER_GATEWAY_IP
         self.client.update_system_peer.return_value = [updated_system_peer]
         actual_call = self.call(
             system_peer_cmd.UpdateSystemPeer,

@@ -77,9 +77,7 @@ class TestCLISubcloudPeerGroupManager(base.BaseCommandTest):
             subcloud_peer_group_cmd.ListSubcloudPeerGroupSubclouds,
             app_args=[base.ID],
         )
-        self.assertEqual(
-            [base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID], actual_call[1]
-        )
+        self.assertEqual([base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID], actual_call[1])
 
     def test_add_subcloud_peer_group(self):
         self.client.add_subcloud_peer_group.return_value = [SubcloudPeerGroup]

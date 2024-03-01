@@ -38,9 +38,7 @@ class SwPrestageManagerMixin:
             if prestage_software_version:
                 # Insert the 'software version' field before the 'state',
                 # 'created_at' and 'updated_at' fields if it's present
-                columns = (
-                    columns[:-3] + ("prestage software version",) + columns[-3:]
-                )
+                columns = columns[:-3] + ("prestage software version",) + columns[-3:]
                 data = data[:-3] + (prestage_software_version,) + data[-3:]
 
         return columns, data
@@ -83,9 +81,7 @@ class CreateSwPrestageStrategy(
             "--for-install",
             required=False,
             action="store_true",
-            help=(
-                "Prestage for installation. This is the default prestaging option."
-            ),
+            help=("Prestage for installation. This is the default prestaging option."),
         )
         # Prestaging for deployment means prestaging for upgrade
         # For this operation, there is NO INSTALL phase anymore with USM

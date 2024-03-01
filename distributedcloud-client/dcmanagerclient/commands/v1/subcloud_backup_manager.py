@@ -372,7 +372,6 @@ class RestoreSubcloudBackup(base.DCManagerShow):
         return parser
 
     def _get_resources(self, parsed_args):
-
         subcloud_backup_manager = self.app.client_manager.subcloud_backup_manager
         data = {}
         files = {}
@@ -402,9 +401,7 @@ class RestoreSubcloudBackup(base.DCManagerShow):
             raise exceptions.DCManagerClientException(error_msg)
 
         if not parsed_args.with_install and parsed_args.release:
-            error_msg = (
-                "Option --release cannot be used without --with-install option."
-            )
+            error_msg = "Option --release cannot be used without --with-install option."
             raise exceptions.DCManagerClientException(error_msg)
 
         if parsed_args.with_install:

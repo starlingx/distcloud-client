@@ -11,7 +11,6 @@ from dcmanagerclient.tests.v1 import utils
 
 
 class TestSwDeployStrategy(UpdateStrategyMixin, base.BaseCommandTest):
-
     def setUp(self):
         super().setUp()
 
@@ -43,9 +42,7 @@ class TestSwDeployStrategy(UpdateStrategyMixin, base.BaseCommandTest):
 
         # invoke the backend method for the CLI.
         # Returns a tuple of field descriptions, and a second tuple of values
-        fields, results = self.call(
-            self.create_command, ["stx-24.09.1"]
-        )
+        fields, results = self.call(self.create_command, ["stx-24.09.1"])
 
         # results is a tuple of expected length
         self.assertEqual(len(results), self.results_length)

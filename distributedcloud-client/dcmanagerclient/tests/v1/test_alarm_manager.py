@@ -28,7 +28,6 @@ ALARM_SUMMARY = AlarmSummary(
 
 
 class TestCLIAlarmSummaryV1(base.BaseCommandTest):
-
     def setUp(self):
         super().setUp()
         # The client is the alarm_manager

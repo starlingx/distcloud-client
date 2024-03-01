@@ -90,9 +90,7 @@ def prompt_for_password(password_type="sysadmin", item_type="subcloud"):
                 print("Password cannot be empty")
                 continue
 
-            confirm = getpass.getpass(
-                f"Re-enter {password_type} password to confirm: "
-            )
+            confirm = getpass.getpass(f"Re-enter {password_type} password to confirm: ")
             if password != confirm:
                 print("Passwords did not match")
                 continue
@@ -170,7 +168,6 @@ def subcloud_detail_format(subcloud=None):
 
 
 def set_sysadmin_password(parsed_args, data):
-
     if parsed_args.sysadmin_password:
         data["sysadmin_password"] = base64.b64encode(
             parsed_args.sysadmin_password.encode("utf-8")

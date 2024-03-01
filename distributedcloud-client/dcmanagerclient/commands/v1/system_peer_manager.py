@@ -162,16 +162,14 @@ class AddSystemPeer(base.DCManagerShowOne):
             "--heartbeat-interval",
             required=False,
             default=60,
-            help="Interval between heartbeat messages (in seconds) (default \
-                  60).",
+            help="Interval between heartbeat messages (in seconds) (default 60).",
         )
 
         parser.add_argument(
             "--heartbeat-failure-threshold",
             required=False,
             default=3,
-            help="Consecutive heartbeat failures before failure declared \
-                  (default 3).",
+            help="Consecutive heartbeat failures before failure declared (default 3).",
         )
 
         parser.add_argument(
@@ -186,8 +184,10 @@ class AddSystemPeer(base.DCManagerShowOne):
             "--heartbeat-maintenance-timeout",
             required=False,
             default=600,
-            help="Overall failure timeout during maintenance state (in \
-                  seconds) (default 600).",
+            help=(
+                "Overall failure timeout during maintenance state (in seconds) "
+                "(default 600)."
+            ),
         )
         return parser
 
@@ -272,8 +272,8 @@ class ListSystemPeerSubcloudPeerGroups(base.DCManagerLister):
         parser.add_argument(
             "peer",
             help=(
-                "Name or ID or UUID of system peer to list "
-                "associated subcloud peer groups."
+                "Name or ID or UUID of system peer to list associated subcloud peer "
+                "groups."
             ),
         )
         return parser
@@ -380,16 +380,13 @@ class UpdateSystemPeer(base.DCManagerShowOne):
         parser.add_argument(
             "--heartbeat-interval",
             required=False,
-            help=("Interval between heartbeat messages (in seconds) (default 60)."),
+            help="Interval between heartbeat messages (in seconds) (default 60).",
         )
 
         parser.add_argument(
             "--heartbeat-failure-threshold",
             required=False,
-            help=(
-                "Consecutive heartbeat failures before failure declared "
-                "(default 3)."
-            ),
+            help="Consecutive heartbeat failures before failure declared (default 3).",
         )
 
         parser.add_argument(

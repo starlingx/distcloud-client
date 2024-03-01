@@ -180,9 +180,7 @@ class CreateSwUpdateStrategy(base.DCManagerShowOne):
         """When specifying a group, other inputs are considered invalid"""
         if parsed_args.group:
             if parsed_args.cloud_name:
-                error_msg = (
-                    "The cloud_name and group options are mutually exclusive."
-                )
+                error_msg = "The cloud_name and group options are mutually exclusive."
                 raise exceptions.DCManagerClientException(error_msg)
             if parsed_args.subcloud_apply_type:
                 error_msg = (

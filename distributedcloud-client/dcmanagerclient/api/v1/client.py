@@ -26,17 +26,18 @@ from dcmanagerclient.api.v1.alarm_manager import AlarmManager
 from dcmanagerclient.api.v1.fw_update_manager import FwUpdateManager
 from dcmanagerclient.api.v1.kube_rootca_update_manager import KubeRootcaUpdateManager
 from dcmanagerclient.api.v1.kube_upgrade_manager import KubeUpgradeManager
-from dcmanagerclient.api.v1.peer_group_association_manager import \
-    PeerGroupAssociationManager
-from dcmanagerclient.api.v1.phased_subcloud_deploy_manager import \
-    PhasedSubcloudDeployManager
+from dcmanagerclient.api.v1.peer_group_association_manager import (
+    PeerGroupAssociationManager,
+)
+from dcmanagerclient.api.v1.phased_subcloud_deploy_manager import (
+    PhasedSubcloudDeployManager,
+)
 from dcmanagerclient.api.v1.strategy_step_manager import StrategyStepManager
 from dcmanagerclient.api.v1.subcloud_backup_manager import SubcloudBackupManager
 from dcmanagerclient.api.v1.subcloud_deploy_manager import SubcloudDeployManager
 from dcmanagerclient.api.v1.subcloud_group_manager import SubcloudGroupManager
 from dcmanagerclient.api.v1.subcloud_manager import SubcloudManager
-from dcmanagerclient.api.v1.subcloud_peer_group_manager import \
-    SubcloudPeerGroupManager
+from dcmanagerclient.api.v1.subcloud_peer_group_manager import SubcloudPeerGroupManager
 from dcmanagerclient.api.v1.sw_deploy_manager import SwDeployManager
 from dcmanagerclient.api.v1.sw_patch_manager import SwPatchManager
 from dcmanagerclient.api.v1.sw_prestage_manager import SwPrestageManager

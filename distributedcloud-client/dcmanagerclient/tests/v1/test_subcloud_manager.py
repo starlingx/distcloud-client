@@ -27,7 +27,6 @@ from dcmanagerclient.tests import base
 
 
 class TestCLISubcloudManagerV1(base.BaseCommandTest):
-
     def setUp(self):
         super().setUp()
         self.subcloud_resource = copy.copy(base.SUBCLOUD_RESOURCE)
@@ -159,12 +158,8 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
                     base.SOFTWARE_VERSION,
                 ],
             )
-        self.assertEqual(
-            base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID, actual_call1[1]
-        )
-        self.assertEqual(
-            base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID, actual_call2[1]
-        )
+        self.assertEqual(base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID, actual_call1[1])
+        self.assertEqual(base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID, actual_call2[1])
 
     @mock.patch("getpass.getpass", return_value="testpassword")
     def test_add_migrate_subcloud(self, _mock_getpass):
@@ -281,16 +276,14 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
                     "--bootstrap-values",
                     file_path,
                     "--enroll",
-                    "--migrate"
-                ]
+                    "--migrate",
+                ],
             )
 
     def test_rename_subcloud(self):
         subcloud_renamed = copy.copy(base.SUBCLOUD_RESOURCE_WITH_PEERID)
         subcloud_renamed.name = base.NAME_SC2
-        self.client.subcloud_manager.update_subcloud.return_value = [
-            subcloud_renamed
-        ]
+        self.client.subcloud_manager.update_subcloud.return_value = [subcloud_renamed]
 
         # Rename by id
         actual_call1 = self.call(
@@ -407,7 +400,6 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
         ) as config_file, tempfile.NamedTemporaryFile(
             mode="w"
         ) as install_file:
-
             bootstrap_file_path = os.path.abspath(bootstrap_file.name)
             config_file_path = os.path.abspath(config_file.name)
             install_file_path = os.path.abspath(install_file.name)
@@ -439,9 +431,7 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
 
     @mock.patch("getpass.getpass", return_value="testpassword")
     @mock.patch("six.moves.input", return_value="redeploy")
-    def test_redeploy_bootstrap_files_does_not_exists(
-        self, _mock_input, _mock_getpass
-    ):
+    def test_redeploy_bootstrap_files_does_not_exists(self, _mock_input, _mock_getpass):
         self.client.subcloud_manager.redeploy_subcloud.return_value = [
             self.subcloud_resource
         ]

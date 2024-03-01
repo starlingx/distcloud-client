@@ -10,7 +10,6 @@ from dcmanagerclient.tests.v1.mixins import UpdateStrategyMixin
 
 
 class TestSwUpgradeStrategy(UpdateStrategyMixin, base.BaseCommandTest):
-
     def setUp(self):
         super().setUp()
         self.sw_update_manager = self.app.client_manager.sw_upgrade_manager

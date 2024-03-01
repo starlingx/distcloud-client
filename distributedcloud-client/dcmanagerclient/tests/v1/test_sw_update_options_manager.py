@@ -47,7 +47,6 @@ UPDATED_SW_UPDATE_OPTION = SwUpdateOptions(
 
 
 class TestCLISWUpdateOptionsManagerV1(base.BaseCommandTest):
-
     def setUp(self):
         super().setUp()
         # The client is the subcloud_group_manager
@@ -115,9 +114,7 @@ class TestCLISWUpdateOptionsManagerV1(base.BaseCommandTest):
         )
 
     def test_update_sw_update_options(self):
-        self.client.sw_update_options_update.return_value = [
-            UPDATED_SW_UPDATE_OPTION
-        ]
+        self.client.sw_update_options_update.return_value = [UPDATED_SW_UPDATE_OPTION]
         actual_call = self.call(
             sw_update_options_cmd.UpdateSwUpdateOptions,
             app_args=[

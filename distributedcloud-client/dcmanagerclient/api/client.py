@@ -1,5 +1,5 @@
 # Copyright 2016 - Ericsson AB
-# Copyright (c) 2017, 2019, 2021 Wind River Systems, Inc.
+# Copyright (c) 2017, 2019, 2021, 2024 Wind River Systems, Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -19,14 +19,28 @@ import six
 from dcmanagerclient.api.v1 import client as client_v1
 
 
-def client(dcmanager_url=None, username=None, api_key=None,
-           project_name=None, auth_url=None, project_id=None,
-           endpoint_type='publicURL', service_type='dcmanager',
-           auth_token=None, user_id=None, cacert=None, insecure=False,
-           profile=None, auth_type='keystone', client_id=None,
-           client_secret=None, session=None, **kwargs):
+def client(
+    dcmanager_url=None,
+    username=None,
+    api_key=None,
+    project_name=None,
+    auth_url=None,
+    project_id=None,
+    endpoint_type="publicURL",
+    service_type="dcmanager",
+    auth_token=None,
+    user_id=None,
+    cacert=None,
+    insecure=False,
+    profile=None,
+    auth_type="keystone",
+    client_id=None,
+    client_secret=None,
+    session=None,
+    **kwargs
+):
     if dcmanager_url and not isinstance(dcmanager_url, six.string_types):
-        raise RuntimeError('DC Manager url should be a string.')
+        raise RuntimeError("DC Manager url should be a string.")
 
     return client_v1.Client(
         dcmanager_url=dcmanager_url,

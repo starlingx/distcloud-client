@@ -48,9 +48,7 @@ class BaseClientTests(testtools.TestCase):
         project_id = keystone_session_instance.get_project_id.return_value = str(
             uuid.uuid4()
         )
-        user_id = keystone_session_instance.get_user_id.return_value = str(
-            uuid.uuid4()
-        )
+        user_id = keystone_session_instance.get_user_id.return_value = str(uuid.uuid4())
         keystone_session_instance.get_endpoint.return_value = DCMANAGER_HTTP_URL
 
         expected_args = (DCMANAGER_HTTP_URL, token, project_id, user_id)
@@ -78,9 +76,7 @@ class BaseClientTests(testtools.TestCase):
         project_id = keystone_session_instance.get_project_id.return_value = str(
             uuid.uuid4()
         )
-        user_id = keystone_session_instance.get_user_id.return_value = str(
-            uuid.uuid4()
-        )
+        user_id = keystone_session_instance.get_user_id.return_value = str(uuid.uuid4())
         keystone_session_instance.get_endpoint.return_value = DCMANAGER_HTTP_URL
 
         expected_args = (DCMANAGER_HTTPS_URL, token, project_id, user_id)
@@ -104,18 +100,14 @@ class BaseClientTests(testtools.TestCase):
 
     @mock.patch("keystoneauth1.session.Session")
     @mock.patch("dcmanagerclient.api.httpclient.HTTPClient")
-    def test_dcmanager_url_https_secure(
-        self, mock_client, mock_keystone_auth_session
-    ):
+    def test_dcmanager_url_https_secure(self, mock_client, mock_keystone_auth_session):
         fd, path = tempfile.mkstemp(suffix=".pem")
         keystone_session_instance = mock_keystone_auth_session.return_value
         token = keystone_session_instance.get_token.return_value = str(uuid.uuid4())
         project_id = keystone_session_instance.get_project_id.return_value = str(
             uuid.uuid4()
         )
-        user_id = keystone_session_instance.get_user_id.return_value = str(
-            uuid.uuid4()
-        )
+        user_id = keystone_session_instance.get_user_id.return_value = str(uuid.uuid4())
         keystone_session_instance.get_endpoint.return_value = DCMANAGER_HTTPS_URL
 
         expected_args = (DCMANAGER_HTTPS_URL, token, project_id, user_id)
@@ -182,17 +174,13 @@ class BaseClientTests(testtools.TestCase):
 
     @mock.patch("keystoneauth1.session.Session")
     @mock.patch("dcmanagerclient.api.httpclient.HTTPClient")
-    def test_dcmanager_profile_enabled(
-        self, mock_client, mock_keystone_auth_session
-    ):
+    def test_dcmanager_profile_enabled(self, mock_client, mock_keystone_auth_session):
         keystone_session_instance = mock_keystone_auth_session.return_value
         token = keystone_session_instance.get_token.return_value = str(uuid.uuid4())
         project_id = keystone_session_instance.get_project_id.return_value = str(
             uuid.uuid4()
         )
-        user_id = keystone_session_instance.get_user_id.return_value = str(
-            uuid.uuid4()
-        )
+        user_id = keystone_session_instance.get_user_id.return_value = str(uuid.uuid4())
         keystone_session_instance.get_endpoint.return_value = DCMANAGER_HTTP_URL
 
         expected_args = (DCMANAGER_HTTP_URL, token, project_id, user_id)

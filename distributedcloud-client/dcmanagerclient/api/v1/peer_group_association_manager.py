@@ -47,9 +47,7 @@ class PeerGroupAssociationManager(base.ResourceManager):
 
     def _json_to_resource(self, json_object):
         sync_message = (
-            None
-            if "sync-message" not in json_object
-            else json_object["sync-message"]
+            None if "sync-message" not in json_object else json_object["sync-message"]
         )
         return self.resource_class(
             self,

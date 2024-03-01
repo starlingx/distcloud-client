@@ -68,34 +68,32 @@ class SubcloudDeployUpload(base.DCManagerShowOne):
         parser.add_argument(
             "--deploy-playbook",
             required=False,
-            help="An ansible playbook to be run after the subcloud "
-            "has been successfully bootstrapped. It will be run with the "
-            "subcloud as the target and authentication is "
-            "handled automatically. "
-            "Must be a local file path",
+            help=(
+                "An ansible playbook to be run after the subcloud has been "
+                "successfully bootstrapped. It will be run with the subcloud as the "
+                "target and authentication is handled automatically. Must be a local "
+                "file path."
+            ),
         )
 
         parser.add_argument(
             "--deploy-overrides",
             required=False,
             help="YAML file containing subcloud variables to be passed to the "
-            "deploy playbook."
-            "Must be a local file path",
+            "deploy playbook. Must be a local file path",
         )
 
         parser.add_argument(
             "--deploy-chart",
             required=False,
             help="Deployment Manager helm chart to be passed to the "
-            "deploy playbook."
-            "Must be a local file path",
+            "deploy playbook. Must be a local file path",
         )
 
         parser.add_argument(
             "--prestage-images",
             required=False,
-            help="Container image list to be passed to "
-            "prestage_images playbook. "
+            help="Container image list to be passed to prestage_images playbook. "
             "Must be a local file path",
         )
 
@@ -164,14 +162,13 @@ class SubcloudDeployShow(base.DCManagerShowOne):
 
 
 class DeprecatedSubcloudDeployShow(SubcloudDeployShow):
-    DEPRECATION_MESSAGE = ("This command has been deprecated. Please use "
-                           "subcloud deploy show instead.")
+    DEPRECATION_MESSAGE = (
+        "This command has been deprecated. Please use subcloud deploy show instead."
+    )
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
-        parser.add_argument_group(
-            title="Notice", description=self.DEPRECATION_MESSAGE
-        )
+        parser.add_argument_group(title="Notice", description=self.DEPRECATION_MESSAGE)
         return parser
 
     def _get_resources(self, _):
@@ -179,14 +176,13 @@ class DeprecatedSubcloudDeployShow(SubcloudDeployShow):
 
 
 class DeprecatedSubcloudDeployUpload(SubcloudDeployUpload):
-    DEPRECATION_MESSAGE = ("This command has been deprecated. Please use "
-                           "subcloud deploy upload instead.")
+    DEPRECATION_MESSAGE = (
+        "This command has been deprecated. Please use subcloud deploy upload instead."
+    )
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
-        parser.add_argument_group(
-            title="Notice", description=self.DEPRECATION_MESSAGE
-        )
+        parser.add_argument_group(title="Notice", description=self.DEPRECATION_MESSAGE)
         return parser
 
     def _get_resources(self, _):

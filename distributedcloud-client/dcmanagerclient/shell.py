@@ -23,7 +23,8 @@ import logging
 import os
 import sys
 
-from cliff import app, commandmanager
+from cliff import app
+from cliff import commandmanager
 from cliff import help as cliff_help
 from osc_lib.command import command
 
@@ -146,7 +147,6 @@ class BashCompletionCommand(command.Command):
 
 
 class DCManagerShell(app.App):
-
     def __init__(self):
         super().__init__(
             description=__doc__.strip(),

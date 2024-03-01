@@ -77,9 +77,7 @@ class TestCLIPeerGroupAssociationV1(base.BaseCommandTest):
         self.client = self.app.client_manager.peer_group_association_manager
 
     def test_list_peer_group_association(self):
-        self.client.list_peer_group_associations.return_value = [
-            PEER_GROUP_ASSOCIATION
-        ]
+        self.client.list_peer_group_associations.return_value = [PEER_GROUP_ASSOCIATION]
         actual_call = self.call(peer_group_association_cmd.ListPeerGroupAssociation)
         self.assertEqual([PEER_GROUP_ASSOCIATION_TUPLE], actual_call[1])
 
@@ -92,9 +90,7 @@ class TestCLIPeerGroupAssociationV1(base.BaseCommandTest):
         )
 
     def test_add_peer_group_association(self):
-        self.client.add_peer_group_association.return_value = [
-            PEER_GROUP_ASSOCIATION
-        ]
+        self.client.add_peer_group_association.return_value = [PEER_GROUP_ASSOCIATION]
         actual_call = self.call(
             peer_group_association_cmd.AddPeerGroupAssociation,
             app_args=[
@@ -159,9 +155,7 @@ class TestCLIPeerGroupAssociationV1(base.BaseCommandTest):
 
     def test_update_peer_group_association(self):
         updated_peed_group_association = copy.copy(PEER_GROUP_ASSOCIATION)
-        updated_peed_group_association.peer_group_priority = (
-            PG_GROUP_PRIORITY_UPDATED
-        )
+        updated_peed_group_association.peer_group_priority = PG_GROUP_PRIORITY_UPDATED
         self.client.update_peer_group_association.return_value = [
             updated_peed_group_association
         ]
@@ -187,9 +181,7 @@ class TestCLIPeerGroupAssociationV1(base.BaseCommandTest):
         )
 
     def test_sync_peer_group_association(self):
-        self.client.sync_peer_group_association.return_value = [
-            PEER_GROUP_ASSOCIATION
-        ]
+        self.client.sync_peer_group_association.return_value = [PEER_GROUP_ASSOCIATION]
         actual_call = self.call(
             peer_group_association_cmd.SyncPeerGroupAssociation,
             app_args=[PEER_GROUP_ASSOCIATION_ID],

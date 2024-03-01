@@ -23,13 +23,11 @@ OVERRIDE_VALUES = """---
 
 
 class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
-
     def setUp(self):
         super().setUp()
         self.client = self.app.client_manager.subcloud_backup_manager
 
     def test_backup_create_subcloud(self):
-
         self.client.backup_subcloud_create.return_value = [base.SUBCLOUD_RESOURCE]
 
         backup_path = os.path.normpath(os.path.join(os.getcwd(), "test.yaml"))
@@ -52,7 +50,6 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
         self.assertEqual(base.SUBCLOUD_FIELD_RESULT_LIST, actual_call[1])
 
     def test_backup_create_group(self):
-
         self.client.backup_subcloud_create.return_value = [base.SUBCLOUD_RESOURCE]
 
         backup_path = os.path.normpath(os.path.join(os.getcwd(), "test.yaml"))
@@ -97,8 +94,8 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
         )
         self.assertTrue(
             (
-                "The command only applies to a single subcloud or a"
-                " subcloud group, not both."
+                "The command only applies to a single subcloud or a subcloud group, "
+                "not both."
             )
             in str(e)
         )
@@ -124,8 +121,7 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
         )
 
         self.assertTrue(
-            ("Please provide the subcloud or subcloud group name" " or id.")
-            in str(e)
+            ("Please provide the subcloud or subcloud group name or id.") in str(e)
         )
 
     def test_backup_create_backup_value_not_a_file(self):
@@ -150,7 +146,6 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
 
     @mock.patch("getpass.getpass", return_value="testpassword")
     def test_backup_create_prompt_ask_for_password(self, _mock_getpass):
-
         self.client.backup_subcloud_create.return_value = [base.SUBCLOUD_RESOURCE]
 
         backup_path = os.path.normpath(os.path.join(os.getcwd(), "test.yaml"))
@@ -170,7 +165,6 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
         self.assertEqual([base.SUBCLOUD_FIELD_RESULT_LIST], actual_call[1])
 
     def test_backup_create_local_only_registry_images(self):
-
         self.client.subcloud_backup_manager.backup_subcloud_create.return_value = []
 
         e = self.assertRaises(
@@ -189,10 +183,7 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
         )
 
         self.assertTrue(
-            (
-                "Option --registry-images can not be used without "
-                "--local-only option."
-            )
+            ("Option --registry-images can not be used without --local-only option.")
             in str(e)
         )
 
@@ -212,8 +203,7 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
         )
 
         self.assertTrue(
-            ("Please provide the subcloud or subcloud group" " name or id.")
-            in str(e)
+            ("Please provide the subcloud or subcloud group name or id.") in str(e)
         )
 
     def test_backup_delete_group_subcloud(self):
@@ -237,14 +227,13 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
 
         self.assertTrue(
             (
-                "This command only applies to a single subcloud "
-                "or a subcloud group, not both."
+                "This command only applies to a single subcloud or a subcloud group, "
+                "not both."
             )
             in str(e)
         )
 
     def test_backup_delete_group(self):
-
         group_name = "test_group_1"
         release_version = "release_version_2"
         password = "testpassword"
@@ -273,7 +262,6 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
         )
 
     def test_backup_delete_subcloud(self):
-
         subcloud_name = "subcloud1"
         release_version = "release_version_2"
         password = "testpassword"
@@ -302,7 +290,6 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
         )
 
     def test_backup_delete_no_local_only(self):
-
         group_name = "test_group_1"
         release_version = "release_version_2"
         password = "testpassword"
@@ -331,7 +318,6 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
 
     @mock.patch("getpass.getpass", return_value="testpassword")
     def test_backup_delete_prompt_ask_for_password(self, _mock_getpass):
-
         group_name = "test_group_1"
         release_version = "release_version_2"
         password = "testpassword"
@@ -353,7 +339,6 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
         )
 
     def test_backup_delete_subcloud_no_release_version(self):
-
         subcloud_name = "subcloud1"
         password = "testpassword"
 
@@ -373,7 +358,6 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
         )
 
     def test_backup_restore(self):
-
         self.client.backup_subcloud_restore.return_value = [base.SUBCLOUD_RESOURCE]
 
         backup_path = os.path.normpath(os.path.join(os.getcwd(), "test.yaml"))
@@ -397,7 +381,6 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
         self.assertEqual(base.SUBCLOUD_FIELD_RESULT_LIST, actual_call[1])
 
     def test_backup_restore_no_restore_values(self):
-
         self.client.backup_subcloud_restore.return_value = [base.SUBCLOUD_RESOURCE]
 
         actual_call = self.call(
@@ -414,7 +397,6 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
         self.assertEqual(base.SUBCLOUD_FIELD_RESULT_LIST, actual_call[1])
 
     def test_backup_restore_with_group(self):
-
         self.client.backup_subcloud_restore.return_value = [base.SUBCLOUD_RESOURCE]
 
         backup_path = os.path.normpath(os.path.join(os.getcwd(), "test.yaml"))
@@ -461,8 +443,8 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
         )
         self.assertTrue(
             (
-                "The command only applies to a single subcloud or a"
-                " subcloud group, not both."
+                "The command only applies to a single subcloud or a subcloud group, "
+                "not both."
             )
             in str(e)
         )
@@ -489,8 +471,7 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
         )
 
         self.assertTrue(
-            ("Please provide the subcloud or subcloud group name" " or id.")
-            in str(e)
+            ("Please provide the subcloud or subcloud group name or id.") in str(e)
         )
 
     def test_backup_restore_backup_value_not_a_file(self):
@@ -515,7 +496,6 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
 
     @mock.patch("getpass.getpass", return_value="testpassword")
     def test_backup_restore_prompt_ask_for_password(self, _mock_getpass):
-
         self.client.backup_subcloud_restore.return_value = [base.SUBCLOUD_RESOURCE]
 
         backup_path = os.path.normpath(os.path.join(os.getcwd(), "test.yaml"))
@@ -536,7 +516,6 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
         self.assertEqual([base.SUBCLOUD_FIELD_RESULT_LIST], actual_call[1])
 
     def test_backup_restore_local_only_registry_images(self):
-
         e = self.assertRaises(
             DCManagerClientException,
             self.call,
@@ -553,10 +532,7 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
         )
 
         self.assertTrue(
-            (
-                "Option --registry-images cannot be used without "
-                "--local-only option."
-            )
+            ("Option --registry-images cannot be used without --local-only option.")
             in str(e)
         )
 
@@ -636,6 +612,5 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
         )
 
         self.assertTrue(
-            ("Option --release cannot be used without " "--with-install option.")
-            in str(e)
+            ("Option --release cannot be used without --with-install option.") in str(e)
         )

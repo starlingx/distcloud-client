@@ -25,7 +25,6 @@ from dcmanagerclient import shell
 
 
 class BaseShellTests(testtools.TestCase):
-
     def shell(self, argstr):
         orig = (sys.stdout, sys.stderr)
         clean_env = {}

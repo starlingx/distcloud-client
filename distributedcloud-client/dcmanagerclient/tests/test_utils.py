@@ -27,7 +27,6 @@ ENV_YAML = yaml.safe_dump(ENV_DICT, default_flow_style=False)
 
 
 class UtilityTest(testtools.TestCase):
-
     def test_load_empty(self):
         self.assertDictEqual({}, utils.load_content(None))
         self.assertDictEqual({}, utils.load_content(""))

@@ -19,7 +19,6 @@ from dcmanagerclient.tests import base_shell_test as base
 
 
 class TestShell(base.BaseShellTests):
-
     @mock.patch("dcmanagerclient.api.client.determine_client_version")
     def test_dcmanager_version(self, mock_client_version):
         self.shell("--os-dcmanager-version=v1 quota-defaults")
