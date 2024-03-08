@@ -57,6 +57,7 @@ class Subcloud(Resource):
         "prestage-status": "prestage_status",
         "prestage-versions": "prestage_versions",
         "region-name": "region_name",
+        "info_message": "info_message"
     }
 
     def __init__(
@@ -89,6 +90,7 @@ class Subcloud(Resource):
         region_name=None,
         prestage_status=None,
         prestage_versions=None,
+        info_message=None
     ):
         if endpoint_sync_status is None:
             endpoint_sync_status = {}
@@ -122,6 +124,7 @@ class Subcloud(Resource):
         self.region_name = region_name
         self.prestage_status = prestage_status
         self.prestage_versions = prestage_versions
+        self.info_message = info_message
 
     @classmethod
     def from_payload(cls, manager, payload):
