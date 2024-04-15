@@ -147,13 +147,7 @@ class PhasedSubcloudDeployResume(base.DCManagerShowOne):
             files["deploy_config"] = parsed_args.deploy_config
 
         # Prompt the user for the subcloud's password if it isn't provided
-        if parsed_args.sysadmin_password:
-            data["sysadmin_password"] = base64.b64encode(
-                parsed_args.sysadmin_password.encode("utf-8")
-            )
-        else:
-            password = utils.prompt_for_password()
-            data["sysadmin_password"] = base64.b64encode(password.encode("utf-8"))
+        utils.set_sysadmin_password(parsed_args, data)
 
         if parsed_args.install_values:
             if parsed_args.bmc_password:
@@ -336,13 +330,7 @@ class InstallPhasedSubcloudDeploy(base.DCManagerShowOne):
         data = {}
 
         # Prompt the user for the subcloud's password if it isn't provided
-        if parsed_args.sysadmin_password is not None:
-            data["sysadmin_password"] = base64.b64encode(
-                parsed_args.sysadmin_password.encode("utf-8")
-            )
-        else:
-            password = utils.prompt_for_password()
-            data["sysadmin_password"] = base64.b64encode(password.encode("utf-8"))
+        utils.set_sysadmin_password(parsed_args, data)
 
         if parsed_args.install_values is not None:
             if not os.path.isfile(parsed_args.install_values):
@@ -428,13 +416,7 @@ class BootstrapPhasedSubcloudDeploy(base.DCManagerShowOne):
             files["bootstrap_values"] = parsed_args.bootstrap_values
 
         # Prompt the user for the subcloud's password if it isn't provided
-        if parsed_args.sysadmin_password:
-            data["sysadmin_password"] = base64.b64encode(
-                parsed_args.sysadmin_password.encode("utf-8")
-            )
-        else:
-            password = utils.prompt_for_password()
-            data["sysadmin_password"] = base64.b64encode(password.encode("utf-8"))
+        utils.set_sysadmin_password(parsed_args, data)
 
         subcloud_ref = parsed_args.subcloud
 
@@ -488,13 +470,7 @@ class ConfigPhasedSubcloudDeploy(base.DCManagerShowOne):
             files["deploy_config"] = parsed_args.deploy_config
 
         # Prompt the user for the subcloud's password if it isn't provided
-        if parsed_args.sysadmin_password is not None:
-            data["sysadmin_password"] = base64.b64encode(
-                parsed_args.sysadmin_password.encode("utf-8")
-            )
-        else:
-            password = utils.prompt_for_password()
-            data["sysadmin_password"] = base64.b64encode(password.encode("utf-8"))
+        utils.set_sysadmin_password(parsed_args, data)
 
         try:
             return phased_subcloud_deploy_manager.subcloud_deploy_config(
@@ -537,3 +513,106 @@ class CompletePhasedSubcloudDeploy(base.DCManagerShowOne):
                 f"Unable to complete the deployment of subcloud {subcloud_ref}"
             )
             raise exceptions.DCManagerClientException(error_msg)
+
+
+class EnrollPhasedSubcloudDeploy(base.DCManagerShowOne):
+    """Enrolls a subcloud."""
+
+    def _get_format_function(self):
+        return utils.subcloud_detail_format
+
+    def get_parser(self, prog_name):
+        parser = super().get_parser(prog_name)
+
+        parser.add_argument(
+            "subcloud", help="Name or ID of the subcloud to enroll."
+        )
+
+        parser.add_argument(
+            "--install-values",
+            required=False,
+            help="YAML file containing parameters required for the "
+                 "enrollment of the subcloud.",
+        )
+
+        parser.add_argument(
+            "--deploy-config",
+            required=False,
+            help="YAML file containing parameters required for the initial "
+                 "configuration and unlock of the subcloud.",
+        )
+
+        parser.add_argument(
+            "--bootstrap-address",
+            required=False,
+            help="IP address for initial subcloud controller.",
+        )
+
+        parser.add_argument(
+            "--bootstrap-values",
+            required=False,
+            help="YAML file containing the parameters required for the "
+                 "subcloud enrollment.",
+        )
+
+        parser.add_argument(
+            "--sysadmin-password",
+            required=False,
+            help="sysadmin password of the subcloud to be configured, "
+            "if not provided you will be prompted.",
+        )
+
+        parser.add_argument(
+            "--bmc-password",
+            required=False,
+            help="bmc password of the subcloud to be configured, "
+            "if not provided you will be prompted. This parameter is only"
+            " valid if the --install-values are specified.",
+        )
+
+        return parser
+
+    def _get_resources(self, parsed_args):
+        phased_subcloud_deploy_manager = (
+            self.app.client_manager.phased_subcloud_deploy_manager
+        )
+        files = {}
+        data = {}
+
+        if parsed_args.bootstrap_address:
+            data["bootstrap-address"] = parsed_args.bootstrap_address
+
+        # Get the bootstrap values yaml file
+        if parsed_args.bootstrap_values:
+            if not os.path.isfile(parsed_args.bootstrap_values):
+                error_msg = (
+                    "bootstrap-values does not exist: "
+                    f"{parsed_args.bootstrap_values}"
+                )
+                raise exceptions.DCManagerClientException(error_msg)
+            files["bootstrap_values"] = parsed_args.bootstrap_values
+
+        if parsed_args.install_values:
+            if not os.path.isfile(parsed_args.install_values):
+                error_msg = (
+                    f"install-values does not exist: {parsed_args.install_values}"
+                )
+                raise exceptions.DCManagerClientException(error_msg)
+            files["install_values"] = parsed_args.install_values
+
+        if parsed_args.install_values:
+            if parsed_args.bmc_password:
+                data["bmc_password"] = base64.b64encode(
+                    parsed_args.bmc_password.encode("utf-8")
+                )
+            else:
+                password = utils.prompt_for_password("bmc")
+                data["bmc_password"] = base64.b64encode(password.encode("utf-8"))
+
+        utils.set_sysadmin_password(parsed_args, data)
+
+        subcloud_ref = parsed_args.subcloud
+
+        return phased_subcloud_deploy_manager.subcloud_deploy_enroll(
+            subcloud_ref, files=files, data=data
+        )
