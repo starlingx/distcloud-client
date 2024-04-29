@@ -750,29 +750,41 @@ class UpdateSubcloud(base.DCManagerShowOne):
 class ReconfigSubcloud(base.DCManagerShowOne):
     """Reconfigure a subcloud."""
 
-    def _get_format_function(self):
-        return detail_format
-
-    def _get_resources(self, parsed_args):
+    def _raise_deprecation_message(self):
         deprecation_msg = (
             "This command has been deprecated. Please use "
             "'subcloud deploy config' instead."
         )
         raise exceptions.DCManagerClientException(deprecation_msg)
 
+    def _get_format_function(self):
+        return detail_format
+
+    def get_parser(self, _):
+        self._raise_deprecation_message()
+
+    def _get_resources(self, _):
+        self._raise_deprecation_message()
+
 
 class ReinstallSubcloud(base.DCManagerShowOne):
     """Reinstall a subcloud."""
 
-    def _get_format_function(self):
-        return detail_format
-
-    def _get_resources(self, parsed_args):
+    def _raise_deprecation_message(self):
         deprecation_msg = (
             "This command has been deprecated. Please use "
             "'subcloud redeploy' instead."
         )
         raise exceptions.DCManagerClientException(deprecation_msg)
+
+    def _get_format_function(self):
+        return detail_format
+
+    def get_parser(self, _):
+        self._raise_deprecation_message()
+
+    def _get_resources(self, _):
+        self._raise_deprecation_message()
 
 
 class RedeploySubcloud(base.DCManagerShowOne):
@@ -913,44 +925,21 @@ class RedeploySubcloud(base.DCManagerShowOne):
 class RestoreSubcloud(base.DCManagerShowOne):
     """Restore a subcloud."""
 
-    def _get_format_function(self):
-        return detail_format
-
-    def get_parser(self, prog_name):
-        parser = super().get_parser(prog_name)
-
-        parser.add_argument(
-            "--restore-values",
-            required=False,
-            help="YAML file containing subcloud restore settings. "
-            "Can be either a local file path or a URL.",
-        )
-
-        parser.add_argument(
-            "--sysadmin-password",
-            required=False,
-            help="sysadmin password of the subcloud to be restored, "
-            "if not provided you will be prompted.",
-        )
-
-        parser.add_argument(
-            "--with-install",
-            required=False,
-            action="store_true",
-            help="option to reinstall the subcloud as part of restore, "
-            "suitable only for subclouds that can be installed remotely.",
-        )
-
-        parser.add_argument("subcloud", help="Name or ID of the subcloud to update.")
-
-        return parser
-
-    def _get_resources(self, parsed_args):
+    def _raise_deprecation_message(self):
         deprecation_msg = (
             "This command has been deprecated. Please use "
             "subcloud-backup restore instead."
         )
         raise exceptions.DCManagerClientException(deprecation_msg)
+
+    def _get_format_function(self):
+        return detail_format
+
+    def get_parser(self, _):
+        self._raise_deprecation_message()
+
+    def _get_resources(self, _):
+        self._raise_deprecation_message()
 
 
 class PrestageSubcloud(base.DCManagerShowOne):

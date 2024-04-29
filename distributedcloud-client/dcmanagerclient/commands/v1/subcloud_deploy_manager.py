@@ -164,21 +164,33 @@ class SubcloudDeployShow(base.DCManagerShowOne):
 
 
 class DeprecatedSubcloudDeployShow(SubcloudDeployShow):
-    def _get_resources(self, parsed_args):
+    def _raise_deprecation_message(self):
         deprecation_msg = (
             "This command has been deprecated. Please use "
             "subcloud deploy show instead."
         )
         raise exceptions.DCManagerClientException(deprecation_msg)
 
+    def get_parser(self, _):
+        self._raise_deprecation_message()
+
+    def _get_resources(self, _):
+        self._raise_deprecation_message()
+
 
 class DeprecatedSubcloudDeployUpload(SubcloudDeployUpload):
-    def _get_resources(self, parsed_args):
+    def _raise_deprecation_message(self):
         deprecation_msg = (
             "This command has been deprecated. Please use "
             "subcloud deploy upload instead."
         )
         raise exceptions.DCManagerClientException(deprecation_msg)
+
+    def get_parser(self, _):
+        self._raise_deprecation_message()
+
+    def _get_resources(self, _):
+        self._raise_deprecation_message()
 
 
 class SubcloudDeployDelete(command.Command):
