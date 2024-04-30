@@ -4,6 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+
 from dcmanagerclient.commands.v1 import sw_patch_manager as cli_cmd
 from dcmanagerclient.tests import base
 from dcmanagerclient.tests.v1 import utils
@@ -25,20 +26,22 @@ class TestPatchUpdateStrategy(UpdateStrategyMixin, base.BaseCommandTest):
         self.apply_command = cli_cmd.ApplyPatchUpdateStrategy
         self.abort_command = cli_cmd.AbortPatchUpdateStrategy
 
+        # prepare mixin attributes
+        self.manager_to_test = self.sw_update_manager
+        self.expected_strategy_type = self.manager_to_test.update_type
+
     def test_create_strategy_upload_only(self):
         """Test that a strategy can be created with the --upload-only option"""
 
-        # prepare mixin attributes
-        manager_to_test = self.sw_update_manager
-        expected_strategy_type = manager_to_test.update_type
-
         # mock the result of the API call
         strategy = utils.make_strategy(
-            strategy_type=expected_strategy_type, extra_args={"upload-only": True}
+            strategy_type=self.expected_strategy_type, extra_args={
+                "upload-only": True
+            }
         )
 
         # mock that there is no pre-existing strategy
-        manager_to_test.create_sw_update_strategy.return_value = strategy
+        self.manager_to_test.create_sw_update_strategy.return_value = strategy
 
         # invoke the backend method for the CLI.
         # Returns a tuple of field descriptions, and a second tuple of values
@@ -56,6 +59,24 @@ class TestPatchUpdateStrategy(UpdateStrategyMixin, base.BaseCommandTest):
         # - created_at
         # - updated_at
 
-        self.assertEqual(results[0], expected_strategy_type)
+        self.assertEqual(results[0], self.expected_strategy_type)
         self.assertEqual(fields[-4], "upload only")
         self.assertEqual(results[-4], True)
+
+    def test_create_strategy_patch_file(self):
+        """Test that a strategy can be created with the --patch option"""
+
+        # mock the result of the API call
+        strategy = utils.make_strategy(strategy_type=self.expected_strategy_type)
+
+        # mock that there is no pre-existing strategy
+        self.manager_to_test.create_sw_update_strategy.return_value = strategy
+
+        # invoke the backend method for the CLI.
+        # Returns a tuple of field descriptions, and a second tuple of values
+        # with self.assertRaises(argparse.ArgumentError):
+        _, results = self.call(self.create_command, ["--patch usm.patch"])
+
+        # results is a tuple of expected length
+        self.assertEqual(len(results), self.results_length)
+        self.assertEqual(results[0], self.expected_strategy_type)
