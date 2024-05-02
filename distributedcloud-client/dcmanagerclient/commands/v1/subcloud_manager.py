@@ -750,41 +750,41 @@ class UpdateSubcloud(base.DCManagerShowOne):
 class ReconfigSubcloud(base.DCManagerShowOne):
     """Reconfigure a subcloud."""
 
-    def _raise_deprecation_message(self):
-        deprecation_msg = (
-            "This command has been deprecated. Please use "
-            "'subcloud deploy config' instead."
-        )
-        raise exceptions.DCManagerClientException(deprecation_msg)
+    DEPRECATION_MESSAGE = ("This command has been deprecated. Please use "
+                           "'subcloud deploy config' instead.")
 
     def _get_format_function(self):
         return detail_format
 
-    def get_parser(self, _):
-        self._raise_deprecation_message()
+    def get_parser(self, prog_name):
+        parser = super().get_parser(prog_name)
+        parser.add_argument_group(
+            title="Notice", description=self.DEPRECATION_MESSAGE
+        )
+        return parser
 
-    def _get_resources(self, _):
-        self._raise_deprecation_message()
+    def _get_resources(self, parsed_args):
+        raise exceptions.DCManagerClientException(self.DEPRECATION_MESSAGE)
 
 
 class ReinstallSubcloud(base.DCManagerShowOne):
     """Reinstall a subcloud."""
 
-    def _raise_deprecation_message(self):
-        deprecation_msg = (
-            "This command has been deprecated. Please use "
-            "'subcloud redeploy' instead."
-        )
-        raise exceptions.DCManagerClientException(deprecation_msg)
+    DEPRECATION_MESSAGE = ("This command has been deprecated. Please use "
+                           "'subcloud redeploy' instead.")
 
     def _get_format_function(self):
         return detail_format
 
-    def get_parser(self, _):
-        self._raise_deprecation_message()
+    def get_parser(self, prog_name):
+        parser = super().get_parser(prog_name)
+        parser.add_argument_group(
+            title="Notice", description=self.DEPRECATION_MESSAGE
+        )
+        return parser
 
-    def _get_resources(self, _):
-        self._raise_deprecation_message()
+    def _get_resources(self, parsed_args):
+        raise exceptions.DCManagerClientException(self.DEPRECATION_MESSAGE)
 
 
 class RedeploySubcloud(base.DCManagerShowOne):
@@ -925,21 +925,21 @@ class RedeploySubcloud(base.DCManagerShowOne):
 class RestoreSubcloud(base.DCManagerShowOne):
     """Restore a subcloud."""
 
-    def _raise_deprecation_message(self):
-        deprecation_msg = (
-            "This command has been deprecated. Please use "
-            "subcloud-backup restore instead."
-        )
-        raise exceptions.DCManagerClientException(deprecation_msg)
+    DEPRECATION_MESSAGE = ("This command has been deprecated. Please use "
+                           "subcloud-backup restore instead.")
 
     def _get_format_function(self):
         return detail_format
 
-    def get_parser(self, _):
-        self._raise_deprecation_message()
+    def get_parser(self, prog_name):
+        parser = super().get_parser(prog_name)
+        parser.add_argument_group(
+            title="Notice", description=self.DEPRECATION_MESSAGE
+        )
+        return parser
 
-    def _get_resources(self, _):
-        self._raise_deprecation_message()
+    def _get_resources(self, parsed_args):
+        raise exceptions.DCManagerClientException(self.DEPRECATION_MESSAGE)
 
 
 class PrestageSubcloud(base.DCManagerShowOne):

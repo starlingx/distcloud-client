@@ -164,33 +164,33 @@ class SubcloudDeployShow(base.DCManagerShowOne):
 
 
 class DeprecatedSubcloudDeployShow(SubcloudDeployShow):
-    def _raise_deprecation_message(self):
-        deprecation_msg = (
-            "This command has been deprecated. Please use "
-            "subcloud deploy show instead."
-        )
-        raise exceptions.DCManagerClientException(deprecation_msg)
+    DEPRECATION_MESSAGE = ("This command has been deprecated. Please use "
+                           "subcloud deploy show instead.")
 
-    def get_parser(self, _):
-        self._raise_deprecation_message()
+    def get_parser(self, prog_name):
+        parser = super().get_parser(prog_name)
+        parser.add_argument_group(
+            title="Notice", description=self.DEPRECATION_MESSAGE
+        )
+        return parser
 
     def _get_resources(self, _):
-        self._raise_deprecation_message()
+        raise exceptions.DCManagerClientException(self.DEPRECATION_MESSAGE)
 
 
 class DeprecatedSubcloudDeployUpload(SubcloudDeployUpload):
-    def _raise_deprecation_message(self):
-        deprecation_msg = (
-            "This command has been deprecated. Please use "
-            "subcloud deploy upload instead."
-        )
-        raise exceptions.DCManagerClientException(deprecation_msg)
+    DEPRECATION_MESSAGE = ("This command has been deprecated. Please use "
+                           "subcloud deploy upload instead.")
 
-    def get_parser(self, _):
-        self._raise_deprecation_message()
+    def get_parser(self, prog_name):
+        parser = super().get_parser(prog_name)
+        parser.add_argument_group(
+            title="Notice", description=self.DEPRECATION_MESSAGE
+        )
+        return parser
 
     def _get_resources(self, _):
-        self._raise_deprecation_message()
+        raise exceptions.DCManagerClientException(self.DEPRECATION_MESSAGE)
 
 
 class SubcloudDeployDelete(command.Command):
