@@ -431,21 +431,17 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
 
     @mock.patch("getpass.getpass", return_value="testpassword")
     def test_restore_subcloud(self, _mock_getpass):
-        with tempfile.NamedTemporaryFile() as f:
-            file_path = os.path.abspath(f.name)
+        e = self.assertRaises(
+            DCManagerClientException,
+            self.call,
+            subcloud_cmd.RestoreSubcloud,
+        )
 
-            e = self.assertRaises(
-                DCManagerClientException,
-                self.call,
-                subcloud_cmd.RestoreSubcloud,
-                app_args=[base.ID, "--restore-values", file_path],
-            )
-
-            deprecation_msg = (
-                "This command has been deprecated. Please use "
-                "subcloud-backup restore instead."
-            )
-            self.assertTrue(deprecation_msg in str(e))
+        deprecation_msg = (
+            "This command has been deprecated. Please use "
+            "subcloud-backup restore instead."
+        )
+        self.assertTrue(deprecation_msg in str(e))
 
     def test_prestage_with_subcloud_id(self):
         self.client.subcloud_manager.prestage_subcloud.return_value = [
