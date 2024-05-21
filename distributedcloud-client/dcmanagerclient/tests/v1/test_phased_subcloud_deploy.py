@@ -271,3 +271,57 @@ class TestCLIPhasedSubcloudDeployManagerV1(base.BaseCommandTest):
             ],
         )
         self.assertEqual(base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID, actual_call[1])
+
+    def test_subcloud_deploy_enroll(self):
+        self.client.subcloud_deploy_enroll.return_value = [base.SUBCLOUD_RESOURCE]
+
+        with tempfile.NamedTemporaryFile(
+                mode="w"
+        ) as bootstrap_file, tempfile.NamedTemporaryFile(
+            mode="w"
+        ) as config_file, tempfile.NamedTemporaryFile(
+            mode="w"
+        ) as install_file:
+            bootstrap_file_path = os.path.abspath(bootstrap_file.name)
+            config_file_path = os.path.abspath(config_file.name)
+            install_file_path = os.path.abspath(install_file.name)
+
+            actual_call = self.call(
+                cmd.EnrollPhasedSubcloudDeploy,
+                app_args=[
+                    base.ID,
+                    "--bootstrap-address",
+                    base.BOOTSTRAP_ADDRESS,
+                    "--bootstrap-values",
+                    bootstrap_file_path,
+                    "--install-values",
+                    install_file_path,
+                    "--deploy-config",
+                    config_file_path
+                ],
+            )
+        self.assertEqual(base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID, actual_call[1])
+
+    def test_subcloud_deploy_enroll_only_required_params(self):
+        self.client.subcloud_deploy_enroll.return_value = [base.SUBCLOUD_RESOURCE]
+
+        actual_call = self.call(
+            cmd.EnrollPhasedSubcloudDeploy,
+            app_args=[
+                base.NAME
+            ],
+        )
+        self.assertEqual(base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID, actual_call[1])
+
+    def test_subcloud_deploy_enroll_invalid_bootstrap_file_path(self):
+        self.client.subcloud_deploy_enroll.return_value = [base.SUBCLOUD_RESOURCE]
+
+        self.assertRaises(
+            DCManagerClientException,
+            self.call, cmd.EnrollPhasedSubcloudDeploy,
+            app_args=[
+                base.ID,
+                "--bootstrap-values",
+                "missing_path"
+            ]
+        )

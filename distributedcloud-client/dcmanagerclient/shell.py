@@ -601,6 +601,7 @@ class DCManagerShell(app.App):
             "subcloud deploy delete": sdm.SubcloudDeployDelete,
             "subcloud deploy install": psdm.InstallPhasedSubcloudDeploy,
             "subcloud deploy resume": psdm.PhasedSubcloudDeployResume,
+            "subcloud deploy enroll": psdm.EnrollPhasedSubcloudDeploy,
             "subcloud deploy show": sdm.SubcloudDeployShow,
             "subcloud deploy upload": sdm.SubcloudDeployUpload,
             "subcloud errors": sm.ShowSubcloudError,

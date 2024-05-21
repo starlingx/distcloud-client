@@ -79,3 +79,9 @@ class PhasedSubcloudDeployManager(base.ResourceManager):
         files = kwargs.get("files")
         url = BASE_URL + f"{subcloud_ref}/resume"
         return self._deploy_operation(url, files, data, method="patch")
+
+    def subcloud_deploy_enroll(self, subcloud_ref, **kwargs):
+        data = kwargs.get("data")
+        files = kwargs.get("files")
+        url = BASE_URL + f"{subcloud_ref}/enroll"
+        return self._deploy_operation(url, files, data, method="patch")

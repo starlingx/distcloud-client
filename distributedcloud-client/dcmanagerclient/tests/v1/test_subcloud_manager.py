@@ -240,6 +240,51 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
         result_list[1] = base.NAME_SC2
         self.assertEqual(tuple(result_list), actual_call[1])
 
+    @mock.patch("getpass.getpass", return_value="testpassword")
+    def test_add_enroll_subcloud(self, _mock_getpass):
+        self.client.subcloud_manager.add_subcloud.return_value = [
+            self.subcloud_resource
+        ]
+
+        with tempfile.NamedTemporaryFile(mode="w") as f:
+            yaml.dump(base.FAKE_BOOTSTRAP_VALUES, f)
+            file_path = os.path.abspath(f.name)
+            actual_call = self.call(
+                subcloud_cmd.AddSubcloud,
+                app_args=[
+                    "--bootstrap-address",
+                    base.BOOTSTRAP_ADDRESS,
+                    "--bootstrap-values",
+                    file_path,
+                    "--enroll",
+                ],
+            )
+        self.assertEqual(base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID, actual_call[1])
+
+    @mock.patch("getpass.getpass", return_value="testpassword")
+    def test_subcloud_enroll_failure_invalid_parameter(self, _mock_getpass):
+        self.client.subcloud_manager.add_subcloud.return_value = [
+            self.subcloud_resource
+        ]
+
+        with tempfile.NamedTemporaryFile(mode="w") as f:
+            yaml.dump(base.FAKE_BOOTSTRAP_VALUES, f)
+            file_path = os.path.abspath(f.name)
+
+            self.assertRaises(
+                DCManagerClientException,
+                self.call,
+                subcloud_cmd.AddSubcloud,
+                app_args=[
+                    "--bootstrap-address",
+                    base.BOOTSTRAP_ADDRESS,
+                    "--bootstrap-values",
+                    file_path,
+                    "--enroll",
+                    "--migrate"
+                ]
+            )
+
     def test_rename_subcloud(self):
         subcloud_renamed = copy.copy(base.SUBCLOUD_RESOURCE_WITH_PEERID)
         subcloud_renamed.name = base.NAME_SC2

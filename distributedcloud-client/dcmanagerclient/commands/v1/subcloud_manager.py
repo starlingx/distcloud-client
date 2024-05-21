@@ -264,6 +264,13 @@ class AddSubcloud(base.DCManagerShowOne):
             "release of the system controller will be used.",
         )
 
+        parser.add_argument(
+            "--enroll",
+            required=False,
+            action="store_true",
+            help="Enroll a subcloud",
+        )
+
         return parser
 
     def _get_resources(self, parsed_args):
@@ -303,6 +310,10 @@ class AddSubcloud(base.DCManagerShowOne):
                 raise exceptions.DCManagerClientException(error_msg)
             files["deploy_config"] = parsed_args.deploy_config
 
+        if parsed_args.migrate and parsed_args.enroll:
+            error_msg = "cannot run migrate and enroll commands together"
+            raise exceptions.DCManagerClientException(error_msg)
+
         # Prompt the user for the subcloud's password if it isn't provided
         if parsed_args.sysadmin_password is not None:
             data["sysadmin_password"] = base64.b64encode(
@@ -327,6 +338,9 @@ class AddSubcloud(base.DCManagerShowOne):
         if parsed_args.migrate:
             data["migrate"] = "true"
 
+        if parsed_args.enroll:
+            data["enroll"] = "true"
+
         if parsed_args.release is not None:
             data["release"] = parsed_args.release
 
@@ -337,6 +351,10 @@ class AddSubcloud(base.DCManagerShowOne):
                 error_msg = "The --name option can only be used with \
                     --migrate option."
                 raise exceptions.DCManagerClientException(error_msg)
+
+        if parsed_args.release and parsed_args.enroll:
+            error_msg = "Enroll does not support backwards compatibility."
+            raise exceptions.DCManagerClientException(error_msg)
 
         result = subcloud_manager.add_subcloud(files=files, data=data)
         update_fields_values(result)

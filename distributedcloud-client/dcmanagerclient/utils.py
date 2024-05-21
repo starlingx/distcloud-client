@@ -19,6 +19,7 @@
 import getpass
 import json
 import os
+import base64
 from urllib import parse, request
 
 import yaml
@@ -166,3 +167,14 @@ def subcloud_detail_format(subcloud=None):
         data = (("<none>",) * len(columns),)
 
     return columns, data
+
+
+def set_sysadmin_password(parsed_args, data):
+
+    if parsed_args.sysadmin_password:
+        data["sysadmin_password"] = base64.b64encode(
+            parsed_args.sysadmin_password.encode("utf-8")
+        )
+    else:
+        password = prompt_for_password()
+        data["sysadmin_password"] = base64.b64encode(password.encode("utf-8"))
