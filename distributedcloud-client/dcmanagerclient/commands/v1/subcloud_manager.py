@@ -991,8 +991,31 @@ class PrestageSubcloud(base.DCManagerShowOne):
             "--release",
             required=False,
             help="software release used to prestage the subcloud with. "
+            "Format: YY.MM or YY.MM.nn. "
             "If not specified, the current software release of "
             "the subcloud will be used.",
+        )
+
+        parser.add_argument(
+            "--for-install",
+            required=False,
+            action="store_true",
+            help=(
+                "Prestage for installation. This is the default prestaging option."
+            ),
+        )
+        # Prestaging for deployment means prestaging for upgrade
+        # With USM there is no install phase for upgrades. This operation
+        # therefore targets the live ostree repo on the subcloud (not
+        # /opt/platform-backup)
+        parser.add_argument(
+            "--for-sw-deploy",
+            required=False,
+            action="store_true",
+            help=(
+                "Prestage for software deploy operations. If not specified, "
+                "prestaging is targeted towards full installation."
+            ),
         )
 
         return parser
@@ -1017,6 +1040,16 @@ class PrestageSubcloud(base.DCManagerShowOne):
 
         if parsed_args.release:
             data["release"] = parsed_args.release
+        if parsed_args.for_sw_deploy:
+            if parsed_args.for_install:
+                error_msg = (
+                    "Options --for-install and --for-sw-deploy cannot be combined"
+                )
+                raise exceptions.DCManagerClientException(error_msg)
+            data["for_sw_deploy"] = "true"
+        else:
+            # for_install is the default
+            data["for_install"] = "true"
 
         try:
             result = subcloud_manager.prestage_subcloud(
@@ -1024,6 +1057,9 @@ class PrestageSubcloud(base.DCManagerShowOne):
             )
             update_fields_values(result)
             return result
+
+        except exceptions.DCManagerClientException:
+            raise
 
         except Exception as exc:
             print(exc)

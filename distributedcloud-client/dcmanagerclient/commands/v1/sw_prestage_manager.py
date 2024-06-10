@@ -15,6 +15,7 @@
 
 import base64
 
+from dcmanagerclient import exceptions
 from dcmanagerclient import utils
 from dcmanagerclient.commands.v1 import sw_update_manager
 
@@ -73,8 +74,29 @@ class CreateSwPrestageStrategy(
             required=False,
             help=(
                 "software release used to prestage the subcloud with. "
+                "Format: YY.MM or YY.MM.nn. "
                 "If not specified, the current software release of "
                 "the subcloud will be used."
+            ),
+        )
+        parser.add_argument(
+            "--for-install",
+            required=False,
+            action="store_true",
+            help=(
+                "Prestage for installation. This is the default prestaging option."
+            ),
+        )
+        # Prestaging for deployment means prestaging for upgrade
+        # For this operation, there is NO INSTALL phase anymore with USM
+        # - targets the live ostree repo on the subcloud (not /opt/platform-backup)
+        parser.add_argument(
+            "--for-sw-deploy",
+            required=False,
+            action="store_true",
+            help=(
+                "Prestage for software deploy operations. If not specified, "
+                "prestaging is targeted towards full installation."
             ),
         )
 
@@ -99,6 +121,17 @@ class CreateSwPrestageStrategy(
 
         if parsed_args.release is not None:
             kwargs_dict["release"] = parsed_args.release
+
+        if parsed_args.for_sw_deploy:
+            if parsed_args.for_install:
+                error_msg = (
+                    "Options --for-install and --for-sw-deploy cannot be combined"
+                )
+                raise exceptions.DCManagerClientException(error_msg)
+            kwargs_dict["for_sw_deploy"] = "true"
+        else:
+            # for_install is the default
+            kwargs_dict["for_install"] = "true"
 
     # override validate_force_params defined in CreateSwUpdateStrategy
     def validate_force_params(self, parsed_args):
