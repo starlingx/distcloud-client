@@ -26,7 +26,7 @@ class TestSwDeployStrategy(UpdateStrategyMixin, base.BaseCommandTest):
         self.abort_command = cli_cmd.AbortSwDeployStrategy
 
     def test_create_strategy(self):
-        """Test deploy strategy should be created with --release-id"""
+        """Test deploy strategy should be created with release"""
 
         # prepare mixin attributes
         manager_to_test = self.sw_update_manager
@@ -35,7 +35,7 @@ class TestSwDeployStrategy(UpdateStrategyMixin, base.BaseCommandTest):
         # mock the result of the API call
         strategy = utils.make_strategy(
             strategy_type=expected_strategy_type,
-            extra_args={"release_id": "stx-24.09.1"},
+            extra_args={"release": "stx-24.09.1"},
         )
 
         # mock that there is no pre-existing strategy
@@ -44,7 +44,7 @@ class TestSwDeployStrategy(UpdateStrategyMixin, base.BaseCommandTest):
         # invoke the backend method for the CLI.
         # Returns a tuple of field descriptions, and a second tuple of values
         fields, results = self.call(
-            self.create_command, ["--release-id", "stx-24.09.1"]
+            self.create_command, ["stx-24.09.1"]
         )
 
         # results is a tuple of expected length
@@ -64,7 +64,7 @@ class TestSwDeployStrategy(UpdateStrategyMixin, base.BaseCommandTest):
         self.assertEqual(results[failure_index + 1], "stx-24.09.1")
 
     def test_create_strategy_without_release_id(self):
-        """Test deploy strategy should not be created without --release-id"""
+        """Test deploy strategy should not be created without release"""
 
         # prepare mixin attributes
         manager_to_test = self.sw_update_manager

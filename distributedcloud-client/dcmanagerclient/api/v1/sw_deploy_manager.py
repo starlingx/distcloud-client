@@ -6,7 +6,7 @@
 
 from dcmanagerclient.api.v1.sw_update_manager import SwUpdateManager
 
-SW_UPDATE_TYPE_USM = "software"
+SW_UPDATE_TYPE_USM = "sw-deploy"
 
 
 class SwDeployManager(SwUpdateManager):
