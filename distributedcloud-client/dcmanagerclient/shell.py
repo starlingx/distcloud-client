@@ -47,7 +47,6 @@ from dcmanagerclient.commands.v1 import sw_patch_manager as spm
 from dcmanagerclient.commands.v1 import sw_prestage_manager as spr
 from dcmanagerclient.commands.v1 import sw_update_manager as swum
 from dcmanagerclient.commands.v1 import sw_update_options_manager as suom
-from dcmanagerclient.commands.v1 import sw_upgrade_manager as supm
 from dcmanagerclient.commands.v1 import system_peer_manager as sp
 
 
@@ -507,7 +506,6 @@ class DCManagerShell(app.App):
             "sw_patch_manager": self.client.sw_patch_manager,
             "sw_prestage_manager": self.client.sw_prestage_manager,
             "sw_update_options_manager": self.client.sw_update_options_manager,
-            "sw_upgrade_manager": self.client.sw_upgrade_manager,
             "system_peer_manager": self.client.system_peer_manager,
         }
 
@@ -640,11 +638,6 @@ class DCManagerShell(app.App):
             "system-peer list-subcloud-peer-groups": list_system_peer_groups,
             "system-peer show": sp.ShowSystemPeer,
             "system-peer update": sp.UpdateSystemPeer,
-            "upgrade-strategy abort": supm.AbortSwUpgradeStrategy,
-            "upgrade-strategy apply": supm.ApplySwUpgradeStrategy,
-            "upgrade-strategy create": supm.CreateSwUpgradeStrategy,
-            "upgrade-strategy delete": supm.DeleteSwUpgradeStrategy,
-            "upgrade-strategy show": supm.ShowSwUpgradeStrategy,
         }
 
 

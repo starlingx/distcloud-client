@@ -43,7 +43,6 @@ from dcmanagerclient.api.v1.sw_patch_manager import SwPatchManager
 from dcmanagerclient.api.v1.sw_prestage_manager import SwPrestageManager
 from dcmanagerclient.api.v1.sw_strategy_manager import SwStrategyManager
 from dcmanagerclient.api.v1.sw_update_options_manager import SwUpdateOptionsManager
-from dcmanagerclient.api.v1.sw_upgrade_manager import SwUpgradeManager
 from dcmanagerclient.api.v1.system_peer_manager import SystemPeerManager
 
 _DEFAULT_DCMANAGER_URL = "http://localhost:8119/v1.0"
@@ -140,7 +139,6 @@ class Client:
         self.sw_patch_manager = SwPatchManager(self.http_client)
         self.sw_prestage_manager = SwPrestageManager(self.http_client)
         self.sw_update_options_manager = SwUpdateOptionsManager(self.http_client)
-        self.sw_upgrade_manager = SwUpgradeManager(self.http_client)
         self.strategy_step_manager = StrategyStepManager(self.http_client)
         self.sw_strategy_manager = SwStrategyManager(self.http_client)
         self.phased_subcloud_deploy_manager = PhasedSubcloudDeployManager(

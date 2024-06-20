@@ -15,6 +15,7 @@
 #
 
 import mock
+
 from dcmanagerclient.tests import base_shell_test as base
 
 
