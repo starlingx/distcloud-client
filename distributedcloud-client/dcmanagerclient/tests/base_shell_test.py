@@ -15,10 +15,10 @@
 #    limitations under the License.
 #
 
+import io
 import os
 import sys
 
-import six
 import testtools
 
 from dcmanagerclient import shell
@@ -31,8 +31,8 @@ class BaseShellTests(testtools.TestCase):
         _old_env, os.environ = os.environ, clean_env.copy()
 
         try:
-            sys.stdout = six.moves.cStringIO()
-            sys.stderr = six.moves.cStringIO()
+            sys.stdout = io.StringIO()
+            sys.stderr = io.StringIO()
             _shell = shell.DCManagerShell()
             _shell.run(argstr.split())
         except SystemExit:

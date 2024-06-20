@@ -92,7 +92,7 @@ ignore-mixin-members=yes
 # List of module names for which member attributes should not be checked
 # (useful for modules/projects where namespaces are manipulated during runtime
 # and thus existing member attributes cannot be deduced by static analysis
-ignored-modules=distutils,eventlet.green.subprocess,six,six.moves
+ignored-modules=distutils,eventlet.green.subprocess
 
 # List of classes names for which member attributes should not be checked
 # (useful for classes with attributes dynamically set).
@@ -224,4 +224,4 @@ valid-classmethod-first-arg=cls
 [EXCEPTIONS]
 # Exceptions that will emit a warning when being caught. Defaults to
 # "Exception"
-overgeneral-exceptions=Exception
+overgeneral-exceptions=builtins.Exception

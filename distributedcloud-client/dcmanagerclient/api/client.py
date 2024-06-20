@@ -14,8 +14,6 @@
 #    limitations under the License.
 #
 
-import six
-
 from dcmanagerclient.api.v1 import client as client_v1
 
 
@@ -39,7 +37,7 @@ def client(
     session=None,
     **kwargs
 ):
-    if dcmanager_url and not isinstance(dcmanager_url, six.string_types):
+    if dcmanager_url and not isinstance(dcmanager_url, str):
         raise RuntimeError("DC Manager url should be a string.")
 
     return client_v1.Client(

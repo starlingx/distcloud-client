@@ -18,7 +18,6 @@
 
 import keystoneauth1.identity.generic as auth_plugin
 import osprofiler.profiler
-import six
 from keystoneauth1 import session as ks_session
 
 from dcmanagerclient.api import httpclient
@@ -74,7 +73,7 @@ class Client:
         **kwargs,
     ):
         """DC Manager communicates with Keystone to fetch necessary values."""
-        if dcmanager_url and not isinstance(dcmanager_url, six.string_types):
+        if dcmanager_url and not isinstance(dcmanager_url, str):
             raise RuntimeError("DC Manager url should be a string.")
 
         if auth_url or session:

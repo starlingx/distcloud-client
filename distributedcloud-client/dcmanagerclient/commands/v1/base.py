@@ -18,12 +18,10 @@
 
 import abc
 
-import six
 from osc_lib.command import command
 
 
-@six.add_metaclass(abc.ABCMeta)
-class DCManagerLister(command.Lister):
+class DCManagerLister(command.Lister, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def _get_format_function(self):
         raise NotImplementedError
@@ -52,8 +50,7 @@ class DCManagerLister(command.Lister):
         return f()
 
 
-@six.add_metaclass(abc.ABCMeta)
-class DCManagerShowOne(command.ShowOne):
+class DCManagerShowOne(command.ShowOne, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def _get_format_function(self):
         raise NotImplementedError
@@ -83,8 +80,7 @@ class DCManagerShowOne(command.ShowOne):
         return f()
 
 
-@six.add_metaclass(abc.ABCMeta)
-class DCManagerShow(DCManagerLister, DCManagerShowOne):
+class DCManagerShow(DCManagerLister, DCManagerShowOne, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def should_list(self, parsed_args):
         """Uses Lister behaviour if True, ShowOne otherwise."""

@@ -387,7 +387,7 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
         self.assertEqual(base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID, actual_call[1])
 
     @mock.patch("getpass.getpass", return_value="testpassword")
-    @mock.patch("six.moves.input", return_value="redeploy")
+    @mock.patch.object(subcloud_cmd, "input", return_value="redeploy")
     def test_redeploy_subcloud(self, _mock_input, _mock_getpass):
         self.client.subcloud_manager.redeploy_subcloud.return_value = [
             self.subcloud_resource
@@ -421,7 +421,7 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
         self.assertEqual(base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID, actual_call[1])
 
     @mock.patch("getpass.getpass", return_value="testpassword")
-    @mock.patch("six.moves.input", return_value="redeploy")
+    @mock.patch.object(subcloud_cmd, "input", return_value="redeploy")
     def test_redeploy_subcloud_no_parameters(self, _mock_input, _mock_getpass):
         self.client.subcloud_manager.redeploy_subcloud.return_value = [
             self.subcloud_resource
@@ -430,7 +430,7 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
         self.assertEqual(base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID, actual_call[1])
 
     @mock.patch("getpass.getpass", return_value="testpassword")
-    @mock.patch("six.moves.input", return_value="redeploy")
+    @mock.patch.object(subcloud_cmd, "input", return_value="redeploy")
     def test_redeploy_bootstrap_files_does_not_exists(self, _mock_input, _mock_getpass):
         self.client.subcloud_manager.redeploy_subcloud.return_value = [
             self.subcloud_resource

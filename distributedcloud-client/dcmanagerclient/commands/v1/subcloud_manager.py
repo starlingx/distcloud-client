@@ -18,7 +18,6 @@ import base64
 import os
 
 from osc_lib.command import command
-import six
 
 from dcmanagerclient import exceptions
 from dcmanagerclient import utils
@@ -907,7 +906,7 @@ class RedeploySubcloud(base.DCManagerShowOne):
             "WARNING: This will redeploy the subcloud. "
             "All applications and data on the subcloud will be lost."
         )
-        confirm = six.moves.input('Please type "redeploy" to confirm: ').strip().lower()
+        confirm = input('Please type "redeploy" to confirm: ').strip().lower()
         if confirm == "redeploy":
             try:
                 return subcloud_manager.redeploy_subcloud(
