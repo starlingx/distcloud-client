@@ -19,7 +19,7 @@ class SwDeployManagerMixin:
         columns, data = original_fmt_func(sw_update_strategy)
         release_id = ""
         if sw_update_strategy and sw_update_strategy.extra_args:
-            release_id = sw_update_strategy.extra_args.get("release")
+            release_id = sw_update_strategy.extra_args.get("release_id")
 
         # Find the index of 'stop on failure' in the tuple
         failure_status_index = columns.index("stop on failure")
@@ -58,7 +58,7 @@ class CreateSwDeployStrategy(
         parser = super().get_parser(prog_name)
 
         parser.add_argument(
-            "release",
+            "release_id",
             help="The release ID to be deployed.",
         )
 
@@ -66,7 +66,7 @@ class CreateSwDeployStrategy(
 
     def process_custom_params(self, parsed_args, kwargs_dict):
         """Updates kwargs dictionary from parsed_args for patching"""
-        kwargs_dict["release"] = parsed_args.release
+        kwargs_dict["release_id"] = parsed_args.release_id
 
     # override validate_force_params defined in CreateSwUpdateStrategy
     def validate_force_params(self, parsed_args):

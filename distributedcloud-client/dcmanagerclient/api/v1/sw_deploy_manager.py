@@ -12,5 +12,5 @@ SW_UPDATE_TYPE_USM = "sw-deploy"
 class SwDeployManager(SwUpdateManager):
     def __init__(self, http_client):
         super().__init__(
-            http_client, update_type=SW_UPDATE_TYPE_USM, extra_args=["release"]
+            http_client, update_type=SW_UPDATE_TYPE_USM, extra_args=["release_id"]
         )
