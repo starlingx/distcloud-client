@@ -86,12 +86,13 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
 
     def test_show_subcloud_with_subcloud_id(self):
         self.client.subcloud_manager.subcloud_detail.return_value = [
-            self.subcloud_resource
+            base.SUBCLOUD_RESOURCE_SHOW
         ]
-        actual_call = self.call(subcloud_cmd.ShowSubcloud, app_args=[base.ID])
+        actual_call = self.call(subcloud_cmd.ShowSubcloud, app_args=[base.ID_1])
+        self.client.subcloud_manager.subcloud_detail.assert_called_once_with(base.ID_1)
 
         self.assertEqual(
-            base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID + (base.REGION_NAME,),
+            base.SUBCLOUD_RESOURCE_SHOW_RESULT,
             actual_call[1],
         )
 

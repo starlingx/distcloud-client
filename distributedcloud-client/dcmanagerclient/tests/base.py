@@ -63,6 +63,10 @@ SYNC = None
 NAME_SC2 = "subcloud2"
 SET_FIELD_VALUE_DICT = {"region_name": None}
 
+# TODO(nicodemos): Refactor resource definitions to eliminate repeated values
+# and standardize attribute usage in tests. This will ensure consistency and
+# reduce the risk of errors due to changes in attribute values.
+
 # Subcloud CLI resource object
 SUBCLOUD_RESOURCE = api_base.Subcloud(
     mock,
@@ -87,7 +91,57 @@ SUBCLOUD_RESOURCE = api_base.Subcloud(
     backup_datetime=BACKUP_DATETIME,
     prestage_status=PRESTAGE_STATUS,
     prestage_versions=PRESTAGE_VERSIONS,
+)
+
+SUBCLOUD_RESOURCE_SHOW = api_base.Subcloud(
+    mock,
+    subcloud_id=ID_1,
+    name=NAME,
+    description=DESCRIPTION,
+    location=LOCATION,
+    software_version=SOFTWARE_VERSION,
+    management_state=MANAGEMENT_STATE,
+    availability_status=AVAILABILITY_STATUS,
+    deploy_status=DEPLOY_STATUS,
+    error_description=ERROR_DESCRIPTION,
+    management_subnet=MANAGEMENT_SUBNET,
+    management_start_ip=MANAGEMENT_START_IP,
+    management_end_ip=MANAGEMENT_END_IP,
+    management_gateway_ip=MANAGEMENT_GATEWAY_IP,
+    systemcontroller_gateway_ip=SYSTEMCONTROLLER_GATEWAY_IP,
+    created_at=TIME_NOW,
+    updated_at=TIME_NOW,
+    group_id=DEFAULT_SUBCLOUD_GROUP_ID,
+    backup_status=BACKUP_STATUS,
+    backup_datetime=BACKUP_DATETIME,
+    prestage_status=PRESTAGE_STATUS,
+    prestage_versions=PRESTAGE_VERSIONS,
     region_name=REGION_NAME,
+)
+
+SUBCLOUD_RESOURCE_SHOW_RESULT = (
+    ID_1,
+    NAME,
+    DESCRIPTION,
+    LOCATION,
+    SOFTWARE_VERSION,
+    MANAGEMENT_STATE,
+    AVAILABILITY_STATUS,
+    DEPLOY_STATUS,
+    MANAGEMENT_SUBNET,
+    MANAGEMENT_START_IP,
+    MANAGEMENT_END_IP,
+    MANAGEMENT_GATEWAY_IP,
+    SYSTEMCONTROLLER_GATEWAY_IP,
+    DEFAULT_SUBCLOUD_GROUP_ID,
+    SUBCLOUD_PEERGROUP_ID,
+    TIME_NOW,
+    TIME_NOW,
+    BACKUP_STATUS,
+    BACKUP_DATETIME,
+    PRESTAGE_STATUS,
+    PRESTAGE_VERSIONS,
+    REGION_NAME,
 )
 
 # Subcloud CLI resource object with peerid rehome data
