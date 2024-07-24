@@ -14,8 +14,6 @@
 #    limitations under the License.
 #
 
-import os
-
 from dcmanagerclient.commands.v1 import sw_update_manager
 
 
@@ -62,9 +60,8 @@ class CreatePatchUpdateStrategy(
         )
 
         parser.add_argument(
-            "--patch",
-            required=False,
-            help="Path to a patch to upload.",
+            "patch_id",
+            help="The patch ID to upload/apply on the subcloud.",
         )
 
         return parser
@@ -75,8 +72,8 @@ class CreatePatchUpdateStrategy(
             kwargs_dict["upload-only"] = "true"
         else:
             kwargs_dict["upload-only"] = "false"
-        if parsed_args.patch:
-            kwargs_dict["patch"] = os.path.abspath(parsed_args.patch)
+
+        kwargs_dict["patch_id"] = parsed_args.patch_id
 
 
 class ShowPatchUpdateStrategy(
