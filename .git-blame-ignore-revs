@@ -18,5 +18,12 @@
 # - Because you must use a hash, you need to append to this list in a follow-up
 #   commit to the actual reformatting commit that you are trying to ignore.
 
+# Tox configuration and pylint fixes
+b87508a41011b06637a9c67e51082c55befc0929
+a507c6449d9bbe3ae02506b27e45272b96635216
+1614a6ae75825afd49d996d5a44144ba36da47bd
+d847780a4d179485bc76f57e56951ce380eae26a
+8405f3b47c97927326b6eaae65b9bbe43f7d5952
+
 # Format all Python files with Black formatter
 b5cbd9480cef12fee05ae6cf68aaae5aaa931969
