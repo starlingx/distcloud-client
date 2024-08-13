@@ -522,13 +522,6 @@ class EnrollPhasedSubcloudDeploy(base.DCManagerShowOne):
         )
 
         parser.add_argument(
-            "--deploy-config",
-            required=False,
-            help="YAML file containing parameters required for the initial "
-            "configuration and unlock of the subcloud.",
-        )
-
-        parser.add_argument(
             "--bootstrap-address",
             required=False,
             help="IP address for initial subcloud controller.",

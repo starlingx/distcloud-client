@@ -269,13 +269,8 @@ class TestCLIPhasedSubcloudDeployManagerV1(base.BaseCommandTest):
 
         with tempfile.NamedTemporaryFile(
             mode="w"
-        ) as bootstrap_file, tempfile.NamedTemporaryFile(
-            mode="w"
-        ) as config_file, tempfile.NamedTemporaryFile(
-            mode="w"
-        ) as install_file:
+        ) as bootstrap_file, tempfile.NamedTemporaryFile(mode="w") as install_file:
             bootstrap_file_path = os.path.abspath(bootstrap_file.name)
-            config_file_path = os.path.abspath(config_file.name)
             install_file_path = os.path.abspath(install_file.name)
 
             actual_call = self.call(
@@ -288,8 +283,6 @@ class TestCLIPhasedSubcloudDeployManagerV1(base.BaseCommandTest):
                     bootstrap_file_path,
                     "--install-values",
                     install_file_path,
-                    "--deploy-config",
-                    config_file_path,
                 ],
             )
         self.assertEqual(base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID, actual_call[1])
