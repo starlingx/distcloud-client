@@ -16,9 +16,11 @@
 
 import json
 
+import requests
 from bs4 import BeautifulSoup
 
 from dcmanagerclient import exceptions
+from dcmanagerclient.api import httpclient
 
 
 class Resource:
@@ -153,7 +155,7 @@ class Subcloud(Resource):
 class ResourceManager:
     resource_class = None
 
-    def __init__(self, http_client):
+    def __init__(self, http_client: httpclient.HTTPClient):
         self.http_client = http_client
 
     def _generate_resource(self, json_response_key):
@@ -215,19 +217,42 @@ class ResourceManager:
         if resp.status_code != 200:
             self._raise_api_exception(resp)
 
-    def _raise_api_exception(self, resp):
-        error_html = resp.content
-        soup = BeautifulSoup(error_html, "html.parser")
-        # Get the raw html with get_text, strip out the blank lines on
-        # front and back, then get rid of the first line of error code
-        # so that we are left with just the meaningful error text.
+    def _raise_api_exception(self, resp: requests.Response):
+        # Handle 500 status code with empty content which is returned by
+        # unhandled exceptions on the server side
+        if resp.status_code == 500 and not resp.content:
+            error_message = (
+                "The server has either erred or is incapable "
+                "of performing the requested operation."
+            )
+            raise exceptions.APIException(
+                error_code=resp.status_code, error_message=error_message
+            )
+
+        # Otherwise attempt to parse the HTML response content
         try:
-            line_list = soup.body.get_text().lstrip().rstrip().split("\n")[1:]
-            error_msg = line_list[0].lstrip().rstrip()
-            for line in line_list[1:]:
-                error_msg += " " + line.lstrip().rstrip()
+            soup = BeautifulSoup(resp.content, "html.parser")
+            line_list = soup.body.get_text().strip().split("\n")
+
+            # Remove any leading/trailing whitespace and empty lines
+            line_list = [line.strip() for line in line_list if line.strip()]
+
+            # Extract explanation and detail messages
+            explanation = line_list[1] if len(line_list) > 1 else line_list[0]
+            details = "\n".join(line_list[2:]) if len(line_list) > 2 else None
+
+            # Ensure explanation ends with a period
+            if not explanation.endswith("."):
+                explanation += "."
+
+            # Build the error message
+            error_msg = explanation
+            if details:
+                error_msg = f"{error_msg}\nDetails: {details.strip()}"
+
         except Exception:
-            error_msg = resp.content
+            # Fallback to raw content in case of parsing errors
+            error_msg = resp.content.decode("utf-8", errors="ignore")
 
         raise exceptions.APIException(
             error_code=resp.status_code, error_message=error_msg
