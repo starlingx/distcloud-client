@@ -428,7 +428,12 @@ class ShowSubcloud(base.DCManagerShowOne):
 
     def _get_resources(self, parsed_args):
         subcloud_ref = parsed_args.subcloud
+        if not subcloud_ref:
+            raise exceptions.DCManagerClientException(
+                "Subcloud cannot be an empty value."
+            )
         subcloud_manager = self.app.client_manager.subcloud_manager
+
         if parsed_args.detail:
             return subcloud_manager.subcloud_additional_details(subcloud_ref)
         return subcloud_manager.subcloud_detail(subcloud_ref)
@@ -447,6 +452,10 @@ class ShowSubcloudError(command.Command):
 
     def take_action(self, parsed_args):
         subcloud_ref = parsed_args.subcloud
+        if not subcloud_ref:
+            raise exceptions.DCManagerClientException(
+                "Subcloud cannot be an empty value."
+            )
         subcloud_manager = self.app.client_manager.subcloud_manager
         ret = subcloud_manager.subcloud_detail(subcloud_ref)
         data = ret[0].error_description
