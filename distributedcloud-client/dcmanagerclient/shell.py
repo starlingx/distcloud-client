@@ -23,7 +23,7 @@ import logging
 import os
 import sys
 
-from cliff import app
+from cliff import app, complete
 from cliff import commandmanager
 from cliff import help as cliff_help
 from osc_lib.command import command
@@ -145,6 +145,94 @@ class BashCompletionCommand(command.Command):
         print(" ".join(commands | options))
 
 
+class CustomBashCompletion(complete.CompleteBash):
+    """Overrides the default bash completion command
+    to use a custom bash completion where dash is
+    replaced by two underscores instead of one
+
+    """
+
+    def write(self, cmdo, data):
+        self.output.write(self.get_header())
+        self.output.write(f"cmds='{cmdo}'\n")
+        for datum in data:
+            datum = (datum[0].replace("-", "__"), datum[1])
+            self.output.write(f"cmds_{datum[0]}='{datum[1]}'\n")
+        self.output.write(self.get_trailer())
+
+    @property
+    def escaped_name(self):
+        return self.name.replace("-", "__")
+
+    def get_trailer(self):
+        return (
+            """
+  dash=-
+  underscore=__
+  cmd=""
+  words[0]=""
+  completed="${cmds}"
+  for var in "${words[@]:1}"
+  do
+    if [[ ${var} == -* ]] ; then
+      break
+    fi
+    if [ -z "${cmd}" ] ; then
+      proposed="${var}"
+    else
+      proposed="${cmd}_${var}"
+    fi
+    local i="cmds_${proposed}"
+    i=${i//$dash/$underscore}
+    local comp="${!i}"
+    if [ -z "${comp}" ] ; then
+      break
+    fi
+    if [[ ${comp} == -* ]] ; then
+      if [[ ${cur} != -* ]] ; then
+        completed=""
+        break
+      fi
+    fi
+    cmd="${proposed}"
+    completed="${comp}"
+  done
+
+  if [ -z "${completed}" ] ; then
+    COMPREPLY=( $( compgen -f -- "$cur" ) $( compgen -d -- "$cur" ) )
+  else
+    COMPREPLY=( $(compgen -W "${completed}" -- ${cur}) )
+  fi
+  return 0
+}
+complete -F _"""
+            + self.escaped_name
+            + " "
+            + self.name
+            + "\n"
+        )
+
+
+class CustomCompleteCommand(complete.CompleteCommand):
+    """Custom completion command.
+
+    Provides a custom bash completion command so the dash
+    separator becomes two underscores instead of one to
+    better distinguish a space from a dash.
+
+    """
+
+    def take_action(self, parsed_args):
+        name = parsed_args.name or self.app.NAME
+        shell = CustomBashCompletion(name, self.app.stdout)
+        dicto = complete.CompleteDictionary()
+        for cmd in self.app.command_manager:
+            _command = cmd[0].split()
+            dicto.add_command(_command, self.get_actions(_command))
+        shell.write(dicto.get_commands(), dicto.get_data())
+        return 0
+
+
 class DCManagerShell(app.App):
     def __init__(self):
         super().__init__(
@@ -155,6 +243,9 @@ class DCManagerShell(app.App):
 
         # Override default help command
         self.command_manager.add_command("help", HelpCommand)
+
+        # Override default completion command
+        self.command_manager.add_command("complete", CustomCompleteCommand)
 
         # Set v1 commands by default
         self._set_shell_commands(self._get_commands(version=1))
