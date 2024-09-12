@@ -6,6 +6,7 @@
 
 
 from dcmanagerclient.commands.v1 import sw_patch_manager as cli_cmd
+from dcmanagerclient.exceptions import DCManagerClientException
 from dcmanagerclient.tests import base
 from dcmanagerclient.tests.v1 import utils
 from dcmanagerclient.tests.v1.mixins import UpdateStrategyMixin
@@ -81,3 +82,41 @@ class TestPatchUpdateStrategy(UpdateStrategyMixin, base.BaseCommandTest):
         self.assertEqual(results[0], self.expected_strategy_type)
         self.assertEqual(fields[-4], "upload only")
         self.assertEqual(results[-4], True)
+
+    def test_create_strategy_remove(self):
+        """Test that a strategy can be created with the --remove option"""
+
+        # mock the result of the API call
+        strategy = utils.make_strategy(
+            strategy_type=self.expected_strategy_type,
+            extra_args={"remove": True, "patch_id": "stx-10.1"},
+        )
+
+        # mock that there is no pre-existing strategy
+        self.manager_to_test.create_sw_update_strategy.return_value = strategy
+
+        # invoke the backend method for the CLI.
+        # Returns a tuple of field descriptions, and a second tuple of values
+        _, results = self.call(self.create_command, ["stx-10.1", "--remove"])
+
+        self.assertEqual(len(results), self.results_length)
+        self.assertEqual(results[0], self.expected_strategy_type)
+
+    def test_create_strategy_upload_only_and_remove(self):
+        """Test that a strategy can be created with the --remove option"""
+
+        # mock the result of the API call
+        strategy = utils.make_strategy(
+            strategy_type=self.expected_strategy_type,
+            extra_args={"upload-only": True, "remove": True, "patch_id": "stx-10.1"},
+        )
+
+        # mock that there is no pre-existing strategy
+        self.manager_to_test.create_sw_update_strategy.return_value = strategy
+
+        self.assertRaises(
+            DCManagerClientException,
+            self.call,
+            self.create_command,
+            ["stx-10.1", "--upload-only", "--remove"],
+        )

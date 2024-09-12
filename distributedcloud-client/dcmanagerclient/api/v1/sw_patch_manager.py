@@ -22,4 +22,4 @@ SW_UPDATE_TYPE_PATCH = "patch"
 class SwPatchManager(SwUpdateManager):
     def __init__(self, http_client):
         super().__init__(http_client, update_type=SW_UPDATE_TYPE_PATCH)
-        self.extra_args = ["upload-only", "patch_id"]
+        self.extra_args = ["upload-only", "patch_id", "remove"]

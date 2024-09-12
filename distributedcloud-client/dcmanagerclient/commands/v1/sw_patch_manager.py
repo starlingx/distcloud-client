@@ -15,6 +15,7 @@
 #
 
 from dcmanagerclient.commands.v1 import sw_update_manager
+from dcmanagerclient import exceptions
 
 
 class SwPatchManagerMixin:
@@ -60,6 +61,13 @@ class CreatePatchUpdateStrategy(
         )
 
         parser.add_argument(
+            "--remove",
+            required=False,
+            action="store_true",
+            help="Remove the patch on the subcloud.",
+        )
+
+        parser.add_argument(
             "patch_id",
             help="The patch ID to upload/apply on the subcloud.",
         )
@@ -68,10 +76,14 @@ class CreatePatchUpdateStrategy(
 
     def process_custom_params(self, parsed_args, kwargs_dict):
         """Updates kwargs dictionary from parsed_args for patching"""
-        if parsed_args.upload_only:
-            kwargs_dict["upload-only"] = "true"
-        else:
-            kwargs_dict["upload-only"] = "false"
+
+        # Raise exception if both --upload-only and --remove are specified
+        if parsed_args.upload_only and parsed_args.remove:
+            msg = "Cannot specify both --upload-only and --remove"
+            raise exceptions.DCManagerClientException(msg)
+
+        kwargs_dict["upload-only"] = str(parsed_args.upload_only).lower()
+        kwargs_dict["remove"] = str(parsed_args.remove).lower()
 
         kwargs_dict["patch_id"] = parsed_args.patch_id
 
