@@ -578,8 +578,6 @@ class EnrollPhasedSubcloudDeploy(base.DCManagerShowOne):
                 )
                 raise exceptions.DCManagerClientException(error_msg)
             files["install_values"] = parsed_args.install_values
-
-        if parsed_args.install_values:
             if parsed_args.bmc_password:
                 data["bmc_password"] = base64.b64encode(
                     parsed_args.bmc_password.encode("utf-8")
@@ -592,6 +590,12 @@ class EnrollPhasedSubcloudDeploy(base.DCManagerShowOne):
 
         subcloud_ref = parsed_args.subcloud
 
-        return phased_subcloud_deploy_manager.subcloud_deploy_enroll(
-            subcloud_ref, files=files, data=data
-        )
+        try:
+            return phased_subcloud_deploy_manager.subcloud_deploy_enroll(
+                subcloud_ref, files=files, data=data
+            )
+
+        except Exception as exc:
+            print(exc)
+            error_msg = f"Unable to enroll subcloud {subcloud_ref}"
+            raise exceptions.DCManagerClientException(error_msg)
