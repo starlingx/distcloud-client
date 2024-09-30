@@ -38,6 +38,7 @@ class CreateKubeRootcaUpdateStrategy(
         parser.add_argument(
             "--cert-file", required=False, help="Path to a certificate to upload."
         )
+
         return parser
 
     def process_custom_params(self, parsed_args, kwargs_dict):
@@ -50,10 +51,6 @@ class CreateKubeRootcaUpdateStrategy(
         if parsed_args.cert_file:
             # Need an absolute path for the cert-file
             kwargs_dict["cert-file"] = os.path.abspath(parsed_args.cert_file)
-
-    # override validate_force_params defined in CreateSwUpdateStrategy
-    def validate_force_params(self, parsed_args):
-        """Disable validating the force option.  Allows multiple subclouds."""
 
 
 class ShowKubeRootcaUpdateStrategy(

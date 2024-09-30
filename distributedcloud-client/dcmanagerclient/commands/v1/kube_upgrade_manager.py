@@ -36,6 +36,7 @@ class CreateKubeUpgradeStrategy(
             required=False,
             help="Specify a version other than the system controller version.",
         )
+
         return parser
 
     def process_custom_params(self, parsed_args, kwargs_dict):
@@ -43,10 +44,6 @@ class CreateKubeUpgradeStrategy(
         # Note the "-" vs "_" when dealing with parsed_args
         if parsed_args.to_version:
             kwargs_dict["to-version"] = parsed_args.to_version
-
-    # override validate_force_params defined in CreateSwUpdateStrategy
-    def validate_force_params(self, parsed_args):
-        """Disable validating the force option.  Allows multiple subclouds."""
 
 
 class ShowKubeUpgradeStrategy(
