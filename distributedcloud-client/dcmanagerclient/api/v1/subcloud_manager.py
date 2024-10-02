@@ -113,6 +113,7 @@ class SubcloudManager(base.ResourceManager):
             resource[0].deploy_config_sync_status = json_object[
                 "deploy_config_sync_status"
             ]
+            resource[0].region_name = json_object["region_name"]
         return resource
 
     def add_subcloud(self, **kwargs):

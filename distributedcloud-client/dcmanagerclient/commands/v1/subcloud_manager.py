@@ -143,7 +143,7 @@ def detail_prestage_format(subcloud=None):
 
 def detail_show_format(subcloud=None):
     columns, data = detail_format(subcloud)
-    if subcloud:
+    if subcloud and subcloud.region_name:
         columns += ("region_name",)
         data += (subcloud.region_name,)
     return columns, data
