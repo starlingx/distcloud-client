@@ -46,14 +46,6 @@ class CreateSwDeployStrategy(
 ):
     """Create a software deploy strategy."""
 
-    def add_force_argument(self, parser):
-        parser.add_argument(
-            "--force",
-            required=False,
-            action="store_true",
-            help="Skip checking the subcloud for management affecting alarms.",
-        )
-
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
@@ -67,10 +59,6 @@ class CreateSwDeployStrategy(
     def process_custom_params(self, parsed_args, kwargs_dict):
         """Updates kwargs dictionary from parsed_args for patching"""
         kwargs_dict["release_id"] = parsed_args.release_id
-
-    # override validate_force_params defined in CreateSwUpdateStrategy
-    def validate_force_params(self, parsed_args):
-        pass
 
 
 class ShowSwDeployStrategy(

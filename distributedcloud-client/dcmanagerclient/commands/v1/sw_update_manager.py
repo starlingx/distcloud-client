@@ -117,16 +117,6 @@ class CreateSwUpdateStrategy(base.DCManagerShowOne):
     def _get_format_function(self):
         return detail_format
 
-    def add_force_argument(self, parser):
-        parser.add_argument(
-            "--force",
-            required=False,
-            action="store_true",
-            help="Disregard subcloud availability status, intended for \
-                  some upgrade recovery scenarios. Subcloud name must be \
-                  specified.",
-        )
-
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
@@ -162,19 +152,7 @@ class CreateSwUpdateStrategy(base.DCManagerShowOne):
             help="Name of a single cloud to update.",
         )
 
-        self.add_force_argument(parser)
-
         return parser
-
-    # These validate methods can be overridden
-    def validate_force_params(self, parsed_args):
-        """Most orchestrations only support force for a single subcloud"""
-        if parsed_args.force and not parsed_args.cloud_name:
-            error_msg = (
-                "The --force option can only be applied to a single "
-                "subcloud. Please specify the subcloud name."
-            )
-            raise exceptions.DCManagerClientException(error_msg)
 
     def validate_group_params(self, parsed_args):
         """When specifying a group, other inputs are considered invalid"""
@@ -206,14 +184,11 @@ class CreateSwUpdateStrategy(base.DCManagerShowOne):
             kwargs["max-parallel-subclouds"] = parsed_args.max_parallel_subclouds
         if parsed_args.stop_on_failure:
             kwargs["stop-on-failure"] = "true"
-        if parsed_args.force:
-            kwargs["force"] = "true"
         if parsed_args.cloud_name is not None:
             kwargs["cloud_name"] = parsed_args.cloud_name
         if parsed_args.group is not None:
             kwargs["subcloud_group"] = parsed_args.group
 
-        self.validate_force_params(parsed_args)
         self.validate_group_params(parsed_args)
 
         # Add more kwargs based on the update type

@@ -52,14 +52,6 @@ class CreateSwPrestageStrategy(
 ):
     """Create a prestage strategy."""
 
-    def add_force_argument(self, parser):
-        parser.add_argument(
-            "--force",
-            required=False,
-            action="store_true",
-            help="Skip checking the subcloud for management affecting alarms.",
-        )
-
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
         parser.add_argument(
@@ -95,6 +87,12 @@ class CreateSwPrestageStrategy(
                 "prestaging is targeted towards full installation."
             ),
         )
+        parser.add_argument(
+            "--force",
+            required=False,
+            action="store_true",
+            help="Skip checking the subcloud for management affecting alarms.",
+        )
 
         return parser
 
@@ -129,9 +127,8 @@ class CreateSwPrestageStrategy(
             # for_install is the default
             kwargs_dict["for_install"] = "true"
 
-    # override validate_force_params defined in CreateSwUpdateStrategy
-    def validate_force_params(self, parsed_args):
-        pass
+        if parsed_args.force:
+            kwargs_dict["force"] = "true"
 
 
 class ShowSwPrestageStrategy(
