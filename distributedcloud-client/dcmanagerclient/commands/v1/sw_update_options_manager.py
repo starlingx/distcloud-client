@@ -18,6 +18,8 @@ from osc_lib.command import command
 
 from dcmanagerclient import exceptions
 from dcmanagerclient.commands.v1 import base
+from dcmanagerclient.commands.v1.base import ConfirmationMixin
+
 
 DEFAULT_REGION_NAME = "SystemController"
 
@@ -190,17 +192,18 @@ class ShowSwUpdateOptions(base.DCManagerShowOne):
         return sw_update_options_manager.sw_update_options_detail(subcloud_ref)
 
 
-class DeleteSwUpdateOptions(command.Command):
+class DeleteSwUpdateOptions(ConfirmationMixin, command.Command):
     """Delete per subcloud patch options."""
+
+    requires_confirmation = True
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
-
         parser.add_argument("subcloud", help="Subcloud name or id")
-
         return parser
 
     def take_action(self, parsed_args):
+        super().take_action(parsed_args)
         subcloud_ref = parsed_args.subcloud
         sw_update_options_manager = self.app.client_manager.sw_update_options_manager
         try:

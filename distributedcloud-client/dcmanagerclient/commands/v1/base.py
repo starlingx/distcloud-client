@@ -1,5 +1,5 @@
 # Copyright (c) 2016 Ericsson AB
-# Copyright (c) 2017, 2019, 2021-2022, 2024 Wind River Systems, Inc.
+# Copyright (c) 2017, 2019, 2021-2022, 2024-2025 Wind River Systems, Inc.
 # All Rights Reserved
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -19,6 +19,27 @@
 import abc
 
 from osc_lib.command import command
+
+from dcmanagerclient import utils
+
+
+class ConfirmationMixin:
+    requires_confirmation = False
+
+    def get_parser(self, prog_name):
+        parser = super().get_parser(prog_name)
+        if self.requires_confirmation:
+            parser.add_argument(
+                "--yes",
+                action="store_true",
+                help="Skip confirmation and proceed with the action.",
+            )
+        return parser
+
+    def take_action(self, parsed_args):
+        if self.requires_confirmation:
+            utils.CLIUtils.prompt_cli_confirmation_if_required(True, parsed_args)
+        return super().take_action(parsed_args)
 
 
 class DCManagerLister(command.Lister, metaclass=abc.ABCMeta):
@@ -50,7 +71,8 @@ class DCManagerLister(command.Lister, metaclass=abc.ABCMeta):
         return f()
 
 
-class DCManagerShowOne(command.ShowOne, metaclass=abc.ABCMeta):
+class DCManagerShowOne(ConfirmationMixin, command.ShowOne, metaclass=abc.ABCMeta):
+
     @abc.abstractmethod
     def _get_format_function(self):
         raise NotImplementedError
@@ -65,6 +87,7 @@ class DCManagerShowOne(command.ShowOne, metaclass=abc.ABCMeta):
         pass
 
     def take_action(self, parsed_args):
+        super().take_action(parsed_args)
         self._validate_parsed_args(parsed_args)
         f = self._get_format_function()
 
@@ -88,7 +111,6 @@ class DCManagerShow(DCManagerLister, DCManagerShowOne, metaclass=abc.ABCMeta):
 
     def take_action(self, parsed_args):
         """Overrides method from DCManagerLister and DCManagerShowOne."""
-
         if self.should_list(parsed_args):
             return DCManagerLister.take_action(self, parsed_args)
         return DCManagerShowOne.take_action(self, parsed_args)

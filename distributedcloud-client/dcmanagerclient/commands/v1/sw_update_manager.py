@@ -1,5 +1,5 @@
 # Copyright (c) 2017 Ericsson AB.
-# Copyright (c) 2020-2024 Wind River Systems, Inc.
+# Copyright (c) 2020-2025 Wind River Systems, Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 from dcmanagerclient import exceptions
 from dcmanagerclient.commands.v1 import base
+
 
 # These are the abstract base classes used for sw update managers such as
 # - sw-patch-manager
@@ -52,14 +53,7 @@ def detail_format(sw_update_strategy=None):
 
 
 def strategy_step_format(strategy_step=None):
-    columns = (
-        "cloud",
-        "stage",
-        "state",
-        "details",
-        "started_at",
-        "finished_at",
-    )
+    columns = ("cloud", "stage", "state", "details", "started_at", "finished_at")
 
     if strategy_step:
         data = (
@@ -214,6 +208,8 @@ class ShowSwUpdateStrategy(base.DCManagerShowOne):
 class DeleteSwUpdateStrategy(base.DCManagerShowOne):
     """Delete a software update strategy from the database."""
 
+    requires_confirmation = True
+
     def get_sw_update_manager(self):
         # This method must be overrridden by the concrete subclass
         raise NotImplementedError
@@ -224,9 +220,15 @@ class DeleteSwUpdateStrategy(base.DCManagerShowOne):
     def _get_resources(self, parsed_args):
         return self.get_sw_update_manager().delete_sw_update_strategy()
 
+    def get_parser(self, prog_name):
+        parser = super().get_parser(prog_name)
+        return parser
+
 
 class ApplySwUpdateStrategy(base.DCManagerShowOne):
     """Apply a software update strategy."""
+
+    requires_confirmation = True
 
     def get_sw_update_manager(self):
         # This method must be overrridden by the concrete subclass

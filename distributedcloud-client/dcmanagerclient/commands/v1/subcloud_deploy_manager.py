@@ -1,4 +1,4 @@
-# Copyright (c) 2020-2024 Wind River Systems, Inc.
+# Copyright (c) 2020-2025 Wind River Systems, Inc.
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
 #    You may obtain a copy of the License at
@@ -19,6 +19,7 @@ from osc_lib.command import command
 
 from dcmanagerclient import exceptions
 from dcmanagerclient.commands.v1 import base
+from dcmanagerclient.commands.v1.base import ConfirmationMixin
 
 
 def _format(subcloud_deploy=None):
@@ -189,8 +190,10 @@ class DeprecatedSubcloudDeployUpload(SubcloudDeployUpload):
         raise exceptions.DCManagerClientException(self.DEPRECATION_MESSAGE)
 
 
-class SubcloudDeployDelete(command.Command):
+class SubcloudDeployDelete(ConfirmationMixin, command.Command):
     """Delete the uploaded subcloud deployment files"""
+
+    requires_confirmation = True
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
@@ -216,10 +219,10 @@ class SubcloudDeployDelete(command.Command):
             action="store_true",
             help="Delete deploy playbook, deploy overrides, deploy chart files ",
         )
-
         return parser
 
     def take_action(self, parsed_args):
+        super().take_action(parsed_args)
         subcloud_deploy_manager = self.app.client_manager.subcloud_deploy_manager
         release = parsed_args.release
         data = {}

@@ -420,6 +420,8 @@ class BootstrapPhasedSubcloudDeploy(base.DCManagerShowOne):
 class ConfigPhasedSubcloudDeploy(base.DCManagerShowOne):
     """Configure a subcloud."""
 
+    requires_confirmation = True
+
     def _get_format_function(self):
         return utils.subcloud_detail_format
 

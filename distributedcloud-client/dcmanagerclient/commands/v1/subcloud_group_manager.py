@@ -1,5 +1,5 @@
 # Copyright (c) 2017 Ericsson AB.
-# Copyright (c) 2020-2021, 2024 Wind River Systems, Inc.
+# Copyright (c) 2020-2021, 2024-2025 Wind River Systems, Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ from osc_lib.command import command
 
 from dcmanagerclient import exceptions
 from dcmanagerclient.commands.v1 import base
+from dcmanagerclient.commands.v1.base import ConfirmationMixin
 from dcmanagerclient.commands.v1.subcloud_manager import (
     detail_format,
     update_fields_values,
@@ -186,8 +187,10 @@ class ShowSubcloudGroup(base.DCManagerShowOne):
         return subcloud_group_manager.subcloud_group_detail(subcloud_group_ref)
 
 
-class DeleteSubcloudGroup(command.Command):
+class DeleteSubcloudGroup(ConfirmationMixin, command.Command):
     """Delete subcloud group details from the database."""
+
+    requires_confirmation = True
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
@@ -196,6 +199,7 @@ class DeleteSubcloudGroup(command.Command):
         return parser
 
     def take_action(self, parsed_args):
+        super().take_action(parsed_args)
         subcloud_group_ref = parsed_args.group
         subcloud_group_manager = self.app.client_manager.subcloud_group_manager
         try:

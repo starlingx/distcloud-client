@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2022-2024 Wind River Systems, Inc.
+# Copyright (c) 2022-2025 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -12,6 +12,7 @@ from osc_lib.command import command
 from dcmanagerclient import exceptions
 from dcmanagerclient import utils
 from dcmanagerclient.commands.v1 import base
+from dcmanagerclient.commands.v1.base import ConfirmationMixin
 
 
 def detail_format(subcloud=None):
@@ -202,8 +203,10 @@ class CreateSubcloudBackup(base.DCManagerShow):
             raise exceptions.DCManagerClientException(error_msg)
 
 
-class DeleteSubcloudBackup(command.Command):
+class DeleteSubcloudBackup(ConfirmationMixin, command.Command):
     """Delete backup from a subcloud or group of subclouds"""
+
+    requires_confirmation = True
 
     def _get_format_function(self):
         return detail_format
@@ -242,10 +245,10 @@ class DeleteSubcloudBackup(command.Command):
             required=False,
             help="Name or ID of the subcloud to delete backup.",
         )
-
         return parser
 
     def take_action(self, parsed_args):
+        super().take_action(parsed_args)
         subcloud_backup_manager = self.app.client_manager.subcloud_backup_manager
         release_version = parsed_args.release
         subcloud_ref = parsed_args.subcloud
@@ -298,6 +301,8 @@ class DeleteSubcloudBackup(command.Command):
 
 class RestoreSubcloudBackup(base.DCManagerShow):
     """Restore a subcloud or group of subclouds from backup"""
+
+    requires_confirmation = True
 
     def _get_format_function(self):
         return detail_format
@@ -368,7 +373,6 @@ class RestoreSubcloudBackup(base.DCManagerShow):
             required=False,
             help="Name or ID of the subcloud group to restore.",
         )
-
         return parser
 
     def _get_resources(self, parsed_args):

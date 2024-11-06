@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2023-2024 Wind River Systems, Inc.
+# Copyright (c) 2023-2025 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -8,6 +8,7 @@ from osc_lib.command import command
 
 from dcmanagerclient import exceptions
 from dcmanagerclient.commands.v1 import base
+from dcmanagerclient.commands.v1.base import ConfirmationMixin
 
 
 def association_format(peer_group_association=None):
@@ -170,8 +171,10 @@ class SyncPeerGroupAssociation(base.DCManagerShowOne):
         )
 
 
-class DeletePeerGroupAssociation(command.Command):
+class DeletePeerGroupAssociation(ConfirmationMixin, command.Command):
     """Delete peer group association from the database."""
+
+    requires_confirmation = True
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
@@ -180,6 +183,7 @@ class DeletePeerGroupAssociation(command.Command):
         return parser
 
     def take_action(self, parsed_args):
+        super().take_action(parsed_args)
         peer_group_association_manager = (
             self.app.client_manager.peer_group_association_manager
         )
