@@ -38,6 +38,12 @@ class CreateKubeRootcaUpdateStrategy(
         parser.add_argument(
             "--cert-file", required=False, help="Path to a certificate to upload."
         )
+        parser.add_argument(
+            "--force",
+            required=False,
+            action="store_true",
+            help="Allow update even with in-sync endpoint status.",
+        )
 
         return parser
 
@@ -51,6 +57,8 @@ class CreateKubeRootcaUpdateStrategy(
         if parsed_args.cert_file:
             # Need an absolute path for the cert-file
             kwargs_dict["cert-file"] = os.path.abspath(parsed_args.cert_file)
+        if parsed_args.force:
+            kwargs_dict["force"] = "true"
 
 
 class ShowKubeRootcaUpdateStrategy(
