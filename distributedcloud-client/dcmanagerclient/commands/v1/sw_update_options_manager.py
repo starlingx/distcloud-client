@@ -1,5 +1,5 @@
 # Copyright (c) 2017 Ericsson AB.
-# Copyright (c) 2017-2021, 2024 Wind River Systems, Inc.
+# Copyright (c) 2017-2021, 2024-2025 Wind River Systems, Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ from osc_lib.command import command
 from dcmanagerclient import exceptions
 from dcmanagerclient.commands.v1 import base
 
-DEFAULT_REGION_NAME = "RegionOne"
+DEFAULT_REGION_NAME = "SystemController"
 
 
 def options_detail_format(sw_update_options=None):

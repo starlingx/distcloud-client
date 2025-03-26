@@ -1,5 +1,5 @@
 # Copyright (c) 2017 Ericsson AB.
-# Copyright (c) 2017, 2019, 2021, 2024 Wind River Systems, Inc.
+# Copyright (c) 2017, 2019, 2021, 2024-2025 Wind River Systems, Inc.
 # All Rights Reserved.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +20,7 @@ import json
 from dcmanagerclient.api import base
 from dcmanagerclient.api.base import get_json
 
-DEFAULT_REGION_NAME = "RegionOne"
+DEFAULT_REGION_NAME = "SystemController"
 
 
 class SwUpdateOptions(base.Resource):
