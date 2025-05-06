@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2022-2024 Wind River Systems, Inc.
+# Copyright (c) 2022-2025 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -612,5 +612,9 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
         )
 
         self.assertTrue(
-            ("Option --release cannot be used without --with-install option.") in str(e)
+            (
+                "Option --release cannot be used without one of the following "
+                "options: --with-install, --auto or --factory."
+            )
+            in str(e)
         )

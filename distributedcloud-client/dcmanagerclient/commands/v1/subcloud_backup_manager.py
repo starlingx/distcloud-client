@@ -356,6 +356,26 @@ class RestoreSubcloudBackup(base.DCManagerShow):
         )
 
         parser.add_argument(
+            "--auto",
+            required=False,
+            action="store_true",
+            help="Performs a subcloud restore with installation, automatically "
+            "triggering the restore process locally in the subcloud after "
+            "installation completes. Also restores container images. Can be "
+            "used with or without the --local-only option.",
+        )
+
+        parser.add_argument(
+            "--factory",
+            required=False,
+            action="store_true",
+            help="Performs a subcloud restore with installation, automatically "
+            "triggering a factory restore locally in the subcloud after "
+            "installation completes. Also restores container images using the "
+            "local factory backup stored in the subcloud.",
+        )
+
+        parser.add_argument(
             "--sysadmin-password",
             required=False,
             help="sysadmin password of the subcloud to be restored, "
@@ -391,12 +411,6 @@ class RestoreSubcloudBackup(base.DCManagerShow):
             )
             raise exceptions.DCManagerClientException(error_msg)
 
-        if parsed_args.subcloud:
-            data["subcloud"] = parsed_args.subcloud
-
-        if parsed_args.group:
-            data["group"] = parsed_args.group
-
         if not parsed_args.local_only and parsed_args.registry_images:
             error_msg = (
                 "Option --registry-images cannot be used without "
@@ -404,27 +418,42 @@ class RestoreSubcloudBackup(base.DCManagerShow):
             )
             raise exceptions.DCManagerClientException(error_msg)
 
-        if not parsed_args.with_install and parsed_args.release:
-            error_msg = "Option --release cannot be used without --with-install option."
+        if parsed_args.release and not (
+            parsed_args.with_install or parsed_args.auto or parsed_args.factory
+        ):
+            error_msg = (
+                "Option --release cannot be used without one of the "
+                "following options: --with-install, --auto or --factory."
+            )
             raise exceptions.DCManagerClientException(error_msg)
 
-        if parsed_args.with_install:
-            data["with_install"] = "true"
-        else:
-            data["with_install"] = "false"
+        if parsed_args.restore_values:
+            if not os.path.isfile(parsed_args.restore_values):
+                error_msg = (
+                    "restore_values file does not exist: "
+                    f"{parsed_args.restore_values}"
+                )
+                raise exceptions.DCManagerClientException(error_msg)
+            files["restore_values"] = parsed_args.restore_values
 
-        if parsed_args.local_only:
-            data["local_only"] = "true"
-        else:
-            data["local_only"] = "false"
+        if parsed_args.subcloud:
+            data["subcloud"] = parsed_args.subcloud
 
-        if parsed_args.registry_images:
-            data["registry_images"] = "true"
-        else:
-            data["registry_images"] = "false"
+        if parsed_args.group:
+            data["group"] = parsed_args.group
 
         if parsed_args.release is not None:
             data["release"] = parsed_args.release
+
+        # Convert boolean flags to lower case strings
+        for flag in [
+            "with_install",
+            "local_only",
+            "registry_images",
+            "auto",
+            "factory",
+        ]:
+            data[flag] = str(getattr(parsed_args, flag, False)).lower()
 
         if parsed_args.sysadmin_password is not None:
             data["sysadmin_password"] = base64.b64encode(
@@ -435,15 +464,6 @@ class RestoreSubcloudBackup(base.DCManagerShow):
             data["sysadmin_password"] = base64.b64encode(
                 password.encode("utf-8")
             ).decode("utf-8")
-
-        if parsed_args.restore_values:
-            if not os.path.isfile(parsed_args.restore_values):
-                error_msg = (
-                    "restore_values file does not exist: "
-                    f"{parsed_args.restore_values}"
-                )
-                raise exceptions.DCManagerClientException(error_msg)
-            files["restore_values"] = parsed_args.restore_values
 
         try:
             return subcloud_backup_manager.backup_subcloud_restore(
