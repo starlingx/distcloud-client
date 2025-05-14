@@ -80,7 +80,7 @@ def options_list_format(sw_update_option=None):
 
 
 class UpdateSwUpdateOptions(base.DCManagerShowOne):
-    """Update patch options, defaults or per subcloud."""
+    """Update strategy options, defaults or per subcloud."""
 
     def _get_format_function(self):
         return options_detail_format
@@ -149,12 +149,12 @@ class UpdateSwUpdateOptions(base.DCManagerShowOne):
             )
         except Exception as exc:
             print(exc)
-            error_msg = f"Unable to update patch options for subcloud {subcloud_ref}"
+            error_msg = f"Unable to update strategy options for subcloud {subcloud_ref}"
             raise exceptions.DCManagerClientException(error_msg)
 
 
 class ListSwUpdateOptions(base.DCManagerLister):
-    """List patch options."""
+    """List strategy options."""
 
     def _get_format_function(self):
         return options_list_format
@@ -169,7 +169,7 @@ class ListSwUpdateOptions(base.DCManagerLister):
 
 
 class ShowSwUpdateOptions(base.DCManagerShowOne):
-    """Show patch options, defaults or per subcloud."""
+    """Show strategy options, defaults or per subcloud."""
 
     def _get_format_function(self):
         return options_detail_format
@@ -193,7 +193,7 @@ class ShowSwUpdateOptions(base.DCManagerShowOne):
 
 
 class DeleteSwUpdateOptions(ConfirmationMixin, command.Command):
-    """Delete per subcloud patch options."""
+    """Delete per subcloud strategy options."""
 
     requires_confirmation = True
 
@@ -210,5 +210,5 @@ class DeleteSwUpdateOptions(ConfirmationMixin, command.Command):
             return sw_update_options_manager.sw_update_options_delete(subcloud_ref)
         except Exception as exc:
             print(exc)
-            error_msg = "Unable to delete patch options"
+            error_msg = "Unable to delete strategy options"
             raise exceptions.DCManagerClientException(error_msg)

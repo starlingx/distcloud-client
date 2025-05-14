@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2020-2024 Wind River Systems, Inc.
+# Copyright (c) 2020-2025 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -9,7 +9,7 @@ from dcmanagerclient.tests.v1 import utils
 class UpdateStrategyMixin:
     """Mixin for testing the different types of dcmanager update strategies.
 
-    Used by concrete testsuites of strategy types such as patch, upgrade, etc..
+    Used by concrete testsuites of strategy types such as firmware, sw-deploy, etc..
     Subclasses must:
      - mix with BaseCommandTest
      - provide: self.sw_update_manager

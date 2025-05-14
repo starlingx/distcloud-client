@@ -19,8 +19,7 @@ from dcmanagerclient.commands.v1 import base
 
 
 # These are the abstract base classes used for sw update managers such as
-# - sw-patch-manager
-# - fw-update-manager
+# fw-update-manager
 #
 # also handles 'steps' and 'strategies'
 
