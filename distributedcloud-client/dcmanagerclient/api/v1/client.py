@@ -1,7 +1,7 @@
 # Copyright 2014 - Mirantis, Inc.
 # Copyright 2015 - StackStorm, Inc.
 # Copyright 2016 - Ericsson AB.
-# Copyright (c) 2017-2024 Wind River Systems, Inc.
+# Copyright (c) 2017-2025 Wind River Systems, Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -38,7 +38,6 @@ from dcmanagerclient.api.v1.subcloud_group_manager import SubcloudGroupManager
 from dcmanagerclient.api.v1.subcloud_manager import SubcloudManager
 from dcmanagerclient.api.v1.subcloud_peer_group_manager import SubcloudPeerGroupManager
 from dcmanagerclient.api.v1.sw_deploy_manager import SwDeployManager
-from dcmanagerclient.api.v1.sw_patch_manager import SwPatchManager
 from dcmanagerclient.api.v1.sw_prestage_manager import SwPrestageManager
 from dcmanagerclient.api.v1.sw_strategy_manager import SwStrategyManager
 from dcmanagerclient.api.v1.sw_update_options_manager import SwUpdateOptionsManager
@@ -135,7 +134,6 @@ class Client:
         self.kube_rootca_update_manager = KubeRootcaUpdateManager(self.http_client)
         self.kube_upgrade_manager = KubeUpgradeManager(self.http_client)
         self.sw_deploy_manager = SwDeployManager(self.http_client)
-        self.sw_patch_manager = SwPatchManager(self.http_client)
         self.sw_prestage_manager = SwPrestageManager(self.http_client)
         self.sw_update_options_manager = SwUpdateOptionsManager(self.http_client)
         self.strategy_step_manager = StrategyStepManager(self.http_client)

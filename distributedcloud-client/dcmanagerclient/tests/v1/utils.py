@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2020-2024 Wind River Systems, Inc.
+# Copyright (c) 2020-2025 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -14,7 +14,7 @@ TIME_NOW = timeutils.utcnow().isoformat()
 DEFAULT_APPLY_TYPE = "serial"
 DEFAULT_MAX_PARALLEL = 2
 DEFAULT_STATE = "initial"
-DEFAULT_STRATEGY_TYPE = "patch"
+DEFAULT_STRATEGY_TYPE = "sw-deploy"
 
 
 def make_strategy(
