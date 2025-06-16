@@ -1,10 +1,11 @@
 #
-# Copyright (c) 2023-2024 Wind River Systems, Inc.
+# Copyright (c) 2023-2025 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
 
 import os
+import tarfile
 import tempfile
 
 import mock
@@ -269,9 +270,18 @@ class TestCLIPhasedSubcloudDeployManagerV1(base.BaseCommandTest):
 
         with tempfile.NamedTemporaryFile(
             mode="w"
-        ) as bootstrap_file, tempfile.NamedTemporaryFile(mode="w") as install_file:
+        ) as bootstrap_file, tempfile.NamedTemporaryFile(
+            mode="w"
+        ) as install_file, tempfile.NamedTemporaryFile(
+            suffix=".tar", delete=False
+        ) as cloud_init_file:
             bootstrap_file_path = os.path.abspath(bootstrap_file.name)
             install_file_path = os.path.abspath(install_file.name)
+            cloud_init_file_path = os.path.abspath(cloud_init_file.name)
+
+            # Make sure it's a valid tarball (even if empty)
+            with tarfile.open(cloud_init_file_path, "w"):
+                pass
 
             actual_call = self.call(
                 cmd.EnrollPhasedSubcloudDeploy,
@@ -283,6 +293,8 @@ class TestCLIPhasedSubcloudDeployManagerV1(base.BaseCommandTest):
                     bootstrap_file_path,
                     "--install-values",
                     install_file_path,
+                    "--cloud-init-config",
+                    cloud_init_file_path,
                 ],
             )
         self.assertEqual(base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID, actual_call[1])

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2023-2024 Wind River Systems, Inc.
+# Copyright (c) 2023-2025 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -551,6 +551,13 @@ class EnrollPhasedSubcloudDeploy(base.DCManagerShowOne):
             " valid if the --install-values are specified.",
         )
 
+        parser.add_argument(
+            "--cloud-init-config",
+            required=False,
+            help="Path to a tarball file containing cloud-init data to be "
+            "used during the enrollment process.",
+        )
+
         return parser
 
     def _get_resources(self, parsed_args):
@@ -587,6 +594,10 @@ class EnrollPhasedSubcloudDeploy(base.DCManagerShowOne):
             else:
                 password = utils.prompt_for_password("bmc")
                 data["bmc_password"] = base64.b64encode(password.encode("utf-8"))
+
+        if parsed_args.cloud_init_config:
+            utils.validate_cloud_init_config(parsed_args.cloud_init_config)
+            files["cloud_init_config"] = parsed_args.cloud_init_config
 
         utils.set_sysadmin_password(parsed_args, data)
 

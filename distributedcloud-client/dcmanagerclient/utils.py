@@ -22,6 +22,7 @@ import os
 import base64
 import signal
 import sys
+import tarfile
 from urllib import parse, request
 
 import yaml
@@ -177,6 +178,21 @@ def set_sysadmin_password(parsed_args, data):
     else:
         password = prompt_for_password()
         data["sysadmin_password"] = base64.b64encode(password.encode("utf-8"))
+
+
+def validate_cloud_init_config(cloud_init_config_path):
+    """Validate cloud-init-config file exists and is a valid tar archive."""
+    if not os.path.isfile(cloud_init_config_path):
+        error_msg = f"cloud-init-config does not exist: {cloud_init_config_path}"
+        raise exceptions.DCManagerClientException(error_msg)
+
+    try:
+        with tarfile.open(cloud_init_config_path, "r") as tar:
+            tar.getmembers()
+    except tarfile.TarError as exc:
+        raise exceptions.DCManagerClientException(
+            f"cloud-init-config is not a valid .tar archive: {cloud_init_config_path}"
+        ) from exc
 
 
 class CLIUtils:

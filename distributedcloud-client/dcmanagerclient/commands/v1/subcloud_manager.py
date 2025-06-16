@@ -265,6 +265,13 @@ class AddSubcloud(base.DCManagerShowOne):
             "--enroll", required=False, action="store_true", help="Enroll a subcloud"
         )
 
+        parser.add_argument(
+            "--cloud-init-config",
+            required=False,
+            help="Path to a tarball file containing cloud-init scripts to be "
+            "used during the enrollment process.",
+        )
+
         return parser
 
     def _get_resources(self, parsed_args):
@@ -303,8 +310,20 @@ class AddSubcloud(base.DCManagerShowOne):
             files["deploy_config"] = parsed_args.deploy_config
 
         if parsed_args.migrate and parsed_args.enroll:
-            error_msg = "cannot run migrate and enroll commands together"
+            error_msg = "cannot run --migrate and --enroll options together"
             raise exceptions.DCManagerClientException(error_msg)
+
+        if not parsed_args.install_values and parsed_args.enroll:
+            error_msg = "install-values is required for --enroll option"
+            raise exceptions.DCManagerClientException(error_msg)
+
+        if parsed_args.cloud_init_config:
+            if not parsed_args.enroll:
+                error_msg = "cloud-init-config is only valid with --enroll option"
+                raise exceptions.DCManagerClientException(error_msg)
+
+            utils.validate_cloud_init_config(parsed_args.cloud_init_config)
+            files["cloud_init_config"] = parsed_args.cloud_init_config
 
         # Prompt the user for the subcloud's password if it isn't provided
         if parsed_args.sysadmin_password is not None:
