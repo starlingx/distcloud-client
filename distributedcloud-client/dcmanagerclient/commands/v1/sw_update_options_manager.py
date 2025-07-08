@@ -16,9 +16,8 @@
 
 from osc_lib.command import command
 
-from dcmanagerclient import exceptions
 from dcmanagerclient.commands.v1 import base
-from dcmanagerclient.commands.v1.base import ConfirmationMixin
+from dcmanagerclient import utils
 
 
 DEFAULT_REGION_NAME = "SystemController"
@@ -148,9 +147,8 @@ class UpdateSwUpdateOptions(base.DCManagerShowOne):
                 subcloud_ref, **kwargs
             )
         except Exception as exc:
-            print(exc)
             error_msg = f"Unable to update strategy options for subcloud {subcloud_ref}"
-            raise exceptions.DCManagerClientException(error_msg)
+            return utils.raise_client_exception(error_msg, exc)
 
 
 class ListSwUpdateOptions(base.DCManagerLister):
@@ -192,7 +190,9 @@ class ShowSwUpdateOptions(base.DCManagerShowOne):
         return sw_update_options_manager.sw_update_options_detail(subcloud_ref)
 
 
-class DeleteSwUpdateOptions(ConfirmationMixin, command.Command):
+class DeleteSwUpdateOptions(
+    base.CacheRetryMixin, base.ConfirmationMixin, command.Command
+):
     """Delete per subcloud strategy options."""
 
     requires_confirmation = True
@@ -202,13 +202,11 @@ class DeleteSwUpdateOptions(ConfirmationMixin, command.Command):
         self.add_argument("subcloud", help="Subcloud name or id")
         return parser
 
-    def take_action(self, parsed_args):
-        super().take_action(parsed_args)
+    def _take_action(self, parsed_args):
         subcloud_ref = parsed_args.subcloud
         sw_update_options_manager = self.app.client_manager.sw_update_options_manager
         try:
             return sw_update_options_manager.sw_update_options_delete(subcloud_ref)
         except Exception as exc:
-            print(exc)
             error_msg = "Unable to delete strategy options"
-            raise exceptions.DCManagerClientException(error_msg)
+            return utils.raise_client_exception(error_msg, exc)

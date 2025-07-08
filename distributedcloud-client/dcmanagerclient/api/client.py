@@ -1,5 +1,5 @@
 # Copyright 2016 - Ericsson AB
-# Copyright (c) 2017, 2019, 2021, 2024 Wind River Systems, Inc.
+# Copyright (c) 2017, 2019, 2021, 2024-2025 Wind River Systems, Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -35,6 +35,8 @@ def client(
     client_id=None,
     client_secret=None,
     session=None,
+    cache_allowed=False,
+    refresh_cache=False,
     **kwargs
 ):
     if dcmanager_url and not isinstance(dcmanager_url, str):
@@ -58,6 +60,8 @@ def client(
         client_id=client_id,
         client_secret=client_secret,
         session=session,
+        cache_allowed=cache_allowed,
+        refresh_cache=refresh_cache,
         **kwargs
     )
 

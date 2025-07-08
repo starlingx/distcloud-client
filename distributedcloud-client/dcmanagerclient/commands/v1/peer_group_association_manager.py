@@ -6,9 +6,8 @@
 
 from osc_lib.command import command
 
-from dcmanagerclient import exceptions
+from dcmanagerclient import utils
 from dcmanagerclient.commands.v1 import base
-from dcmanagerclient.commands.v1.base import ConfirmationMixin
 
 
 def association_format(peer_group_association=None):
@@ -171,7 +170,9 @@ class SyncPeerGroupAssociation(base.DCManagerShowOne):
         )
 
 
-class DeletePeerGroupAssociation(ConfirmationMixin, command.Command):
+class DeletePeerGroupAssociation(
+    base.CacheRetryMixin, base.ConfirmationMixin, command.Command
+):
     """Delete peer group association from the database."""
 
     requires_confirmation = True
@@ -182,17 +183,17 @@ class DeletePeerGroupAssociation(ConfirmationMixin, command.Command):
         self.add_argument("id", help="ID of the peer group association to delete.")
         return parser
 
-    def take_action(self, parsed_args):
-        super().take_action(parsed_args)
+    def _take_action(self, parsed_args):
         peer_group_association_manager = (
             self.app.client_manager.peer_group_association_manager
         )
         try:
-            peer_group_association_manager.delete_peer_group_association(parsed_args.id)
+            return peer_group_association_manager.delete_peer_group_association(
+                parsed_args.id
+            )
         except Exception as exc:
-            print(exc)
             msg = f"Unable to delete peer group association {parsed_args.id}"
-            raise exceptions.DCManagerClientException(msg)
+            return utils.raise_client_exception(msg, exc)
 
 
 class UpdatePeerGroupAssociation(base.DCManagerShowOne):
@@ -225,6 +226,5 @@ class UpdatePeerGroupAssociation(base.DCManagerShowOne):
                 parsed_args.id, **kwargs
             )
         except Exception as exc:
-            print(exc)
             msg = f"Unable to update peer group association {parsed_args.id}"
-            raise exceptions.DCManagerClientException(msg)
+            return utils.raise_client_exception(msg, exc)

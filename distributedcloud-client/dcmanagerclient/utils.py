@@ -17,17 +17,22 @@
 #
 
 import getpass
+import subprocess
 import json
 import os
 import base64
 import signal
+import logging
 import sys
 import tarfile
+from typing import Union
 from urllib import parse, request
 
 import yaml
 
 from dcmanagerclient import exceptions
+
+LOG = logging.getLogger(__name__)
 
 
 def do_action_on_many(action, resources, success_msg, error_msg):
@@ -56,6 +61,19 @@ def load_content(content):
         data = json.loads(content)
 
     return data
+
+
+def raise_client_exception(msg: str, exc: BaseException):
+    """Receive a generic exception and raises DCManagerClientException
+
+    :param msg: A message to be added to the exception that will be raised
+    :param exc: A generic exception
+    """
+
+    error_code = getattr(exc, "error_code", None)
+    raise exceptions.DCManagerClientException(
+        f"{str(exc)}\n{msg}", error_code=error_code
+    )
 
 
 def get_contents_if_file(contents_or_file_name):
@@ -253,3 +271,115 @@ class CLIUtils:
         if requires_confirmation and instance._is_cliconf_enabled():
             if hasattr(parsed_args, "yes") and not parsed_args.yes:
                 instance._prompt_cli_confirmation()
+
+
+def persist_auth_session_keyring(
+    name: str, timeout: Union[int, None] = None, **values
+) -> Union[str, None]:
+    """Stores the authentication data into keyring.
+    Authentication data can be retrieved later and reused, avoiding unnecessary calls
+    to identity services. Only the current user's session has access to the stored data.
+    Once the user ends the session the data is lost. It is also possible to set a
+    timeout to automaticaly expire the record.
+
+    :param name: Key name
+    :param timeout: Timeout interval in seconds to expire the key. Default: never
+                    expires.
+    """
+    try:
+        # Persist the key
+        stdout = subprocess.run(
+            [
+                "/usr/bin/keyctl",
+                "add",
+                "user",
+                name,
+                json.dumps(values),
+                "@s",
+            ],
+            check=True,
+            capture_output=True,
+        ).stdout
+        keyring_entry_id = stdout.decode("utf-8").strip("\n")
+        # Set key timeout
+        if timeout:
+            subprocess.run(
+                ["/usr/bin/keyctl", "timeout", keyring_entry_id, str(timeout)],
+                check=True,
+            )
+        return keyring_entry_id
+    except Exception as exc:
+        LOG.debug(exc)
+    return None
+
+
+def load_auth_session_keyring_by_name(key_name: str) -> dict:
+    """Retrieves the authentication data from keyring using the key name.
+
+    :param key_name: Key name
+    """
+    try:
+        # Search for the key
+        stdout = subprocess.run(
+            ["/usr/bin/keyctl", "search", "@s", "user", key_name],
+            check=True,
+            capture_output=True,
+        ).stdout
+        keyring_entry_id = stdout.decode("utf-8").strip("\n")
+        # Retrieve session data
+        return load_auth_session_keyring_by_id(keyring_entry_id)
+    except Exception as exc:
+        LOG.debug(exc)
+        return {}
+
+
+def load_auth_session_keyring_by_id(key_id: str) -> dict:
+    """Retrieves the authentication data from keyring using the key identifier.
+
+    :param key_id: Key Identifier
+    """
+    try:
+        # Retrieve session data
+        stdout = subprocess.run(
+            ["/usr/bin/keyctl", "print", key_id],
+            check=True,
+            capture_output=True,
+        ).stdout
+        return json.loads(stdout.decode("utf-8").strip("\n"))
+    except Exception as exc:
+        LOG.debug(exc)
+        return {}
+
+
+def revoke_keyring_by_name(key_name: str):
+    """Deletes a key from keyring using the key name.
+
+    :param key_name: Key name
+    """
+    try:
+        # Search for the key
+        stdout = subprocess.run(
+            ["/usr/bin/keyctl", "search", "@s", "user", key_name],
+            check=True,
+            capture_output=True,
+        ).stdout
+
+        keyring_entry_id = stdout.decode("utf-8").strip("\n")
+        revoke_keyring_by_id(keyring_entry_id)
+    except Exception as exc:
+        LOG.debug(exc)
+
+
+def revoke_keyring_by_id(key_id: str):
+    """Deletes a key from keyring using the key identifier.
+
+    :param key_id: Key Identifier
+    """
+    try:
+        subprocess.run(
+            ["/usr/bin/keyctl", "revoke", key_id],
+            check=True,
+            capture_output=True,
+        ).stdout
+    except Exception as exc:
+        LOG.debug(exc)

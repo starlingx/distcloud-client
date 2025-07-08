@@ -39,9 +39,8 @@ class AbortPhasedSubcloudDeploy(base.DCManagerShowOne):
                 subcloud_ref=subcloud_ref
             )
         except Exception as exc:
-            print(exc)
             error_msg = f"Unable to abort subcloud deploy {subcloud_ref}"
-            raise exceptions.DCManagerClientException(error_msg)
+            return utils.raise_client_exception(error_msg, exc)
 
 
 class PhasedSubcloudDeployResume(base.DCManagerShowOne):
@@ -350,9 +349,8 @@ class InstallPhasedSubcloudDeploy(base.DCManagerShowOne):
                 subcloud_ref=subcloud_ref, files=files, data=data
             )
         except Exception as exc:
-            print(exc)
             error_msg = f"Unable to install subcloud {subcloud_ref}"
-            raise exceptions.DCManagerClientException(error_msg)
+            return utils.raise_client_exception(error_msg, exc)
 
 
 class BootstrapPhasedSubcloudDeploy(base.DCManagerShowOne):
@@ -472,9 +470,8 @@ class ConfigPhasedSubcloudDeploy(base.DCManagerShowOne):
                 subcloud_ref=subcloud_ref, files=files, data=data
             )
         except Exception as exc:
-            print(exc)
             error_msg = f"Unable to configure subcloud {subcloud_ref}"
-            raise exceptions.DCManagerClientException(error_msg)
+            return utils.raise_client_exception(error_msg, exc)
 
 
 class CompletePhasedSubcloudDeploy(base.DCManagerShowOne):
@@ -501,9 +498,8 @@ class CompletePhasedSubcloudDeploy(base.DCManagerShowOne):
         try:
             return phased_subcloud_deploy_manager.subcloud_deploy_complete(subcloud_ref)
         except Exception as exc:
-            print(exc)
             error_msg = f"Unable to complete the deployment of subcloud {subcloud_ref}"
-            raise exceptions.DCManagerClientException(error_msg)
+            return utils.raise_client_exception(error_msg, exc)
 
 
 class EnrollPhasedSubcloudDeploy(base.DCManagerShowOne):
@@ -621,6 +617,5 @@ class EnrollPhasedSubcloudDeploy(base.DCManagerShowOne):
             )
 
         except Exception as exc:
-            print(exc)
             error_msg = f"Unable to enroll subcloud {subcloud_ref}"
-            raise exceptions.DCManagerClientException(error_msg)
+            return utils.raise_client_exception(error_msg, exc)

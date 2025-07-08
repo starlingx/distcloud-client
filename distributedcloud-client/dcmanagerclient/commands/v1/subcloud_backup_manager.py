@@ -12,7 +12,6 @@ from osc_lib.command import command
 from dcmanagerclient import exceptions
 from dcmanagerclient import utils
 from dcmanagerclient.commands.v1 import base
-from dcmanagerclient.commands.v1.base import ConfirmationMixin
 
 
 def detail_format(subcloud=None):
@@ -198,12 +197,13 @@ class CreateSubcloudBackup(base.DCManagerShow):
             )
 
         except Exception as exc:
-            print(exc)
             error_msg = "Unable to create subcloud backup"
-            raise exceptions.DCManagerClientException(error_msg)
+            return utils.raise_client_exception(error_msg, exc)
 
 
-class DeleteSubcloudBackup(ConfirmationMixin, command.Command):
+class DeleteSubcloudBackup(
+    base.CacheRetryMixin, base.ConfirmationMixin, command.Command
+):
     """Delete backup from a subcloud or group of subclouds"""
 
     requires_confirmation = True
@@ -247,8 +247,7 @@ class DeleteSubcloudBackup(ConfirmationMixin, command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
-        super().take_action(parsed_args)
+    def _take_action(self, parsed_args):
         subcloud_backup_manager = self.app.client_manager.subcloud_backup_manager
         release_version = parsed_args.release
         subcloud_ref = parsed_args.subcloud
@@ -294,9 +293,8 @@ class DeleteSubcloudBackup(ConfirmationMixin, command.Command):
             )
 
         except Exception as exc:
-            print(exc)
             error_msg = "Unable to delete backup"
-            raise exceptions.DCManagerClientException(error_msg)
+            return utils.raise_client_exception(error_msg, exc)
 
 
 class RestoreSubcloudBackup(base.DCManagerShow):
@@ -473,6 +471,5 @@ class RestoreSubcloudBackup(base.DCManagerShow):
             )
 
         except Exception as exc:
-            print(exc)
             error_msg = "Unable to restore subcloud backup"
-            raise exceptions.DCManagerClientException(error_msg)
+            return utils.raise_client_exception(error_msg, exc)

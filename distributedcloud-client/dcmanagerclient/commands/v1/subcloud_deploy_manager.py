@@ -19,7 +19,7 @@ from osc_lib.command import command
 
 from dcmanagerclient import exceptions
 from dcmanagerclient.commands.v1 import base
-from dcmanagerclient.commands.v1.base import ConfirmationMixin
+from dcmanagerclient import utils
 
 
 def _format(subcloud_deploy=None):
@@ -134,9 +134,8 @@ class SubcloudDeployUpload(base.DCManagerShowOne):
                 files=files, data=data
             )
         except Exception as exc:
-            print(exc)
             error_msg = "Unable to upload subcloud deploy files"
-            raise exceptions.DCManagerClientException(error_msg)
+            return utils.raise_client_exception(error_msg, exc)
 
 
 class SubcloudDeployShow(base.DCManagerShowOne):
@@ -190,7 +189,9 @@ class DeprecatedSubcloudDeployUpload(SubcloudDeployUpload):
         raise exceptions.DCManagerClientException(self.DEPRECATION_MESSAGE)
 
 
-class SubcloudDeployDelete(ConfirmationMixin, command.Command):
+class SubcloudDeployDelete(
+    base.CacheRetryMixin, base.ConfirmationMixin, command.Command
+):
     """Delete the uploaded subcloud deployment files"""
 
     requires_confirmation = True
@@ -221,8 +222,7 @@ class SubcloudDeployDelete(ConfirmationMixin, command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
-        super().take_action(parsed_args)
+    def _take_action(self, parsed_args):
         subcloud_deploy_manager = self.app.client_manager.subcloud_deploy_manager
         release = parsed_args.release
         data = {}
@@ -234,6 +234,5 @@ class SubcloudDeployDelete(ConfirmationMixin, command.Command):
         try:
             subcloud_deploy_manager.subcloud_deploy_delete(release, data=data)
         except Exception as exc:
-            print(exc)
             error_msg = "Unable to delete subcloud deploy files"
-            raise exceptions.DCManagerClientException(error_msg)
+            utils.raise_client_exception(error_msg, exc)

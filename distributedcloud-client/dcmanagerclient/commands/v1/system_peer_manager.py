@@ -11,7 +11,6 @@ from osc_lib.command import command
 from dcmanagerclient import exceptions
 from dcmanagerclient import utils
 from dcmanagerclient.commands.v1 import base
-from dcmanagerclient.commands.v1.base import ConfirmationMixin
 
 
 def group_format(subcloud_peer_group=None):
@@ -306,7 +305,7 @@ class ShowSystemPeer(base.DCManagerShowOne):
         return system_peer_manager.system_peer_detail(system_peer_ref)
 
 
-class DeleteSystemPeer(ConfirmationMixin, command.Command):
+class DeleteSystemPeer(base.CacheRetryMixin, base.ConfirmationMixin, command.Command):
     """Delete system peer details from the database."""
 
     requires_confirmation = True
@@ -317,16 +316,14 @@ class DeleteSystemPeer(ConfirmationMixin, command.Command):
         self.add_argument("peer", help="UUID or ID of the system peer to delete.")
         return parser
 
-    def take_action(self, parsed_args):
-        super().take_action(parsed_args)
+    def _take_action(self, parsed_args):
         system_peer_ref = parsed_args.peer
         system_peer_manager = self.app.client_manager.system_peer_manager
         try:
             system_peer_manager.delete_system_peer(system_peer_ref)
         except Exception as exc:
-            print(exc)
             msg = f"Unable to delete system peer {system_peer_ref}"
-            raise exceptions.DCManagerClientException(msg)
+            utils.raise_client_exception(msg, exc)
 
 
 class UpdateSystemPeer(base.DCManagerShowOne):
@@ -460,6 +457,5 @@ class UpdateSystemPeer(base.DCManagerShowOne):
         try:
             return system_peer_manager.update_system_peer(system_peer_ref, **kwargs)
         except Exception as exc:
-            print(exc)
             msg = f"Unable to update system peer {system_peer_ref}"
-            raise exceptions.DCManagerClientException(msg)
+            return utils.raise_client_exception(msg, exc)

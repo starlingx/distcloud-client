@@ -17,8 +17,8 @@
 from osc_lib.command import command
 
 from dcmanagerclient import exceptions
+from dcmanagerclient import utils
 from dcmanagerclient.commands.v1 import base
-from dcmanagerclient.commands.v1.base import ConfirmationMixin
 from dcmanagerclient.commands.v1.subcloud_manager import (
     detail_format,
     update_fields_values,
@@ -187,7 +187,9 @@ class ShowSubcloudGroup(base.DCManagerShowOne):
         return subcloud_group_manager.subcloud_group_detail(subcloud_group_ref)
 
 
-class DeleteSubcloudGroup(ConfirmationMixin, command.Command):
+class DeleteSubcloudGroup(
+    base.CacheRetryMixin, base.ConfirmationMixin, command.Command
+):
     """Delete subcloud group details from the database."""
 
     requires_confirmation = True
@@ -198,16 +200,14 @@ class DeleteSubcloudGroup(ConfirmationMixin, command.Command):
         self.add_argument("group", help="Name or ID of the subcloud group to delete.")
         return parser
 
-    def take_action(self, parsed_args):
-        super().take_action(parsed_args)
+    def _take_action(self, parsed_args):
         subcloud_group_ref = parsed_args.group
         subcloud_group_manager = self.app.client_manager.subcloud_group_manager
         try:
             subcloud_group_manager.delete_subcloud_group(subcloud_group_ref)
         except Exception as exc:
-            print(exc)
             msg = f"Unable to delete subcloud group {subcloud_group_ref}"
-            raise exceptions.DCManagerClientException(msg)
+            utils.raise_client_exception(msg, exc)
 
 
 class UpdateSubcloudGroup(base.DCManagerShowOne):
@@ -263,6 +263,5 @@ class UpdateSubcloudGroup(base.DCManagerShowOne):
                 subcloud_group_ref, **kwargs
             )
         except Exception as exc:
-            print(exc)
             msg = f"Unable to update subcloud group {subcloud_group_ref}"
-            raise exceptions.DCManagerClientException(msg)
+            return utils.raise_client_exception(msg, exc)

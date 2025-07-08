@@ -67,7 +67,30 @@ class ConfirmationMixin(DCManagerBase):
         return super().take_action(parsed_args)
 
 
-class DCManagerLister(DCManagerBase, command.Lister, metaclass=abc.ABCMeta):
+class AuthErrorRetryMixin:
+    def retry_on_auth_error(self, f, args):
+        try:
+            return f(args)
+        except Exception as exc:
+            if (
+                getattr(exc, "error_code", None) in (401, 403)
+                and getattr(self, "app", None)
+                and getattr(self.app, "load_client", None)
+            ):
+                self.app.load_client(refresh_cache=True)
+                return f(args)
+            raise
+
+
+class CacheRetryMixin(AuthErrorRetryMixin):
+    def take_action(self, parsed_args):
+        super().take_action(parsed_args)
+        return self.retry_on_auth_error(self._take_action, parsed_args)
+
+
+class DCManagerLister(
+    AuthErrorRetryMixin, DCManagerBase, command.Lister, metaclass=abc.ABCMeta
+):
     @abc.abstractmethod
     def _get_format_function(self):
         raise NotImplementedError
@@ -82,6 +105,9 @@ class DCManagerLister(DCManagerBase, command.Lister, metaclass=abc.ABCMeta):
         pass
 
     def take_action(self, parsed_args):
+        return self.retry_on_auth_error(self._list_take_action, parsed_args)
+
+    def _list_take_action(self, parsed_args):
         self._validate_parsed_args(parsed_args)
         f = self._get_format_function()
 
@@ -96,7 +122,9 @@ class DCManagerLister(DCManagerBase, command.Lister, metaclass=abc.ABCMeta):
         return f()
 
 
-class DCManagerShowOne(ConfirmationMixin, command.ShowOne, metaclass=abc.ABCMeta):
+class DCManagerShowOne(
+    AuthErrorRetryMixin, ConfirmationMixin, command.ShowOne, metaclass=abc.ABCMeta
+):
     @abc.abstractmethod
     def _get_format_function(self):
         raise NotImplementedError
@@ -112,6 +140,9 @@ class DCManagerShowOne(ConfirmationMixin, command.ShowOne, metaclass=abc.ABCMeta
 
     def take_action(self, parsed_args):
         super().take_action(parsed_args)
+        return self.retry_on_auth_error(self._one_take_action, parsed_args)
+
+    def _one_take_action(self, parsed_args):
         self._validate_parsed_args(parsed_args)
         f = self._get_format_function()
 

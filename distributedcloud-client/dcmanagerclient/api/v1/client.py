@@ -16,10 +16,15 @@
 #    limitations under the License.
 #
 
+import datetime
+import logging
+from typing import Union
+
 import keystoneauth1.identity.generic as auth_plugin
 import osprofiler.profiler
 from keystoneauth1 import session as ks_session
 
+from dcmanagerclient import utils
 from dcmanagerclient.api import httpclient
 from dcmanagerclient.api.v1.alarm_manager import AlarmManager
 from dcmanagerclient.api.v1.fw_update_manager import FwUpdateManager
@@ -43,7 +48,14 @@ from dcmanagerclient.api.v1.sw_strategy_manager import SwStrategyManager
 from dcmanagerclient.api.v1.sw_update_options_manager import SwUpdateOptionsManager
 from dcmanagerclient.api.v1.system_peer_manager import SystemPeerManager
 
+LOG = logging.getLogger(__name__)
 _DEFAULT_DCMANAGER_URL = "http://localhost:8119/v1.0"
+
+
+def _cache_key(username: Union[str, None] = None) -> str:
+    if username:
+        return f"dcmanager_client:session:{username}"
+    return "dcmanager_client:session"
 
 
 class Client:
@@ -68,6 +80,8 @@ class Client:
         _client_id=None,
         _client_secret=None,
         session=None,
+        cache_allowed=False,
+        refresh_cache=False,
         **kwargs,
     ):
         """DC Manager communicates with Keystone to fetch necessary values."""
@@ -90,6 +104,8 @@ class Client:
                     session,
                     cacert,
                     insecure,
+                    cache_allowed=cache_allowed,
+                    refresh_cache=refresh_cache,
                     **kwargs,
                 )
             else:
@@ -157,6 +173,8 @@ def authenticate(
     session=None,
     cacert=None,
     insecure=False,
+    cache_allowed=False,
+    refresh_cache=False,
     **kwargs,
 ):
     """Get token, project_id, user_id and Endpoint."""
@@ -201,12 +219,35 @@ def authenticate(
             session = ks_session.Session(auth=auth)
 
     if session:
-        token = session.get_token()
-        project_id = session.get_project_id()
-        user_id = session.get_user_id()
-        if not dcmanager_url:
-            dcmanager_url = session.get_endpoint(
-                service_type=service_type, interface=endpoint_type
-            )
+        token, cache_key = None, _cache_key(username)
+        if cache_allowed:
+            LOG.debug("Retrieving session auth data from cache")
+            cache = utils.load_auth_session_keyring_by_name(cache_key)
+            token = cache.get("token")
+            dcmanager_url = cache.get("dcmanager_url")
+            project_id = cache.get("project_id")
+            user_id = cache.get("user_id")
+
+        if not all([token, dcmanager_url, project_id, user_id]) or refresh_cache:
+            token = session.get_token()
+            if not dcmanager_url:
+                dcmanager_url = session.get_endpoint(
+                    service_type=service_type, interface=endpoint_type
+                )
+            project_id = session.get_project_id()
+            user_id = session.get_user_id()
+
+            now = datetime.datetime.now().astimezone() + datetime.timedelta(seconds=10)
+            timeout = int((session.auth.auth_ref.expires - now).total_seconds())
+            if cache_allowed:
+                LOG.debug("Caching session auth data")
+                utils.persist_auth_session_keyring(
+                    name=cache_key,
+                    timeout=timeout,
+                    token=token,
+                    dcmanager_url=dcmanager_url,
+                    project_id=project_id,
+                    user_id=user_id,
+                )
 
     return dcmanager_url, token, project_id, user_id

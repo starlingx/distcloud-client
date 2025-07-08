@@ -233,6 +233,7 @@ class CustomCompleteCommand(complete.CompleteCommand):
 
 
 class DCManagerShell(app.App):
+
     def __init__(self):
         super().__init__(
             description=__doc__.strip(),
@@ -317,6 +318,21 @@ class DCManagerShell(app.App):
             dest="verbose_level",
             const=0,
             help="Suppress output except warnings and errors.",
+        )
+
+        parser.add_argument(
+            "--refresh-cache",
+            action="store_true",
+            dest="refresh_cache",
+            help="Forces the update of the cached settings",
+        )
+
+        parser.add_argument(
+            "--no-cache",
+            action="store_true",
+            dest="no_cache",
+            default=env("DCCLIENT_NO_CACHE", default=False),
+            help="Disables cache feature (Env: DCCLIENT_NO_CACHE)",
         )
 
         if self.deferred_help:
@@ -520,24 +536,7 @@ class DCManagerShell(app.App):
             action = HelpAction(None, None, default=self)
             action(self.parser, self.options, None, None)
 
-    def initialize_app(self, argv):
-        self._clear_shell_commands()
-
-        ver = client.determine_client_version(self.options.dcmanager_version)
-
-        self._set_shell_commands(self._get_commands(ver))
-
-        no_auth_commands = {"help", "bash-completion", "complete"}
-
-        # Skip authentication if the first argument is a no-auth command or
-        # if deferred_help is True
-        skip_auth = (
-            argv[0] in no_auth_commands if argv else False
-        ) or self.options.deferred_help
-
-        if skip_auth:
-            self.options.auth_url = None
-
+    def load_client(self, refresh_cache, skip_auth=True):
         if self.options.auth_url and not self.options.token and not skip_auth:
             if not self.options.tenant_name:
                 raise exceptions.CommandError(
@@ -582,6 +581,8 @@ class DCManagerShell(app.App):
             cacert=self.options.cacert,
             insecure=self.options.insecure,
             profile=self.options.profile,
+            refresh_cache=refresh_cache,
+            cache_allowed=self.options.no_cache is False,
             **kwargs,
         )
 
@@ -624,6 +625,26 @@ class DCManagerShell(app.App):
             client_keys,
         )
         self.client_manager = ClientManager()
+
+    def initialize_app(self, argv):
+        self._clear_shell_commands()
+
+        ver = client.determine_client_version(self.options.dcmanager_version)
+
+        self._set_shell_commands(self._get_commands(ver))
+
+        no_auth_commands = {"help", "bash-completion", "complete"}
+
+        # Skip authentication if the first argument is a no-auth command or
+        # if deferred_help is True
+        skip_auth = (
+            argv[0] in no_auth_commands if argv else False
+        ) or self.options.deferred_help
+
+        if skip_auth:
+            self.options.auth_url = None
+
+        self.load_client(self.options.refresh_cache, skip_auth)
 
     def _set_shell_commands(self, cmds_dict):
         for cmd, cmd_class in cmds_dict.items():

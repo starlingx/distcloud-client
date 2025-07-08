@@ -22,7 +22,6 @@ from osc_lib.command import command
 from dcmanagerclient import exceptions
 from dcmanagerclient import utils
 from dcmanagerclient.commands.v1 import base
-from dcmanagerclient.commands.v1.base import ConfirmationMixin
 
 SET_FIELD_VALUE_DICT = {"region_name": None, "info_message": None}
 
@@ -452,7 +451,7 @@ class ShowSubcloud(base.DCManagerShowOne):
         return subcloud_manager.subcloud_detail(subcloud_ref)
 
 
-class ShowSubcloudError(base.DCManagerBase, command.Command):
+class ShowSubcloudError(base.CacheRetryMixin, base.DCManagerBase, command.Command):
     """Show the error of the last failed operation."""
 
     def get_parser(self, prog_name):
@@ -463,7 +462,7 @@ class ShowSubcloudError(base.DCManagerBase, command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def _take_action(self, parsed_args):
         subcloud_ref = parsed_args.subcloud
         if not subcloud_ref:
             raise exceptions.DCManagerClientException(
@@ -475,7 +474,7 @@ class ShowSubcloudError(base.DCManagerBase, command.Command):
         print("".join(data))
 
 
-class DeleteSubcloud(ConfirmationMixin, command.Command):
+class DeleteSubcloud(base.CacheRetryMixin, base.ConfirmationMixin, command.Command):
     """Delete subcloud details from the database."""
 
     requires_confirmation = True
@@ -486,16 +485,14 @@ class DeleteSubcloud(ConfirmationMixin, command.Command):
         self.add_argument("subcloud", help="Name or ID of the subcloud to delete.")
         return parser
 
-    def take_action(self, parsed_args):
-        super().take_action(parsed_args)
+    def _take_action(self, parsed_args):
         subcloud_ref = parsed_args.subcloud
         subcloud_manager = self.app.client_manager.subcloud_manager
         try:
             subcloud_manager.delete_subcloud(subcloud_ref)
         except Exception as exc:
-            print(exc)
             error_msg = f"Unable to delete subcloud {subcloud_ref}"
-            raise exceptions.DCManagerClientException(error_msg)
+            utils.raise_client_exception(error_msg, exc)
 
 
 class UnmanageSubcloud(base.DCManagerShowOne):
@@ -535,9 +532,8 @@ class UnmanageSubcloud(base.DCManagerShowOne):
             update_fields_values(result)
             return result
         except Exception as exc:
-            print(exc)
             error_msg = f"Unable to unmanage subcloud {subcloud_ref}"
-            raise exceptions.DCManagerClientException(error_msg)
+            return utils.raise_client_exception(error_msg, exc)
 
 
 class ManageSubcloud(base.DCManagerShowOne):
@@ -575,9 +571,8 @@ class ManageSubcloud(base.DCManagerShowOne):
             update_fields_values(result)
             return result
         except Exception as exc:
-            print(exc)
             error_msg = f"Unable to manage subcloud {subcloud_ref}"
-            raise exceptions.DCManagerClientException(error_msg)
+            return utils.raise_client_exception(error_msg, exc)
 
 
 class UpdateSubcloud(base.DCManagerShowOne):
@@ -776,9 +771,8 @@ class UpdateSubcloud(base.DCManagerShowOne):
             update_fields_values(result)
             return result
         except Exception as exc:
-            print(exc)
             error_msg = f"Unable to update subcloud {subcloud_ref}"
-            raise exceptions.DCManagerClientException(error_msg)
+            return utils.raise_client_exception(error_msg, exc)
 
 
 class ReconfigSubcloud(base.DCManagerShowOne):
@@ -937,9 +931,8 @@ class RedeploySubcloud(base.DCManagerShowOne):
                 subcloud_ref=subcloud_ref, files=files, data=data
             )
         except Exception as exc:
-            print(exc)
             error_msg = f"Unable to redeploy subcloud {subcloud_ref}"
-            raise exceptions.DCManagerClientException(error_msg)
+            return utils.raise_client_exception(error_msg, exc)
 
 
 class RestoreSubcloud(base.DCManagerShowOne):
@@ -1060,6 +1053,5 @@ class PrestageSubcloud(base.DCManagerShowOne):
             raise
 
         except Exception as exc:
-            print(exc)
             error_msg = f"Unable to prestage subcloud {subcloud_ref}"
-            raise exceptions.DCManagerClientException(error_msg)
+            return utils.raise_client_exception(error_msg, exc)

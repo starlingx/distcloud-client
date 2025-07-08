@@ -9,7 +9,6 @@ from osc_lib.command import command
 from dcmanagerclient import exceptions
 from dcmanagerclient import utils
 from dcmanagerclient.commands.v1 import base
-from dcmanagerclient.commands.v1.base import ConfirmationMixin
 
 
 def group_format(subcloud_peer_group=None):
@@ -87,9 +86,8 @@ class MigrateSubcloudPeerGroup(base.DCManagerLister):
                 subcloud_peer_group_ref, **kwargs
             )
         except Exception as exc:
-            print(exc)
             msg = f"Unable to migrate subcloud peer group {subcloud_peer_group_ref}"
-            raise exceptions.DCManagerClientException(msg)
+            return utils.raise_client_exception(msg, exc)
 
 
 class AddSubcloudPeerGroup(base.DCManagerShowOne):
@@ -141,7 +139,9 @@ class AddSubcloudPeerGroup(base.DCManagerShowOne):
         return subcloud_peer_group_manager.add_subcloud_peer_group(**kwargs)
 
 
-class DeleteSubcloudPeerGroup(ConfirmationMixin, command.Command):
+class DeleteSubcloudPeerGroup(
+    base.CacheRetryMixin, base.ConfirmationMixin, command.Command
+):
     """Delete subcloud peer group details from the database."""
 
     requires_confirmation = True
@@ -154,8 +154,7 @@ class DeleteSubcloudPeerGroup(ConfirmationMixin, command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
-        super().take_action(parsed_args)
+    def _take_action(self, parsed_args):
         subcloud_peer_group_ref = parsed_args.group
         subcloud_peer_group_manager = (
             self.app.client_manager.subcloud_peer_group_manager
@@ -165,9 +164,8 @@ class DeleteSubcloudPeerGroup(ConfirmationMixin, command.Command):
                 subcloud_peer_group_ref
             )
         except Exception as exc:
-            print(exc)
             msg = f"Unable to delete subcloud peer group {subcloud_peer_group_ref}"
-            raise exceptions.DCManagerClientException(msg)
+            utils.raise_client_exception(msg, exc)
 
 
 class ShowSubcloudPeerGroup(base.DCManagerShowOne):
@@ -295,9 +293,8 @@ class UpdateSubcloudPeerGroup(base.DCManagerShowOne):
                 subcloud_peer_group_ref, **kwargs
             )
         except Exception as exc:
-            print(exc)
             msg = f"Unable to update subcloud peer group {subcloud_peer_group_ref}"
-            raise exceptions.DCManagerClientException(msg)
+            return utils.raise_client_exception(msg, exc)
 
 
 def detail_status_format(subcloud_peer_group_status=None):
