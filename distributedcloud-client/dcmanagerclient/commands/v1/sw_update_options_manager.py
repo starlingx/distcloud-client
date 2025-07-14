@@ -1,5 +1,5 @@
 # Copyright (c) 2017 Ericsson AB.
-# Copyright (c) 2017-2021, 2024 Wind River Systems, Inc.
+# Copyright (c) 2017-2021, 2024-2025 Wind River Systems, Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -18,8 +18,10 @@ from osc_lib.command import command
 
 from dcmanagerclient import exceptions
 from dcmanagerclient.commands.v1 import base
+from dcmanagerclient.commands.v1.base import ConfirmationMixin
 
-DEFAULT_REGION_NAME = "RegionOne"
+
+DEFAULT_REGION_NAME = "SystemController"
 
 
 def options_detail_format(sw_update_options=None):
@@ -78,7 +80,7 @@ def options_list_format(sw_update_option=None):
 
 
 class UpdateSwUpdateOptions(base.DCManagerShowOne):
-    """Update patch options, defaults or per subcloud."""
+    """Update strategy options, defaults or per subcloud."""
 
     def _get_format_function(self):
         return options_detail_format
@@ -147,12 +149,12 @@ class UpdateSwUpdateOptions(base.DCManagerShowOne):
             )
         except Exception as exc:
             print(exc)
-            error_msg = f"Unable to update patch options for subcloud {subcloud_ref}"
+            error_msg = f"Unable to update strategy options for subcloud {subcloud_ref}"
             raise exceptions.DCManagerClientException(error_msg)
 
 
 class ListSwUpdateOptions(base.DCManagerLister):
-    """List patch options."""
+    """List strategy options."""
 
     def _get_format_function(self):
         return options_list_format
@@ -167,7 +169,7 @@ class ListSwUpdateOptions(base.DCManagerLister):
 
 
 class ShowSwUpdateOptions(base.DCManagerShowOne):
-    """Show patch options, defaults or per subcloud."""
+    """Show strategy options, defaults or per subcloud."""
 
     def _get_format_function(self):
         return options_detail_format
@@ -190,22 +192,23 @@ class ShowSwUpdateOptions(base.DCManagerShowOne):
         return sw_update_options_manager.sw_update_options_detail(subcloud_ref)
 
 
-class DeleteSwUpdateOptions(command.Command):
-    """Delete per subcloud patch options."""
+class DeleteSwUpdateOptions(ConfirmationMixin, command.Command):
+    """Delete per subcloud strategy options."""
+
+    requires_confirmation = True
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
-
         parser.add_argument("subcloud", help="Subcloud name or id")
-
         return parser
 
     def take_action(self, parsed_args):
+        super().take_action(parsed_args)
         subcloud_ref = parsed_args.subcloud
         sw_update_options_manager = self.app.client_manager.sw_update_options_manager
         try:
             return sw_update_options_manager.sw_update_options_delete(subcloud_ref)
         except Exception as exc:
             print(exc)
-            error_msg = "Unable to delete patch options"
+            error_msg = "Unable to delete strategy options"
             raise exceptions.DCManagerClientException(error_msg)

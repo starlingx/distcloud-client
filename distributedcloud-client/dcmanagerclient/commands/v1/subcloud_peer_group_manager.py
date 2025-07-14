@@ -1,4 +1,4 @@
-# Copyright (c) 2023-2024 Wind River Systems, Inc.
+# Copyright (c) 2023-2025 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -9,6 +9,7 @@ from osc_lib.command import command
 from dcmanagerclient import exceptions
 from dcmanagerclient import utils
 from dcmanagerclient.commands.v1 import base
+from dcmanagerclient.commands.v1.base import ConfirmationMixin
 
 
 def group_format(subcloud_peer_group=None):
@@ -140,8 +141,10 @@ class AddSubcloudPeerGroup(base.DCManagerShowOne):
         return subcloud_peer_group_manager.add_subcloud_peer_group(**kwargs)
 
 
-class DeleteSubcloudPeerGroup(command.Command):
+class DeleteSubcloudPeerGroup(ConfirmationMixin, command.Command):
     """Delete subcloud peer group details from the database."""
+
+    requires_confirmation = True
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
@@ -152,6 +155,7 @@ class DeleteSubcloudPeerGroup(command.Command):
         return parser
 
     def take_action(self, parsed_args):
+        super().take_action(parsed_args)
         subcloud_peer_group_ref = parsed_args.group
         subcloud_peer_group_manager = (
             self.app.client_manager.subcloud_peer_group_manager

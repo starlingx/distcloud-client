@@ -1,5 +1,5 @@
 # Copyright (c) 2017 Ericsson AB.
-# Copyright (c) 2017-2024 Wind River Systems, Inc.
+# Copyright (c) 2017-2025 Wind River Systems, Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ from osc_lib.command import command
 from dcmanagerclient import exceptions
 from dcmanagerclient import utils
 from dcmanagerclient.commands.v1 import base
+from dcmanagerclient.commands.v1.base import ConfirmationMixin
 
 SET_FIELD_VALUE_DICT = {"region_name": None, "info_message": None}
 
@@ -261,10 +262,14 @@ class AddSubcloud(base.DCManagerShowOne):
         )
 
         parser.add_argument(
-            "--enroll",
+            "--enroll", required=False, action="store_true", help="Enroll a subcloud"
+        )
+
+        parser.add_argument(
+            "--cloud-init-config",
             required=False,
-            action="store_true",
-            help="Enroll a subcloud",
+            help="Path to a tarball file containing cloud-init scripts to be "
+            "used during the enrollment process.",
         )
 
         return parser
@@ -305,8 +310,20 @@ class AddSubcloud(base.DCManagerShowOne):
             files["deploy_config"] = parsed_args.deploy_config
 
         if parsed_args.migrate and parsed_args.enroll:
-            error_msg = "cannot run migrate and enroll commands together"
+            error_msg = "cannot run --migrate and --enroll options together"
             raise exceptions.DCManagerClientException(error_msg)
+
+        if not parsed_args.install_values and parsed_args.enroll:
+            error_msg = "install-values is required for --enroll option"
+            raise exceptions.DCManagerClientException(error_msg)
+
+        if parsed_args.cloud_init_config:
+            if not parsed_args.enroll:
+                error_msg = "cloud-init-config is only valid with --enroll option"
+                raise exceptions.DCManagerClientException(error_msg)
+
+            utils.validate_cloud_init_config(parsed_args.cloud_init_config)
+            files["cloud_init_config"] = parsed_args.cloud_init_config
 
         # Prompt the user for the subcloud's password if it isn't provided
         if parsed_args.sysadmin_password is not None:
@@ -462,8 +479,10 @@ class ShowSubcloudError(command.Command):
         print("".join(data))
 
 
-class DeleteSubcloud(command.Command):
+class DeleteSubcloud(ConfirmationMixin, command.Command):
     """Delete subcloud details from the database."""
+
+    requires_confirmation = True
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
@@ -472,6 +491,7 @@ class DeleteSubcloud(command.Command):
         return parser
 
     def take_action(self, parsed_args):
+        super().take_action(parsed_args)
         subcloud_ref = parsed_args.subcloud
         subcloud_manager = self.app.client_manager.subcloud_manager
         try:
@@ -484,6 +504,8 @@ class DeleteSubcloud(command.Command):
 
 class UnmanageSubcloud(base.DCManagerShowOne):
     """Unmanage a subcloud."""
+
+    requires_confirmation = True
 
     def _get_format_function(self):
         return detail_format
@@ -499,7 +521,6 @@ class UnmanageSubcloud(base.DCManagerShowOne):
             action="store_true",
             help="Mark the subcloud for an upcoming migration.",
         )
-
         return parser
 
     def _get_resources(self, parsed_args):
@@ -566,6 +587,7 @@ class ManageSubcloud(base.DCManagerShowOne):
 class UpdateSubcloud(base.DCManagerShowOne):
     """Update attributes of a subcloud."""
 
+    requires_confirmation = True
     _info_message = None
 
     def produce_output(self, parsed_args, column_names, data):
@@ -766,6 +788,7 @@ class UpdateSubcloud(base.DCManagerShowOne):
 class ReconfigSubcloud(base.DCManagerShowOne):
     """Reconfigure a subcloud."""
 
+    requires_confirmation = True
     DEPRECATION_MESSAGE = (
         "This command has been deprecated. Please use 'subcloud deploy config' instead."
     )
@@ -785,6 +808,7 @@ class ReconfigSubcloud(base.DCManagerShowOne):
 class ReinstallSubcloud(base.DCManagerShowOne):
     """Reinstall a subcloud."""
 
+    requires_confirmation = True
     DEPRECATION_MESSAGE = (
         "This command has been deprecated. Please use 'subcloud redeploy' instead."
     )
@@ -803,6 +827,8 @@ class ReinstallSubcloud(base.DCManagerShowOne):
 
 class RedeploySubcloud(base.DCManagerShowOne):
     """Redeploy a subcloud."""
+
+    requires_confirmation = True
 
     def _get_format_function(self):
         return detail_format
@@ -910,24 +936,14 @@ class RedeploySubcloud(base.DCManagerShowOne):
         if parsed_args.release is not None:
             data["release"] = parsed_args.release
 
-        # Require user to type redeploy to confirm
-        print(
-            "WARNING: This will redeploy the subcloud. "
-            "All applications and data on the subcloud will be lost."
-        )
-        confirm = input('Please type "redeploy" to confirm: ').strip().lower()
-        if confirm == "redeploy":
-            try:
-                return subcloud_manager.redeploy_subcloud(
-                    subcloud_ref=subcloud_ref, files=files, data=data
-                )
-            except Exception as exc:
-                print(exc)
-                error_msg = f"Unable to redeploy subcloud {subcloud_ref}"
-                raise exceptions.DCManagerClientException(error_msg)
-        else:
-            msg = f"Subcloud {subcloud_ref} will not be redeployed"
-            raise exceptions.DCManagerClientException(msg)
+        try:
+            return subcloud_manager.redeploy_subcloud(
+                subcloud_ref=subcloud_ref, files=files, data=data
+            )
+        except Exception as exc:
+            print(exc)
+            error_msg = f"Unable to redeploy subcloud {subcloud_ref}"
+            raise exceptions.DCManagerClientException(error_msg)
 
 
 class RestoreSubcloud(base.DCManagerShowOne):

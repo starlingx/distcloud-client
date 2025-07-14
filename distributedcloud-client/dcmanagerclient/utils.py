@@ -1,7 +1,7 @@
 # Copyright 2016 - Ericsson AB
 # Copyright 2015 - Huawei Technologies Co. Ltd
 # Copyright 2015 - StackStorm, Inc.
-# Copyright (c) 2017-2024 Wind River Systems, Inc.
+# Copyright (c) 2017-2025 Wind River Systems, Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -20,6 +20,9 @@ import getpass
 import json
 import os
 import base64
+import signal
+import sys
+import tarfile
 from urllib import parse, request
 
 import yaml
@@ -175,3 +178,78 @@ def set_sysadmin_password(parsed_args, data):
     else:
         password = prompt_for_password()
         data["sysadmin_password"] = base64.b64encode(password.encode("utf-8"))
+
+
+def validate_cloud_init_config(cloud_init_config_path):
+    """Validate cloud-init-config file exists and is a valid tar archive."""
+    if not os.path.isfile(cloud_init_config_path):
+        error_msg = f"cloud-init-config does not exist: {cloud_init_config_path}"
+        raise exceptions.DCManagerClientException(error_msg)
+
+    try:
+        with tarfile.open(cloud_init_config_path, "r") as tar:
+            tar.getmembers()
+    except tarfile.TarError as exc:
+        raise exceptions.DCManagerClientException(
+            f"cloud-init-config is not a valid .tar archive: {cloud_init_config_path}"
+        ) from exc
+
+
+class CLIUtils:
+    _instance = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(CLIUtils, cls).__new__(cls)
+        return cls._instance
+
+    def __init__(self, timeout=10):
+        if not hasattr(self, "_initialized"):
+            self._initialized = True
+            self.timeout = timeout
+
+    def _get_user_input_with_timeout(self, prompt):
+        """Prompt user for input with a timeout."""
+
+        def timeout_handler(signum, frame):
+            raise TimeoutError
+
+        signal.signal(signal.SIGALRM, timeout_handler)
+        signal.alarm(self.timeout)
+
+        try:
+            user_input = input(prompt)
+            signal.alarm(0)
+            return user_input
+        except TimeoutError:
+            print("\nNo response received within the time limit.")
+            sys.exit(1)
+
+    def _prompt_cli_confirmation(self):
+        """Display warning and ask for user confirmation."""
+        YELLOW = "\033[93m"
+        RESET = "\033[0m"
+        BOLD = "\033[1m"
+
+        prompt_msg = (
+            f"{BOLD}{YELLOW}WARNING: This is a high-risk operation that "
+            f"may cause service interruption or remove critical resources.{RESET}\n"
+            f"{BOLD}{YELLOW}Do you want to continue? (yes/No): {RESET}"
+        )
+
+        confirmation = self._get_user_input_with_timeout(prompt_msg)
+
+        if not confirmation or confirmation.lower() != "yes":
+            print("Operation cancelled by the user.")
+            sys.exit(1)
+
+    def _is_cliconf_enabled(self):
+        return os.environ.get("CLI_CONFIRMATIONS", "disabled") == "enabled"
+
+    @classmethod
+    def prompt_cli_confirmation_if_required(cls, requires_confirmation, parsed_args):
+        """Handle CLI confirmation prompt if required."""
+        instance = CLIUtils()
+        if requires_confirmation and instance._is_cliconf_enabled():
+            if hasattr(parsed_args, "yes") and not parsed_args.yes:
+                instance._prompt_cli_confirmation()

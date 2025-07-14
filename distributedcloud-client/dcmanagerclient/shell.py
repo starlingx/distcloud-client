@@ -1,5 +1,5 @@
 # Copyright 2015 - Ericsson AB.
-# Copyright (c) 2017-2024 Wind River Systems, Inc.
+# Copyright (c) 2017-2025 Wind River Systems, Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -43,7 +43,6 @@ from dcmanagerclient.commands.v1 import subcloud_group_manager as gm
 from dcmanagerclient.commands.v1 import subcloud_manager as sm
 from dcmanagerclient.commands.v1 import subcloud_peer_group_manager as pm
 from dcmanagerclient.commands.v1 import sw_deploy_manager as swdm
-from dcmanagerclient.commands.v1 import sw_patch_manager as spm
 from dcmanagerclient.commands.v1 import sw_prestage_manager as spr
 from dcmanagerclient.commands.v1 import sw_update_manager as swum
 from dcmanagerclient.commands.v1 import sw_update_options_manager as suom
@@ -612,7 +611,6 @@ class DCManagerShell(app.App):
             "subcloud_peer_group_manager": self.client.subcloud_peer_group_manager,
             "subcloud_manager": self.client.subcloud_manager,
             "sw_deploy_manager": self.client.sw_deploy_manager,
-            "sw_patch_manager": self.client.sw_patch_manager,
             "sw_prestage_manager": self.client.sw_prestage_manager,
             "sw_update_options_manager": self.client.sw_update_options_manager,
             "system_peer_manager": self.client.system_peer_manager,
@@ -667,15 +665,6 @@ class DCManagerShell(app.App):
             "kube-upgrade-strategy create": kupm.CreateKubeUpgradeStrategy,
             "kube-upgrade-strategy delete": kupm.DeleteKubeUpgradeStrategy,
             "kube-upgrade-strategy show": kupm.ShowKubeUpgradeStrategy,
-            "patch-strategy abort": spm.AbortPatchUpdateStrategy,
-            "patch-strategy apply": spm.ApplyPatchUpdateStrategy,
-            "patch-strategy create": spm.CreatePatchUpdateStrategy,
-            "patch-strategy delete": spm.DeletePatchUpdateStrategy,
-            "patch-strategy show": spm.ShowPatchUpdateStrategy,
-            "patch-strategy-config delete": suom.DeleteSwUpdateOptions,
-            "patch-strategy-config list": suom.ListSwUpdateOptions,
-            "patch-strategy-config show": suom.ShowSwUpdateOptions,
-            "patch-strategy-config update": suom.UpdateSwUpdateOptions,
             "peer-group-association add": pgam.AddPeerGroupAssociation,
             "peer-group-association delete": pgam.DeletePeerGroupAssociation,
             "peer-group-association list": pgam.ListPeerGroupAssociation,
