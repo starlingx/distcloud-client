@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2024 Wind River Systems, Inc.
+# Copyright (c) 2024-2025 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -12,5 +12,7 @@ SW_UPDATE_TYPE_USM = "sw-deploy"
 class SwDeployManager(SwUpdateManager):
     def __init__(self, http_client):
         super().__init__(
-            http_client, update_type=SW_UPDATE_TYPE_USM, extra_args=["release_id"]
+            http_client,
+            update_type=SW_UPDATE_TYPE_USM,
+            extra_args=["release_id", "snapshot"],
         )
