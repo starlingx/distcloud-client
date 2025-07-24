@@ -363,10 +363,6 @@ class AddSubcloud(base.DCManagerShowOne):
                     --migrate option."
                 raise exceptions.DCManagerClientException(error_msg)
 
-        if parsed_args.release and parsed_args.enroll:
-            error_msg = "Enroll does not support backwards compatibility."
-            raise exceptions.DCManagerClientException(error_msg)
-
         result = subcloud_manager.add_subcloud(files=files, data=data)
         update_fields_values(result)
         return result

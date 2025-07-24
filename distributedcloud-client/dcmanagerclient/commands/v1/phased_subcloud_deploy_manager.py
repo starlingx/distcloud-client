@@ -558,6 +558,14 @@ class EnrollPhasedSubcloudDeploy(base.DCManagerShowOne):
             "used during the enrollment process.",
         )
 
+        parser.add_argument(
+            "--release",
+            required=False,
+            help="software release used to enroll the subcloud with. If not "
+            "specified, the current software release of the subcloud stored "
+            "in the system controller will be used.",
+        )
+
         return parser
 
     def _get_resources(self, parsed_args):
@@ -598,6 +606,9 @@ class EnrollPhasedSubcloudDeploy(base.DCManagerShowOne):
         if parsed_args.cloud_init_config:
             utils.validate_cloud_init_config(parsed_args.cloud_init_config)
             files["cloud_init_config"] = parsed_args.cloud_init_config
+
+        if parsed_args.release:
+            data["release"] = parsed_args.release
 
         utils.set_sysadmin_password(parsed_args, data)
 
