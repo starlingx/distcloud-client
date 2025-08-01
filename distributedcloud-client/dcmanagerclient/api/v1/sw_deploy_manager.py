@@ -14,5 +14,11 @@ class SwDeployManager(SwUpdateManager):
         super().__init__(
             http_client,
             update_type=SW_UPDATE_TYPE_USM,
-            extra_args=["release_id", "snapshot"],
+            extra_args=[
+                "release_id",
+                "snapshot",
+                "rollback",
+                "with_delete",
+                "delete_only",
+            ],
         )
