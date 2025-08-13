@@ -63,8 +63,8 @@ class CreateSwDeployStrategy(
         parser = super().get_parser(prog_name)
 
         parser.add_argument(
-            "release_id",
-            nargs="?",
+            "--release-id",
+            required=False,
             help="The release ID to be deployed.",
         )
 
@@ -110,7 +110,7 @@ class CreateSwDeployStrategy(
         delete_only = parsed_args.delete_only
 
         if not release_id and not (rollback or delete_only):
-            error_msg = "The release_id is required to create a deploy strategy."
+            error_msg = "The --release-id is required to create a deploy strategy."
             raise exceptions.DCManagerClientException(error_msg)
 
         if snapshot and (rollback or delete_only):
@@ -141,7 +141,8 @@ class CreateSwDeployStrategy(
             )
             raise exceptions.DCManagerClientException(error_msg)
 
-        kwargs_dict["release_id"] = release_id
+        if release_id:
+            kwargs_dict["release_id"] = release_id
         kwargs_dict["snapshot"] = snapshot
         kwargs_dict["rollback"] = rollback
         kwargs_dict["with_delete"] = with_delete

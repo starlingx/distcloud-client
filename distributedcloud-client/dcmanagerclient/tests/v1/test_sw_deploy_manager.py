@@ -60,7 +60,7 @@ class TestSwDeployStrategy(UpdateStrategyMixin, base.BaseCommandTest):
         # Returns a tuple of field descriptions, and a second tuple of values
         values = ["subcloud1"]
         if release_id:
-            values.append(release_id)
+            values.extend(["--release-id", release_id])
         if snapshot:
             values.append("--snapshot")
         if rollback:
@@ -119,7 +119,7 @@ class TestSwDeployStrategy(UpdateStrategyMixin, base.BaseCommandTest):
 
         values = ["subcloud1"]
         if release_id:
-            values.append(release_id)
+            values.extend(["--release-id", release_id])
         if snapshot:
             values.append("--snapshot")
         if rollback:
@@ -165,7 +165,7 @@ class TestSwDeployStrategy(UpdateStrategyMixin, base.BaseCommandTest):
     def test_create_strategy_without_release_id(self):
         """Test deploy strategy cannot created without release_id"""
 
-        error_msg = "The release_id is required to create a deploy strategy."
+        error_msg = "The --release-id is required to create a deploy strategy."
         self.base_create_strategy_failure(error_msg)
 
     def test_create_strategy_with_snapshot_and_rollback(self):
