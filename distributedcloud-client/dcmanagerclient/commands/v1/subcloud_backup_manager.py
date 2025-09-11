@@ -86,7 +86,7 @@ class CreateSubcloudBackup(base.DCManagerShow):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument(
+        self.add_argument(
             "--local-only",
             required=False,
             action="store_true",
@@ -95,7 +95,7 @@ class CreateSubcloudBackup(base.DCManagerShow):
             "dedicated location on the system controller.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--registry-images",
             required=False,
             action="store_true",
@@ -104,27 +104,27 @@ class CreateSubcloudBackup(base.DCManagerShow):
             "option.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--sysadmin-password",
             required=False,
             help="sysadmin password of the subcloud to create backup, "
             "if not provided you will be prompted.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--backup-values",
             required=False,
             help="YAML file containing subcloud backup settings. "
             "Can be either a local file path or a URL.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--subcloud",
             required=False,
             help="Name or ID of the subcloud to create backup.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--group",
             required=False,
             help="Name or ID of the group to create backup.",
@@ -214,11 +214,11 @@ class DeleteSubcloudBackup(ConfirmationMixin, command.Command):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument(
+        self.add_argument(
             "release", help="Release version that the user is trying to delete."
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--local-only",
             required=False,
             action="store_true",
@@ -227,20 +227,20 @@ class DeleteSubcloudBackup(ConfirmationMixin, command.Command):
             "centralized archive on the system controller.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--sysadmin-password",
             required=False,
             help="sysadmin password of the subcloud to delete backup, "
             "if not provided you will be prompted.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--subcloud",
             required=False,
             help="Name or ID of the subcloud to delete backup.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--group",
             required=False,
             help="Name or ID of the subcloud to delete backup.",
@@ -313,7 +313,7 @@ class RestoreSubcloudBackup(base.DCManagerShow):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument(
+        self.add_argument(
             "--with-install",
             required=False,
             action="store_true",
@@ -321,7 +321,7 @@ class RestoreSubcloudBackup(base.DCManagerShow):
             "being restored from backup data.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--release",
             required=False,
             help="Software release used to install, bootstrap and/or deploy "
@@ -329,7 +329,7 @@ class RestoreSubcloudBackup(base.DCManagerShow):
             "release of the system controller will be used.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--local-only",
             required=False,
             action="store_true",
@@ -339,7 +339,7 @@ class RestoreSubcloudBackup(base.DCManagerShow):
             "controller.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--registry-images",
             required=False,
             action="store_true",
@@ -348,14 +348,14 @@ class RestoreSubcloudBackup(base.DCManagerShow):
             "option.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--restore-values",
             required=False,
             help="Reference to the restore playbook overrides yaml file, as "
             "listed in the product documentation for the ansible restore.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--auto",
             required=False,
             action="store_true",
@@ -365,7 +365,7 @@ class RestoreSubcloudBackup(base.DCManagerShow):
             "used with or without the --local-only option.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--factory",
             required=False,
             action="store_true",
@@ -375,20 +375,20 @@ class RestoreSubcloudBackup(base.DCManagerShow):
             "local factory backup stored in the subcloud.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--sysadmin-password",
             required=False,
             help="sysadmin password of the subcloud to be restored, "
             "if not provided you will be prompted.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--subcloud",
             required=False,
             help="Name or ID of the subcloud to restore.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--group",
             required=False,
             help="Name or ID of the subcloud group to restore.",

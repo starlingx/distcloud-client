@@ -118,40 +118,42 @@ class AddSystemPeer(base.DCManagerShowOne):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument(
+        self.add_argument(
             "--peer-uuid", required=True, help="UUID of the new system peer."
         )
 
-        parser.add_argument(
-            "--peer-name", required=True, help="Name for the new system peer."
+        self.add_argument(
+            "--peer-name",
+            required=True,
+            help="Name for the new system peer.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--manager-endpoint",
             required=True,
             help="URI of DC manager of peer System Controller.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--peer-controller-gateway-address",
             required=True,
             help="Gateway address of peer site controller node.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--manager-username",
             required=False,
             default="admin",
             help="Administrative username (default admin).",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--manager-password",
             required=False,
             help="Admin user password for authenticating into the DC manager.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--administrative-state",
             required=False,
             choices=["enabled", "disabled"],
@@ -159,21 +161,21 @@ class AddSystemPeer(base.DCManagerShowOne):
             help="Administrative control of peer state (default enabled).",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--heartbeat-interval",
             required=False,
             default=60,
             help="Interval between heartbeat messages (in seconds) (default 60).",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--heartbeat-failure-threshold",
             required=False,
             default=3,
             help="Consecutive heartbeat failures before failure declared (default 3).",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--heartbeat-failure-policy",
             required=False,
             choices=["alarm", "rehome", "delegate"],
@@ -181,7 +183,7 @@ class AddSystemPeer(base.DCManagerShowOne):
             help="Action to take with failure detection (default alarm).",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--heartbeat-maintenance-timeout",
             required=False,
             default=600,
@@ -270,7 +272,7 @@ class ListSystemPeerSubcloudPeerGroups(base.DCManagerLister):
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
-        parser.add_argument(
+        self.add_argument(
             "peer",
             help=(
                 "Name or ID or UUID of system peer to list associated subcloud peer "
@@ -294,9 +296,7 @@ class ShowSystemPeer(base.DCManagerShowOne):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument(
-            "peer", help="UUID or ID of system peer to view the details."
-        )
+        self.add_argument("peer", help="UUID or ID of system peer to view the details.")
 
         return parser
 
@@ -314,7 +314,7 @@ class DeleteSystemPeer(ConfirmationMixin, command.Command):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument("peer", help="UUID or ID of the system peer to delete.")
+        self.add_argument("peer", help="UUID or ID of the system peer to delete.")
         return parser
 
     def take_action(self, parsed_args):
@@ -338,29 +338,29 @@ class UpdateSystemPeer(base.DCManagerShowOne):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument("peer", help="UUID or ID of the system peer to update.")
+        self.add_argument("peer", help="UUID or ID of the system peer to update.")
 
-        parser.add_argument(
+        self.add_argument(
             "--peer-uuid", required=False, help="UUID of the new system peer."
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--peer-name", required=False, help="Name for the new system peer."
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--manager-endpoint",
             required=False,
             help="URI of DC manager of peer System Controller.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--manager-username",
             required=False,
             help="Administrative username (default admin).",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--manager-password",
             required=False,
             nargs="?",
@@ -368,39 +368,39 @@ class UpdateSystemPeer(base.DCManagerShowOne):
             help="Admin user password for authenticating into the DC manager",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--peer-controller-gateway-address",
             required=False,
             help="Gateway address of peer site controller node.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--administrative-state",
             required=False,
             choices=["enabled", "disabled"],
             help="Administrative control of peer state (default enabled).",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--heartbeat-interval",
             required=False,
             help="Interval between heartbeat messages (in seconds) (default 60).",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--heartbeat-failure-threshold",
             required=False,
             help="Consecutive heartbeat failures before failure declared (default 3).",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--heartbeat-failure-policy",
             required=False,
             choices=["alarm", "rehome", "delegate"],
             help="Action to take with failure detection (default alarm).",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--heartbeat-maintenance-timeout",
             required=False,
             help=(
