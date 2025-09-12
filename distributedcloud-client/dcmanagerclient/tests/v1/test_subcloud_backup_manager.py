@@ -613,8 +613,8 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
 
         self.assertTrue(
             (
-                "Option --release cannot be used without one of the following "
-                "options: --with-install, --auto or --factory."
+                "Option --release cannot be used without --with-install "
+                "or --factory option."
             )
             in str(e)
         )

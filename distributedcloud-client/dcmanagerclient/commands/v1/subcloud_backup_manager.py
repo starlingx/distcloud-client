@@ -359,20 +359,22 @@ class RestoreSubcloudBackup(base.DCManagerShow):
             "--auto",
             required=False,
             action="store_true",
-            help="Performs a subcloud restore with installation, automatically "
-            "triggering the restore process locally in the subcloud after "
-            "installation completes. Also restores container images. Can be "
-            "used with or without the --local-only option.",
+            help="If included, the restore of the subcloud will be triggered "
+            "using BMC connectivity. Use this option when there is no OAM "
+            "connectivity to the subcloud prior to the restore. This option "
+            "can be used with or without --local-only and --with-install "
+            "options.",
         )
 
         parser.add_argument(
             "--factory",
             required=False,
             action="store_true",
-            help="Performs a subcloud restore with installation, automatically "
-            "triggering a factory restore locally in the subcloud after "
-            "installation completes. Also restores container images using the "
-            "local factory backup stored in the subcloud.",
+            help="If included, the subcloud will be installed and "
+            "automatically restored from the local factory backup on the "
+            "subcloud using BMC connectivity. Use this option when there is "
+            "no OAM connectivity to the subcloud prior to the restore. This "
+            "option implies --with-install and --local-only.",
         )
 
         parser.add_argument(
@@ -419,11 +421,11 @@ class RestoreSubcloudBackup(base.DCManagerShow):
             raise exceptions.DCManagerClientException(error_msg)
 
         if parsed_args.release and not (
-            parsed_args.with_install or parsed_args.auto or parsed_args.factory
+            parsed_args.with_install or parsed_args.factory
         ):
             error_msg = (
-                "Option --release cannot be used without one of the "
-                "following options: --with-install, --auto or --factory."
+                "Option --release cannot be used without --with-install "
+                "or --factory option."
             )
             raise exceptions.DCManagerClientException(error_msg)
 
