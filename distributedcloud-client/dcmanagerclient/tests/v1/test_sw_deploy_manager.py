@@ -17,9 +17,9 @@ class TestSwDeployStrategy(UpdateStrategyMixin, base.BaseCommandTest):
     def setUp(self):
         super().setUp()
 
-        # Increase results_length due to extra_args fields
-        # This includes release_id, snapshot, rollback, and delete_option
-        self.results_length += 4
+        # Increase results_length due to extra_args fields.
+        # This includes delete_option, release_id, rollback, snapshot and with_prestage
+        self.results_length += 5
 
         self.sw_update_manager = self.app.client_manager.sw_deploy_manager
         self.create_command = cli_cmd.CreateSwDeployStrategy
@@ -164,28 +164,21 @@ class TestSwDeployStrategy(UpdateStrategyMixin, base.BaseCommandTest):
 
     def test_create_strategy_without_release_id(self):
         """Test deploy strategy cannot created without release_id"""
-
-        error_msg = "The --release-id is required to create a deploy strategy."
-        self.base_create_strategy_failure(error_msg)
+        self.base_create_strategy_failure(self.create_command.RELEASE_ID_ERROR_MSG)
 
     def test_create_strategy_with_snapshot_and_rollback(self):
         """Test deploy strategy cannot created with snapshot and rollback"""
-        error_msg = (
-            "Option --snapshot cannot be used with any of the following "
-            "options: --rollback or --delete-only."
-        )
         self.base_create_strategy_failure(
-            error_msg, release_id=RELEASE_ID, snapshot=True, rollback=True
+            self.create_command.SNAPSHOT_ERROR_MSG,
+            release_id=RELEASE_ID,
+            snapshot=True,
+            rollback=True,
         )
 
     def test_create_strategy_with_snapshot_and_delete_only(self):
         """Test deploy strategy cannot created with snapshot and delete_only"""
-        error_msg = (
-            "Option --snapshot cannot be used with any of the following "
-            "options: --rollback or --delete-only."
-        )
         self.base_create_strategy_failure(
-            error_msg,
+            self.create_command.SNAPSHOT_ERROR_MSG,
             release_id=RELEASE_ID,
             snapshot=True,
             delete_only=True,
@@ -193,48 +186,37 @@ class TestSwDeployStrategy(UpdateStrategyMixin, base.BaseCommandTest):
 
     def test_create_strategy_with_rollback_and_release_id(self):
         """Test deploy strategy cannot created with rollback and release_id"""
-        error_msg = (
-            "Option --rollback cannot be used with any of the following "
-            "options: release-id, --snapshot, --with-delete or --delete-only."
-        )
         self.base_create_strategy_failure(
-            error_msg,
+            self.create_command.ROLLBACK_ERROR_MSG,
             release_id=RELEASE_ID,
             rollback=True,
         )
 
     def test_create_strategy_with_rollback_and_with_delete(self):
         """Test deploy strategy cannot created with rollback and with_delete"""
-        error_msg = (
-            "Option --rollback cannot be used with any of the following "
-            "options: release-id, --snapshot, --with-delete or --delete-only."
+        self.base_create_strategy_failure(
+            self.create_command.WITH_DELETE_ERROR_MSG, rollback=True, with_delete=True
         )
-        self.base_create_strategy_failure(error_msg, rollback=True, with_delete=True)
 
     def test_create_strategy_with_rollback_and_delete_only(self):
         """Test deploy strategy cannot created with rollback and delete_only"""
-        error_msg = (
-            "Option --rollback cannot be used with any of the following "
-            "options: release-id, --snapshot, --with-delete or --delete-only."
+        self.base_create_strategy_failure(
+            self.create_command.ROLLBACK_ERROR_MSG, rollback=True, delete_only=True
         )
-        self.base_create_strategy_failure(error_msg, rollback=True, delete_only=True)
 
     def test_create_strategy_with_with_delete_and_delete_only(self):
         """Test deploy strategy cannot created with with_delete and delete_only"""
-        error_msg = (
-            "Option --with-delete cannot be used with any of the following "
-            "options: --rollback or --delete-only."
-        )
         self.base_create_strategy_failure(
-            error_msg, release_id=RELEASE_ID, with_delete=True, delete_only=True
+            self.create_command.WITH_DELETE_ERROR_MSG,
+            release_id=RELEASE_ID,
+            with_delete=True,
+            delete_only=True,
         )
 
     def test_create_strategy_with_delete_only_and_release_id(self):
         """Test deploy strategy cannot created with delete_only and release_id"""
-        error_msg = (
-            "Option --delete-only cannot be used with any of the following "
-            "options: release-id, --snapshot, --rollback or --with-delete."
-        )
         self.base_create_strategy_failure(
-            error_msg, release_id=RELEASE_ID, delete_only=True
+            self.create_command.DELETE_ONLY_ERROR_MSG,
+            release_id=RELEASE_ID,
+            delete_only=True,
         )

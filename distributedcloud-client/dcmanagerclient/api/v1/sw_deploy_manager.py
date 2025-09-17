@@ -15,10 +15,13 @@ class SwDeployManager(SwUpdateManager):
             http_client,
             update_type=SW_UPDATE_TYPE_USM,
             extra_args=[
-                "release_id",
-                "snapshot",
-                "rollback",
-                "with_delete",
+                "force",
                 "delete_only",
+                "release_id",
+                "rollback",
+                "snapshot",
+                "sysadmin_password",
+                "with_delete",
+                "with_prestage",
             ],
         )
