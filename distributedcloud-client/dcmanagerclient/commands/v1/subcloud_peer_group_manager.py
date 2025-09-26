@@ -53,11 +53,11 @@ class MigrateSubcloudPeerGroup(base.DCManagerLister):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument(
+        self.add_argument(
             "group", help="Name or ID of the subcloud peer group to migrate."
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--sysadmin-password",
             required=False,
             help="Sysadmin password of the subclouds to be configured, "
@@ -101,13 +101,13 @@ class AddSubcloudPeerGroup(base.DCManagerShowOne):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument(
+        self.add_argument(
             "--peer-group-name",
             required=True,
             help="Name for the new subcloud peer group.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--group-state",
             required=False,
             choices=["enabled", "disabled"],
@@ -115,7 +115,7 @@ class AddSubcloudPeerGroup(base.DCManagerShowOne):
             help="Administrative control of subcloud group.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--max-subcloud-rehoming",
             required=False,
             type=int,
@@ -149,7 +149,7 @@ class DeleteSubcloudPeerGroup(ConfirmationMixin, command.Command):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument(
+        self.add_argument(
             "group", help="Name or ID of the subcloud peer group to delete."
         )
         return parser
@@ -179,7 +179,7 @@ class ShowSubcloudPeerGroup(base.DCManagerShowOne):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument(
+        self.add_argument(
             "group", help="Name or ID of subcloud peer group to view the details."
         )
 
@@ -220,7 +220,7 @@ class ListSubcloudPeerGroupSubclouds(base.DCManagerLister):
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
-        parser.add_argument(
+        self.add_argument(
             "group",
             help="Name or ID of subcloud peer group to list " "associated subclouds.",
         )
@@ -245,24 +245,24 @@ class UpdateSubcloudPeerGroup(base.DCManagerShowOne):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument(
+        self.add_argument(
             "group", help="Name or ID of the subcloud peer group to update."
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--peer-group-name",
             required=False,
             help="Name for the new subcloud peer group.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--group-state",
             required=False,
             choices=["enabled", "disabled"],
             help="Administrative control of subcloud peer group.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--max-subcloud-rehoming",
             required=False,
             type=int,
@@ -340,7 +340,7 @@ class StatusSubcloudPeerGroup(base.DCManagerShowOne):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument(
+        self.add_argument(
             "group", help="Name or ID of subcloud peer group to view the status."
         )
 

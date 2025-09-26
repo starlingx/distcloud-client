@@ -113,32 +113,32 @@ class CreateSwUpdateStrategy(base.DCManagerShowOne):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument(
+        self.add_argument(
             "--subcloud-apply-type",
             required=False,
             choices=["parallel", "serial"],
             help="Subcloud apply type (parallel or serial).",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--max-parallel-subclouds",
             required=False,
             type=int,
             help="Maximum number of parallel subclouds.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--stop-on-failure",
             required=False,
             action="store_true",
             help="Do not update any additional subclouds after a failure.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--group", required=False, help="Name or ID of subcloud group to update."
         )
 
-        parser.add_argument(
+        self.add_argument(
             "cloud_name",
             nargs="?",
             default=None,
@@ -281,7 +281,7 @@ class ShowSwUpdateStrategyStep(base.DCManagerShowOne):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument("cloud_name", help="Name of cloud to view the details.")
+        self.add_argument("cloud_name", help="Name of cloud to view the details.")
         return parser
 
     def _get_resources(self, parsed_args):

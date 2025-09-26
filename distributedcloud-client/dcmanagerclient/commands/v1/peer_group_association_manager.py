@@ -79,13 +79,13 @@ class AddPeerGroupAssociation(base.DCManagerShowOne):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument(
+        self.add_argument(
             "--peer-group-id", required=True, help="Subcloud peer group ID."
         )
 
-        parser.add_argument("--system-peer-id", required=True, help="System Peer ID.")
+        self.add_argument("--system-peer-id", required=True, help="System Peer ID.")
 
-        parser.add_argument(
+        self.add_argument(
             "--peer-group-priority",
             required=True,
             type=int,
@@ -132,7 +132,7 @@ class ShowPeerGroupAssociation(base.DCManagerShowOne):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument(
+        self.add_argument(
             "id", help="ID of the peer group association to view the details."
         )
 
@@ -157,7 +157,7 @@ class SyncPeerGroupAssociation(base.DCManagerShowOne):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument("id", help="ID of the peer group association to sync.")
+        self.add_argument("id", help="ID of the peer group association to sync.")
 
         return parser
 
@@ -179,7 +179,7 @@ class DeletePeerGroupAssociation(ConfirmationMixin, command.Command):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument("id", help="ID of the peer group association to delete.")
+        self.add_argument("id", help="ID of the peer group association to delete.")
         return parser
 
     def take_action(self, parsed_args):
@@ -204,9 +204,9 @@ class UpdatePeerGroupAssociation(base.DCManagerShowOne):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument("id", help="ID of the peer group association to update.")
+        self.add_argument("id", help="ID of the peer group association to update.")
 
-        parser.add_argument(
+        self.add_argument(
             "--peer-group-priority",
             required=True,
             type=int,

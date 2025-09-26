@@ -25,20 +25,20 @@ class CreateKubeRootcaUpdateStrategy(
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
-        parser.add_argument(
+        self.add_argument(
             "--subject",
             required=False,
             help="A subject for a generated certificate.",
         )
-        parser.add_argument(
+        self.add_argument(
             "--expiry-date",
             required=False,
             help="Expiry date for a generated certificate.",
         )
-        parser.add_argument(
+        self.add_argument(
             "--cert-file", required=False, help="Path to a certificate to upload."
         )
-        parser.add_argument(
+        self.add_argument(
             "--force",
             required=False,
             action="store_true",

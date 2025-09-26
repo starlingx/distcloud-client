@@ -66,7 +66,7 @@ class SubcloudDeployUpload(base.DCManagerShowOne):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument(
+        self.add_argument(
             "--deploy-playbook",
             required=False,
             help=(
@@ -77,28 +77,28 @@ class SubcloudDeployUpload(base.DCManagerShowOne):
             ),
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--deploy-overrides",
             required=False,
             help="YAML file containing subcloud variables to be passed to the "
             "deploy playbook. Must be a local file path",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--deploy-chart",
             required=False,
             help="Deployment Manager helm chart to be passed to the "
             "deploy playbook. Must be a local file path",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--prestage-images",
             required=False,
             help="Container image list to be passed to prestage_images playbook. "
             "Must be a local file path",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--release",
             required=False,
             help="software release used to install, bootstrap and/or deploy "
@@ -148,7 +148,7 @@ class SubcloudDeployShow(base.DCManagerShowOne):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument(
+        self.add_argument(
             "--release",
             required=False,
             help="software release used to install, bootstrap and/or deploy "
@@ -169,7 +169,7 @@ class DeprecatedSubcloudDeployShow(SubcloudDeployShow):
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
-        parser.add_argument_group(title="Notice", description=self.DEPRECATION_MESSAGE)
+        self.add_argument_group(title="Notice", description=self.DEPRECATION_MESSAGE)
         return parser
 
     def _get_resources(self, _):
@@ -183,7 +183,7 @@ class DeprecatedSubcloudDeployUpload(SubcloudDeployUpload):
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
-        parser.add_argument_group(title="Notice", description=self.DEPRECATION_MESSAGE)
+        self.add_argument_group(title="Notice", description=self.DEPRECATION_MESSAGE)
         return parser
 
     def _get_resources(self, _):
@@ -198,7 +198,7 @@ class SubcloudDeployDelete(ConfirmationMixin, command.Command):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument(
+        self.add_argument(
             "--release",
             required=False,
             help="Release version that the user is trying to delete "
@@ -206,14 +206,14 @@ class SubcloudDeployDelete(ConfirmationMixin, command.Command):
             "release of the system controller will be used.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--prestage-images",
             required=False,
             action="store_true",
             help="Delete prestage images list file only ",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--deployment-files",
             required=False,
             action="store_true",

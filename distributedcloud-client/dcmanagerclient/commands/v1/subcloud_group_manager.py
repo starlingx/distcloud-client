@@ -83,25 +83,25 @@ class AddSubcloudGroup(base.DCManagerShowOne):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument(
+        self.add_argument(
             "--name", required=True, help="Name for the new subcloud group."
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--description",
             required=False,
             default="No description provided",
             help="Description of new subcloud group.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--update_apply_type",
             required=False,
             default="parallel",
             help="apply type for the new subcloud group.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--max_parallel_subclouds",
             required=False,
             default=2,
@@ -150,7 +150,7 @@ class ListSubcloudGroupSubclouds(base.DCManagerLister):
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
-        parser.add_argument(
+        self.add_argument(
             "group",
             help="Name or ID of subcloud group to list associated subclouds.",
         )
@@ -175,7 +175,7 @@ class ShowSubcloudGroup(base.DCManagerShowOne):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument(
+        self.add_argument(
             "group", help="Name or ID of subcloud group to view the details."
         )
 
@@ -195,7 +195,7 @@ class DeleteSubcloudGroup(ConfirmationMixin, command.Command):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument("group", help="Name or ID of the subcloud group to delete.")
+        self.add_argument("group", help="Name or ID of the subcloud group to delete.")
         return parser
 
     def take_action(self, parsed_args):
@@ -219,21 +219,21 @@ class UpdateSubcloudGroup(base.DCManagerShowOne):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument("group", help="Name or ID of the subcloud group to update.")
+        self.add_argument("group", help="Name or ID of the subcloud group to update.")
 
-        parser.add_argument("--name", required=False, help="Name of subcloud group.")
+        self.add_argument("--name", required=False, help="Name of subcloud group.")
 
-        parser.add_argument(
+        self.add_argument(
             "--description", required=False, help="Description of subcloud group."
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--update_apply_type",
             required=False,
             help="Update apply type of subcloud group.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--max_parallel_subclouds",
             type=int,
             required=False,

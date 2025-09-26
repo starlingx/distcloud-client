@@ -62,34 +62,34 @@ class CreateSwDeployStrategy(
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument(
+        self.add_argument(
             "--release-id",
             required=False,
             help="The release ID to be deployed.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--snapshot",
             required=False,
             action="store_true",
             help="Create snapshot before update (default: False).",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--rollback",
             required=False,
             action="store_true",
             help="Performs a rollback of the active software deployment",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--with-delete",
             required=False,
             action="store_true",
             help="Deletes the software deployment after the strategy apply",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--delete-only",
             required=False,
             action="store_true",

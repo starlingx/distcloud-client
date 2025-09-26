@@ -23,7 +23,32 @@ from osc_lib.command import command
 from dcmanagerclient import utils
 
 
-class ConfirmationMixin:
+class DCManagerBase:
+    def __init__(self, app, app_args):
+        super().__init__(app, app_args)
+        self.parser = None
+        self.required_group = None
+
+    def get_parser(self, prog_name):
+        if hasattr(super(), "get_parser"):
+            parser = super().get_parser(prog_name)
+            self.parser = parser
+            self.required_group = parser.add_argument_group("required arguments")
+            last_group = parser._action_groups.pop()
+            parser._action_groups.insert(0, last_group)
+        return self.parser
+
+    def add_argument(self, *args, **kwargs):
+        if kwargs.get("required", False):
+            self.required_group.add_argument(*args, **kwargs)
+        else:
+            self.parser.add_argument(*args, **kwargs)
+
+    def add_argument_group(self, *args, **kwargs):
+        self.parser.add_argument_group(*args, **kwargs)
+
+
+class ConfirmationMixin(DCManagerBase):
     requires_confirmation = False
 
     def get_parser(self, prog_name):
@@ -42,7 +67,7 @@ class ConfirmationMixin:
         return super().take_action(parsed_args)
 
 
-class DCManagerLister(command.Lister, metaclass=abc.ABCMeta):
+class DCManagerLister(DCManagerBase, command.Lister, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def _get_format_function(self):
         raise NotImplementedError
@@ -72,7 +97,6 @@ class DCManagerLister(command.Lister, metaclass=abc.ABCMeta):
 
 
 class DCManagerShowOne(ConfirmationMixin, command.ShowOne, metaclass=abc.ABCMeta):
-
     @abc.abstractmethod
     def _get_format_function(self):
         raise NotImplementedError

@@ -88,28 +88,28 @@ class UpdateSwUpdateOptions(base.DCManagerShowOne):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument(
+        self.add_argument(
             "--storage-apply-type",
             required=True,
             choices=["parallel", "serial"],
             help="Storage node apply type (parallel or serial).",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--worker-apply-type",
             required=True,
             choices=["parallel", "serial"],
             help="Compute node apply type (parallel or serial).",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--max-parallel-workers",
             required=True,
             type=int,
             help="Maximum number of parallel workers.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--alarm-restriction-type",
             required=True,
             choices=["strict", "relaxed"],
@@ -117,14 +117,14 @@ class UpdateSwUpdateOptions(base.DCManagerShowOne):
             "not (strict, relaxed).",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--default-instance-action",
             required=True,
             choices=["stop-start", "migrate"],
             help="How instances should be handled.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "subcloud",
             nargs="?",
             default=None,
@@ -177,7 +177,7 @@ class ShowSwUpdateOptions(base.DCManagerShowOne):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument(
+        self.add_argument(
             "subcloud",
             nargs="?",
             default=None,
@@ -199,7 +199,7 @@ class DeleteSwUpdateOptions(ConfirmationMixin, command.Command):
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
-        parser.add_argument("subcloud", help="Subcloud name or id")
+        self.add_argument("subcloud", help="Subcloud name or id")
         return parser
 
     def take_action(self, parsed_args):
