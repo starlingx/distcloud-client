@@ -7,7 +7,8 @@
 import base64
 import os
 
-from dcmanagerclient import exceptions, utils
+from dcmanagerclient import exceptions
+from dcmanagerclient import utils
 from dcmanagerclient.commands.v1 import base
 
 
