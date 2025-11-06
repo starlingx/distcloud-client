@@ -1,7 +1,7 @@
 # Copyright 2013 - Mirantis, Inc.
 # Copyright 2016 - StackStorm, Inc.
 # Copyright 2016 - Ericsson AB.
-# Copyright (c) 2017-2021, 2024 Wind River Systems, Inc.
+# Copyright (c) 2017-2021, 2024, 2026 Wind River Systems, Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -51,11 +51,13 @@ class HTTPClient:
         user_id=None,
         cacert=None,
         insecure=False,
+        auth_type="keystone",
     ):
         self.base_url = base_url
         self.token = token
         self.project_id = project_id
         self.user_id = user_id
+        self.auth_type = auth_type
         self.ssl_options = {}
 
         if self.base_url.startswith("https"):
@@ -120,7 +122,12 @@ class HTTPClient:
 
         token = headers.get("x-auth-token", self.token)
         if token:
-            headers["x-auth-token"] = token
+            if self.auth_type == "oidc":
+                # For OIDC authentication, set OIDC-Token header
+                headers["OIDC-Token"] = token
+            else:
+                # For Keystone authentication, set X-Auth-Token header
+                headers["x-auth-token"] = token
 
         project_id = headers.get("X-Project-Id", self.project_id)
         if project_id:

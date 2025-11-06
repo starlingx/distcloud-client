@@ -1,5 +1,5 @@
 # Copyright 2015 - Ericsson AB.
-# Copyright (c) 2017-2025 Wind River Systems, Inc.
+# Copyright (c) 2017-2026 Wind River Systems, Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -529,6 +529,15 @@ class DCManagerShell(app.App):
             ),
         )
 
+        parser.add_argument(
+            "--stx-auth-type",
+            action="store",
+            dest="stx_auth_type",
+            default=env("STX_AUTH_TYPE", default="keystone"),
+            choices=["keystone", "oidc"],
+            help="Authentication type: keystone or oidc (Env: STX_AUTH_TYPE)",
+        )
+
         return parser
 
     def print_help_if_requested(self):
@@ -538,28 +547,35 @@ class DCManagerShell(app.App):
 
     def load_client(self, refresh_cache, skip_auth=True):
         if self.options.auth_url and not self.options.token and not skip_auth:
-            if not self.options.tenant_name:
-                raise exceptions.CommandError(
-                    (
-                        "You must provide a tenant_name "
-                        "via --os-tenantname env[OS_TENANT_NAME]"
+            if getattr(self.options, "stx_auth_type", "keystone") == "oidc":
+                if not self.options.username:
+                    raise exceptions.CommandError(
+                        "You must provide a username via --os-username "
+                        "env[OS_USERNAME] for OIDC authentication"
                     )
-                )
-            if not self.options.username:
-                raise exceptions.CommandError(
-                    (
-                        "You must provide a username "
-                        "via --os-username env[OS_USERNAME]"
+            else:
+                if not self.options.tenant_name:
+                    raise exceptions.CommandError(
+                        (
+                            "You must provide a tenant_name "
+                            "via --os-tenantname env[OS_TENANT_NAME]"
+                        )
                     )
-                )
+                if not self.options.username:
+                    raise exceptions.CommandError(
+                        (
+                            "You must provide a username "
+                            "via --os-username env[OS_USERNAME]"
+                        )
+                    )
 
-            if not self.options.password:
-                raise exceptions.CommandError(
-                    (
-                        "You must provide a password "
-                        "via --os-password env[OS_PASSWORD]"
+                if not self.options.password:
+                    raise exceptions.CommandError(
+                        (
+                            "You must provide a password "
+                            "via --os-password env[OS_PASSWORD]"
+                        )
                     )
-                )
 
         kwargs = {
             "user_domain_name": self.options.user_domain_name,
@@ -567,6 +583,8 @@ class DCManagerShell(app.App):
             "project_domain_name": self.options.project_domain_name,
             "project_domain_id": self.options.project_domain_id,
         }
+
+        auth_type = getattr(self.options, "stx_auth_type", "keystone")
 
         self.client = client.client(
             dcmanager_url=self.options.dcmanager_url,
@@ -583,6 +601,7 @@ class DCManagerShell(app.App):
             profile=self.options.profile,
             refresh_cache=refresh_cache,
             cache_allowed=self.options.no_cache is False,
+            auth_type=auth_type,
             **kwargs,
         )
 

@@ -27,6 +27,8 @@
     parent: tox-py39
     description: Run py39 for distcloud-client
     nodeset: debian-bullseye
+    required-projects:
+      - starlingx/utilities
     vars:
       python_version: 3.9
       tox_envlist: py39
@@ -37,6 +39,8 @@
     parent: tox
     description: Run pylint for distcloud-client
     nodeset: debian-bullseye
+    required-projects:
+      - starlingx/utilities
     vars:
       python_version: 3.9
       tox_envlist: pylint
@@ -47,6 +51,8 @@
     parent: tox
     description: Run pep8 for distcloud-client
     nodeset: debian-bullseye
+    required-projects:
+      - starlingx/utilities
     vars:
       python_version: 3.9
       tox_envlist: pep8
@@ -57,6 +63,8 @@
     parent: tox
     description: Run black for distcloud-client
     nodeset: debian-bullseye
+    required-projects:
+      - starlingx/utilities
     vars:
       python_version: 3.9
       tox_envlist: black_check
