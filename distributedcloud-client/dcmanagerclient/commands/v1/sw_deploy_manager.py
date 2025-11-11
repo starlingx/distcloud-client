@@ -72,6 +72,9 @@ class CreateSwDeployStrategy(
     """Create a software deploy strategy."""
 
     RELEASE_ID_ERROR_MSG = "The --release-id is required to create a deploy strategy."
+    WITH_PRESTAGE_ERROR_MSG = (
+        "--force and --sysadmin-password can only be used with --with-prestage"
+    )
 
     SNAPSHOT_ERROR_MSG = (
         "Option --snapshot cannot be used with any of the following options: "
@@ -173,6 +176,10 @@ class CreateSwDeployStrategy(
         delete_only = parsed_args.delete_only
         with_prestage = parsed_args.with_prestage
         force = parsed_args.force
+        sysadmin_password = parsed_args.sysadmin_password
+
+        if (force or sysadmin_password) and not with_prestage:
+            raise exceptions.DCManagerClientException(self.WITH_PRESTAGE_ERROR_MSG)
 
         if not release_id and not (rollback or delete_only):
             raise exceptions.DCManagerClientException(self.RELEASE_ID_ERROR_MSG)
@@ -194,12 +201,12 @@ class CreateSwDeployStrategy(
 
         if with_prestage:
             # Prompt the user for the subcloud's password if it isn't provided
-            if parsed_args.sysadmin_password is not None:
+            if sysadmin_password is not None:
                 # The binary base64 encoded string (eg. b'dGVzdA==') is not JSON
                 # serializable in Python3.x, so it has to be decoded to a JSON
                 # serializable string (eg. 'dGVzdA==').
                 kwargs_dict["sysadmin_password"] = base64.b64encode(
-                    parsed_args.sysadmin_password.encode("utf-8")
+                    sysadmin_password.encode("utf-8")
                 ).decode("utf-8")
             else:
                 password = utils.prompt_for_password()
