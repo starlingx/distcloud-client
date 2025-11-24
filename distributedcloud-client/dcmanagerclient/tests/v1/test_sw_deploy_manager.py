@@ -108,7 +108,6 @@ class TestSwDeployStrategy(UpdateStrategyMixin, base.BaseCommandTest):
         rollback=False,
         with_delete=False,
         delete_only=False,
-        force=False,
         sysadmin_password=None,
     ):
         """Base method to test failure in creating a software deploy strategy."""
@@ -130,8 +129,6 @@ class TestSwDeployStrategy(UpdateStrategyMixin, base.BaseCommandTest):
             values.append("--with-delete")
         if delete_only:
             values.append("--delete-only")
-        if force:
-            values.append("--force")
         if sysadmin_password:
             values.extend(["--sysadmin-password", sysadmin_password])
 
@@ -198,12 +195,11 @@ class TestSwDeployStrategy(UpdateStrategyMixin, base.BaseCommandTest):
             rollback=True,
         )
 
-    def test_create_strategy_force_sysadmin_password_without_prestage(self):
-        """Test deploy strategy create with force/sysadmin_password and no prestage"""
+    def test_create_strategy_sysadmin_password_without_prestage(self):
+        """Test deploy strategy create with sysadmin_password and no prestage"""
         self.base_create_strategy_failure(
             self.create_command.WITH_PRESTAGE_ERROR_MSG,
             release_id=RELEASE_ID,
-            force=True,
             sysadmin_password="XXXX",
         )
 
