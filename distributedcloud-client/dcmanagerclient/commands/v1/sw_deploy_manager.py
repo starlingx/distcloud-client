@@ -73,7 +73,7 @@ class CreateSwDeployStrategy(
 
     RELEASE_ID_ERROR_MSG = "The --release-id is required to create a deploy strategy."
     WITH_PRESTAGE_ERROR_MSG = (
-        "--force and --sysadmin-password can only be used with --with-prestage"
+        "--sysadmin-password can only be used with --with-prestage"
     )
 
     SNAPSHOT_ERROR_MSG = (
@@ -136,17 +136,7 @@ class CreateSwDeployStrategy(
             ),
         )
 
-        parser.add_argument(
-            "--force",
-            required=False,
-            action="store_true",
-            help=(
-                "Skip checking the subcloud for management affecting alarms. "
-                "This parameter only works when --with-prestage is used."
-            ),
-        )
-
-        parser.add_argument(
+        self.add_argument(
             "--sysadmin-password",
             required=False,
             help=(
@@ -155,7 +145,7 @@ class CreateSwDeployStrategy(
             ),
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--with-prestage",
             required=False,
             action="store_true",
@@ -175,10 +165,9 @@ class CreateSwDeployStrategy(
         with_delete = parsed_args.with_delete
         delete_only = parsed_args.delete_only
         with_prestage = parsed_args.with_prestage
-        force = parsed_args.force
         sysadmin_password = parsed_args.sysadmin_password
 
-        if (force or sysadmin_password) and not with_prestage:
+        if sysadmin_password and not with_prestage:
             raise exceptions.DCManagerClientException(self.WITH_PRESTAGE_ERROR_MSG)
 
         if not release_id and not (rollback or delete_only):
@@ -219,7 +208,6 @@ class CreateSwDeployStrategy(
         kwargs_dict["with_delete"] = with_delete
         kwargs_dict["delete_only"] = delete_only
         kwargs_dict["with_prestage"] = with_prestage
-        kwargs_dict["force"] = force
 
 
 class ShowSwDeployStrategy(

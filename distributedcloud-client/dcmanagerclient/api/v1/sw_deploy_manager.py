@@ -15,7 +15,6 @@ class SwDeployManager(SwUpdateManager):
             http_client,
             update_type=SW_UPDATE_TYPE_USM,
             extra_args=[
-                "force",
                 "delete_only",
                 "release_id",
                 "rollback",
