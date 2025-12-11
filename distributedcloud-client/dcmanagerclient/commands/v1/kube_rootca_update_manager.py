@@ -1,9 +1,8 @@
 #
-# Copyright (c) 2021, 2024 Wind River Systems, Inc.
+# Copyright (c) 2021, 2024-2025 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-import os
 
 from dcmanagerclient.commands.v1 import sw_update_manager
 
@@ -20,7 +19,7 @@ class CreateKubeRootcaUpdateStrategy(
 ):
     """Create a kube rootca update strategy.
 
-    This strategy supports: expiry-date, subject and cert-file
+    This strategy supports: expiry-date and subject
     """
 
     def get_parser(self, prog_name):
@@ -34,9 +33,6 @@ class CreateKubeRootcaUpdateStrategy(
             "--expiry-date",
             required=False,
             help="Expiry date for a generated certificate.",
-        )
-        self.add_argument(
-            "--cert-file", required=False, help="Path to a certificate to upload."
         )
         self.add_argument(
             "--force",
@@ -54,9 +50,6 @@ class CreateKubeRootcaUpdateStrategy(
         # Note the "-" vs "_" when dealing with parsed_args
         if parsed_args.expiry_date:
             kwargs_dict["expiry-date"] = parsed_args.expiry_date
-        if parsed_args.cert_file:
-            # Need an absolute path for the cert-file
-            kwargs_dict["cert-file"] = os.path.abspath(parsed_args.cert_file)
         if parsed_args.force:
             kwargs_dict["force"] = "true"
 
