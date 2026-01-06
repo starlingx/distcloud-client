@@ -1,4 +1,4 @@
-# Copyright (c) 2020-2024 Wind River Systems, Inc.
+# Copyright (c) 2020-2025 Wind River Systems, Inc.
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
 #    You may obtain a copy of the License at
@@ -19,6 +19,7 @@ from osc_lib.command import command
 
 from dcmanagerclient import exceptions
 from dcmanagerclient.commands.v1 import base
+from dcmanagerclient import utils
 
 
 def _format(subcloud_deploy=None):
@@ -65,7 +66,7 @@ class SubcloudDeployUpload(base.DCManagerShowOne):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument(
+        self.add_argument(
             "--deploy-playbook",
             required=False,
             help=(
@@ -76,28 +77,28 @@ class SubcloudDeployUpload(base.DCManagerShowOne):
             ),
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--deploy-overrides",
             required=False,
             help="YAML file containing subcloud variables to be passed to the "
             "deploy playbook. Must be a local file path",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--deploy-chart",
             required=False,
             help="Deployment Manager helm chart to be passed to the "
             "deploy playbook. Must be a local file path",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--prestage-images",
             required=False,
             help="Container image list to be passed to prestage_images playbook. "
             "Must be a local file path",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--release",
             required=False,
             help="software release used to install, bootstrap and/or deploy "
@@ -133,9 +134,8 @@ class SubcloudDeployUpload(base.DCManagerShowOne):
                 files=files, data=data
             )
         except Exception as exc:
-            print(exc)
             error_msg = "Unable to upload subcloud deploy files"
-            raise exceptions.DCManagerClientException(error_msg)
+            return utils.raise_client_exception(error_msg, exc)
 
 
 class SubcloudDeployShow(base.DCManagerShowOne):
@@ -147,7 +147,7 @@ class SubcloudDeployShow(base.DCManagerShowOne):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument(
+        self.add_argument(
             "--release",
             required=False,
             help="software release used to install, bootstrap and/or deploy "
@@ -168,7 +168,7 @@ class DeprecatedSubcloudDeployShow(SubcloudDeployShow):
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
-        parser.add_argument_group(title="Notice", description=self.DEPRECATION_MESSAGE)
+        self.add_argument_group(title="Notice", description=self.DEPRECATION_MESSAGE)
         return parser
 
     def _get_resources(self, _):
@@ -182,20 +182,24 @@ class DeprecatedSubcloudDeployUpload(SubcloudDeployUpload):
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
-        parser.add_argument_group(title="Notice", description=self.DEPRECATION_MESSAGE)
+        self.add_argument_group(title="Notice", description=self.DEPRECATION_MESSAGE)
         return parser
 
     def _get_resources(self, _):
         raise exceptions.DCManagerClientException(self.DEPRECATION_MESSAGE)
 
 
-class SubcloudDeployDelete(command.Command):
+class SubcloudDeployDelete(
+    base.CacheRetryMixin, base.ConfirmationMixin, command.Command
+):
     """Delete the uploaded subcloud deployment files"""
+
+    requires_confirmation = True
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument(
+        self.add_argument(
             "--release",
             required=False,
             help="Release version that the user is trying to delete "
@@ -203,23 +207,22 @@ class SubcloudDeployDelete(command.Command):
             "release of the system controller will be used.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--prestage-images",
             required=False,
             action="store_true",
             help="Delete prestage images list file only ",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--deployment-files",
             required=False,
             action="store_true",
             help="Delete deploy playbook, deploy overrides, deploy chart files ",
         )
-
         return parser
 
-    def take_action(self, parsed_args):
+    def _take_action(self, parsed_args):
         subcloud_deploy_manager = self.app.client_manager.subcloud_deploy_manager
         release = parsed_args.release
         data = {}
@@ -231,6 +234,5 @@ class SubcloudDeployDelete(command.Command):
         try:
             subcloud_deploy_manager.subcloud_deploy_delete(release, data=data)
         except Exception as exc:
-            print(exc)
             error_msg = "Unable to delete subcloud deploy files"
-            raise exceptions.DCManagerClientException(error_msg)
+            utils.raise_client_exception(error_msg, exc)

@@ -54,12 +54,12 @@ class CreateSwPrestageStrategy(
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
-        parser.add_argument(
+        self.add_argument(
             "--sysadmin-password",
             required=False,
             help="sysadmin password, will be prompted if not provided.",
         )
-        parser.add_argument(
+        self.add_argument(
             "--release",
             required=False,
             help=(
@@ -69,7 +69,7 @@ class CreateSwPrestageStrategy(
                 "the subcloud will be used."
             ),
         )
-        parser.add_argument(
+        self.add_argument(
             "--for-install",
             required=False,
             action="store_true",
@@ -78,7 +78,7 @@ class CreateSwPrestageStrategy(
         # Prestaging for deployment means prestaging for upgrade
         # For this operation, there is NO INSTALL phase anymore with USM
         # - targets the live ostree repo on the subcloud (not /opt/platform-backup)
-        parser.add_argument(
+        self.add_argument(
             "--for-sw-deploy",
             required=False,
             action="store_true",
@@ -87,7 +87,7 @@ class CreateSwPrestageStrategy(
                 "prestaging is targeted towards full installation."
             ),
         )
-        parser.add_argument(
+        self.add_argument(
             "--force",
             required=False,
             action="store_true",

@@ -1,5 +1,5 @@
 # Copyright 2015 - StackStorm, Inc.
-# Copyright (c) 2017, 2019, 2021, 2024 Wind River Systems, Inc.
+# Copyright (c) 2017, 2019, 2021, 2024-2025 Wind River Systems, Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -15,11 +15,14 @@
 #
 
 import json
+import os
+import tarfile
+import tempfile
 
 import testtools
 import yaml
 
-from dcmanagerclient import utils
+from dcmanagerclient import exceptions, utils
 
 ENV_DICT = {"k1": "abc", "k2": 123, "k3": True}
 ENV_STR = json.dumps(ENV_DICT)
@@ -38,3 +41,34 @@ class UtilityTest(testtools.TestCase):
 
     def test_load_yaml_content(self):
         self.assertDictEqual(ENV_DICT, utils.load_content(ENV_YAML))
+
+    def test_validate_cloud_init_config_file_not_exists(self):
+        self.assertRaises(
+            exceptions.DCManagerClientException,
+            utils.validate_cloud_init_config,
+            "/nonexistent/file.tar",
+        )
+
+    def test_validate_cloud_init_config_invalid_tar(self):
+        with tempfile.NamedTemporaryFile(delete=False) as f:
+            f.write(b"not a tar file")
+            f.flush()
+            try:
+                self.assertRaises(
+                    exceptions.DCManagerClientException,
+                    utils.validate_cloud_init_config,
+                    f.name,
+                )
+            finally:
+                os.unlink(f.name)
+
+    def test_validate_cloud_init_config_valid_tar(self):
+        with tempfile.NamedTemporaryFile(suffix=".tar", delete=False) as f:
+            try:
+                with tarfile.open(f.name, "w") as tar:
+                    info = tarfile.TarInfo(name="test.txt")
+                    info.size = 4
+                    tar.addfile(info, fileobj=None)
+                utils.validate_cloud_init_config(f.name)
+            finally:
+                os.unlink(f.name)

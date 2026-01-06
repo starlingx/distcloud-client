@@ -16,8 +16,9 @@
 
 from osc_lib.command import command
 
-from dcmanagerclient import exceptions
 from dcmanagerclient.commands.v1 import base
+from dcmanagerclient import utils
+
 
 DEFAULT_REGION_NAME = "SystemController"
 
@@ -78,7 +79,7 @@ def options_list_format(sw_update_option=None):
 
 
 class UpdateSwUpdateOptions(base.DCManagerShowOne):
-    """Update patch options, defaults or per subcloud."""
+    """Update strategy options, defaults or per subcloud."""
 
     def _get_format_function(self):
         return options_detail_format
@@ -86,28 +87,28 @@ class UpdateSwUpdateOptions(base.DCManagerShowOne):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument(
+        self.add_argument(
             "--storage-apply-type",
             required=True,
             choices=["parallel", "serial"],
             help="Storage node apply type (parallel or serial).",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--worker-apply-type",
             required=True,
             choices=["parallel", "serial"],
             help="Compute node apply type (parallel or serial).",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--max-parallel-workers",
             required=True,
             type=int,
             help="Maximum number of parallel workers.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--alarm-restriction-type",
             required=True,
             choices=["strict", "relaxed"],
@@ -115,14 +116,14 @@ class UpdateSwUpdateOptions(base.DCManagerShowOne):
             "not (strict, relaxed).",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--default-instance-action",
             required=True,
             choices=["stop-start", "migrate"],
             help="How instances should be handled.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "subcloud",
             nargs="?",
             default=None,
@@ -146,13 +147,12 @@ class UpdateSwUpdateOptions(base.DCManagerShowOne):
                 subcloud_ref, **kwargs
             )
         except Exception as exc:
-            print(exc)
-            error_msg = f"Unable to update patch options for subcloud {subcloud_ref}"
-            raise exceptions.DCManagerClientException(error_msg)
+            error_msg = f"Unable to update strategy options for subcloud {subcloud_ref}"
+            return utils.raise_client_exception(error_msg, exc)
 
 
 class ListSwUpdateOptions(base.DCManagerLister):
-    """List patch options."""
+    """List strategy options."""
 
     def _get_format_function(self):
         return options_list_format
@@ -167,7 +167,7 @@ class ListSwUpdateOptions(base.DCManagerLister):
 
 
 class ShowSwUpdateOptions(base.DCManagerShowOne):
-    """Show patch options, defaults or per subcloud."""
+    """Show strategy options, defaults or per subcloud."""
 
     def _get_format_function(self):
         return options_detail_format
@@ -175,7 +175,7 @@ class ShowSwUpdateOptions(base.DCManagerShowOne):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument(
+        self.add_argument(
             "subcloud",
             nargs="?",
             default=None,
@@ -190,22 +190,23 @@ class ShowSwUpdateOptions(base.DCManagerShowOne):
         return sw_update_options_manager.sw_update_options_detail(subcloud_ref)
 
 
-class DeleteSwUpdateOptions(command.Command):
-    """Delete per subcloud patch options."""
+class DeleteSwUpdateOptions(
+    base.CacheRetryMixin, base.ConfirmationMixin, command.Command
+):
+    """Delete per subcloud strategy options."""
+
+    requires_confirmation = True
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
-
-        parser.add_argument("subcloud", help="Subcloud name or id")
-
+        self.add_argument("subcloud", help="Subcloud name or id")
         return parser
 
-    def take_action(self, parsed_args):
+    def _take_action(self, parsed_args):
         subcloud_ref = parsed_args.subcloud
         sw_update_options_manager = self.app.client_manager.sw_update_options_manager
         try:
             return sw_update_options_manager.sw_update_options_delete(subcloud_ref)
         except Exception as exc:
-            print(exc)
-            error_msg = "Unable to delete patch options"
-            raise exceptions.DCManagerClientException(error_msg)
+            error_msg = "Unable to delete strategy options"
+            return utils.raise_client_exception(error_msg, exc)

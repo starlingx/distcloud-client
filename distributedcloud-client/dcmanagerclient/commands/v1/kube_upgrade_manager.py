@@ -31,7 +31,7 @@ class CreateKubeUpgradeStrategy(
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
-        parser.add_argument(
+        self.add_argument(
             "--to-version",
             required=False,
             help="Specify a version other than the system controller version.",

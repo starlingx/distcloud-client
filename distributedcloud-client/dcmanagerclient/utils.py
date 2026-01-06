@@ -1,7 +1,7 @@
 # Copyright 2016 - Ericsson AB
 # Copyright 2015 - Huawei Technologies Co. Ltd
 # Copyright 2015 - StackStorm, Inc.
-# Copyright (c) 2017-2024 Wind River Systems, Inc.
+# Copyright (c) 2017-2025 Wind River Systems, Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -17,14 +17,22 @@
 #
 
 import getpass
+import subprocess
 import json
 import os
 import base64
+import signal
+import logging
+import sys
+import tarfile
+from typing import Union
 from urllib import parse, request
 
 import yaml
 
 from dcmanagerclient import exceptions
+
+LOG = logging.getLogger(__name__)
 
 
 def do_action_on_many(action, resources, success_msg, error_msg):
@@ -53,6 +61,19 @@ def load_content(content):
         data = json.loads(content)
 
     return data
+
+
+def raise_client_exception(msg: str, exc: BaseException):
+    """Receive a generic exception and raises DCManagerClientException
+
+    :param msg: A message to be added to the exception that will be raised
+    :param exc: A generic exception
+    """
+
+    error_code = getattr(exc, "error_code", None)
+    raise exceptions.DCManagerClientException(
+        f"{str(exc)}\n{msg}", error_code=error_code
+    )
 
 
 def get_contents_if_file(contents_or_file_name):
@@ -175,3 +196,190 @@ def set_sysadmin_password(parsed_args, data):
     else:
         password = prompt_for_password()
         data["sysadmin_password"] = base64.b64encode(password.encode("utf-8"))
+
+
+def validate_cloud_init_config(cloud_init_config_path):
+    """Validate cloud-init-config file exists and is a valid tar archive."""
+    if not os.path.isfile(cloud_init_config_path):
+        error_msg = f"cloud-init-config does not exist: {cloud_init_config_path}"
+        raise exceptions.DCManagerClientException(error_msg)
+
+    try:
+        with tarfile.open(cloud_init_config_path, "r") as tar:
+            tar.getmembers()
+    except tarfile.TarError as exc:
+        raise exceptions.DCManagerClientException(
+            f"cloud-init-config is not a valid .tar archive: {cloud_init_config_path}"
+        ) from exc
+
+
+class CLIUtils:
+    _instance = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(CLIUtils, cls).__new__(cls)
+        return cls._instance
+
+    def __init__(self, timeout=10):
+        if not hasattr(self, "_initialized"):
+            self._initialized = True
+            self.timeout = timeout
+
+    def _get_user_input_with_timeout(self, prompt):
+        """Prompt user for input with a timeout."""
+
+        def timeout_handler(signum, frame):
+            raise TimeoutError
+
+        signal.signal(signal.SIGALRM, timeout_handler)
+        signal.alarm(self.timeout)
+
+        try:
+            user_input = input(prompt)
+            signal.alarm(0)
+            return user_input
+        except TimeoutError:
+            print("\nNo response received within the time limit.")
+            sys.exit(1)
+
+    def _prompt_cli_confirmation(self):
+        """Display warning and ask for user confirmation."""
+        YELLOW = "\033[93m"
+        RESET = "\033[0m"
+        BOLD = "\033[1m"
+
+        prompt_msg = (
+            f"{BOLD}{YELLOW}WARNING: This is a high-risk operation that "
+            f"may cause service interruption or remove critical resources.{RESET}\n"
+            f"{BOLD}{YELLOW}Do you want to continue? (yes/No): {RESET}"
+        )
+
+        confirmation = self._get_user_input_with_timeout(prompt_msg)
+
+        if not confirmation or confirmation.lower() != "yes":
+            print("Operation cancelled by the user.")
+            sys.exit(1)
+
+    def _is_cliconf_enabled(self):
+        return os.environ.get("CLI_CONFIRMATIONS", "disabled") == "enabled"
+
+    @classmethod
+    def prompt_cli_confirmation_if_required(cls, requires_confirmation, parsed_args):
+        """Handle CLI confirmation prompt if required."""
+        instance = CLIUtils()
+        if requires_confirmation and instance._is_cliconf_enabled():
+            if hasattr(parsed_args, "yes") and not parsed_args.yes:
+                instance._prompt_cli_confirmation()
+
+
+def persist_auth_session_keyring(
+    name: str, timeout: Union[int, None] = None, **values
+) -> Union[str, None]:
+    """Stores the authentication data into keyring.
+    Authentication data can be retrieved later and reused, avoiding unnecessary calls
+    to identity services. Only the current user's session has access to the stored data.
+    Once the user ends the session the data is lost. It is also possible to set a
+    timeout to automaticaly expire the record.
+
+    :param name: Key name
+    :param timeout: Timeout interval in seconds to expire the key. Default: never
+                    expires.
+    """
+    try:
+        # Persist the key
+        stdout = subprocess.run(
+            [
+                "/usr/bin/keyctl",
+                "add",
+                "user",
+                name,
+                json.dumps(values),
+                "@s",
+            ],
+            check=True,
+            capture_output=True,
+        ).stdout
+        keyring_entry_id = stdout.decode("utf-8").strip("\n")
+        # Set key timeout
+        if timeout:
+            subprocess.run(
+                ["/usr/bin/keyctl", "timeout", keyring_entry_id, str(timeout)],
+                check=True,
+            )
+        return keyring_entry_id
+    except Exception as exc:
+        LOG.debug(exc)
+    return None
+
+
+def load_auth_session_keyring_by_name(key_name: str) -> dict:
+    """Retrieves the authentication data from keyring using the key name.
+
+    :param key_name: Key name
+    """
+    try:
+        # Search for the key
+        stdout = subprocess.run(
+            ["/usr/bin/keyctl", "search", "@s", "user", key_name],
+            check=True,
+            capture_output=True,
+        ).stdout
+        keyring_entry_id = stdout.decode("utf-8").strip("\n")
+        # Retrieve session data
+        return load_auth_session_keyring_by_id(keyring_entry_id)
+    except Exception as exc:
+        LOG.debug(exc)
+        return {}
+
+
+def load_auth_session_keyring_by_id(key_id: str) -> dict:
+    """Retrieves the authentication data from keyring using the key identifier.
+
+    :param key_id: Key Identifier
+    """
+    try:
+        # Retrieve session data
+        stdout = subprocess.run(
+            ["/usr/bin/keyctl", "print", key_id],
+            check=True,
+            capture_output=True,
+        ).stdout
+        return json.loads(stdout.decode("utf-8").strip("\n"))
+    except Exception as exc:
+        LOG.debug(exc)
+        return {}
+
+
+def revoke_keyring_by_name(key_name: str):
+    """Deletes a key from keyring using the key name.
+
+    :param key_name: Key name
+    """
+    try:
+        # Search for the key
+        stdout = subprocess.run(
+            ["/usr/bin/keyctl", "search", "@s", "user", key_name],
+            check=True,
+            capture_output=True,
+        ).stdout
+
+        keyring_entry_id = stdout.decode("utf-8").strip("\n")
+        revoke_keyring_by_id(keyring_entry_id)
+    except Exception as exc:
+        LOG.debug(exc)
+
+
+def revoke_keyring_by_id(key_id: str):
+    """Deletes a key from keyring using the key identifier.
+
+    :param key_id: Key Identifier
+    """
+    try:
+        subprocess.run(
+            ["/usr/bin/keyctl", "revoke", key_id],
+            check=True,
+            capture_output=True,
+        ).stdout
+    except Exception as exc:
+        LOG.debug(exc)

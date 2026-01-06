@@ -1,4 +1,4 @@
-# Copyright (c) 2023-2024 Wind River Systems, Inc.
+# Copyright (c) 2023-2025 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -52,11 +52,11 @@ class MigrateSubcloudPeerGroup(base.DCManagerLister):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument(
+        self.add_argument(
             "group", help="Name or ID of the subcloud peer group to migrate."
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--sysadmin-password",
             required=False,
             help="Sysadmin password of the subclouds to be configured, "
@@ -86,9 +86,8 @@ class MigrateSubcloudPeerGroup(base.DCManagerLister):
                 subcloud_peer_group_ref, **kwargs
             )
         except Exception as exc:
-            print(exc)
             msg = f"Unable to migrate subcloud peer group {subcloud_peer_group_ref}"
-            raise exceptions.DCManagerClientException(msg)
+            return utils.raise_client_exception(msg, exc)
 
 
 class AddSubcloudPeerGroup(base.DCManagerShowOne):
@@ -100,13 +99,13 @@ class AddSubcloudPeerGroup(base.DCManagerShowOne):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument(
+        self.add_argument(
             "--peer-group-name",
             required=True,
             help="Name for the new subcloud peer group.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--group-state",
             required=False,
             choices=["enabled", "disabled"],
@@ -114,7 +113,7 @@ class AddSubcloudPeerGroup(base.DCManagerShowOne):
             help="Administrative control of subcloud group.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--max-subcloud-rehoming",
             required=False,
             type=int,
@@ -140,18 +139,22 @@ class AddSubcloudPeerGroup(base.DCManagerShowOne):
         return subcloud_peer_group_manager.add_subcloud_peer_group(**kwargs)
 
 
-class DeleteSubcloudPeerGroup(command.Command):
+class DeleteSubcloudPeerGroup(
+    base.CacheRetryMixin, base.ConfirmationMixin, command.Command
+):
     """Delete subcloud peer group details from the database."""
+
+    requires_confirmation = True
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument(
+        self.add_argument(
             "group", help="Name or ID of the subcloud peer group to delete."
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def _take_action(self, parsed_args):
         subcloud_peer_group_ref = parsed_args.group
         subcloud_peer_group_manager = (
             self.app.client_manager.subcloud_peer_group_manager
@@ -161,9 +164,8 @@ class DeleteSubcloudPeerGroup(command.Command):
                 subcloud_peer_group_ref
             )
         except Exception as exc:
-            print(exc)
             msg = f"Unable to delete subcloud peer group {subcloud_peer_group_ref}"
-            raise exceptions.DCManagerClientException(msg)
+            utils.raise_client_exception(msg, exc)
 
 
 class ShowSubcloudPeerGroup(base.DCManagerShowOne):
@@ -175,7 +177,7 @@ class ShowSubcloudPeerGroup(base.DCManagerShowOne):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument(
+        self.add_argument(
             "group", help="Name or ID of subcloud peer group to view the details."
         )
 
@@ -216,7 +218,7 @@ class ListSubcloudPeerGroupSubclouds(base.DCManagerLister):
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
-        parser.add_argument(
+        self.add_argument(
             "group",
             help="Name or ID of subcloud peer group to list " "associated subclouds.",
         )
@@ -241,24 +243,24 @@ class UpdateSubcloudPeerGroup(base.DCManagerShowOne):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument(
+        self.add_argument(
             "group", help="Name or ID of the subcloud peer group to update."
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--peer-group-name",
             required=False,
             help="Name for the new subcloud peer group.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--group-state",
             required=False,
             choices=["enabled", "disabled"],
             help="Administrative control of subcloud peer group.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--max-subcloud-rehoming",
             required=False,
             type=int,
@@ -291,9 +293,8 @@ class UpdateSubcloudPeerGroup(base.DCManagerShowOne):
                 subcloud_peer_group_ref, **kwargs
             )
         except Exception as exc:
-            print(exc)
             msg = f"Unable to update subcloud peer group {subcloud_peer_group_ref}"
-            raise exceptions.DCManagerClientException(msg)
+            return utils.raise_client_exception(msg, exc)
 
 
 def detail_status_format(subcloud_peer_group_status=None):
@@ -336,7 +337,7 @@ class StatusSubcloudPeerGroup(base.DCManagerShowOne):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument(
+        self.add_argument(
             "group", help="Name or ID of subcloud peer group to view the status."
         )
 

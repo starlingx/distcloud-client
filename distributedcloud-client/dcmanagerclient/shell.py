@@ -1,5 +1,5 @@
 # Copyright 2015 - Ericsson AB.
-# Copyright (c) 2017-2024 Wind River Systems, Inc.
+# Copyright (c) 2017-2025 Wind River Systems, Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -43,7 +43,6 @@ from dcmanagerclient.commands.v1 import subcloud_group_manager as gm
 from dcmanagerclient.commands.v1 import subcloud_manager as sm
 from dcmanagerclient.commands.v1 import subcloud_peer_group_manager as pm
 from dcmanagerclient.commands.v1 import sw_deploy_manager as swdm
-from dcmanagerclient.commands.v1 import sw_patch_manager as spm
 from dcmanagerclient.commands.v1 import sw_prestage_manager as spr
 from dcmanagerclient.commands.v1 import sw_update_manager as swum
 from dcmanagerclient.commands.v1 import sw_update_options_manager as suom
@@ -234,6 +233,7 @@ class CustomCompleteCommand(complete.CompleteCommand):
 
 
 class DCManagerShell(app.App):
+
     def __init__(self):
         super().__init__(
             description=__doc__.strip(),
@@ -318,6 +318,21 @@ class DCManagerShell(app.App):
             dest="verbose_level",
             const=0,
             help="Suppress output except warnings and errors.",
+        )
+
+        parser.add_argument(
+            "--refresh-cache",
+            action="store_true",
+            dest="refresh_cache",
+            help="Forces the update of the cached settings",
+        )
+
+        parser.add_argument(
+            "--no-cache",
+            action="store_true",
+            dest="no_cache",
+            default=env("DCCLIENT_NO_CACHE", default=False),
+            help="Disables cache feature (Env: DCCLIENT_NO_CACHE)",
         )
 
         if self.deferred_help:
@@ -521,24 +536,7 @@ class DCManagerShell(app.App):
             action = HelpAction(None, None, default=self)
             action(self.parser, self.options, None, None)
 
-    def initialize_app(self, argv):
-        self._clear_shell_commands()
-
-        ver = client.determine_client_version(self.options.dcmanager_version)
-
-        self._set_shell_commands(self._get_commands(ver))
-
-        no_auth_commands = {"help", "bash-completion", "complete"}
-
-        # Skip authentication if the first argument is a no-auth command or
-        # if deferred_help is True
-        skip_auth = (
-            argv[0] in no_auth_commands if argv else False
-        ) or self.options.deferred_help
-
-        if skip_auth:
-            self.options.auth_url = None
-
+    def load_client(self, refresh_cache, skip_auth=True):
         if self.options.auth_url and not self.options.token and not skip_auth:
             if not self.options.tenant_name:
                 raise exceptions.CommandError(
@@ -583,6 +581,8 @@ class DCManagerShell(app.App):
             cacert=self.options.cacert,
             insecure=self.options.insecure,
             profile=self.options.profile,
+            refresh_cache=refresh_cache,
+            cache_allowed=self.options.no_cache is False,
             **kwargs,
         )
 
@@ -612,7 +612,6 @@ class DCManagerShell(app.App):
             "subcloud_peer_group_manager": self.client.subcloud_peer_group_manager,
             "subcloud_manager": self.client.subcloud_manager,
             "sw_deploy_manager": self.client.sw_deploy_manager,
-            "sw_patch_manager": self.client.sw_patch_manager,
             "sw_prestage_manager": self.client.sw_prestage_manager,
             "sw_update_options_manager": self.client.sw_update_options_manager,
             "system_peer_manager": self.client.system_peer_manager,
@@ -626,6 +625,26 @@ class DCManagerShell(app.App):
             client_keys,
         )
         self.client_manager = ClientManager()
+
+    def initialize_app(self, argv):
+        self._clear_shell_commands()
+
+        ver = client.determine_client_version(self.options.dcmanager_version)
+
+        self._set_shell_commands(self._get_commands(ver))
+
+        no_auth_commands = {"help", "bash-completion", "complete"}
+
+        # Skip authentication if the first argument is a no-auth command or
+        # if deferred_help is True
+        skip_auth = (
+            argv[0] in no_auth_commands if argv else False
+        ) or self.options.deferred_help
+
+        if skip_auth:
+            self.options.auth_url = None
+
+        self.load_client(self.options.refresh_cache, skip_auth)
 
     def _set_shell_commands(self, cmds_dict):
         for cmd, cmd_class in cmds_dict.items():
@@ -667,15 +686,6 @@ class DCManagerShell(app.App):
             "kube-upgrade-strategy create": kupm.CreateKubeUpgradeStrategy,
             "kube-upgrade-strategy delete": kupm.DeleteKubeUpgradeStrategy,
             "kube-upgrade-strategy show": kupm.ShowKubeUpgradeStrategy,
-            "patch-strategy abort": spm.AbortPatchUpdateStrategy,
-            "patch-strategy apply": spm.ApplyPatchUpdateStrategy,
-            "patch-strategy create": spm.CreatePatchUpdateStrategy,
-            "patch-strategy delete": spm.DeletePatchUpdateStrategy,
-            "patch-strategy show": spm.ShowPatchUpdateStrategy,
-            "patch-strategy-config delete": suom.DeleteSwUpdateOptions,
-            "patch-strategy-config list": suom.ListSwUpdateOptions,
-            "patch-strategy-config show": suom.ShowSwUpdateOptions,
-            "patch-strategy-config update": suom.UpdateSwUpdateOptions,
             "peer-group-association add": pgam.AddPeerGroupAssociation,
             "peer-group-association delete": pgam.DeletePeerGroupAssociation,
             "peer-group-association list": pgam.ListPeerGroupAssociation,

@@ -1,12 +1,12 @@
 #
-# Copyright (c) 2023-2024 Wind River Systems, Inc.
+# Copyright (c) 2023-2025 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
 
 from osc_lib.command import command
 
-from dcmanagerclient import exceptions
+from dcmanagerclient import utils
 from dcmanagerclient.commands.v1 import base
 
 
@@ -78,13 +78,13 @@ class AddPeerGroupAssociation(base.DCManagerShowOne):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument(
+        self.add_argument(
             "--peer-group-id", required=True, help="Subcloud peer group ID."
         )
 
-        parser.add_argument("--system-peer-id", required=True, help="System Peer ID.")
+        self.add_argument("--system-peer-id", required=True, help="System Peer ID.")
 
-        parser.add_argument(
+        self.add_argument(
             "--peer-group-priority",
             required=True,
             type=int,
@@ -131,7 +131,7 @@ class ShowPeerGroupAssociation(base.DCManagerShowOne):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument(
+        self.add_argument(
             "id", help="ID of the peer group association to view the details."
         )
 
@@ -156,7 +156,7 @@ class SyncPeerGroupAssociation(base.DCManagerShowOne):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument("id", help="ID of the peer group association to sync.")
+        self.add_argument("id", help="ID of the peer group association to sync.")
 
         return parser
 
@@ -170,25 +170,30 @@ class SyncPeerGroupAssociation(base.DCManagerShowOne):
         )
 
 
-class DeletePeerGroupAssociation(command.Command):
+class DeletePeerGroupAssociation(
+    base.CacheRetryMixin, base.ConfirmationMixin, command.Command
+):
     """Delete peer group association from the database."""
+
+    requires_confirmation = True
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument("id", help="ID of the peer group association to delete.")
+        self.add_argument("id", help="ID of the peer group association to delete.")
         return parser
 
-    def take_action(self, parsed_args):
+    def _take_action(self, parsed_args):
         peer_group_association_manager = (
             self.app.client_manager.peer_group_association_manager
         )
         try:
-            peer_group_association_manager.delete_peer_group_association(parsed_args.id)
+            return peer_group_association_manager.delete_peer_group_association(
+                parsed_args.id
+            )
         except Exception as exc:
-            print(exc)
             msg = f"Unable to delete peer group association {parsed_args.id}"
-            raise exceptions.DCManagerClientException(msg)
+            return utils.raise_client_exception(msg, exc)
 
 
 class UpdatePeerGroupAssociation(base.DCManagerShowOne):
@@ -200,9 +205,9 @@ class UpdatePeerGroupAssociation(base.DCManagerShowOne):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument("id", help="ID of the peer group association to update.")
+        self.add_argument("id", help="ID of the peer group association to update.")
 
-        parser.add_argument(
+        self.add_argument(
             "--peer-group-priority",
             required=True,
             type=int,
@@ -221,6 +226,5 @@ class UpdatePeerGroupAssociation(base.DCManagerShowOne):
                 parsed_args.id, **kwargs
             )
         except Exception as exc:
-            print(exc)
             msg = f"Unable to update peer group association {parsed_args.id}"
-            raise exceptions.DCManagerClientException(msg)
+            return utils.raise_client_exception(msg, exc)

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2023-2024 Wind River Systems, Inc.
+# Copyright (c) 2023-2025 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -7,7 +7,8 @@
 import base64
 import os
 
-from dcmanagerclient import exceptions, utils
+from dcmanagerclient import exceptions
+from dcmanagerclient import utils
 from dcmanagerclient.commands.v1 import base
 
 
@@ -20,7 +21,7 @@ class AbortPhasedSubcloudDeploy(base.DCManagerShowOne):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument(
+        self.add_argument(
             "subcloud",
             help="Name or ID of the subcloud to abort the on-going deployment.",
         )
@@ -38,9 +39,8 @@ class AbortPhasedSubcloudDeploy(base.DCManagerShowOne):
                 subcloud_ref=subcloud_ref
             )
         except Exception as exc:
-            print(exc)
             error_msg = f"Unable to abort subcloud deploy {subcloud_ref}"
-            raise exceptions.DCManagerClientException(error_msg)
+            return utils.raise_client_exception(error_msg, exc)
 
 
 class PhasedSubcloudDeployResume(base.DCManagerShowOne):
@@ -52,45 +52,45 @@ class PhasedSubcloudDeployResume(base.DCManagerShowOne):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument(
+        self.add_argument(
             "subcloud", help="Name or ID of the subcloud to resume deployment."
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--bootstrap-address",
             required=False,
             help="IP address for initial subcloud controller.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--bootstrap-values",
             required=False,
             help="YAML file containing parameters required for the bootstrap "
             "of the subcloud.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--deploy-config",
             required=False,
             help="YAML file containing parameters required for the initial "
             "configuration and unlock of the subcloud.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--install-values",
             required=False,
             help="YAML file containing parameters required for the remote "
             "install of the subcloud.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--sysadmin-password",
             required=False,
             help="sysadmin password of the subcloud to be configured, "
             "if not provided you will be prompted.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--bmc-password",
             required=False,
             help="bmc password of the subcloud to be configured, "
@@ -98,7 +98,7 @@ class PhasedSubcloudDeployResume(base.DCManagerShowOne):
             " valid if the --install-values are specified.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--release",
             required=False,
             help="software release used to install, bootstrap and/or deploy "
@@ -173,34 +173,34 @@ class CreatePhasedSubcloudDeploy(base.DCManagerShowOne):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument(
+        self.add_argument(
             "--bootstrap-address",
             required=True,
             help="IP address for initial subcloud controller.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--bootstrap-values",
             required=True,
             help="YAML file containing parameters required for the bootstrap "
             "of the subcloud.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--deploy-config",
             required=False,
             help="YAML file containing parameters required for the initial "
             "configuration and unlock of the subcloud.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--install-values",
             required=False,
             help="YAML file containing parameters required for the remote "
             "install of the subcloud.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--bmc-password",
             required=False,
             help="bmc password of the subcloud to be configured, "
@@ -208,11 +208,11 @@ class CreatePhasedSubcloudDeploy(base.DCManagerShowOne):
             " valid if the --install-values are specified.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--group", required=False, help="Name or ID of subcloud group."
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--release",
             required=False,
             help="software release used to install, bootstrap and/or deploy "
@@ -282,23 +282,23 @@ class InstallPhasedSubcloudDeploy(base.DCManagerShowOne):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument("subcloud", help="Name or ID of the subcloud to install.")
+        self.add_argument("subcloud", help="Name or ID of the subcloud to install.")
 
-        parser.add_argument(
+        self.add_argument(
             "--install-values",
             required=False,
             help="YAML file containing parameters required for the remote "
             "install of the subcloud.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--sysadmin-password",
             required=False,
             help="sysadmin password of the subcloud to be configured, "
             "if not provided you will be prompted.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--bmc-password",
             required=False,
             help="bmc password of the subcloud to be configured, "
@@ -306,7 +306,7 @@ class InstallPhasedSubcloudDeploy(base.DCManagerShowOne):
             " valid if the --install-values are specified.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--release",
             required=False,
             help="software release used to install the subcloud with. "
@@ -349,9 +349,8 @@ class InstallPhasedSubcloudDeploy(base.DCManagerShowOne):
                 subcloud_ref=subcloud_ref, files=files, data=data
             )
         except Exception as exc:
-            print(exc)
             error_msg = f"Unable to install subcloud {subcloud_ref}"
-            raise exceptions.DCManagerClientException(error_msg)
+            return utils.raise_client_exception(error_msg, exc)
 
 
 class BootstrapPhasedSubcloudDeploy(base.DCManagerShowOne):
@@ -363,22 +362,22 @@ class BootstrapPhasedSubcloudDeploy(base.DCManagerShowOne):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument("subcloud", help="Name or ID of the subcloud to bootstrap.")
+        self.add_argument("subcloud", help="Name or ID of the subcloud to bootstrap.")
 
-        parser.add_argument(
+        self.add_argument(
             "--bootstrap-address",
             required=False,
             help="IP address for initial subcloud controller.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--bootstrap-values",
             required=False,
             help="YAML file containing parameters required for the bootstrap "
             "of the subcloud.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--sysadmin-password",
             required=False,
             help="sysadmin password of the subcloud to be configured, "
@@ -420,22 +419,24 @@ class BootstrapPhasedSubcloudDeploy(base.DCManagerShowOne):
 class ConfigPhasedSubcloudDeploy(base.DCManagerShowOne):
     """Configure a subcloud."""
 
+    requires_confirmation = True
+
     def _get_format_function(self):
         return utils.subcloud_detail_format
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument("subcloud", help="Name or ID of the subcloud to update.")
+        self.add_argument("subcloud", help="Name or ID of the subcloud to update.")
 
-        parser.add_argument(
+        self.add_argument(
             "--deploy-config",
             required=False,
             help="YAML file containing parameters required for the initial "
             "configuration and unlock of the subcloud.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--sysadmin-password",
             required=False,
             help="sysadmin password of the subcloud to be configured, "
@@ -469,9 +470,8 @@ class ConfigPhasedSubcloudDeploy(base.DCManagerShowOne):
                 subcloud_ref=subcloud_ref, files=files, data=data
             )
         except Exception as exc:
-            print(exc)
             error_msg = f"Unable to configure subcloud {subcloud_ref}"
-            raise exceptions.DCManagerClientException(error_msg)
+            return utils.raise_client_exception(error_msg, exc)
 
 
 class CompletePhasedSubcloudDeploy(base.DCManagerShowOne):
@@ -483,7 +483,7 @@ class CompletePhasedSubcloudDeploy(base.DCManagerShowOne):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument(
+        self.add_argument(
             "subcloud", help="Name or ID of the subcloud to complete the deployment."
         )
 
@@ -498,9 +498,8 @@ class CompletePhasedSubcloudDeploy(base.DCManagerShowOne):
         try:
             return phased_subcloud_deploy_manager.subcloud_deploy_complete(subcloud_ref)
         except Exception as exc:
-            print(exc)
             error_msg = f"Unable to complete the deployment of subcloud {subcloud_ref}"
-            raise exceptions.DCManagerClientException(error_msg)
+            return utils.raise_client_exception(error_msg, exc)
 
 
 class EnrollPhasedSubcloudDeploy(base.DCManagerShowOne):
@@ -512,41 +511,56 @@ class EnrollPhasedSubcloudDeploy(base.DCManagerShowOne):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument("subcloud", help="Name or ID of the subcloud to enroll.")
+        self.add_argument("subcloud", help="Name or ID of the subcloud to enroll.")
 
-        parser.add_argument(
+        self.add_argument(
             "--install-values",
             required=False,
             help="YAML file containing parameters required for the "
             "enrollment of the subcloud.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--bootstrap-address",
             required=False,
             help="IP address for initial subcloud controller.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--bootstrap-values",
             required=False,
             help="YAML file containing the parameters required for the "
             "subcloud enrollment.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--sysadmin-password",
             required=False,
             help="sysadmin password of the subcloud to be configured, "
             "if not provided you will be prompted.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--bmc-password",
             required=False,
             help="bmc password of the subcloud to be configured, "
             "if not provided you will be prompted. This parameter is only"
             " valid if the --install-values are specified.",
+        )
+
+        self.add_argument(
+            "--cloud-init-config",
+            required=False,
+            help="Path to a tarball file containing cloud-init data to be "
+            "used during the enrollment process.",
+        )
+
+        self.add_argument(
+            "--release",
+            required=False,
+            help="software release used to enroll the subcloud with. If not "
+            "specified, the current software release of the subcloud stored "
+            "in the system controller will be used.",
         )
 
         return parser
@@ -586,6 +600,13 @@ class EnrollPhasedSubcloudDeploy(base.DCManagerShowOne):
                 password = utils.prompt_for_password("bmc")
                 data["bmc_password"] = base64.b64encode(password.encode("utf-8"))
 
+        if parsed_args.cloud_init_config:
+            utils.validate_cloud_init_config(parsed_args.cloud_init_config)
+            files["cloud_init_config"] = parsed_args.cloud_init_config
+
+        if parsed_args.release:
+            data["release"] = parsed_args.release
+
         utils.set_sysadmin_password(parsed_args, data)
 
         subcloud_ref = parsed_args.subcloud
@@ -596,6 +617,5 @@ class EnrollPhasedSubcloudDeploy(base.DCManagerShowOne):
             )
 
         except Exception as exc:
-            print(exc)
             error_msg = f"Unable to enroll subcloud {subcloud_ref}"
-            raise exceptions.DCManagerClientException(error_msg)
+            return utils.raise_client_exception(error_msg, exc)

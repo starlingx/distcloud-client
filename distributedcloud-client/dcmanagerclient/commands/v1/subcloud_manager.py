@@ -1,5 +1,5 @@
 # Copyright (c) 2017 Ericsson AB.
-# Copyright (c) 2017-2024 Wind River Systems, Inc.
+# Copyright (c) 2017-2025 Wind River Systems, Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -197,43 +197,43 @@ class AddSubcloud(base.DCManagerShowOne):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument("--name", required=False, help="Subcloud name")
+        self.add_argument("--name", required=False, help="Subcloud name")
 
-        parser.add_argument(
+        self.add_argument(
             "--bootstrap-address",
             required=True,
             help="IP address for initial subcloud controller.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--bootstrap-values",
             required=True,
             help="YAML file containing parameters required for the bootstrap "
             "of the subcloud.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--deploy-config",
             required=False,
             help="YAML file containing parameters required for the initial "
             "configuration and unlock of the subcloud.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--install-values",
             required=False,
             help="YAML file containing parameters required for the "
             "remote install of the subcloud.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--sysadmin-password",
             required=False,
             help="sysadmin password of the subcloud to be configured, "
             "if not provided you will be prompted.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--bmc-password",
             required=False,
             help="bmc password of the subcloud to be configured, "
@@ -241,18 +241,18 @@ class AddSubcloud(base.DCManagerShowOne):
             " valid if the --install-values are specified.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--group", required=False, help="Name or ID of subcloud group."
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--migrate",
             required=False,
             action="store_true",
             help="Migrate a subcloud from another distributed cloud.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--release",
             required=False,
             help="software release used to install, bootstrap and/or deploy "
@@ -260,11 +260,15 @@ class AddSubcloud(base.DCManagerShowOne):
             "release of the system controller will be used.",
         )
 
-        parser.add_argument(
-            "--enroll",
+        self.add_argument(
+            "--enroll", required=False, action="store_true", help="Enroll a subcloud"
+        )
+
+        self.add_argument(
+            "--cloud-init-config",
             required=False,
-            action="store_true",
-            help="Enroll a subcloud",
+            help="Path to a tarball file containing cloud-init scripts to be "
+            "used during the enrollment process.",
         )
 
         return parser
@@ -305,8 +309,20 @@ class AddSubcloud(base.DCManagerShowOne):
             files["deploy_config"] = parsed_args.deploy_config
 
         if parsed_args.migrate and parsed_args.enroll:
-            error_msg = "cannot run migrate and enroll commands together"
+            error_msg = "cannot run --migrate and --enroll options together"
             raise exceptions.DCManagerClientException(error_msg)
+
+        if not parsed_args.install_values and parsed_args.enroll:
+            error_msg = "install-values is required for --enroll option"
+            raise exceptions.DCManagerClientException(error_msg)
+
+        if parsed_args.cloud_init_config:
+            if not parsed_args.enroll:
+                error_msg = "cloud-init-config is only valid with --enroll option"
+                raise exceptions.DCManagerClientException(error_msg)
+
+            utils.validate_cloud_init_config(parsed_args.cloud_init_config)
+            files["cloud_init_config"] = parsed_args.cloud_init_config
 
         # Prompt the user for the subcloud's password if it isn't provided
         if parsed_args.sysadmin_password is not None:
@@ -346,10 +362,6 @@ class AddSubcloud(base.DCManagerShowOne):
                     --migrate option."
                 raise exceptions.DCManagerClientException(error_msg)
 
-        if parsed_args.release and parsed_args.enroll:
-            error_msg = "Enroll does not support backwards compatibility."
-            raise exceptions.DCManagerClientException(error_msg)
-
         result = subcloud_manager.add_subcloud(files=files, data=data)
         update_fields_values(result)
         return result
@@ -372,13 +384,13 @@ class ListSubcloud(base.DCManagerLister):
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
-        parser.add_argument(
+        self.add_argument(
             "--all",
             required=False,
             action="store_true",
             help='List all subclouds include "secondary" state subclouds',
         )
-        parser.add_argument(
+        self.add_argument(
             "-d",
             "--detail",
             required=False,
@@ -413,11 +425,11 @@ class ShowSubcloud(base.DCManagerShowOne):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument(
+        self.add_argument(
             "subcloud", help="Name or ID of subcloud to view the details."
         )
 
-        parser.add_argument(
+        self.add_argument(
             "-d",
             "--detail",
             action="store_true",
@@ -439,18 +451,18 @@ class ShowSubcloud(base.DCManagerShowOne):
         return subcloud_manager.subcloud_detail(subcloud_ref)
 
 
-class ShowSubcloudError(command.Command):
+class ShowSubcloudError(base.CacheRetryMixin, base.DCManagerBase, command.Command):
     """Show the error of the last failed operation."""
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument(
+        self.add_argument(
             "subcloud", help="Name or ID of subcloud to view the errors details."
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def _take_action(self, parsed_args):
         subcloud_ref = parsed_args.subcloud
         if not subcloud_ref:
             raise exceptions.DCManagerClientException(
@@ -462,28 +474,31 @@ class ShowSubcloudError(command.Command):
         print("".join(data))
 
 
-class DeleteSubcloud(command.Command):
+class DeleteSubcloud(base.CacheRetryMixin, base.ConfirmationMixin, command.Command):
     """Delete subcloud details from the database."""
+
+    requires_confirmation = True
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument("subcloud", help="Name or ID of the subcloud to delete.")
+        self.add_argument("subcloud", help="Name or ID of the subcloud to delete.")
         return parser
 
-    def take_action(self, parsed_args):
+    def _take_action(self, parsed_args):
         subcloud_ref = parsed_args.subcloud
         subcloud_manager = self.app.client_manager.subcloud_manager
         try:
             subcloud_manager.delete_subcloud(subcloud_ref)
         except Exception as exc:
-            print(exc)
             error_msg = f"Unable to delete subcloud {subcloud_ref}"
-            raise exceptions.DCManagerClientException(error_msg)
+            utils.raise_client_exception(error_msg, exc)
 
 
 class UnmanageSubcloud(base.DCManagerShowOne):
     """Unmanage a subcloud."""
+
+    requires_confirmation = True
 
     def _get_format_function(self):
         return detail_format
@@ -491,15 +506,14 @@ class UnmanageSubcloud(base.DCManagerShowOne):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument("subcloud", help="Name or ID of the subcloud to unmanage.")
+        self.add_argument("subcloud", help="Name or ID of the subcloud to unmanage.")
 
-        parser.add_argument(
+        self.add_argument(
             "--migrate",
             required=False,
             action="store_true",
             help="Mark the subcloud for an upcoming migration.",
         )
-
         return parser
 
     def _get_resources(self, parsed_args):
@@ -518,9 +532,8 @@ class UnmanageSubcloud(base.DCManagerShowOne):
             update_fields_values(result)
             return result
         except Exception as exc:
-            print(exc)
             error_msg = f"Unable to unmanage subcloud {subcloud_ref}"
-            raise exceptions.DCManagerClientException(error_msg)
+            return utils.raise_client_exception(error_msg, exc)
 
 
 class ManageSubcloud(base.DCManagerShowOne):
@@ -532,9 +545,9 @@ class ManageSubcloud(base.DCManagerShowOne):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument("subcloud", help="Name or ID of the subcloud to manage.")
+        self.add_argument("subcloud", help="Name or ID of the subcloud to manage.")
 
-        parser.add_argument(
+        self.add_argument(
             "--force",
             required=False,
             action="store_true",
@@ -558,14 +571,14 @@ class ManageSubcloud(base.DCManagerShowOne):
             update_fields_values(result)
             return result
         except Exception as exc:
-            print(exc)
             error_msg = f"Unable to manage subcloud {subcloud_ref}"
-            raise exceptions.DCManagerClientException(error_msg)
+            return utils.raise_client_exception(error_msg, exc)
 
 
 class UpdateSubcloud(base.DCManagerShowOne):
     """Update attributes of a subcloud."""
 
+    requires_confirmation = True
     _info_message = None
 
     def produce_output(self, parsed_args, column_names, data):
@@ -584,74 +597,74 @@ class UpdateSubcloud(base.DCManagerShowOne):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument("subcloud", help="Name or ID of the subcloud to update.")
+        self.add_argument("subcloud", help="Name or ID of the subcloud to update.")
 
-        parser.add_argument("--name", required=False, help="Name of subcloud.")
+        self.add_argument("--name", required=False, help="Name of subcloud.")
 
-        parser.add_argument(
+        self.add_argument(
             "--description", required=False, help="Description of subcloud."
         )
 
-        parser.add_argument("--location", required=False, help="Location of subcloud.")
+        self.add_argument("--location", required=False, help="Location of subcloud.")
 
-        parser.add_argument(
+        self.add_argument(
             "--group", required=False, help="Name or ID of subcloud group."
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--management-subnet", required=False, help="Network subnet of subcloud."
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--management-gateway-ip",
             required=False,
             help="Network gateway IP of subcloud.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--management-start-ip",
             required=False,
             help="Network start IP of subcloud.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--management-end-ip", required=False, help="Network end IP of subcloud."
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--sysadmin-password",
             required=False,
             help="sysadmin password of the subcloud to be updated, "
             "if not provided you will be prompted.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--bootstrap-address",
             required=False,
             help="bootstrap address of the subcloud to be updated.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--install-values",
             required=False,
             help="YAML file containing parameters required for the "
             "remote install of the subcloud.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--bmc-password",
             required=False,
             help="bmc password of the subcloud to be configured, if not "
             "provided you will be prompted. This parameter is only"
             " valid if the --install-values are specified.",
         )
-        parser.add_argument(
+        self.add_argument(
             "--bootstrap-values",
             required=False,
             help="YAML file containing subcloud configuration settings. "
             "Can be either a local file path or a URL.",
         )
-        parser.add_argument(
+        self.add_argument(
             "--peer-group",
             required=False,
             help="Name or ID of subcloud peer group (for migrate).",
@@ -758,14 +771,14 @@ class UpdateSubcloud(base.DCManagerShowOne):
             update_fields_values(result)
             return result
         except Exception as exc:
-            print(exc)
             error_msg = f"Unable to update subcloud {subcloud_ref}"
-            raise exceptions.DCManagerClientException(error_msg)
+            return utils.raise_client_exception(error_msg, exc)
 
 
 class ReconfigSubcloud(base.DCManagerShowOne):
     """Reconfigure a subcloud."""
 
+    requires_confirmation = True
     DEPRECATION_MESSAGE = (
         "This command has been deprecated. Please use 'subcloud deploy config' instead."
     )
@@ -775,7 +788,7 @@ class ReconfigSubcloud(base.DCManagerShowOne):
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
-        parser.add_argument_group(title="Notice", description=self.DEPRECATION_MESSAGE)
+        self.add_argument_group(title="Notice", description=self.DEPRECATION_MESSAGE)
         return parser
 
     def _get_resources(self, parsed_args):
@@ -785,6 +798,7 @@ class ReconfigSubcloud(base.DCManagerShowOne):
 class ReinstallSubcloud(base.DCManagerShowOne):
     """Reinstall a subcloud."""
 
+    requires_confirmation = True
     DEPRECATION_MESSAGE = (
         "This command has been deprecated. Please use 'subcloud redeploy' instead."
     )
@@ -794,7 +808,7 @@ class ReinstallSubcloud(base.DCManagerShowOne):
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
-        parser.add_argument_group(title="Notice", description=self.DEPRECATION_MESSAGE)
+        self.add_argument_group(title="Notice", description=self.DEPRECATION_MESSAGE)
         return parser
 
     def _get_resources(self, parsed_args):
@@ -804,43 +818,45 @@ class ReinstallSubcloud(base.DCManagerShowOne):
 class RedeploySubcloud(base.DCManagerShowOne):
     """Redeploy a subcloud."""
 
+    requires_confirmation = True
+
     def _get_format_function(self):
         return detail_format
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument("subcloud", help="Name or ID of the subcloud to redeploy.")
+        self.add_argument("subcloud", help="Name or ID of the subcloud to redeploy.")
 
-        parser.add_argument(
+        self.add_argument(
             "--install-values",
             required=False,
             help="YAML file containing parameters required for the "
             "remote install of the subcloud.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--bootstrap-values",
             required=False,
             help="YAML file containing subcloud configuration settings. "
             "Can be either a local file path or a URL.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--deploy-config",
             required=False,
             help="YAML file containing subcloud variables to be passed to the "
             "deploy playbook.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--sysadmin-password",
             required=False,
             help="sysadmin password of the subcloud to be configured, "
             "if not provided you will be prompted.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--bmc-password",
             required=False,
             help="bmc password of the subcloud to be configured, if not "
@@ -848,7 +864,7 @@ class RedeploySubcloud(base.DCManagerShowOne):
             " valid if the --install-values are specified.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--release",
             required=False,
             help="software release used to install, bootstrap and/or deploy "
@@ -910,24 +926,13 @@ class RedeploySubcloud(base.DCManagerShowOne):
         if parsed_args.release is not None:
             data["release"] = parsed_args.release
 
-        # Require user to type redeploy to confirm
-        print(
-            "WARNING: This will redeploy the subcloud. "
-            "All applications and data on the subcloud will be lost."
-        )
-        confirm = input('Please type "redeploy" to confirm: ').strip().lower()
-        if confirm == "redeploy":
-            try:
-                return subcloud_manager.redeploy_subcloud(
-                    subcloud_ref=subcloud_ref, files=files, data=data
-                )
-            except Exception as exc:
-                print(exc)
-                error_msg = f"Unable to redeploy subcloud {subcloud_ref}"
-                raise exceptions.DCManagerClientException(error_msg)
-        else:
-            msg = f"Subcloud {subcloud_ref} will not be redeployed"
-            raise exceptions.DCManagerClientException(msg)
+        try:
+            return subcloud_manager.redeploy_subcloud(
+                subcloud_ref=subcloud_ref, files=files, data=data
+            )
+        except Exception as exc:
+            error_msg = f"Unable to redeploy subcloud {subcloud_ref}"
+            return utils.raise_client_exception(error_msg, exc)
 
 
 class RestoreSubcloud(base.DCManagerShowOne):
@@ -943,7 +948,7 @@ class RestoreSubcloud(base.DCManagerShowOne):
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
-        parser.add_argument_group(title="Notice", description=self.DEPRECATION_MESSAGE)
+        self.add_argument_group(title="Notice", description=self.DEPRECATION_MESSAGE)
         return parser
 
     def _get_resources(self, parsed_args):
@@ -959,23 +964,23 @@ class PrestageSubcloud(base.DCManagerShowOne):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument(
+        self.add_argument(
             "--sysadmin-password",
             required=False,
             help="sysadmin password of the subcloud to be prestaged, "
             "if not provided you will be prompted.",
         )
 
-        parser.add_argument("subcloud", help="Name or ID of the subcloud to prestage.")
+        self.add_argument("subcloud", help="Name or ID of the subcloud to prestage.")
 
-        parser.add_argument(
+        self.add_argument(
             "--force",
             required=False,
             action="store_true",
             help="Disregard subcloud management alarm condition",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--release",
             required=False,
             help="software release used to prestage the subcloud with. "
@@ -984,7 +989,7 @@ class PrestageSubcloud(base.DCManagerShowOne):
             "the subcloud will be used.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--for-install",
             required=False,
             action="store_true",
@@ -994,7 +999,7 @@ class PrestageSubcloud(base.DCManagerShowOne):
         # With USM there is no install phase for upgrades. This operation
         # therefore targets the live ostree repo on the subcloud (not
         # /opt/platform-backup)
-        parser.add_argument(
+        self.add_argument(
             "--for-sw-deploy",
             required=False,
             action="store_true",
@@ -1048,6 +1053,5 @@ class PrestageSubcloud(base.DCManagerShowOne):
             raise
 
         except Exception as exc:
-            print(exc)
             error_msg = f"Unable to prestage subcloud {subcloud_ref}"
-            raise exceptions.DCManagerClientException(error_msg)
+            return utils.raise_client_exception(error_msg, exc)

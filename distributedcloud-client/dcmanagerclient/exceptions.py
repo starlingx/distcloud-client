@@ -1,5 +1,5 @@
 # Copyright 2016 Ericsson AB
-# Copyright (c) 2017-2021, 2024 Wind River Systems, Inc.
+# Copyright (c) 2017-2021, 2024-2025 Wind River Systems, Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -24,12 +24,14 @@ class DCManagerClientException(Exception):
 
     message = "An unknown exception occurred"
     code = "UNKNOWN_EXCEPTION"
+    error_code = None
 
     def __str__(self):
         return self.message
 
-    def __init__(self, message=message):
+    def __init__(self, message=message, error_code=None):
         self.message = message
+        self.error_code = error_code
         super().__init__(f"{self.code}: {self.message}")
 
 

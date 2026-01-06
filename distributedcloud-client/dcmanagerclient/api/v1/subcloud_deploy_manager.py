@@ -14,6 +14,10 @@
 #    limitations under the License.
 #
 
+import io
+import os
+import zipfile
+
 from requests_toolbelt import MultipartEncoder
 
 from dcmanagerclient.api import base
@@ -70,11 +74,33 @@ class SubcloudDeployManager(base.ResourceManager):
         resource = self._process_json_response(json_object)
         return resource
 
+    def _get_playbook(self, file_path):
+        roles = os.path.join(os.path.dirname(file_path), "roles")
+        if not os.path.isdir(roles):
+            with open(file_path, "rb") as f:
+                return f.read(), None
+
+        zbuffer = io.BytesIO()
+        with zipfile.ZipFile(zbuffer, "w", zipfile.ZIP_DEFLATED) as zf:
+            arcname = os.path.basename(file_path)
+            zf.write(file_path, arcname=arcname)
+            for root, _, files in os.walk(roles):
+                for f in files:
+                    file_path = os.path.join(root, f)
+                    arcname = os.path.relpath(file_path, os.path.dirname(roles))
+                    zf.write(file_path, arcname)
+        zbuffer.seek(0)
+        return zbuffer, "application/zip"
+
     def _deploy_upload(self, url, files, data):
         fields = {}
         for k, v in files.items():
-            with open(v, "rb") as file:
-                fields.update({k: (v, file.read())})
+            if k == "deploy_playbook":
+                content, filetype = self._get_playbook(v)
+                fields.update({k: (v, content, filetype)})
+            else:
+                with open(v, "rb") as file:
+                    fields.update({k: (v, file.read())})
         fields.update(data)
         enc = MultipartEncoder(fields=fields)
         headers = {"content-type": enc.content_type}

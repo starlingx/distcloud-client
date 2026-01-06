@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2022-2024 Wind River Systems, Inc.
+# Copyright (c) 2022-2025 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -85,7 +85,7 @@ class CreateSubcloudBackup(base.DCManagerShow):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument(
+        self.add_argument(
             "--local-only",
             required=False,
             action="store_true",
@@ -94,7 +94,7 @@ class CreateSubcloudBackup(base.DCManagerShow):
             "dedicated location on the system controller.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--registry-images",
             required=False,
             action="store_true",
@@ -103,27 +103,27 @@ class CreateSubcloudBackup(base.DCManagerShow):
             "option.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--sysadmin-password",
             required=False,
             help="sysadmin password of the subcloud to create backup, "
             "if not provided you will be prompted.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--backup-values",
             required=False,
             help="YAML file containing subcloud backup settings. "
             "Can be either a local file path or a URL.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--subcloud",
             required=False,
             help="Name or ID of the subcloud to create backup.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--group",
             required=False,
             help="Name or ID of the group to create backup.",
@@ -197,13 +197,16 @@ class CreateSubcloudBackup(base.DCManagerShow):
             )
 
         except Exception as exc:
-            print(exc)
             error_msg = "Unable to create subcloud backup"
-            raise exceptions.DCManagerClientException(error_msg)
+            return utils.raise_client_exception(error_msg, exc)
 
 
-class DeleteSubcloudBackup(command.Command):
+class DeleteSubcloudBackup(
+    base.CacheRetryMixin, base.ConfirmationMixin, command.Command
+):
     """Delete backup from a subcloud or group of subclouds"""
+
+    requires_confirmation = True
 
     def _get_format_function(self):
         return detail_format
@@ -211,11 +214,11 @@ class DeleteSubcloudBackup(command.Command):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument(
+        self.add_argument(
             "release", help="Release version that the user is trying to delete."
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--local-only",
             required=False,
             action="store_true",
@@ -224,28 +227,27 @@ class DeleteSubcloudBackup(command.Command):
             "centralized archive on the system controller.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--sysadmin-password",
             required=False,
             help="sysadmin password of the subcloud to delete backup, "
             "if not provided you will be prompted.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--subcloud",
             required=False,
             help="Name or ID of the subcloud to delete backup.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--group",
             required=False,
             help="Name or ID of the subcloud to delete backup.",
         )
-
         return parser
 
-    def take_action(self, parsed_args):
+    def _take_action(self, parsed_args):
         subcloud_backup_manager = self.app.client_manager.subcloud_backup_manager
         release_version = parsed_args.release
         subcloud_ref = parsed_args.subcloud
@@ -291,13 +293,14 @@ class DeleteSubcloudBackup(command.Command):
             )
 
         except Exception as exc:
-            print(exc)
             error_msg = "Unable to delete backup"
-            raise exceptions.DCManagerClientException(error_msg)
+            return utils.raise_client_exception(error_msg, exc)
 
 
 class RestoreSubcloudBackup(base.DCManagerShow):
     """Restore a subcloud or group of subclouds from backup"""
+
+    requires_confirmation = True
 
     def _get_format_function(self):
         return detail_format
@@ -308,7 +311,7 @@ class RestoreSubcloudBackup(base.DCManagerShow):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument(
+        self.add_argument(
             "--with-install",
             required=False,
             action="store_true",
@@ -316,7 +319,7 @@ class RestoreSubcloudBackup(base.DCManagerShow):
             "being restored from backup data.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--release",
             required=False,
             help="Software release used to install, bootstrap and/or deploy "
@@ -324,7 +327,7 @@ class RestoreSubcloudBackup(base.DCManagerShow):
             "release of the system controller will be used.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--local-only",
             required=False,
             action="store_true",
@@ -334,7 +337,7 @@ class RestoreSubcloudBackup(base.DCManagerShow):
             "controller.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--registry-images",
             required=False,
             action="store_true",
@@ -343,32 +346,53 @@ class RestoreSubcloudBackup(base.DCManagerShow):
             "option.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--restore-values",
             required=False,
             help="Reference to the restore playbook overrides yaml file, as "
             "listed in the product documentation for the ansible restore.",
         )
 
-        parser.add_argument(
+        self.add_argument(
+            "--auto",
+            required=False,
+            action="store_true",
+            help="If included, the restore of the subcloud will be triggered "
+            "using BMC connectivity. Use this option when there is no OAM "
+            "connectivity to the subcloud prior to the restore. This option "
+            "can be used with or without --local-only and --with-install "
+            "options.",
+        )
+
+        self.add_argument(
+            "--factory",
+            required=False,
+            action="store_true",
+            help="If included, the subcloud will be installed and "
+            "automatically restored from the local factory backup on the "
+            "subcloud using BMC connectivity. Use this option when there is "
+            "no OAM connectivity to the subcloud prior to the restore. This "
+            "option implies --with-install and --local-only.",
+        )
+
+        self.add_argument(
             "--sysadmin-password",
             required=False,
             help="sysadmin password of the subcloud to be restored, "
             "if not provided you will be prompted.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--subcloud",
             required=False,
             help="Name or ID of the subcloud to restore.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--group",
             required=False,
             help="Name or ID of the subcloud group to restore.",
         )
-
         return parser
 
     def _get_resources(self, parsed_args):
@@ -387,12 +411,6 @@ class RestoreSubcloudBackup(base.DCManagerShow):
             )
             raise exceptions.DCManagerClientException(error_msg)
 
-        if parsed_args.subcloud:
-            data["subcloud"] = parsed_args.subcloud
-
-        if parsed_args.group:
-            data["group"] = parsed_args.group
-
         if not parsed_args.local_only and parsed_args.registry_images:
             error_msg = (
                 "Option --registry-images cannot be used without "
@@ -400,27 +418,42 @@ class RestoreSubcloudBackup(base.DCManagerShow):
             )
             raise exceptions.DCManagerClientException(error_msg)
 
-        if not parsed_args.with_install and parsed_args.release:
-            error_msg = "Option --release cannot be used without --with-install option."
+        if parsed_args.release and not (
+            parsed_args.with_install or parsed_args.factory
+        ):
+            error_msg = (
+                "Option --release cannot be used without --with-install "
+                "or --factory option."
+            )
             raise exceptions.DCManagerClientException(error_msg)
 
-        if parsed_args.with_install:
-            data["with_install"] = "true"
-        else:
-            data["with_install"] = "false"
+        if parsed_args.restore_values:
+            if not os.path.isfile(parsed_args.restore_values):
+                error_msg = (
+                    "restore_values file does not exist: "
+                    f"{parsed_args.restore_values}"
+                )
+                raise exceptions.DCManagerClientException(error_msg)
+            files["restore_values"] = parsed_args.restore_values
 
-        if parsed_args.local_only:
-            data["local_only"] = "true"
-        else:
-            data["local_only"] = "false"
+        if parsed_args.subcloud:
+            data["subcloud"] = parsed_args.subcloud
 
-        if parsed_args.registry_images:
-            data["registry_images"] = "true"
-        else:
-            data["registry_images"] = "false"
+        if parsed_args.group:
+            data["group"] = parsed_args.group
 
         if parsed_args.release is not None:
             data["release"] = parsed_args.release
+
+        # Convert boolean flags to lower case strings
+        for flag in [
+            "with_install",
+            "local_only",
+            "registry_images",
+            "auto",
+            "factory",
+        ]:
+            data[flag] = str(getattr(parsed_args, flag, False)).lower()
 
         if parsed_args.sysadmin_password is not None:
             data["sysadmin_password"] = base64.b64encode(
@@ -432,21 +465,11 @@ class RestoreSubcloudBackup(base.DCManagerShow):
                 password.encode("utf-8")
             ).decode("utf-8")
 
-        if parsed_args.restore_values:
-            if not os.path.isfile(parsed_args.restore_values):
-                error_msg = (
-                    "restore_values file does not exist: "
-                    f"{parsed_args.restore_values}"
-                )
-                raise exceptions.DCManagerClientException(error_msg)
-            files["restore_values"] = parsed_args.restore_values
-
         try:
             return subcloud_backup_manager.backup_subcloud_restore(
                 data=data, files=files
             )
 
         except Exception as exc:
-            print(exc)
             error_msg = "Unable to restore subcloud backup"
-            raise exceptions.DCManagerClientException(error_msg)
+            return utils.raise_client_exception(error_msg, exc)

@@ -1,5 +1,5 @@
 # Copyright (c) 2017 Ericsson AB.
-# Copyright (c) 2020-2024 Wind River Systems, Inc.
+# Copyright (c) 2020-2025 Wind River Systems, Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -17,9 +17,9 @@
 from dcmanagerclient import exceptions
 from dcmanagerclient.commands.v1 import base
 
+
 # These are the abstract base classes used for sw update managers such as
-# - sw-patch-manager
-# - fw-update-manager
+# fw-update-manager
 #
 # also handles 'steps' and 'strategies'
 
@@ -52,14 +52,7 @@ def detail_format(sw_update_strategy=None):
 
 
 def strategy_step_format(strategy_step=None):
-    columns = (
-        "cloud",
-        "stage",
-        "state",
-        "details",
-        "started_at",
-        "finished_at",
-    )
+    columns = ("cloud", "stage", "state", "details", "started_at", "finished_at")
 
     if strategy_step:
         data = (
@@ -120,32 +113,32 @@ class CreateSwUpdateStrategy(base.DCManagerShowOne):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument(
+        self.add_argument(
             "--subcloud-apply-type",
             required=False,
             choices=["parallel", "serial"],
             help="Subcloud apply type (parallel or serial).",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--max-parallel-subclouds",
             required=False,
             type=int,
             help="Maximum number of parallel subclouds.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--stop-on-failure",
             required=False,
             action="store_true",
             help="Do not update any additional subclouds after a failure.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--group", required=False, help="Name or ID of subcloud group to update."
         )
 
-        parser.add_argument(
+        self.add_argument(
             "cloud_name",
             nargs="?",
             default=None,
@@ -214,6 +207,8 @@ class ShowSwUpdateStrategy(base.DCManagerShowOne):
 class DeleteSwUpdateStrategy(base.DCManagerShowOne):
     """Delete a software update strategy from the database."""
 
+    requires_confirmation = True
+
     def get_sw_update_manager(self):
         # This method must be overrridden by the concrete subclass
         raise NotImplementedError
@@ -224,9 +219,15 @@ class DeleteSwUpdateStrategy(base.DCManagerShowOne):
     def _get_resources(self, parsed_args):
         return self.get_sw_update_manager().delete_sw_update_strategy()
 
+    def get_parser(self, prog_name):
+        parser = super().get_parser(prog_name)
+        return parser
+
 
 class ApplySwUpdateStrategy(base.DCManagerShowOne):
     """Apply a software update strategy."""
+
+    requires_confirmation = True
 
     def get_sw_update_manager(self):
         # This method must be overrridden by the concrete subclass
@@ -280,7 +281,7 @@ class ShowSwUpdateStrategyStep(base.DCManagerShowOne):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument("cloud_name", help="Name of cloud to view the details.")
+        self.add_argument("cloud_name", help="Name of cloud to view the details.")
         return parser
 
     def _get_resources(self, parsed_args):

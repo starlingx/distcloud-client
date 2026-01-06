@@ -1,5 +1,5 @@
 # Copyright (c) 2017 Ericsson AB.
-# Copyright (c) 2017-2024 Wind River Systems, Inc.
+# Copyright (c) 2017-2025 Wind River Systems, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 import copy
 import os
+import tarfile
 import tempfile
 
 import mock
@@ -237,7 +238,84 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
         self.assertEqual(tuple(result_list), actual_call[1])
 
     @mock.patch("getpass.getpass", return_value="testpassword")
-    def test_add_enroll_subcloud(self, _mock_getpass):
+    def test_enroll_subcloud(self, _mock_getpass):
+        self.client.subcloud_manager.add_subcloud.return_value = [
+            self.subcloud_resource
+        ]
+
+        with tempfile.NamedTemporaryFile(
+            mode="w"
+        ) as bootstrap_file, tempfile.NamedTemporaryFile(mode="w") as install_file:
+            yaml.dump(base.FAKE_BOOTSTRAP_VALUES, bootstrap_file)
+            yaml.dump(base.FAKE_INSTALL_VALUES, install_file)
+            bootstrap_file_path = os.path.abspath(bootstrap_file.name)
+            install_file_path = os.path.abspath(install_file.name)
+            actual_call = self.call(
+                subcloud_cmd.AddSubcloud,
+                app_args=[
+                    "--bootstrap-address",
+                    base.BOOTSTRAP_ADDRESS,
+                    "--bootstrap-values",
+                    bootstrap_file_path,
+                    "--install-values",
+                    install_file_path,
+                    "--enroll",
+                ],
+            )
+        self.assertEqual(base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID, actual_call[1])
+
+    @mock.patch("getpass.getpass", return_value="testpassword")
+    def test_enroll_subcloud_with_cloud_init_config(self, _mock_getpass):
+        self.client.subcloud_manager.add_subcloud.return_value = [
+            self.subcloud_resource
+        ]
+
+        with tempfile.NamedTemporaryFile(
+            mode="w"
+        ) as bootstrap_file, tempfile.NamedTemporaryFile(
+            mode="w"
+        ) as install_file, tempfile.NamedTemporaryFile(
+            suffix=".tar", delete=False
+        ) as cloud_init_file:
+
+            # Write fake bootstrap/install values
+            yaml.dump(base.FAKE_BOOTSTRAP_VALUES, bootstrap_file)
+            yaml.dump(base.FAKE_INSTALL_VALUES, install_file)
+
+            bootstrap_file_path = os.path.abspath(bootstrap_file.name)
+            install_file_path = os.path.abspath(install_file.name)
+            cloud_init_file_path = os.path.abspath(cloud_init_file.name)
+
+            # Create a valid tar archive with a dummy file inside
+            dummy_file_path = os.path.join(tempfile.gettempdir(), "dummy.txt")
+            with open(dummy_file_path, "w", encoding="utf-8") as f:
+                f.write("cloud-init content")
+
+            with tarfile.open(cloud_init_file_path, "w") as tar:
+                tar.add(dummy_file_path, arcname="dummy.txt")
+
+            # Ensure tarball is closed before usage
+            actual_call = self.call(
+                subcloud_cmd.AddSubcloud,
+                app_args=[
+                    "--bootstrap-address",
+                    base.BOOTSTRAP_ADDRESS,
+                    "--bootstrap-values",
+                    bootstrap_file_path,
+                    "--install-values",
+                    install_file_path,
+                    "--cloud-init-config",
+                    cloud_init_file_path,
+                    "--enroll",
+                ],
+            )
+
+            self.assertEqual(
+                base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID, actual_call[1]
+            )
+
+    @mock.patch("getpass.getpass", return_value="testpassword")
+    def test_add_enroll_failure_without_install_values(self, _mock_getpass):
         self.client.subcloud_manager.add_subcloud.return_value = [
             self.subcloud_resource
         ]
@@ -245,7 +323,10 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
         with tempfile.NamedTemporaryFile(mode="w") as f:
             yaml.dump(base.FAKE_BOOTSTRAP_VALUES, f)
             file_path = os.path.abspath(f.name)
-            actual_call = self.call(
+
+            self.assertRaises(
+                DCManagerClientException,
+                self.call,
                 subcloud_cmd.AddSubcloud,
                 app_args=[
                     "--bootstrap-address",
@@ -255,10 +336,9 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
                     "--enroll",
                 ],
             )
-        self.assertEqual(base.SUBCLOUD_FIELD_RESULT_LIST_WITH_PEERID, actual_call[1])
 
     @mock.patch("getpass.getpass", return_value="testpassword")
-    def test_subcloud_enroll_failure_invalid_parameter(self, _mock_getpass):
+    def test_subcloud_enroll_failure_with_migrate(self, _mock_getpass):
         self.client.subcloud_manager.add_subcloud.return_value = [
             self.subcloud_resource
         ]
@@ -278,6 +358,67 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
                     file_path,
                     "--enroll",
                     "--migrate",
+                ],
+            )
+
+    @mock.patch("getpass.getpass", return_value="testpassword")
+    def test_add_subcloud_failure_cloudinit_data_without_enroll(self, _mock_getpass):
+        self.client.subcloud_manager.add_subcloud.return_value = [
+            self.subcloud_resource
+        ]
+
+        with tempfile.NamedTemporaryFile(
+            mode="w"
+        ) as bootstrap_file, tempfile.NamedTemporaryFile(
+            mode="w", delete=False
+        ) as cloud_init_file:
+            yaml.dump(base.FAKE_BOOTSTRAP_VALUES, bootstrap_file)
+            bootstrap_file_path = os.path.abspath(bootstrap_file.name)
+            cloud_init_file_path = os.path.abspath(cloud_init_file.name)
+
+            self.assertRaises(
+                DCManagerClientException,
+                self.call,
+                subcloud_cmd.AddSubcloud,
+                app_args=[
+                    "--bootstrap-address",
+                    base.BOOTSTRAP_ADDRESS,
+                    "--bootstrap-values",
+                    bootstrap_file_path,
+                    "--cloud-init-config",
+                    cloud_init_file_path,
+                ],
+            )
+
+    @mock.patch("getpass.getpass", return_value="testpassword")
+    def test_add_subcloud_failure_cloudinit_data_wrong_format(self, _mock_getpass):
+        self.client.subcloud_manager.add_subcloud.return_value = [
+            self.subcloud_resource
+        ]
+
+        with tempfile.NamedTemporaryFile(
+            mode="w"
+        ) as bootstrap_file, tempfile.NamedTemporaryFile(
+            mode="w", delete=False
+        ) as cloud_init_file:
+            yaml.dump(base.FAKE_BOOTSTRAP_VALUES, bootstrap_file)
+            bootstrap_file_path = os.path.abspath(bootstrap_file.name)
+            cloud_init_file_path = os.path.abspath(cloud_init_file.name)
+
+            with open(cloud_init_file_path, "w", encoding="utf-8") as f:
+                f.write("this is not a tar archive")
+
+            self.assertRaises(
+                DCManagerClientException,
+                self.call,
+                subcloud_cmd.AddSubcloud,
+                app_args=[
+                    "--bootstrap-address",
+                    base.BOOTSTRAP_ADDRESS,
+                    "--bootstrap-values",
+                    bootstrap_file_path,
+                    "--cloud-init-config",
+                    cloud_init_file_path,
                 ],
             )
 

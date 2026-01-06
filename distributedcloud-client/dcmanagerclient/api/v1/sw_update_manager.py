@@ -107,7 +107,8 @@ class SwUpdateManager(base.ResourceManager):
             json_extra_args = json_object.get("extra-args")
             if json_extra_args:
                 arg = json_extra_args.get(x)
-                if arg:
+                # Check for not None, not empty string, and handle boolean False
+                if arg is not None and str(arg).strip() != "":
                     args_dict[x] = arg
         if args_dict:
             return args_dict

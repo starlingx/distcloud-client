@@ -1,5 +1,5 @@
 # Copyright (c) 2017 Ericsson AB.
-# Copyright (c) 2020-2021, 2024 Wind River Systems, Inc.
+# Copyright (c) 2020-2021, 2024-2025 Wind River Systems, Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 from osc_lib.command import command
 
 from dcmanagerclient import exceptions
+from dcmanagerclient import utils
 from dcmanagerclient.commands.v1 import base
 from dcmanagerclient.commands.v1.subcloud_manager import (
     detail_format,
@@ -82,25 +83,25 @@ class AddSubcloudGroup(base.DCManagerShowOne):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument(
+        self.add_argument(
             "--name", required=True, help="Name for the new subcloud group."
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--description",
             required=False,
             default="No description provided",
             help="Description of new subcloud group.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--update_apply_type",
             required=False,
             default="parallel",
             help="apply type for the new subcloud group.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--max_parallel_subclouds",
             required=False,
             default=2,
@@ -149,7 +150,7 @@ class ListSubcloudGroupSubclouds(base.DCManagerLister):
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
-        parser.add_argument(
+        self.add_argument(
             "group",
             help="Name or ID of subcloud group to list associated subclouds.",
         )
@@ -174,7 +175,7 @@ class ShowSubcloudGroup(base.DCManagerShowOne):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument(
+        self.add_argument(
             "group", help="Name or ID of subcloud group to view the details."
         )
 
@@ -186,24 +187,27 @@ class ShowSubcloudGroup(base.DCManagerShowOne):
         return subcloud_group_manager.subcloud_group_detail(subcloud_group_ref)
 
 
-class DeleteSubcloudGroup(command.Command):
+class DeleteSubcloudGroup(
+    base.CacheRetryMixin, base.ConfirmationMixin, command.Command
+):
     """Delete subcloud group details from the database."""
+
+    requires_confirmation = True
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument("group", help="Name or ID of the subcloud group to delete.")
+        self.add_argument("group", help="Name or ID of the subcloud group to delete.")
         return parser
 
-    def take_action(self, parsed_args):
+    def _take_action(self, parsed_args):
         subcloud_group_ref = parsed_args.group
         subcloud_group_manager = self.app.client_manager.subcloud_group_manager
         try:
             subcloud_group_manager.delete_subcloud_group(subcloud_group_ref)
         except Exception as exc:
-            print(exc)
             msg = f"Unable to delete subcloud group {subcloud_group_ref}"
-            raise exceptions.DCManagerClientException(msg)
+            utils.raise_client_exception(msg, exc)
 
 
 class UpdateSubcloudGroup(base.DCManagerShowOne):
@@ -215,21 +219,21 @@ class UpdateSubcloudGroup(base.DCManagerShowOne):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
 
-        parser.add_argument("group", help="Name or ID of the subcloud group to update.")
+        self.add_argument("group", help="Name or ID of the subcloud group to update.")
 
-        parser.add_argument("--name", required=False, help="Name of subcloud group.")
+        self.add_argument("--name", required=False, help="Name of subcloud group.")
 
-        parser.add_argument(
+        self.add_argument(
             "--description", required=False, help="Description of subcloud group."
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--update_apply_type",
             required=False,
             help="Update apply type of subcloud group.",
         )
 
-        parser.add_argument(
+        self.add_argument(
             "--max_parallel_subclouds",
             type=int,
             required=False,
@@ -259,6 +263,5 @@ class UpdateSubcloudGroup(base.DCManagerShowOne):
                 subcloud_group_ref, **kwargs
             )
         except Exception as exc:
-            print(exc)
             msg = f"Unable to update subcloud group {subcloud_group_ref}"
-            raise exceptions.DCManagerClientException(msg)
+            return utils.raise_client_exception(msg, exc)

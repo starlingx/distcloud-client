@@ -1,6 +1,6 @@
 # Copyright 2015 Huawei Technologies Co., Ltd.
 # Copyright 2016 Ericsson AB.
-# Copyright (c) 2017, 2019, 2021, 2024 Wind River Systems, Inc.
+# Copyright (c) 2017, 2019, 2021, 2024-2025 Wind River Systems, Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -29,6 +29,9 @@ class BaseShellTests(testtools.TestCase):
         orig = (sys.stdout, sys.stderr)
         clean_env = {}
         _old_env, os.environ = os.environ, clean_env.copy()
+
+        # Disable cache during tests
+        os.environ["DCCLIENT_NO_CACHE"] = True
 
         try:
             sys.stdout = io.StringIO()
