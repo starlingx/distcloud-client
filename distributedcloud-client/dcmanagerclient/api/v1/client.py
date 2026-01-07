@@ -1,7 +1,7 @@
 # Copyright 2014 - Mirantis, Inc.
 # Copyright 2015 - StackStorm, Inc.
 # Copyright 2016 - Ericsson AB.
-# Copyright (c) 2017-2025 Wind River Systems, Inc.
+# Copyright (c) 2017-2026 Wind River Systems, Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -38,6 +38,9 @@ from dcmanagerclient.api.v1.phased_subcloud_deploy_manager import (
 )
 from dcmanagerclient.api.v1.strategy_step_manager import StrategyStepManager
 from dcmanagerclient.api.v1.subcloud_backup_manager import SubcloudBackupManager
+from dcmanagerclient.api.v1.subcloud_backup_config_manager import (
+    SubcloudBackupConfigManager,
+)
 from dcmanagerclient.api.v1.subcloud_deploy_manager import SubcloudDeployManager
 from dcmanagerclient.api.v1.subcloud_group_manager import SubcloudGroupManager
 from dcmanagerclient.api.v1.subcloud_manager import SubcloudManager
@@ -141,6 +144,9 @@ class Client:
             self.http_client
         )
         self.subcloud_backup_manager = SubcloudBackupManager(self.http_client)
+        self.subcloud_backup_config_manager = SubcloudBackupConfigManager(
+            self.http_client
+        )
         self.subcloud_deploy_manager = SubcloudDeployManager(self.http_client)
         self.system_peer_manager = SystemPeerManager(
             self.http_client, self.subcloud_peer_group_manager

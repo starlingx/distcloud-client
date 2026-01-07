@@ -1,5 +1,5 @@
 # Copyright 2015 - Ericsson AB.
-# Copyright (c) 2017-2025 Wind River Systems, Inc.
+# Copyright (c) 2017-2026 Wind River Systems, Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -38,6 +38,7 @@ from dcmanagerclient.commands.v1 import kube_upgrade_manager as kupm
 from dcmanagerclient.commands.v1 import peer_group_association_manager as pgam
 from dcmanagerclient.commands.v1 import phased_subcloud_deploy_manager as psdm
 from dcmanagerclient.commands.v1 import subcloud_backup_manager as sbm
+from dcmanagerclient.commands.v1 import subcloud_backup_config_manager as sbcm
 from dcmanagerclient.commands.v1 import subcloud_deploy_manager as sdm
 from dcmanagerclient.commands.v1 import subcloud_group_manager as gm
 from dcmanagerclient.commands.v1 import subcloud_manager as sm
@@ -598,6 +599,7 @@ class DCManagerShell(app.App):
 
         phased_subcloud_deploy_manager = self.client.phased_subcloud_deploy_manager
         peer_group_association_manager = self.client.peer_group_association_manager
+        subcloud_backup_config_manager = self.client.subcloud_backup_config_manager
         client_keys = {
             "alarm_manager": self.client.alarm_manager,
             "fw_update_manager": self.client.fw_update_manager,
@@ -607,6 +609,7 @@ class DCManagerShell(app.App):
             "phased_subcloud_deploy_manager": phased_subcloud_deploy_manager,
             "strategy_step_manager": self.client.strategy_step_manager,
             "subcloud_backup_manager": self.client.subcloud_backup_manager,
+            "subcloud_backup_config_manager": subcloud_backup_config_manager,
             "subcloud_deploy_manager": self.client.subcloud_deploy_manager,
             "subcloud_group_manager": self.client.subcloud_group_manager,
             "subcloud_peer_group_manager": self.client.subcloud_peer_group_manager,
@@ -730,6 +733,8 @@ class DCManagerShell(app.App):
             "subcloud-backup create": sbm.CreateSubcloudBackup,
             "subcloud-backup delete": sbm.DeleteSubcloudBackup,
             "subcloud-backup restore": sbm.RestoreSubcloudBackup,
+            "subcloud-backup-config show": sbcm.ShowSubcloudBackupConfig,
+            "subcloud-backup-config update": sbcm.UpdateSubcloudBackupConfig,
             "subcloud-deploy show": sdm.DeprecatedSubcloudDeployShow,
             "subcloud-deploy upload": sdm.DeprecatedSubcloudDeployUpload,
             "subcloud-group add": gm.AddSubcloudGroup,
