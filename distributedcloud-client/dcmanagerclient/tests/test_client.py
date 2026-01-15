@@ -1,7 +1,7 @@
 # Copyright 2015 - Huawei Technologies Co., Ltd.
 # Copyright 2016 - StackStorm, Inc.
 # Copyright 2016 - Ericsson AB.
-# Copyright (c) 2017, 2019, 2021, 2024 Wind River Systems, Inc.
+# Copyright (c) 2017, 2019, 2021, 2024, 2026 Wind River Systems, Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import osprofiler.profiler
 import testtools
 
 from dcmanagerclient.api import client
+from dcmanagerclient.api.v1.client import _build_service_url
 
 AUTH_HTTP_URL = "http://localhost:35357/v3"
 AUTH_HTTPS_URL = AUTH_HTTP_URL.replace("http", "https")
@@ -53,7 +54,11 @@ class BaseClientTests(testtools.TestCase):
 
         expected_args = (DCMANAGER_HTTP_URL, token, project_id, user_id)
 
-        expected_kwargs = {"cacert": None, "insecure": False}
+        expected_kwargs = {
+            "auth_type": "keystone",
+            "cacert": None,
+            "insecure": False,
+        }
 
         client.client(
             username="dcmanager",
@@ -81,7 +86,11 @@ class BaseClientTests(testtools.TestCase):
 
         expected_args = (DCMANAGER_HTTPS_URL, token, project_id, user_id)
 
-        expected_kwargs = {"cacert": None, "insecure": True}
+        expected_kwargs = {
+            "auth_type": "keystone",
+            "cacert": None,
+            "insecure": True,
+        }
 
         client.client(
             dcmanager_url=DCMANAGER_HTTPS_URL,
@@ -112,7 +121,11 @@ class BaseClientTests(testtools.TestCase):
 
         expected_args = (DCMANAGER_HTTPS_URL, token, project_id, user_id)
 
-        expected_kwargs = {"cacert": path, "insecure": False}
+        expected_kwargs = {
+            "auth_type": "keystone",
+            "cacert": path,
+            "insecure": False,
+        }
 
         try:
             client.client(
@@ -185,7 +198,11 @@ class BaseClientTests(testtools.TestCase):
 
         expected_args = (DCMANAGER_HTTP_URL, token, project_id, user_id)
 
-        expected_kwargs = {"cacert": None, "insecure": False}
+        expected_kwargs = {
+            "auth_type": "keystone",
+            "cacert": None,
+            "insecure": False,
+        }
 
         client.client(
             username="dcmanager",
@@ -238,3 +255,59 @@ class BaseClientTests(testtools.TestCase):
             auth_url=AUTH_HTTP_URL,
             **FAKE_KWARGS
         )
+
+    @mock.patch("dcmanagerclient.api.v1.client._get_oidc_data")
+    @mock.patch("dcmanagerclient.api.httpclient.HTTPClient")
+    def test_oidc_auth_success(self, mock_client, mock_oidc_data):
+        mock_oidc_data.return_value = (DCMANAGER_HTTP_URL, "oidc_token_123")
+
+        expected_args = (DCMANAGER_HTTP_URL, "oidc_token_123", None, None)
+        expected_kwargs = {
+            "auth_type": "oidc",
+            "cacert": None,
+            "insecure": False,
+        }
+
+        client.client(username="test_user", auth_url=AUTH_HTTP_URL, auth_type="oidc")
+
+        self.assertTrue(mock_client.called)
+        self.assertEqual(mock_client.call_args[0], expected_args)
+        self.assertDictEqual(mock_client.call_args[1], expected_kwargs)
+        mock_oidc_data.assert_called_once_with(
+            "test_user",
+            AUTH_HTTP_URL,
+            "publicURL",
+            "dcmanager",
+        )
+
+    def test_oidc_auth_missing_username(self):
+        self.assertRaises(
+            RuntimeError, client.client, auth_url=AUTH_HTTP_URL, auth_type="oidc"
+        )
+
+    def test_invalid_auth_type(self):
+        self.assertRaises(
+            RuntimeError,
+            client.client,
+            username="test_user",
+            auth_url=AUTH_HTTP_URL,
+            auth_type="invalid_auth",
+        )
+
+    def test_build_service_url_ipv4_public(self):
+        result = _build_service_url(
+            "http://192.168.1.1:5000/v3", "dcmanager", "publicURL"
+        )
+        self.assertEqual(result, "https://192.168.1.1:8119/v1.0")
+
+    def test_build_service_url_ipv6_admin(self):
+        result = _build_service_url(
+            "http://[2001:db8::1]:5000/v3", "dcmanager", "adminURL"
+        )
+        self.assertEqual(result, "https://[2001:db8::1]:8120/v1.0")
+
+    def test_build_service_url_ipv6_internal(self):
+        result = _build_service_url(
+            "http://[fd00::1]:5000/v3", "dcmanager", "internalURL"
+        )
+        self.assertEqual(result, "http://[fd00::1]:8119/v1.0")
