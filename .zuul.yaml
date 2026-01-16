@@ -11,6 +11,7 @@
         - stx-distcloud-client-tox-py39
         - stx-distcloud-client-tox-pylint
         - stx-distcloud-client-tox-black
+        - stx-distcloud-client-tox-cover
     gate:
       jobs:
         - openstack-tox-linters
@@ -18,6 +19,7 @@
         - stx-distcloud-client-tox-py39
         - stx-distcloud-client-tox-pylint
         - stx-distcloud-client-tox-black
+        - stx-distcloud-client-tox-cover
     post:
       jobs:
         - stx-distcloud-client-upload-git-mirror
@@ -69,6 +71,18 @@
       python_version: 3.9
       tox_envlist: black_check
       tox_extra_args: -c distributedcloud-client/tox.ini
+
+- job:
+    name: stx-distcloud-client-tox-cover
+    parent: tox
+    description: Run coverage test for distcloud-client
+    nodeset: debian-bullseye
+    vars:
+      python_version: 3.9
+      tox_envlist: cover
+      tox_extra_args: -c distributedcloud-client/tox.ini
+    post-run: tools/gate/playbooks/fetch-coverage.yaml
+    voting: false
 
 - job:
     name: stx-distcloud-client-upload-git-mirror
