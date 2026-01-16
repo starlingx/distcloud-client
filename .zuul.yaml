@@ -77,6 +77,8 @@
     parent: tox
     description: Run coverage test for distcloud-client
     nodeset: debian-bullseye
+    required-projects:
+      - starlingx/utilities
     vars:
       python_version: 3.9
       tox_envlist: cover
