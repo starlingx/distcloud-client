@@ -732,6 +732,7 @@ class DCManagerShell(app.App):
             "subcloud update": sm.UpdateSubcloud,
             "subcloud-backup create": sbm.CreateSubcloudBackup,
             "subcloud-backup delete": sbm.DeleteSubcloudBackup,
+            "subcloud-backup list": sbm.ListSubcloudBackup,
             "subcloud-backup restore": sbm.RestoreSubcloudBackup,
             "subcloud-backup-config show": sbcm.ShowSubcloudBackupConfig,
             "subcloud-backup-config update": sbcm.UpdateSubcloudBackupConfig,

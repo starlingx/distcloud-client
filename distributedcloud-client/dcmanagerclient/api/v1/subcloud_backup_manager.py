@@ -1,10 +1,11 @@
 #
-# Copyright (c) 2022, 2024 Wind River Systems, Inc.
+# Copyright (c) 2022, 2024-2026 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
 
 import json
+from typing import Optional
 
 from requests_toolbelt import MultipartEncoder
 
@@ -89,3 +90,43 @@ class SubcloudBackupManager(base.ResourceManager):
         data = kwargs.get("data")
         url = "/subcloud-backup/restore"
         return self.subcloud_backup_restore(url, files, data)
+
+    def subcloud_backup_list(
+        self,
+        subcloud: Optional[str] = None,
+        group: Optional[str] = None,
+        release: Optional[str] = None,
+        storage: Optional[str] = None,
+    ) -> list[dict]:
+        """List subcloud backups with optional filters.
+
+        :param subcloud: Subcloud name or ID to filter by
+        :param group: Group name or ID to filter by
+        :param release: Release version to filter by
+        :param storage: Storage location to filter by
+        :returns list: List of backup dictionaries
+        """
+        url = "/subcloud-backup"
+
+        params = []
+        if subcloud:
+            params.append(f"subcloud={subcloud}")
+        if group:
+            params.append(f"group={group}")
+        if release:
+            params.append(f"release={release}")
+        if storage:
+            params.append(f"storage={storage}")
+
+        if params:
+            url += "?" + "&".join(params)
+
+        resp = self.http_client.get(url)
+
+        if resp.status_code != 200:
+            self._raise_api_exception(resp)
+
+        json_response = get_json(resp)
+        backups = json_response.get("backups", [])
+
+        return backups

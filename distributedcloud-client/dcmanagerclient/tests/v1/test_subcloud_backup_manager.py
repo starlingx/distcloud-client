@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2022-2025 Wind River Systems, Inc.
+# Copyright (c) 2022-2026 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -616,5 +616,111 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
                 "Option --release cannot be used without --with-install "
                 "or --factory option."
             )
+            in str(e)
+        )
+
+
+class TestCLISubcloudBackList(base.BaseCommandTest):
+    def setUp(self):
+        super().setUp()
+        self.client = self.app.client_manager.subcloud_backup_manager
+
+        self.backup = {
+            "subcloud": "subcloud1",
+            "backup_index": 0,
+            "backup_id": "backup-123",
+            "release": "22.12",
+            "created_at": "2025-01-15T10:30:45.123456",
+            "size_bytes": 10485760,
+            "storage": "dc-vault",
+        }
+
+    def test_backup_list_format_with_backup(self):
+        columns, data = subcloud_backup_cmd.backup_list_format(self.backup)
+        self.assertEqual(
+            columns,
+            ("Subcloud", "Index", "Backup ID", "Release", "Created", "Size", "Storage"),
+        )
+        self.assertEqual(
+            data,
+            (
+                "subcloud1",
+                "0 (latest)",
+                "backup-123",
+                "22.12",
+                "2025-01-15 10:30:45",
+                "10.0 MB",
+                "dc-vault",
+            ),
+        )
+
+    def test_backup_list_format_with_non_latest_backup(self):
+        self.backup["backup_index"] = 2
+        _, data = subcloud_backup_cmd.backup_list_format(self.backup)
+        self.assertEqual(data[1], "2")
+
+    def test_backup_list_format_without_backup(self):
+        columns, data = subcloud_backup_cmd.backup_list_format(None)
+        self.assertEqual(
+            columns,
+            ("Subcloud", "Index", "Backup ID", "Release", "Created", "Size", "Storage"),
+        )
+        self.assertEqual(data, (("<none>",) * 7,))
+
+    def test_backup_list_no_filters(self):
+        self.client.subcloud_backup_list.return_value = [self.backup]
+        self.call(
+            subcloud_backup_cmd.ListSubcloudBackup,
+            app_args=[],
+        )
+        self.client.subcloud_backup_list.assert_called_once_with(
+            subcloud=None, group=None, release=None, storage=None
+        )
+
+    def test_backup_list_with_filters(self):
+        self.client.subcloud_backup_list.return_value = [self.backup]
+        self.call(
+            subcloud_backup_cmd.ListSubcloudBackup,
+            app_args=[
+                "--subcloud",
+                "subcloud1",
+                "--release",
+                "22.12",
+                "--storage",
+                "seaweedfs",
+            ],
+        )
+        self.client.subcloud_backup_list.assert_called_once_with(
+            subcloud="subcloud1", group=None, release="22.12", storage="seaweedfs"
+        )
+
+    def test_backup_list_with_group_filter(self):
+        self.client.subcloud_backup_list.return_value = [self.backup]
+        self.call(
+            subcloud_backup_cmd.ListSubcloudBackup,
+            app_args=[
+                "--group",
+                "group1",
+            ],
+        )
+        self.client.subcloud_backup_list.assert_called_once_with(
+            subcloud=None, group="group1", release=None, storage=None
+        )
+
+    def test_backup_list_with_group_and_subcloud_filter_fails(self):
+        self.client.subcloud_backup_list.return_value = [self.backup]
+        e = self.assertRaises(
+            DCManagerClientException,
+            self.call,
+            subcloud_backup_cmd.ListSubcloudBackup,
+            app_args=[
+                "--group",
+                "group1",
+                "--subcloud",
+                "subcloud1",
+            ],
+        )
+        self.assertTrue(
+            ("The '--subcloud' and '--group' parameters are mutually exclusive")
             in str(e)
         )

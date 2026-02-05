@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2022-2025 Wind River Systems, Inc.
+# Copyright (c) 2022-2026 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -69,6 +69,53 @@ def detail_format(subcloud=None):
             data += (subcloud.oam_floating_ip,)
     else:
         data = (tuple("<none>" for _ in range(len(columns))),)
+
+    return columns, data
+
+
+def backup_list_format(backup: dict = None) -> tuple[tuple, tuple]:
+    """Format function for backup list display"""
+    columns = (
+        "Subcloud",
+        "Index",
+        "Backup ID",
+        "Release",
+        "Created",
+        "Size",
+        "Storage",
+    )
+
+    if backup:
+        # Convert size from bytes to MB
+        size_bytes = backup.get("size_bytes", 0)
+        size_mb = size_bytes / (1024 * 1024)
+        size_str = f"{size_mb:.1f} MB"
+
+        # Format created_at timestamp
+        created_at = backup.get("created_at", "")
+        if "T" in created_at:
+            created_at = created_at.replace("T", " ")
+            if "." in created_at:
+                created_at = created_at.split(".")[0]
+
+        index = backup.get("backup_index")
+        if index == 0:
+            index_str = "0 (latest)"
+        else:
+            index_str = str(index)
+
+        data = (
+            backup.get("subcloud", ""),
+            index_str,
+            backup.get("backup_id", ""),
+            backup.get("release", ""),
+            created_at,
+            size_str,
+            backup.get("storage", ""),
+        )
+
+    else:
+        data = (("<none>",) * len(columns),)
 
     return columns, data
 
@@ -473,3 +520,44 @@ class RestoreSubcloudBackup(base.DCManagerShow):
         except Exception as exc:
             error_msg = "Unable to restore subcloud backup"
             return utils.raise_client_exception(error_msg, exc)
+
+
+class ListSubcloudBackup(base.DCManagerLister):
+    """List subcloud backups."""
+
+    def _get_format_function(self):
+        return backup_list_format
+
+    def get_parser(self, prog_name):
+        parser = super().get_parser(prog_name)
+
+        parser.add_argument("--subcloud", help="Filter by subcloud name or ID")
+        parser.add_argument("--group", help="Filter by subcloud group name or ID")
+        parser.add_argument("--release", help="Filter by release version")
+        parser.add_argument(
+            "--storage",
+            choices=["dc-vault", "seaweedfs"],
+            help="Filter by storage location: 'dc-vault' or 'seaweedfs'",
+        )
+
+        return parser
+
+    def _get_resources(self, parsed_args):
+        """Query the API for backup list."""
+
+        if parsed_args.subcloud and parsed_args.group:
+            error_msg = (
+                "The '--subcloud' and '--group' parameters are mutually exclusive"
+            )
+            raise exceptions.DCManagerClientException(error_msg)
+
+        backup_manager = self.app.client_manager.subcloud_backup_manager
+
+        backups = backup_manager.subcloud_backup_list(
+            subcloud=parsed_args.subcloud,
+            group=parsed_args.group,
+            release=parsed_args.release,
+            storage=parsed_args.storage,
+        )
+
+        return backups
