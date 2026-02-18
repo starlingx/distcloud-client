@@ -357,6 +357,96 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
             app_args=app_args,
         )
 
+    def _test_backup_delete_with_index(self, backup_index):
+        subcloud_name = "subcloud1"
+        release_version = "22.12"
+        password = "testpassword"
+        encoded_password = base64.b64encode(password.encode("utf-8")).decode("utf-8")
+
+        payload = {
+            "release": release_version,
+            "subcloud": subcloud_name,
+            "local_only": "false",
+            "backup_index": backup_index,
+            "sysadmin_password": encoded_password,
+        }
+
+        app_args = [
+            release_version,
+            "--subcloud",
+            subcloud_name,
+            "--backup-index",
+            backup_index,
+            "--sysadmin-password",
+            password,
+        ]
+
+        self.call(subcloud_backup_cmd.DeleteSubcloudBackup, app_args=app_args)
+
+        self.client.backup_subcloud_delete.assert_called_once_with(
+            data=payload, release_version=release_version, subcloud_ref=subcloud_name
+        )
+
+    def test_backup_delete_with_backup_index(self):
+        self._test_backup_delete_with_index("0")
+
+    def test_backup_delete_with_backup_index_latest(self):
+        self._test_backup_delete_with_index("latest")
+
+    def test_backup_delete_with_backup_index_oldest(self):
+        self._test_backup_delete_with_index("oldest")
+
+    def test_backup_delete_local_only_with_backup_index_fails(self):
+        e = self.assertRaises(
+            DCManagerClientException,
+            self.call,
+            subcloud_backup_cmd.DeleteSubcloudBackup,
+            app_args=[
+                "22.12",
+                "--subcloud",
+                "subcloud1",
+                "--local-only",
+                "--backup-index",
+                "0",
+                "--sysadmin-password",
+                "testpassword",
+            ],
+        )
+
+        self.assertTrue(
+            (
+                "--backup-index parameter cannot be used with --local-only. "
+                "Index-based deletion is only supported for centralized backups."
+            )
+            in str(e)
+        )
+
+    def _test_backup_delete_invalid_index(self, backup_index):
+        e = self.assertRaises(
+            DCManagerClientException,
+            self.call,
+            subcloud_backup_cmd.DeleteSubcloudBackup,
+            app_args=[
+                "22.12",
+                "--subcloud",
+                "subcloud1",
+                "--backup-index",
+                backup_index,
+                "--sysadmin-password",
+                "testpassword",
+            ],
+        )
+        self.assertTrue(
+            "--backup-index must be a non-negative integer, 'latest', or 'oldest'."
+            in str(e)
+        )
+
+    def test_backup_delete_with_invalid_backup_index_negative(self):
+        self._test_backup_delete_invalid_index("-1")
+
+    def test_backup_delete_with_invalid_backup_index_string(self):
+        self._test_backup_delete_invalid_index("invalid")
+
     def test_backup_restore(self):
         self.client.backup_subcloud_restore.return_value = [base.SUBCLOUD_RESOURCE]
 

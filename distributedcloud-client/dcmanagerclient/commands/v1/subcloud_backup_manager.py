@@ -292,6 +292,16 @@ class DeleteSubcloudBackup(
             required=False,
             help="Name or ID of the subcloud to delete backup.",
         )
+
+        self.add_argument(
+            "--backup-index",
+            required=False,
+            help="Index of the specific backup to delete within the subcloud's "
+            "backup list for the given release. Can be a non-negative integer "
+            "(0 = latest, 1 = second latest, etc.), 'latest', or 'oldest'. "
+            "Only supported for centralized backups (cannot be used with "
+            "'local_only').",
+        )
         return parser
 
     def _take_action(self, parsed_args):
@@ -313,6 +323,28 @@ class DeleteSubcloudBackup(
             )
             raise exceptions.DCManagerClientException(error_msg)
 
+        if parsed_args.local_only and parsed_args.backup_index:
+            error_msg = (
+                "--backup-index parameter cannot be used with --local-only. "
+                "Index-based deletion is only supported for centralized backups."
+            )
+            raise exceptions.DCManagerClientException(error_msg)
+
+        if parsed_args.backup_index and parsed_args.backup_index not in [
+            "latest",
+            "oldest",
+        ]:
+            try:
+                index = int(parsed_args.backup_index)
+                if index < 0:
+                    raise ValueError
+            except (ValueError, TypeError) as e:
+                error_msg = (
+                    "--backup-index must be a non-negative integer, "
+                    "'latest', or 'oldest'."
+                )
+                raise exceptions.DCManagerClientException(error_msg) from e
+
         if parsed_args.subcloud:
             data["subcloud"] = parsed_args.subcloud
 
@@ -323,6 +355,9 @@ class DeleteSubcloudBackup(
             data["local_only"] = "true"
         else:
             data["local_only"] = "false"
+
+        if parsed_args.backup_index:
+            data["backup_index"] = parsed_args.backup_index
 
         if parsed_args.sysadmin_password is not None:
             data["sysadmin_password"] = base64.b64encode(
