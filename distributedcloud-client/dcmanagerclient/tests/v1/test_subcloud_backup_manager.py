@@ -709,6 +709,104 @@ class TestCLISubcloudBackUpManagerV1(base.BaseCommandTest):
             in str(e)
         )
 
+    def _test_backup_restore_with_index(self, backup_index):
+        self.client.backup_subcloud_restore.return_value = [base.SUBCLOUD_RESOURCE]
+        subcloud_name = "subcloud1"
+        password = "testpassword"
+
+        app_args = [
+            "--subcloud",
+            subcloud_name,
+            "--backup-index",
+            backup_index,
+            "--sysadmin-password",
+            password,
+        ]
+
+        self.call(subcloud_backup_cmd.RestoreSubcloudBackup, app_args=app_args)
+
+    def test_backup_restore_with_backup_index(self):
+        self._test_backup_restore_with_index("0")
+
+    def test_backup_restore_with_backup_index_latest(self):
+        self._test_backup_restore_with_index("latest")
+
+    def test_backup_restore_with_backup_index_oldest(self):
+        self._test_backup_restore_with_index("oldest")
+
+    def test_backup_restore_local_only_with_backup_index_fails(self):
+        e = self.assertRaises(
+            DCManagerClientException,
+            self.call,
+            subcloud_backup_cmd.RestoreSubcloudBackup,
+            app_args=[
+                "--subcloud",
+                "subcloud1",
+                "--local-only",
+                "--backup-index",
+                "0",
+                "--sysadmin-password",
+                "testpassword",
+            ],
+        )
+
+        self.assertTrue(
+            (
+                "--backup-index parameter cannot be used with --local-only. "
+                "Index-based restore is only supported for centralized backups."
+            )
+            in str(e)
+        )
+
+    def test_backup_restore_factory_with_backup_index_fails(self):
+        e = self.assertRaises(
+            DCManagerClientException,
+            self.call,
+            subcloud_backup_cmd.RestoreSubcloudBackup,
+            app_args=[
+                "--subcloud",
+                "subcloud1",
+                "--factory",
+                "--backup-index",
+                "0",
+                "--sysadmin-password",
+                "testpassword",
+            ],
+        )
+
+        self.assertTrue(
+            (
+                "--backup-index parameter cannot be used with --factory. "
+                "Factory restore always uses pre-installed local backup."
+            )
+            in str(e)
+        )
+
+    def _test_backup_restore_invalid_index(self, backup_index):
+        e = self.assertRaises(
+            DCManagerClientException,
+            self.call,
+            subcloud_backup_cmd.RestoreSubcloudBackup,
+            app_args=[
+                "--subcloud",
+                "subcloud1",
+                "--backup-index",
+                backup_index,
+                "--sysadmin-password",
+                "testpassword",
+            ],
+        )
+        self.assertTrue(
+            "--backup-index must be a non-negative integer, 'latest', or 'oldest'."
+            in str(e)
+        )
+
+    def test_backup_restore_with_invalid_backup_index_negative(self):
+        self._test_backup_restore_invalid_index("-1")
+
+    def test_backup_restore_with_invalid_backup_index_string(self):
+        self._test_backup_restore_invalid_index("invalid")
+
 
 class TestCLISubcloudBackList(base.BaseCommandTest):
     def setUp(self):

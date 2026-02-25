@@ -330,7 +330,7 @@ class DeleteSubcloudBackup(
             )
             raise exceptions.DCManagerClientException(error_msg)
 
-        if parsed_args.backup_index and parsed_args.backup_index not in [
+        if parsed_args.backup_index and parsed_args.backup_index.lower() not in [
             "latest",
             "oldest",
         ]:
@@ -475,6 +475,17 @@ class RestoreSubcloudBackup(base.DCManagerShow):
             required=False,
             help="Name or ID of the subcloud group to restore.",
         )
+
+        self.add_argument(
+            "--backup-index",
+            required=False,
+            help="Index of the specific backup to restore within the subcloud's "
+            "backup list for the given release. Can be a non-negative integer "
+            "(0 = latest, 1 = second latest, etc.), 'latest', or 'oldest'. "
+            "Only supported for centralized backups (cannot be used with "
+            "--local-only or --factory).",
+        )
+
         return parser
 
     def _get_resources(self, parsed_args):
@@ -518,6 +529,35 @@ class RestoreSubcloudBackup(base.DCManagerShow):
                 raise exceptions.DCManagerClientException(error_msg)
             files["restore_values"] = parsed_args.restore_values
 
+        if parsed_args.local_only and parsed_args.backup_index:
+            error_msg = (
+                "--backup-index parameter cannot be used with --local-only. "
+                "Index-based restore is only supported for centralized backups."
+            )
+            raise exceptions.DCManagerClientException(error_msg)
+
+        if parsed_args.factory and parsed_args.backup_index:
+            error_msg = (
+                "--backup-index parameter cannot be used with --factory. "
+                "Factory restore always uses pre-installed local backup."
+            )
+            raise exceptions.DCManagerClientException(error_msg)
+
+        if parsed_args.backup_index and parsed_args.backup_index.lower() not in [
+            "latest",
+            "oldest",
+        ]:
+            try:
+                index = int(parsed_args.backup_index)
+                if index < 0:
+                    raise ValueError
+            except (ValueError, TypeError) as e:
+                error_msg = (
+                    "--backup-index must be a non-negative integer, "
+                    "'latest', or 'oldest'."
+                )
+                raise exceptions.DCManagerClientException(error_msg) from e
+
         if parsed_args.subcloud:
             data["subcloud"] = parsed_args.subcloud
 
@@ -526,6 +566,9 @@ class RestoreSubcloudBackup(base.DCManagerShow):
 
         if parsed_args.release is not None:
             data["release"] = parsed_args.release
+
+        if parsed_args.backup_index:
+            data["backup_index"] = parsed_args.backup_index
 
         # Convert boolean flags to lower case strings
         for flag in [
