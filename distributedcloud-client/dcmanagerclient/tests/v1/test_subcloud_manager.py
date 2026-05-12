@@ -573,6 +573,83 @@ class TestCLISubcloudManagerV1(base.BaseCommandTest):
 
     @mock.patch("getpass.getpass", return_value="testpassword")
     @mock.patch.object(subcloud_cmd, "input", return_value="redeploy")
+    def test_redeploy_subcloud_bmc_password_without_install_values(
+        self, _mock_input, _mock_getpass
+    ):
+        """Test --bmc-password is sent even without --install-values."""
+        self.client.subcloud_manager.redeploy_subcloud.return_value = [
+            self.subcloud_resource
+        ]
+        self.call(
+            subcloud_cmd.RedeploySubcloud,
+            app_args=[base.ID, "--bmc-password", "admin"],
+        )
+        call_kwargs = self.client.subcloud_manager.redeploy_subcloud.call_args[1]
+        self.assertIn("bmc_password", call_kwargs["data"])
+
+    @mock.patch("getpass.getpass", return_value="prompted_bmc_pass")
+    @mock.patch.object(subcloud_cmd, "input", return_value="redeploy")
+    def test_redeploy_subcloud_install_values_without_bmc_password(
+        self, _mock_input, _mock_getpass
+    ):
+        """Test user is prompted for bmc_password when --install-values
+        is provided without --bmc-password.
+        """
+        self.client.subcloud_manager.redeploy_subcloud.return_value = [
+            self.subcloud_resource
+        ]
+        with tempfile.NamedTemporaryFile(mode="w") as install_file:
+            install_file_path = os.path.abspath(install_file.name)
+            self.call(
+                subcloud_cmd.RedeploySubcloud,
+                app_args=[base.ID, "--install-values", install_file_path],
+            )
+        call_kwargs = self.client.subcloud_manager.redeploy_subcloud.call_args[1]
+        self.assertIn("bmc_password", call_kwargs["data"])
+
+    @mock.patch("getpass.getpass", return_value="testpassword")
+    @mock.patch.object(subcloud_cmd, "input", return_value="redeploy")
+    def test_redeploy_subcloud_bmc_password_with_install_values(
+        self, _mock_input, _mock_getpass
+    ):
+        """Test --bmc-password is sent when both --bmc-password and
+        --install-values are provided (no prompt).
+        """
+        self.client.subcloud_manager.redeploy_subcloud.return_value = [
+            self.subcloud_resource
+        ]
+        with tempfile.NamedTemporaryFile(mode="w") as install_file:
+            install_file_path = os.path.abspath(install_file.name)
+            self.call(
+                subcloud_cmd.RedeploySubcloud,
+                app_args=[
+                    base.ID,
+                    "--bmc-password",
+                    "admin",
+                    "--install-values",
+                    install_file_path,
+                ],
+            )
+        call_kwargs = self.client.subcloud_manager.redeploy_subcloud.call_args[1]
+        self.assertIn("bmc_password", call_kwargs["data"])
+
+    @mock.patch("getpass.getpass", return_value="testpassword")
+    @mock.patch.object(subcloud_cmd, "input", return_value="redeploy")
+    def test_redeploy_subcloud_neither_bmc_password_nor_install_values(
+        self, _mock_input, _mock_getpass
+    ):
+        """Test bmc_password is NOT sent when neither --bmc-password nor
+        --install-values are provided.
+        """
+        self.client.subcloud_manager.redeploy_subcloud.return_value = [
+            self.subcloud_resource
+        ]
+        self.call(subcloud_cmd.RedeploySubcloud, app_args=[base.ID])
+        call_kwargs = self.client.subcloud_manager.redeploy_subcloud.call_args[1]
+        self.assertNotIn("bmc_password", call_kwargs["data"])
+
+    @mock.patch("getpass.getpass", return_value="testpassword")
+    @mock.patch.object(subcloud_cmd, "input", return_value="redeploy")
     def test_redeploy_bootstrap_files_does_not_exists(self, _mock_input, _mock_getpass):
         self.client.subcloud_manager.redeploy_subcloud.return_value = [
             self.subcloud_resource

@@ -914,14 +914,13 @@ class RedeploySubcloud(base.DCManagerShowOne):
             password = utils.prompt_for_password()
             data["sysadmin_password"] = base64.b64encode(password.encode("utf-8"))
 
-        if parsed_args.install_values:
-            if parsed_args.bmc_password:
-                data["bmc_password"] = base64.b64encode(
-                    parsed_args.bmc_password.encode("utf-8")
-                )
-            else:
-                password = utils.prompt_for_password("bmc")
-                data["bmc_password"] = base64.b64encode(password.encode("utf-8"))
+        if parsed_args.bmc_password:
+            data["bmc_password"] = base64.b64encode(
+                parsed_args.bmc_password.encode("utf-8")
+            )
+        elif parsed_args.install_values:
+            password = utils.prompt_for_password("bmc")
+            data["bmc_password"] = base64.b64encode(password.encode("utf-8"))
 
         if parsed_args.release is not None:
             data["release"] = parsed_args.release
