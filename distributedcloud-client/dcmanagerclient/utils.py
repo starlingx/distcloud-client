@@ -1,7 +1,7 @@
 # Copyright 2016 - Ericsson AB
 # Copyright 2015 - Huawei Technologies Co. Ltd
 # Copyright 2015 - StackStorm, Inc.
-# Copyright (c) 2017-2025 Wind River Systems, Inc.
+# Copyright (c) 2017-2026 Wind River Systems, Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -383,3 +383,23 @@ def revoke_keyring_by_id(key_id: str):
         ).stdout
     except Exception as exc:
         LOG.debug(exc)
+
+
+def print_deprecation_notice(parameter: str, msg: str = None):
+    """Prints a deprecation notice an option or parameter.
+
+    :param parameter: Name of the deprecated parameter
+    :param msg: Message to be displayed in the deprecation notice
+    """
+    default_msg = (
+        f"The '{parameter}' parameter is deprecated and "
+        "will be removed in a future release"
+    )
+    msg = msg if msg else default_msg
+    print(
+        f"""
+    ### DEPRECATION NOTICE: {parameter} ###
+
+    {msg}
+    """
+    )

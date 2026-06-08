@@ -1,8 +1,10 @@
 #
-# Copyright (c) 2024-2025 Wind River Systems, Inc.
+# Copyright (c) 2024-2026 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
+
+import mock
 
 from dcmanagerclient.exceptions import DCManagerClientException
 from dcmanagerclient.commands.v1 import sw_deploy_manager as cli_cmd
@@ -18,8 +20,9 @@ class TestSwDeployStrategy(UpdateStrategyMixin, base.BaseCommandTest):
         super().setUp()
 
         # Increase results_length due to extra_args fields.
-        # This includes delete_option, release_id, rollback, snapshot and with_prestage
-        self.results_length += 5
+        # This includes release_id, snapshot, rollback, delete_option,
+        # with_prestage and kube_upgrade
+        self.results_length += 6
 
         self.sw_update_manager = self.app.client_manager.sw_deploy_manager
         self.create_command = cli_cmd.CreateSwDeployStrategy
@@ -33,8 +36,9 @@ class TestSwDeployStrategy(UpdateStrategyMixin, base.BaseCommandTest):
         release_id=None,
         snapshot=False,
         rollback=False,
-        with_delete=False,
-        delete_only=False,
+        delete=False,
+        cleanup=False,
+        kube_upgrade=None,
     ):
         """Base method to create a software deploy strategy."""
         # Prepare mixin attributes
@@ -48,8 +52,9 @@ class TestSwDeployStrategy(UpdateStrategyMixin, base.BaseCommandTest):
                 "release_id": release_id,
                 "snapshot": snapshot,
                 "rollback": rollback,
-                "with_delete": with_delete,
-                "delete_only": delete_only,
+                "delete": delete,
+                "cleanup": cleanup,
+                "kube_upgrade": kube_upgrade or "",
             },
         )
 
@@ -65,10 +70,12 @@ class TestSwDeployStrategy(UpdateStrategyMixin, base.BaseCommandTest):
             values.append("--snapshot")
         if rollback:
             values.append("--rollback")
-        if with_delete:
-            values.append("--with-delete")
-        if delete_only:
-            values.append("--delete-only")
+        if delete:
+            values.append("--delete")
+        if cleanup:
+            values.append("--cleanup")
+        if kube_upgrade:
+            values.extend(["--kube-upgrade", kube_upgrade])
         fields, results = self.call(self.create_command, values)
 
         # Results is a tuple of expected length
@@ -81,8 +88,8 @@ class TestSwDeployStrategy(UpdateStrategyMixin, base.BaseCommandTest):
         # - release_id
         # - snapshot
         # - rollback
-        # - with_delete
-        # - delete_only
+        # - delete
+        # - cleanup
         # - state
         # - created_at
         # - updated_at
@@ -97,8 +104,10 @@ class TestSwDeployStrategy(UpdateStrategyMixin, base.BaseCommandTest):
         self.assertEqual(call_kwargs.get("release_id"), release_id)
         self.assertEqual(call_kwargs.get("snapshot", False), snapshot)
         self.assertEqual(call_kwargs.get("rollback", False), rollback)
-        self.assertEqual(call_kwargs.get("with_delete", False), with_delete)
-        self.assertEqual(call_kwargs.get("delete_only", False), delete_only)
+        self.assertEqual(call_kwargs.get("delete", False), delete)
+        self.assertEqual(call_kwargs.get("cleanup", False), cleanup)
+        if kube_upgrade:
+            self.assertEqual(call_kwargs.get("kube_upgrade"), kube_upgrade)
 
     def base_create_strategy_failure(
         self,
@@ -106,9 +115,11 @@ class TestSwDeployStrategy(UpdateStrategyMixin, base.BaseCommandTest):
         release_id=None,
         snapshot=False,
         rollback=False,
-        with_delete=False,
-        delete_only=False,
+        delete=False,
         sysadmin_password=None,
+        kube_upgrade=None,
+        cleanup=False,
+        with_prestage=False,
     ):
         """Base method to test failure in creating a software deploy strategy."""
 
@@ -125,12 +136,16 @@ class TestSwDeployStrategy(UpdateStrategyMixin, base.BaseCommandTest):
             values.append("--snapshot")
         if rollback:
             values.append("--rollback")
-        if with_delete:
-            values.append("--with-delete")
-        if delete_only:
-            values.append("--delete-only")
+        if delete:
+            values.append("--delete")
+        if cleanup:
+            values.append("--cleanup")
+        if with_prestage:
+            values.append("--with-prestage")
         if sysadmin_password:
             values.extend(["--sysadmin-password", sysadmin_password])
+        if kube_upgrade:
+            values.extend(["--kube-upgrade", kube_upgrade])
 
         # invoke the backend method for the CLI.
         # Returns a tuple of field descriptions, and a second tuple of values
@@ -147,18 +162,18 @@ class TestSwDeployStrategy(UpdateStrategyMixin, base.BaseCommandTest):
         """Test deploy strategy created with snapshot enabled"""
         self.base_create_strategy_successful(release_id=RELEASE_ID, snapshot=True)
 
-    def test_create_strategy_with_delete(self):
+    def test_create_strategy_delete(self):
         """Test deploy strategy created with delete enabled"""
-        self.base_create_strategy_successful(release_id=RELEASE_ID, with_delete=True)
+        self.base_create_strategy_successful(release_id=RELEASE_ID, delete=True)
 
-    def test_create_strategy_with_delete_only(self):
-        """Test deploy strategy created with delete_only enabled"""
-        self.base_create_strategy_successful(delete_only=True)
+    def test_create_strategy_cleanup(self):
+        """Test deploy strategy created with cleanup enabled"""
+        self.base_create_strategy_successful(cleanup=True)
 
-    def test_create_strategy_with_snapshot_and_with_delete(self):
-        """Test deploy strategy created with snapshot and with_delete enabled"""
+    def test_create_strategy_with_snapshot_and_delete(self):
+        """Test deploy strategy created with snapshot and delete enabled"""
         self.base_create_strategy_successful(
-            release_id=RELEASE_ID, snapshot=True, with_delete=True
+            release_id=RELEASE_ID, snapshot=True, delete=True
         )
 
     def test_create_strategy_with_rollback(self):
@@ -178,13 +193,13 @@ class TestSwDeployStrategy(UpdateStrategyMixin, base.BaseCommandTest):
             rollback=True,
         )
 
-    def test_create_strategy_with_snapshot_and_delete_only(self):
-        """Test deploy strategy cannot created with snapshot and delete_only"""
+    def test_create_strategy_with_snapshot_and_cleanup(self):
+        """Test deploy strategy cannot created with snapshot and cleanup"""
         self.base_create_strategy_failure(
             self.create_command.SNAPSHOT_ERROR_MSG,
             release_id=RELEASE_ID,
             snapshot=True,
-            delete_only=True,
+            cleanup=True,
         )
 
     def test_create_strategy_with_rollback_and_release_id(self):
@@ -203,31 +218,194 @@ class TestSwDeployStrategy(UpdateStrategyMixin, base.BaseCommandTest):
             sysadmin_password="XXXX",
         )
 
-    def test_create_strategy_with_rollback_and_with_delete(self):
-        """Test deploy strategy cannot created with rollback and with_delete"""
+    def test_create_strategy_with_rollback_and_delete(self):
+        """Test deploy strategy cannot created with rollback and delete"""
         self.base_create_strategy_failure(
-            self.create_command.WITH_DELETE_ERROR_MSG, rollback=True, with_delete=True
+            self.create_command.DELETE_ERROR_MSG, rollback=True, delete=True
         )
 
-    def test_create_strategy_with_rollback_and_delete_only(self):
-        """Test deploy strategy cannot created with rollback and delete_only"""
+    def test_create_strategy_with_rollback_and_cleanup(self):
+        """Test deploy strategy cannot created with rollback and cleanup"""
         self.base_create_strategy_failure(
-            self.create_command.ROLLBACK_ERROR_MSG, rollback=True, delete_only=True
+            self.create_command.ROLLBACK_ERROR_MSG, rollback=True, cleanup=True
         )
 
-    def test_create_strategy_with_with_delete_and_delete_only(self):
-        """Test deploy strategy cannot created with with_delete and delete_only"""
+    def test_create_strategy_with_delete_and_cleanup(self):
+        """Test deploy strategy cannot created with delete and cleanup"""
         self.base_create_strategy_failure(
-            self.create_command.WITH_DELETE_ERROR_MSG,
+            self.create_command.DELETE_ERROR_MSG,
             release_id=RELEASE_ID,
-            with_delete=True,
-            delete_only=True,
+            delete=True,
+            cleanup=True,
         )
 
-    def test_create_strategy_with_delete_only_and_release_id(self):
-        """Test deploy strategy cannot created with delete_only and release_id"""
+    def test_create_strategy_with_cleanup_and_release_id(self):
+        """Test deploy strategy cannot created with cleanup and release_id"""
         self.base_create_strategy_failure(
-            self.create_command.DELETE_ONLY_ERROR_MSG,
+            self.create_command.CLEANUP_ERROR_MSG,
             release_id=RELEASE_ID,
-            delete_only=True,
+            cleanup=True,
+        )
+
+    def test_create_strategy_with_kube_upgrade(self):
+        """Test deploy strategy created with kube_upgrade"""
+        self.base_create_strategy_successful(
+            release_id=RELEASE_ID, kube_upgrade="v1.28.4"
+        )
+
+    def test_create_strategy_with_kube_upgrade_and_delete(self):
+        """Test deploy strategy created with kube_upgrade and delete"""
+        self.base_create_strategy_successful(
+            release_id=RELEASE_ID, kube_upgrade="v1.28.4", delete=True
+        )
+
+    def test_create_strategy_with_kube_upgrade_and_rollback(self):
+        """Test deploy strategy cannot be created with kube_upgrade and rollback"""
+        self.base_create_strategy_failure(
+            self.create_command.ROLLBACK_ERROR_MSG,
+            rollback=True,
+            kube_upgrade="v1.28.4",
+        )
+
+    def test_create_strategy_with_kube_upgrade_and_cleanup(self):
+        """Test deploy strategy cannot be created with kube_upgrade and cleanup"""
+        self.base_create_strategy_failure(
+            self.create_command.CLEANUP_ERROR_MSG,
+            cleanup=True,
+            kube_upgrade="v1.28.4",
+        )
+
+    def test_create_strategy_with_rollback_and_with_prestage(self):
+        """Test deploy strategy cannot be created with rollback and with_prestage"""
+        self.base_create_strategy_failure(
+            self.create_command.ROLLBACK_ERROR_MSG,
+            rollback=True,
+            with_prestage=True,
+            sysadmin_password="XXXX",
+        )
+
+    def test_create_strategy_with_cleanup_and_with_prestage(self):
+        """Test deploy strategy cannot be created with cleanup and with_prestage"""
+        self.base_create_strategy_failure(
+            self.create_command.CLEANUP_ERROR_MSG,
+            cleanup=True,
+            with_prestage=True,
+            sysadmin_password="XXXX",
+        )
+
+    def test_show_strategy_with_legacy_with_delete(self):
+        """Test show maps legacy with_delete extra_arg to delete_option='delete'"""
+        manager_to_test = self.sw_update_manager
+        strategy = utils.make_strategy(
+            strategy_type=manager_to_test.update_type,
+            extra_args={
+                "release_id": RELEASE_ID,
+                "snapshot": False,
+                "rollback": False,
+                "with_delete": True,
+                "with_prestage": False,
+                "kube_upgrade": "",
+            },
+        )
+        manager_to_test.update_sw_strategy_detail.return_value = strategy
+
+        fields, results = self.call(self.show_command)
+        delete_option_index = fields.index("delete_option")
+        self.assertEqual(results[delete_option_index], "delete")
+
+    def test_show_strategy_with_legacy_delete_only(self):
+        """Test show maps legacy delete_only extra_arg to delete_option='cleanup'"""
+        manager_to_test = self.sw_update_manager
+        strategy = utils.make_strategy(
+            strategy_type=manager_to_test.update_type,
+            extra_args={
+                "release_id": None,
+                "snapshot": False,
+                "rollback": False,
+                "delete_only": True,
+                "with_prestage": False,
+                "kube_upgrade": "",
+            },
+        )
+        manager_to_test.update_sw_strategy_detail.return_value = strategy
+
+        fields, results = self.call(self.show_command)
+        delete_option_index = fields.index("delete_option")
+        self.assertEqual(results[delete_option_index], "cleanup")
+
+    def test_show_strategy_with_kube_upgrade(self):
+        """Test show displays kube_upgrade field correctly"""
+        manager_to_test = self.sw_update_manager
+        strategy = utils.make_strategy(
+            strategy_type=manager_to_test.update_type,
+            extra_args={
+                "release_id": RELEASE_ID,
+                "snapshot": False,
+                "rollback": False,
+                "delete": False,
+                "with_prestage": False,
+                "kube_upgrade": "v1.28.4",
+            },
+        )
+        manager_to_test.update_sw_strategy_detail.return_value = strategy
+
+        fields, results = self.call(self.show_command)
+        kube_upgrade_index = fields.index("kube_upgrade")
+        self.assertEqual(results[kube_upgrade_index], "v1.28.4")
+
+    @mock.patch("dcmanagerclient.utils.print_deprecation_notice")
+    def test_create_strategy_with_deprecated_with_delete(self, mock_deprecation):
+        """Test --with-delete maps to --delete and prints deprecation notice"""
+        manager_to_test = self.sw_update_manager
+        expected_strategy_type = manager_to_test.update_type
+
+        strategy = utils.make_strategy(
+            strategy_type=expected_strategy_type,
+            extra_args={
+                "release_id": RELEASE_ID,
+                "snapshot": False,
+                "rollback": False,
+                "delete": True,
+                "cleanup": False,
+                "kube_upgrade": "",
+            },
+        )
+        manager_to_test.create_sw_update_strategy.return_value = strategy
+
+        self.call(
+            self.create_command,
+            ["subcloud1", "--release-id", RELEASE_ID, "--with-delete"],
+        )
+
+        call_kwargs = manager_to_test.create_sw_update_strategy.call_args[1]
+        self.assertTrue(call_kwargs.get("delete"))
+        mock_deprecation.assert_any_call(
+            "--with-delete", self.create_command.WITH_DELETE_DEPRECATION_MSG
+        )
+
+    @mock.patch("dcmanagerclient.utils.print_deprecation_notice")
+    def test_create_strategy_with_deprecated_delete_only(self, mock_deprecation):
+        """Test --delete-only maps to --cleanup and prints deprecation notice"""
+        manager_to_test = self.sw_update_manager
+        expected_strategy_type = manager_to_test.update_type
+
+        strategy = utils.make_strategy(
+            strategy_type=expected_strategy_type,
+            extra_args={
+                "release_id": None,
+                "snapshot": False,
+                "rollback": False,
+                "delete": False,
+                "cleanup": True,
+                "kube_upgrade": "",
+            },
+        )
+        manager_to_test.create_sw_update_strategy.return_value = strategy
+
+        self.call(self.create_command, ["subcloud1", "--delete-only"])
+
+        call_kwargs = manager_to_test.create_sw_update_strategy.call_args[1]
+        self.assertTrue(call_kwargs.get("cleanup"))
+        mock_deprecation.assert_any_call(
+            "--delete-only", self.create_command.DELETE_ONLY_DEPRECATION_MSG
         )

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2024-2025 Wind River Systems, Inc.
+# Copyright (c) 2024-2026 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -15,12 +15,13 @@ class SwDeployManager(SwUpdateManager):
             http_client,
             update_type=SW_UPDATE_TYPE_USM,
             extra_args=[
-                "delete_only",
+                "cleanup",
+                "delete",
+                "kube_upgrade",
                 "release_id",
                 "rollback",
                 "snapshot",
                 "sysadmin_password",
-                "with_delete",
                 "with_prestage",
             ],
         )

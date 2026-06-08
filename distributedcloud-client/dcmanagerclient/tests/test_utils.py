@@ -1,5 +1,5 @@
 # Copyright 2015 - StackStorm, Inc.
-# Copyright (c) 2017, 2019, 2021, 2024-2025 Wind River Systems, Inc.
+# Copyright (c) 2017, 2019, 2021, 2024-2026 Wind River Systems, Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import os
 import tarfile
 import tempfile
 
+import mock
 import testtools
 import yaml
 
@@ -72,3 +73,29 @@ class UtilityTest(testtools.TestCase):
                 utils.validate_cloud_init_config(f.name)
             finally:
                 os.unlink(f.name)
+
+    @mock.patch("builtins.print")
+    def test_print_deprecation_notice_custom_msg(self, mock_print):
+        custom_msg = "Use --delete instead."
+        utils.print_deprecation_notice("--with-delete", custom_msg)
+        expected = (
+            "\n"
+            "    ### DEPRECATION NOTICE: --with-delete ###\n"
+            "\n"
+            "    Use --delete instead.\n"
+            "    "
+        )
+        mock_print.assert_called_once_with(expected)
+
+    @mock.patch("builtins.print")
+    def test_print_deprecation_notice_default_msg(self, mock_print):
+        utils.print_deprecation_notice("--old-param")
+        expected = (
+            "\n"
+            "    ### DEPRECATION NOTICE: --old-param ###\n"
+            "\n"
+            "    The '--old-param' parameter is deprecated and "
+            "will be removed in a future release\n"
+            "    "
+        )
+        mock_print.assert_called_once_with(expected)
