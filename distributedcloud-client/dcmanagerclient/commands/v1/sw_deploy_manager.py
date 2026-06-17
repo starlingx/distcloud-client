@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2024-2025 Wind River Systems, Inc.
+# Copyright (c) 2024-2026 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -26,16 +26,22 @@ class SwDeployManagerMixin:
         rollback = False
         delete_option = None
         with_prestage = None
+        kube_upgrade = None
         if sw_update_strategy and sw_update_strategy.extra_args:
             release_id = sw_update_strategy.extra_args.get("release_id")
             snapshot = sw_update_strategy.extra_args.get("snapshot")
             rollback = sw_update_strategy.extra_args.get("rollback")
+            kube_upgrade = sw_update_strategy.extra_args.get("kube_upgrade", "")
             if sw_update_strategy.extra_args.get("with_prestage"):
                 with_prestage = "with_prestage"
-            if sw_update_strategy.extra_args.get("with_delete"):
-                delete_option = "with_delete"
+            if sw_update_strategy.extra_args.get("delete"):
+                delete_option = "delete"
+            elif sw_update_strategy.extra_args.get("with_delete"):
+                delete_option = "delete"
+            elif sw_update_strategy.extra_args.get("cleanup"):
+                delete_option = "cleanup"
             elif sw_update_strategy.extra_args.get("delete_only"):
-                delete_option = "delete_only"
+                delete_option = "cleanup"
 
         extra_columns = (
             "release_id",
@@ -43,8 +49,16 @@ class SwDeployManagerMixin:
             "rollback",
             "delete_option",
             "with_prestage",
+            "kube_upgrade",
         )
-        extra_data = (release_id, snapshot, rollback, delete_option, with_prestage)
+        extra_data = (
+            release_id,
+            snapshot,
+            rollback,
+            delete_option,
+            with_prestage,
+            kube_upgrade,
+        )
 
         # Find the index of 'stop on failure' in the tuple
         failure_status_index = columns.index("stop on failure")
@@ -78,22 +92,32 @@ class CreateSwDeployStrategy(
 
     SNAPSHOT_ERROR_MSG = (
         "Option --snapshot cannot be used with any of the following options: "
-        "--rollback or --delete-only."
+        "--rollback or --cleanup."
     )
 
-    WITH_DELETE_ERROR_MSG = (
-        "Option --with-delete cannot be used with any of the following options: "
-        "--rollback or --delete-only."
+    DELETE_ERROR_MSG = (
+        "Option --delete cannot be used with any of the following options: "
+        "--rollback or --cleanup."
     )
 
     ROLLBACK_ERROR_MSG = (
         "Option --rollback cannot be used with any of the following options: "
-        "--release-id, --delete-only or --with-prestage."
+        "--release-id, --cleanup, --with-prestage or --kube-upgrade."
     )
 
-    DELETE_ONLY_ERROR_MSG = (
-        "Option --delete-only cannot be used with any of the following options: "
-        "--release-id or --with-prestage."
+    CLEANUP_ERROR_MSG = (
+        "Option --cleanup cannot be used with any of the following options: "
+        "--release-id, --with-prestage or --kube-upgrade."
+    )
+
+    WITH_DELETE_DEPRECATION_MSG = (
+        "This option is deprecated and will be removed in a future release. "
+        "Please use --delete instead."
+    )
+
+    DELETE_ONLY_DEPRECATION_MSG = (
+        "This option is deprecated and will be removed in a future release. "
+        "Please use --cleanup instead."
     )
 
     def get_parser(self, prog_name):
@@ -123,16 +147,33 @@ class CreateSwDeployStrategy(
             "--with-delete",
             required=False,
             action="store_true",
-            help="Deletes the software deployment after the strategy apply",
+            help=("DEPRECATED: Same as --delete"),
+        )
+
+        self.add_argument(
+            "--delete",
+            required=False,
+            action="store_true",
+            help=(
+                "Deletes the software deployment and finish kube upgrade "
+                "(when applicable) after the strategy apply"
+            ),
         )
 
         self.add_argument(
             "--delete-only",
             required=False,
             action="store_true",
+            help=("DEPRECATED: Same as --cleanup"),
+        )
+
+        self.add_argument(
+            "--cleanup",
+            required=False,
+            action="store_true",
             help=(
-                "Deletes the software deployment without "
-                "applying the subcloud strategy"
+                "Delete the deployment and finish the kube upgrade (when applicable) "
+                "if the strategy was applied without --delete"
             ),
         )
 
@@ -155,6 +196,15 @@ class CreateSwDeployStrategy(
             ),
         )
 
+        self.add_argument(
+            "--kube-upgrade",
+            required=False,
+            help=(
+                "Target kubernetes version for a combined software deployment "
+                "and kubernetes upgrade"
+            ),
+        )
+
         return parser
 
     def process_custom_params(self, parsed_args, kwargs_dict):
@@ -162,28 +212,44 @@ class CreateSwDeployStrategy(
         release_id = parsed_args.release_id
         snapshot = parsed_args.snapshot
         rollback = parsed_args.rollback
-        with_delete = parsed_args.with_delete
-        delete_only = parsed_args.delete_only
+        delete_flag = parsed_args.delete
+        cleanup = parsed_args.cleanup
         with_prestage = parsed_args.with_prestage
         sysadmin_password = parsed_args.sysadmin_password
+        kube_upgrade = parsed_args.kube_upgrade
+
+        # --with-delete and --delete-only are deprecated, but still accepted
+        with_delete = parsed_args.with_delete
+        delete_only = parsed_args.delete_only
+        delete_flag = delete_flag or with_delete
+        cleanup = cleanup or delete_only
+
+        if with_delete:
+            utils.print_deprecation_notice(
+                "--with-delete", self.WITH_DELETE_DEPRECATION_MSG
+            )
+        if delete_only:
+            utils.print_deprecation_notice(
+                "--delete-only", self.DELETE_ONLY_DEPRECATION_MSG
+            )
 
         if sysadmin_password and not with_prestage:
             raise exceptions.DCManagerClientException(self.WITH_PRESTAGE_ERROR_MSG)
 
-        if not release_id and not (rollback or delete_only):
+        if not release_id and not (rollback or cleanup):
             raise exceptions.DCManagerClientException(self.RELEASE_ID_ERROR_MSG)
 
-        if snapshot and (rollback or delete_only):
+        if snapshot and (rollback or cleanup):
             raise exceptions.DCManagerClientException(self.SNAPSHOT_ERROR_MSG)
 
-        if with_delete and (rollback or delete_only):
-            raise exceptions.DCManagerClientException(self.WITH_DELETE_ERROR_MSG)
+        if delete_flag and (rollback or cleanup):
+            raise exceptions.DCManagerClientException(self.DELETE_ERROR_MSG)
 
-        if rollback and (release_id or delete_only or with_prestage):
+        if rollback and (release_id or cleanup or with_prestage or kube_upgrade):
             raise exceptions.DCManagerClientException(self.ROLLBACK_ERROR_MSG)
 
-        if delete_only and (release_id or with_prestage):
-            raise exceptions.DCManagerClientException(self.DELETE_ONLY_ERROR_MSG)
+        if cleanup and (release_id or with_prestage or kube_upgrade):
+            raise exceptions.DCManagerClientException(self.CLEANUP_ERROR_MSG)
 
         if release_id:
             kwargs_dict["release_id"] = release_id
@@ -205,9 +271,10 @@ class CreateSwDeployStrategy(
 
         kwargs_dict["snapshot"] = snapshot
         kwargs_dict["rollback"] = rollback
-        kwargs_dict["with_delete"] = with_delete
-        kwargs_dict["delete_only"] = delete_only
+        kwargs_dict["delete"] = delete_flag
+        kwargs_dict["cleanup"] = cleanup
         kwargs_dict["with_prestage"] = with_prestage
+        kwargs_dict["kube_upgrade"] = kube_upgrade
 
 
 class ShowSwDeployStrategy(
