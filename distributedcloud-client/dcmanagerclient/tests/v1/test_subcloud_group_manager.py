@@ -20,7 +20,9 @@ import mock
 from oslo_utils import timeutils
 
 from dcmanagerclient.api.v1 import subcloud_group_manager as zm
-from dcmanagerclient.commands.v1 import subcloud_group_manager as subcloud_group_cmd
+from dcmanagerclient.commands.v1 import (
+    subcloud_group_manager as subcloud_group_cmd,
+)
 from dcmanagerclient.tests import base
 
 ID = "2"
@@ -28,6 +30,7 @@ NAME = "GroupX"
 DESCRIPTION = "Custom subcloud group"
 APPLY_TYPE = "parallel"
 MAX_PARALLEL_SUBCLOUDS = 3
+SUBCLOUD_COUNT = 2
 TIME_NOW = timeutils.utcnow().isoformat()
 NEW_DESCRIPTION = "Slightly different subcloud group"
 
@@ -39,6 +42,7 @@ SUBCLOUD_GROUP_DICT = {
     "MAX_PARALLEL_SUBCLOUDS": MAX_PARALLEL_SUBCLOUDS,
     "CREATED_AT": TIME_NOW,
     "UPDATED_AT": TIME_NOW,
+    "SUBCLOUD_COUNT": SUBCLOUD_COUNT,
 }
 
 SUBCLOUD_GROUP = zm.SubcloudGroup(
@@ -50,6 +54,7 @@ SUBCLOUD_GROUP = zm.SubcloudGroup(
     max_parallel_subclouds=SUBCLOUD_GROUP_DICT["MAX_PARALLEL_SUBCLOUDS"],
     created_at=SUBCLOUD_GROUP_DICT["CREATED_AT"],
     updated_at=SUBCLOUD_GROUP_DICT["UPDATED_AT"],
+    subcloud_count=SUBCLOUD_GROUP_DICT["SUBCLOUD_COUNT"],
 )
 
 
@@ -62,12 +67,12 @@ class TestCLISubcloudGroupManagerV1(base.BaseCommandTest):
     def test_list_subcloud_groups(self):
         self.client.list_subcloud_groups.return_value = [SUBCLOUD_GROUP]
         actual_call = self.call(subcloud_group_cmd.ListSubcloudGroup)
-        self.assertEqual([(ID, NAME, DESCRIPTION)], actual_call[1])
+        self.assertEqual([(ID, NAME, DESCRIPTION, SUBCLOUD_COUNT)], actual_call[1])
 
     def test_list_subcloud_groups_empty(self):
         self.client.list_subcloud_groups.return_value = []
         actual_call = self.call(subcloud_group_cmd.ListSubcloudGroup)
-        self.assertEqual((("<none>", "<none>", "<none>"),), actual_call[1])
+        self.assertEqual((("<none>", "<none>", "<none>", "<none>"),), actual_call[1])
 
     def test_list_subcloud_group_subclouds(self):
         self.client.subcloud_group_list_subclouds.return_value = [
@@ -151,7 +156,11 @@ class TestCLISubcloudGroupManagerV1(base.BaseCommandTest):
         self.client.update_subcloud_group.return_value = [updated_subloud]
         actual_call = self.call(
             subcloud_group_cmd.UpdateSubcloudGroup,
-            app_args=[SUBCLOUD_GROUP.group_id, "--description", NEW_DESCRIPTION],
+            app_args=[
+                SUBCLOUD_GROUP.group_id,
+                "--description",
+                NEW_DESCRIPTION,
+            ],
         )
         self.assertEqual(
             (

@@ -30,6 +30,7 @@ def group_format(subcloud_group=None):
         "id",
         "name",
         "description",
+        "subcloud count",
     )
 
     if subcloud_group:
@@ -37,6 +38,7 @@ def group_format(subcloud_group=None):
             subcloud_group.group_id,
             subcloud_group.name,
             subcloud_group.description,
+            subcloud_group.subcloud_count,
         )
 
     else:
@@ -224,7 +226,9 @@ class UpdateSubcloudGroup(base.DCManagerShowOne):
         self.add_argument("--name", required=False, help="Name of subcloud group.")
 
         self.add_argument(
-            "--description", required=False, help="Description of subcloud group."
+            "--description",
+            required=False,
+            help="Description of subcloud group.",
         )
 
         self.add_argument(

@@ -34,6 +34,7 @@ class SubcloudGroup(base.Resource):
         max_parallel_subclouds,
         created_at,
         updated_at,
+        subcloud_count=None,
     ):
         self.manager = manager
         self.group_id = group_id
@@ -43,6 +44,7 @@ class SubcloudGroup(base.Resource):
         self.max_parallel_subclouds = max_parallel_subclouds
         self.created_at = created_at
         self.updated_at = updated_at
+        self.subcloud_count = subcloud_count
 
 
 class SubcloudGroupManager(base.ResourceManager):
@@ -62,6 +64,7 @@ class SubcloudGroupManager(base.ResourceManager):
             max_parallel_subclouds=json_object["max_parallel_subclouds"],
             created_at=json_object["created-at"],
             updated_at=json_object["updated-at"],
+            subcloud_count=json_object.get("subcloud_count"),
         )
 
     def subcloud_group_create(self, url, data):
