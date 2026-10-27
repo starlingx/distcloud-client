@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2021, 2024-2025 Wind River Systems, Inc.
+# Copyright (c) 2021, 2024-2026 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -19,7 +19,7 @@ class CreateKubeRootcaUpdateStrategy(
 ):
     """Create a kube rootca update strategy.
 
-    This strategy supports: expiry-date and subject
+    This strategy supports: expiry-date, subject, algorithm and key-size
     """
 
     def get_parser(self, prog_name):
@@ -33,6 +33,19 @@ class CreateKubeRootcaUpdateStrategy(
             "--expiry-date",
             required=False,
             help="Expiry date for a generated certificate.",
+        )
+        self.add_argument(
+            "--algorithm",
+            required=False,
+            choices=["ECDSA", "RSA"],
+            help="Key algorithm of the generated root CA certificate.",
+        )
+        self.add_argument(
+            "--key-size",
+            required=False,
+            type=int,
+            help="Key size of the generated root CA (ECDSA 384/521, RSA 4096). "
+            "Requires --algorithm.",
         )
         self.add_argument(
             "--force",
@@ -50,6 +63,10 @@ class CreateKubeRootcaUpdateStrategy(
         # Note the "-" vs "_" when dealing with parsed_args
         if parsed_args.expiry_date:
             kwargs_dict["expiry-date"] = parsed_args.expiry_date
+        if parsed_args.algorithm:
+            kwargs_dict["algorithm"] = parsed_args.algorithm
+        if parsed_args.key_size:
+            kwargs_dict["key-size"] = parsed_args.key_size
         if parsed_args.force:
             kwargs_dict["force"] = "true"
 
